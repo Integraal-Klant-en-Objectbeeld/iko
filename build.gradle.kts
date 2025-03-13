@@ -19,21 +19,21 @@ repositories {
 }
 
 dependencies {
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.3"))
     implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.10.2")) // BOM
 
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.micrometer:micrometer-tracing-bridge-brave")
-    implementation("org.apache.camel.springboot:camel-spring-boot-starter:4.10.2")
+    implementation("org.apache.camel.springboot:camel-spring-boot:4.10.0")
+	implementation("org.apache.camel.springboot:camel-direct-starter:4.10.0")
+	implementation("org.apache.camel.springboot:camel-netty-http-starter:4.10.0")
+    implementation("org.apache.camel.springboot:camel-platform-http-starter:4.10.0")
+	implementation("org.apache.camel:camel-rest-openapi:4.10.0")
+
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.liquibase:liquibase-core")
-
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-    runtimeOnly("org.postgresql:postgresql")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
