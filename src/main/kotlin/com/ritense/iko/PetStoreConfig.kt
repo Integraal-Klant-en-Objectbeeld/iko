@@ -20,6 +20,15 @@ class PetStoreConfig {
     }
 
     @Bean
+    fun haalcentraal(camelContext: CamelContext): Component {
+        val haalcentraal = RestOpenApiComponent(camelContext)
+        haalcentraal.specificationUri = "https://raw.githubusercontent.com/BRP-API/Haal-Centraal-BRP-bevragen/refs/tags/v2.2.1-mock/specificatie/genereervariant/openapi.json"
+        haalcentraal.host = "http://localhost:5010"
+        haalcentraal.produces = "application/json"
+        return haalcentraal
+    }
+
+    @Bean
     fun route(): RouteBuilder {
         return PetStoreRoute()
     }

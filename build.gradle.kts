@@ -22,11 +22,14 @@ dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.3"))
     implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.10.2")) // BOM
 
-    implementation("org.apache.camel.springboot:camel-spring-boot:4.10.0")
-	implementation("org.apache.camel.springboot:camel-direct-starter:4.10.0")
-	implementation("org.apache.camel.springboot:camel-netty-http-starter:4.10.0")
-    implementation("org.apache.camel.springboot:camel-platform-http-starter:4.10.0")
-	implementation("org.apache.camel:camel-rest-openapi:4.10.0")
+    implementation("org.apache.camel.springboot:camel-spring-boot")
+	implementation("org.apache.camel.springboot:camel-direct-starter")
+	implementation("org.apache.camel.springboot:camel-netty-http-starter")
+    implementation("org.apache.camel.springboot:camel-platform-http-starter")
+    implementation("org.apache.camel.springboot:camel-jackson-starter")
+    implementation("org.apache.camel.springboot:camel-jacksonxml-starter")
+    implementation("org.apache.camel.springboot:camel-http-starter")
+	implementation("org.apache.camel:camel-rest-openapi")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
