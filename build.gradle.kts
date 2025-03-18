@@ -23,13 +23,16 @@ dependencies {
     implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.10.2")) // BOM
 
     implementation("org.apache.camel.springboot:camel-spring-boot")
-	implementation("org.apache.camel.springboot:camel-direct-starter")
-	implementation("org.apache.camel.springboot:camel-netty-http-starter")
+    implementation("org.apache.camel.springboot:camel-direct-starter")
+    implementation("org.apache.camel.springboot:camel-netty-http-starter")
     implementation("org.apache.camel.springboot:camel-platform-http-starter")
     implementation("org.apache.camel.springboot:camel-jackson-starter")
     implementation("org.apache.camel.springboot:camel-jacksonxml-starter")
     implementation("org.apache.camel.springboot:camel-http-starter")
-	implementation("org.apache.camel:camel-rest-openapi")
+    implementation("org.apache.camel:camel-rest-openapi")
+
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+    runtimeOnly("org.postgresql:postgresql")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -39,8 +42,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
-
-
 
 tasks.withType<Test> {
     useJUnitPlatform()
