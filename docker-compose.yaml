@@ -1,5 +1,5 @@
 services:
-    iko-postgres:
+    postgres:
         image: 'postgres:latest'
         environment:
             - 'POSTGRES_DB=mydatabase'
@@ -7,7 +7,7 @@ services:
             - 'POSTGRES_USER=myuser'
         ports:
             - '5432'
-    iko-haalcentraal-personen:
+    haalcentraal-personen:
         container_name: iko-haalcentraal-personen
         image: ghcr.io/brp-api/personen-mock:2.2.1
         environment:
@@ -15,19 +15,19 @@ services:
             - ASPNETCORE_URLS=http://+:5010
         ports:
             - "5010:5010"
-    iko-openzaak:
+    openzaak:
         image: openzaak/open-zaak:1.13.0
-        container_name: iko-openzaak
+        container_name: openzaak
         platform: linux/amd64
         environment:
-            - DB_HOST=iko-openzaak-database
+            - DB_HOST=openzaak-database
             - DB_POST=5433
             - SECRET_KEY=veryRestrictedSecretKey
             - DB_USER=openzaak
             - DB_PASSWORD=openzaak
             - DB_NAME=openzaak
-            - CACHE_DEFAULT=openzaak-redis:6379/0
-            - CACHE_AXES=openzaak-redis:6379/0
+            #- CACHE_DEFAULT=openzaak-redis:6379/0
+            #- CACHE_AXES=openzaak-redis:6379/0
             - DEBUG=true
             - ALLOWED_HOSTS=localhost,host.docker.internal,172.17.0.1,openzaak
             - OPENZAAK_SUPERUSER_USERNAME=admin
@@ -38,12 +38,12 @@ services:
         ports:
             - "8001:8000"
         depends_on:
-            - iko-openzaak-database
-            - iko-openzaak-redis
+            - openzaak-database
+            #- openzaak-redis
 
-    iko-openzaak-database:
+    openzaak-database:
         image: postgis/postgis:13-3.1
-        container_name: iko-openzaak-database
+        container_name: openzaak-database
         platform: linux/amd64
         environment:
             - POSTGRES_USER=openzaak
@@ -54,9 +54,9 @@ services:
         volumes:
             - ./imports/open-zaak:/docker-entrypoint-initdb.d
 
-    iko-objecten-api:
+    objecten-api:
         image: maykinmedia/objects-api:2.1.1
-        container_name: iko-objecten-api
+        container_name: objecten-api
         platform: linux/amd64
         ports:
             - "8010:8000"
@@ -69,11 +69,11 @@ services:
             - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
             - TWO_FACTOR_PATCH_ADMIN=False
         depends_on:
-            - iko-objecten-api-database
+            - objecten-api-database
 
-    iko-objecten-api-database:
+    objecten-api-database:
         image: postgis/postgis:13-3.1
-        container_name: iko-objecten-api-database
+        container_name: objecten-api-database
         platform: linux/amd64
         ports:
             - "54321:5432"
@@ -82,9 +82,9 @@ services:
             - POSTGRES_PASSWORD=objects
             - POSTGRES_DB=objects
 
-    iko-objecten-api-import:
+    objecten-api-import:
         image: maykinmedia/objects-api:2.1.1
-        container_name: iko-objects-api-import
+        container_name: objects-api-import
         platform: linux/amd64
         environment: *objects-env
         # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -93,15 +93,15 @@ services:
             - ./imports/objects-api/fixtures:/app/src/objects/fixtures
             - ./imports/objects-api/init:/app/init
         depends_on:
-            - iko-objecten-api
+            - objecten-api
 
-    iko-openzaak-redis:
-        image: redis:6.2.6
-        container_name: iko-openzaak-redis
+    #openzaak-redis:
+    #    image: redis:6.2.6
+    #    container_name: openzaak-redis
 
-    iko-objecttypen-api:
+    objecttypen-api:
         image: maykinmedia/objecttypes-api:2.1.0
-        container_name: iko-objecttypen-api
+        container_name: objecttypen-api
         platform: linux/amd64
         ports:
             - "8011:8000"
@@ -114,11 +114,11 @@ services:
             - TWO_FACTOR_FORCE_OTP_ADMIN=False # this is not available yet in this version
             - TWO_FACTOR_PATCH_ADMIN=False
         depends_on:
-            - iko-objecttypen-api-database
+            - objecttypen-api-database
 
-    iko-objecttypen-api-database:
+    objecttypen-api-database:
         image: postgres:14.1
-        container_name: iko-objecttypen-api-database
+        container_name: objecttypen-api-database
         ports:
             - "54324:5432"
         environment:
@@ -126,9 +126,9 @@ services:
             - POSTGRES_PASSWORD=objecttypes
             - POSTGRES_DB=objecttypes
 
-    iko-objecttypen-api-import:
+    objecttypen-api-import:
         image: maykinmedia/objecttypes-api:2.1.0
-        container_name: iko-objecttypen-api-import
+        container_name: objecttypen-api-import
         platform: linux/amd64
         environment: *objecttypes-env
         command: sh init/init.sh
@@ -136,4 +136,4 @@ services:
             - ./imports/objecttypes-api/fixtures:/app/src/objecttypes/fixtures
             - ./imports/objecttypes-api/init:/app/init
         depends_on:
-            - iko-objecttypen-api
+            - objecttypen-api

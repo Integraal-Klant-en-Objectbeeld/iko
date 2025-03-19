@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class PetStoreConfig {
+class ApplicationConfig {
 
     @Bean
     fun petstore(camelContext: CamelContext): Component {
@@ -26,6 +26,15 @@ class PetStoreConfig {
         haalcentraal.host = "http://localhost:5010"
         haalcentraal.produces = "application/json"
         return haalcentraal
+    }
+
+    @Bean
+    fun objectsApi(camelContext: CamelContext): Component {
+        val objectsApi = RestOpenApiComponent(camelContext)
+        objectsApi.specificationUri = "http://localhost:8010/api/v2/schema/openapi.yaml"
+        objectsApi.host = "http://localhost:8010"
+        objectsApi.produces = "application/json"
+        return objectsApi
     }
 
     @Bean

@@ -2,9 +2,7 @@ package com.ritense.iko
 
 import org.apache.camel.AggregationStrategy
 import org.apache.camel.Exchange
-import org.apache.camel.Expression
 import org.apache.camel.builder.RouteBuilder
-import org.apache.camel.http.base.HttpOperationFailedException
 
 class PetStoreRoute : RouteBuilder() {
     override fun configure() {
@@ -19,17 +17,24 @@ class PetStoreRoute : RouteBuilder() {
 
         // The outputs of all 3 calls are then aggregated into a single list and returned as result.
 
-
         onException(Exception::class.java)
             .to("direct:errorHandle")
 
         from("rest:get:hello")
-            .multicast(AggregationResults())
+            .multicast(ResponseAggregator)
             .parallelProcessing()
             .to("direct:haalcentraal")
             .to("direct:petstore")
             .to("direct:failure")
+            .to("direct:objectsApi")
             .end().marshal().json()
+
+        from("direct:objectsApi")
+            .setHeader("Authorization",constant("Token 182c13e2209161852c53cef53a879f7a2f923430"))
+            .setHeader("uuid", constant("57001413-c035-434e-9d46-090ba24fca8e"))
+            .to("objectsApi:object_read")
+            .unmarshal()
+            .json()
 
         from("direct:failure")
             .setHeader(Exchange.HTTP_METHOD, constant("GET"))
@@ -45,7 +50,6 @@ class PetStoreRoute : RouteBuilder() {
 
         from("direct:errorHandle")
             .setBody(constant("failed!"))
-
 
         from("direct:haalcentraal")
             .setHeader("Accept", constant("application/json"))
@@ -70,15 +74,14 @@ class PetStoreRoute : RouteBuilder() {
     }
 }
 
-class AggregationResults : AggregationStrategy {
-    override fun aggregate(oldExchange: Exchange?, newExchange: Exchange?): Exchange {
+object ResponseAggregator : AggregationStrategy {
+    override fun aggregate(oldExchange: Exchange?, newExchange: Exchange): Exchange {
         if (oldExchange == null) {
-            return newExchange!!
+            return newExchange
         }
-
-        oldExchange.`in`.body = listOf(oldExchange!!.`in`!!.getBody(), newExchange!!.`in`!!.getBody())
-
-        return oldExchange;
+        val oldBody = oldExchange.getIn().body
+        val newBody = newExchange.getIn().body
+        oldExchange.getIn().body = listOf(oldBody, newBody)
+        return oldExchange
     }
-
 }
