@@ -1,7 +1,7 @@
 package com.ritense.iko
 
 import com.ritense.iko.route.ErrorHandlingRoute
-import com.ritense.iko.route.HaalcentraalRoute
+import com.ritense.iko.route.HaalCentraalRoute
 import com.ritense.iko.route.MainRoute
 import com.ritense.iko.route.ObjectsApiRoute
 import com.ritense.iko.route.OpenZaakRoute
@@ -49,7 +49,7 @@ class ApplicationConfig {
     fun errorHandlingRoute() = ErrorHandlingRoute()
 
     @Bean
-    fun haalcentraalRoute() = HaalcentraalRoute()
+    fun haalcentraalRoute() = HaalCentraalRoute()
 
     @Bean
     fun objectsApiRoute() = ObjectsApiRoute()

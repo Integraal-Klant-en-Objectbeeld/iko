@@ -4,7 +4,7 @@ import com.ritense.iko.processor.HaalcentraalResponseProcessor
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 
-class HaalcentraalRoute : RouteBuilder() {
+class HaalCentraalRoute : RouteBuilder() {
     override fun configure() {
         from("direct:haalcentraal")
             .setHeader("Accept", constant("application/json"))

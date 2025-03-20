@@ -18,6 +18,7 @@ class MainRoute : RouteBuilder() {
             .to("direct:objectsApi")
             .to("direct:openZaak")
             .end()
-            .marshal().json()
+            .marshal()
+            .json()
     }
 }
