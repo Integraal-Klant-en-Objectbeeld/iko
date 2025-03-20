@@ -71,7 +71,20 @@ class PetStoreRoute : RouteBuilder() {
             .json()
 
         from("direct:errorHandle")
-            .setBody(constant(mapOf("key" to "Failed")))
+            //.setBody(constant(mapOf("key" to "Failed")))
+            .process { exchange ->
+                // Get the failing endpoint (e.g., "direct:petstore", "direct:objectsApi")
+                val failedEndpoint = exchange.getProperty(Exchange.FAILURE_ENDPOINT, String::class.java) ?: "unknown"
+
+                // Extract only the direct route name (removes "direct:")
+                val failedService = failedEndpoint.substringAfter("direct:")
+
+                // Create an error response with the failing service as the key
+                val errorResponse = mapOf(failedService to "Failed")
+
+                // Set response body
+                exchange.getIn().body = errorResponse
+            }
 
         from("direct:haalcentraal")
             .setHeader("Accept", constant("application/json"))
