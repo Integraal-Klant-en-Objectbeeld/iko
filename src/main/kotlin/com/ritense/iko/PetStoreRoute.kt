@@ -1,7 +1,9 @@
 package com.ritense.iko
 
+import com.ritense.iko.openzaak.TokenGeneratorService
 import org.apache.camel.AggregationStrategy
 import org.apache.camel.Exchange
+import org.apache.camel.Processor
 import org.apache.camel.builder.RouteBuilder
 
 class PetStoreRoute : RouteBuilder() {
@@ -27,16 +29,33 @@ class PetStoreRoute : RouteBuilder() {
             .to("direct:petstore")
             .to("direct:failure")
             .to("direct:objectsApi")
-            .end().marshal().json()
+            .to("direct:openZaak")
+            .end()
+            .marshal().json()
+
+        val generatedToken = TokenGeneratorService().generateToken() // TODO refactor using config files
+        from("direct:openZaak")
+            //.setHeader("Authorization").simple("Bearer $generatedToken")
+            .setHeader("Accept-Crs", constant("EPSG:4326"))
+            .setHeader("Content-Crs", constant("EPSG:4326"))
+            .setHeader("Authorization", constant("Bearer $generatedToken"))
+            // zaak id that was created manaully via Openzaak UI
+            .setHeader("uuid", constant("68d41e2e-336a-4b4c-82b0-8530bb70bfbc"))  // TODO refactor to search
+            .to("openZaak:zaak_read")
+            .unmarshal()
+            .json()
+            .process(ZaakResponseProcessor)
 
         from("direct:objectsApi")
-            .setHeader("Authorization",constant("Token 182c13e2209161852c53cef53a879f7a2f923430"))
-            .setHeader("uuid", constant("57001413-c035-434e-9d46-090ba24fca8e"))
+            .setHeader("Authorization", constant("Token 182c13e2209161852c53cef53a879f7a2f923430")) // TODO make dybamic
+            .setHeader("uuid", constant("1017c4c4-24c1-47b4-8f61-3b45a56f3054")) //boom TODO refactor to search
             .to("objectsApi:object_read")
             .unmarshal()
             .json()
+            .process(OpenProductResponseProcessor)
 
         from("direct:failure")
+            .routeId("failureRoute")
             .setHeader(Exchange.HTTP_METHOD, constant("GET"))
             .setHeader(Exchange.HTTP_URI).header("url")
             .removeHeader(Exchange.HTTP_PATH)
@@ -45,11 +64,14 @@ class PetStoreRoute : RouteBuilder() {
             .convertBodyTo(String::class.java)
 
         from("direct:petstore")
+            .routeId("petstore")
             .setHeader("petId", constant(1))
-            .to("petstore:getPetById").unmarshal().json()
+            .to("petstore:getPetById")
+            .unmarshal()
+            .json()
 
         from("direct:errorHandle")
-            .setBody(constant("failed!"))
+            .setBody(constant(mapOf("key" to "Failed")))
 
         from("direct:haalcentraal")
             .setHeader("Accept", constant("application/json"))
@@ -70,7 +92,10 @@ class PetStoreRoute : RouteBuilder() {
                 """.trimIndent()
 
             }
-            .to("haalcentraal:Personen").unmarshal().json()
+            .to("haalcentraal:Personen")
+            .unmarshal()
+            .json()
+            .process(HaalcentraalResponseProcessor)
     }
 }
 
@@ -79,9 +104,35 @@ object ResponseAggregator : AggregationStrategy {
         if (oldExchange == null) {
             return newExchange
         }
-        val oldBody = oldExchange.getIn().body
-        val newBody = newExchange.getIn().body
-        oldExchange.getIn().body = listOf(oldBody, newBody)
+        val oldBody = oldExchange.getIn().body as Map<*, *>
+        val newBody = newExchange.getIn().body as Map<*, *>
+        oldExchange.getIn().body = oldBody + newBody
         return oldExchange
     }
 }
+
+object OpenProductResponseProcessor : Processor {
+    override fun process(exchange: Exchange) {
+        val body = exchange.getIn().body
+        val processedBody = mapOf("product" to body)
+        exchange.getIn().body = processedBody
+    }
+}
+
+object HaalcentraalResponseProcessor : Processor {
+    override fun process(exchange: Exchange) {
+        val body = exchange.getIn().body
+        val processedBody = mapOf("brp" to body)
+        exchange.getIn().body = processedBody
+    }
+}
+
+object ZaakResponseProcessor : Processor {
+    override fun process(exchange: Exchange) {
+        val body = exchange.getIn().body
+        val processedBody = mapOf("zaak" to body)
+        exchange.getIn().body = processedBody
+    }
+}
+
+
