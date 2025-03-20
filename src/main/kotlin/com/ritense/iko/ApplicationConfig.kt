@@ -38,8 +38,8 @@ class ApplicationConfig {
     }
 
     @Bean
-    fun route(): RouteBuilder {
-        return PetStoreRoute()
+    fun mainRoute(): RouteBuilder {
+        return MainRoute()
     }
 
 }

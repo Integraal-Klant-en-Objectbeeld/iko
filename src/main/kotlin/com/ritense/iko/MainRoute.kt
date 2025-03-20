@@ -6,7 +6,7 @@ import org.apache.camel.Exchange
 import org.apache.camel.Processor
 import org.apache.camel.builder.RouteBuilder
 
-class PetStoreRoute : RouteBuilder() {
+class MainRoute : RouteBuilder() {
     override fun configure() {
         // The petstore rest endpoint will sometimes return a 404 not found, because it is a dynamic rest endpoint, so you will
         // sometimes get a 500 error on the endpoint and sometimes it will return a json :)
@@ -26,10 +26,10 @@ class PetStoreRoute : RouteBuilder() {
             .multicast(ResponseAggregator)
             .parallelProcessing()
             .to("direct:haalcentraal")
-            .to("direct:petstore")
-            .to("direct:failure")
             .to("direct:objectsApi")
             .to("direct:openZaak")
+            .to("direct:failure")
+            //.to("direct:petstore")//
             .end()
             .marshal().json()
 
