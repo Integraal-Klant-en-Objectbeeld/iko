@@ -1,7 +1,12 @@
 package com.ritense.iko
 
+import com.ritense.iko.route.ErrorHandlingRoute
+import com.ritense.iko.route.HaalcentraalRoute
+import com.ritense.iko.route.MainRoute
+import com.ritense.iko.route.ObjectsApiRoute
+import com.ritense.iko.route.OpenZaakRoute
+import com.ritense.iko.route.PetstoreRoute
 import org.apache.camel.CamelContext
-import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -38,8 +43,21 @@ class ApplicationConfig {
     }
 
     @Bean
-    fun mainRoute(): RouteBuilder {
-        return MainRoute()
-    }
+    fun mainRoute() = MainRoute()
+
+    @Bean
+    fun errorHandlingRoute() = ErrorHandlingRoute()
+
+    @Bean
+    fun haalcentraalRoute() = HaalcentraalRoute()
+
+    @Bean
+    fun objectsApiRoute() = ObjectsApiRoute()
+
+    @Bean
+    fun openZaakRoute() = OpenZaakRoute()
+
+    @Bean
+    fun petstoreRoute() = PetstoreRoute()
 
 }
