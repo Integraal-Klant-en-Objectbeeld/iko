@@ -1,4 +1,4 @@
-package com.ritense.iko.route.profiel
+package com.ritense.iko.route.profiel.zaak
 
 import com.ritense.iko.openzaak.TokenGeneratorService
 import org.apache.camel.Exchange
@@ -17,7 +17,7 @@ class ZakenOpvragenRoute : RouteBuilder() {
             .removeHeader(Exchange.HTTP_PATH)
             .removeHeader(Exchange.HTTP_URI)
             .setHeader(BSN_PROPERTY, simple("\${header.bsn}"))
-            .setHeader("expand", constant("zaaktype,status,status.statustype")) // TODO status.statustype
+            .setHeader("expand", constant("zaaktype,status,status.statustype")) // Adds subcalls
             .to("openZaak:zaak_list")
             //.log("Body before marshal: \${body}")
             .convertBodyTo(String::class.java)
@@ -28,7 +28,7 @@ class ZakenOpvragenRoute : RouteBuilder() {
     }
 }
 
-
+// Extends options
 // "deelzaken"
 // "deelzaken.resultaat"
 // "deelzaken.resultaat.resultaattype"

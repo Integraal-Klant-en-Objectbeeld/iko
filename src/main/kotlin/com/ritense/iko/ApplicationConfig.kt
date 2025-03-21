@@ -6,10 +6,10 @@ import com.ritense.iko.route.MainRoute
 import com.ritense.iko.route.ObjectsApiRoute
 import com.ritense.iko.route.OpenZaakRoute
 import com.ritense.iko.route.PetstoreRoute
-import com.ritense.iko.route.persoongegeven.PersoonsgegevensProfielRoute
-import com.ritense.iko.route.persoongegeven.PersoonsgegevensRoute
-import com.ritense.iko.route.profiel.ZakenOpvragenRoute
-import com.ritense.iko.route.profiel.ZakenProfielRoute
+import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensProfielRoute
+import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensRoute
+import com.ritense.iko.route.profiel.zaak.ZakenOpvragenRoute
+import com.ritense.iko.route.profiel.zaak.ZakenProfielRoute
 import org.apache.camel.CamelContext
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
 import org.springframework.context.annotation.Bean

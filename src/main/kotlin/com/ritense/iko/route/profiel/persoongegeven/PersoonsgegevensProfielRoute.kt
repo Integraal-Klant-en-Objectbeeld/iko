@@ -1,13 +1,13 @@
-package com.ritense.iko.route.profiel
+package com.ritense.iko.route.profiel.persoongegeven
 
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.RestParamType.query
 
-class ZakenProfielRoute : RouteBuilder() {
+class PersoonsgegevensProfielRoute : RouteBuilder() {
     override fun configure() {
-        rest("profiel/zaken")
+        rest("profiel/persoongegeven")
             .get()
             .param().name("bsn").type(query).description("Burgerservicenummer").endParam()
-            .to("direct:zakenOpvragen")
+            .to("direct:raadpleegMetBurgerservicenummer")
     }
 }

@@ -1,4 +1,4 @@
-package com.ritense.iko.route.persoongegeven
+package com.ritense.iko.route.profiel.persoongegeven
 
 import com.ritense.iko.processor.HaalcentraalResponseProcessor
 import org.apache.camel.Exchange
