@@ -17,7 +17,7 @@ class ZakenOpvragenRoute : RouteBuilder() {
             .removeHeader(Exchange.HTTP_PATH)
             .removeHeader(Exchange.HTTP_URI)
             .setHeader(BSN_PROPERTY, simple("\${header.bsn}"))
-            .setHeader("expand", constant("zaaktype,status")) // TODO status.statustype
+            .setHeader("expand", constant("zaaktype,status,status.statustype")) // TODO status.statustype
             .to("openZaak:zaak_list")
             //.log("Body before marshal: \${body}")
             .convertBodyTo(String::class.java)
