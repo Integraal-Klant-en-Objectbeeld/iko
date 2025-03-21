@@ -16,7 +16,7 @@ class MainRoute : RouteBuilder() {
             .parallelProcessing()
             .to("direct:haalcentraal")
             .to("direct:objectsApi")
-            .to("direct:openZaak")
+            //.to("direct:openZaak")
             .end()
             .marshal()
             .json()

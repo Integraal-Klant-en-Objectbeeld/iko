@@ -6,6 +6,8 @@ import com.ritense.iko.route.MainRoute
 import com.ritense.iko.route.ObjectsApiRoute
 import com.ritense.iko.route.OpenZaakRoute
 import com.ritense.iko.route.PetstoreRoute
+import com.ritense.iko.route.persoongegeven.PersoonsgegevensProfielRoute
+import com.ritense.iko.route.persoongegeven.PersoonsgegevensRoute
 import com.ritense.iko.route.profiel.ZakenOpvragenRoute
 import com.ritense.iko.route.profiel.ZakenProfielRoute
 import org.apache.camel.CamelContext
@@ -68,5 +70,12 @@ class ApplicationConfig {
 
     @Bean
     fun zakenOpvragenRoute() = ZakenOpvragenRoute()
+
+    // Persoonsgegevens
+    @Bean
+    fun persoonsgegevensProfielRoute() = PersoonsgegevensProfielRoute()
+
+    @Bean
+    fun persoonsgegevensRoute() = PersoonsgegevensRoute()
 
 }
