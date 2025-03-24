@@ -17,7 +17,7 @@ services:
             - "5010:5010"
     openzaak:
         image: openzaak/open-zaak:1.13.0
-        container_name: openzaak
+        container_name: iko-openzaak
         platform: linux/amd64
         environment:
             - DB_HOST=openzaak-database
@@ -44,7 +44,7 @@ services:
 
     openzaak-database:
         image: postgis/postgis:13-3.1
-        container_name: openzaak-database
+        container_name: iko-openzaak-database
         platform: linux/amd64
         environment:
             - POSTGRES_USER=openzaak
@@ -57,7 +57,7 @@ services:
 
     openzaak-redis:
         image: redis:6.2.6
-        container_name: openzaak-redis
+        container_name: iko-openzaak-redis
         healthcheck:
             test: [ "CMD", "redis-cli", "ping" ]
             interval: 10s
@@ -69,7 +69,7 @@ services:
 
     objecten-api:
         image: maykinmedia/objects-api:2.1.1
-        container_name: objecten-api
+        container_name: iko-objecten-api
         platform: linux/amd64
         ports:
             - "8010:8000"
@@ -86,7 +86,7 @@ services:
 
     objecten-api-database:
         image: postgis/postgis:13-3.1
-        container_name: objecten-api-database
+        container_name: iko-objecten-api-database
         platform: linux/amd64
         ports:
             - "54321:5432"
@@ -97,7 +97,7 @@ services:
 
     objecten-api-import:
         image: maykinmedia/objects-api:2.1.1
-        container_name: objects-api-import
+        container_name: iko-objects-api-import
         platform: linux/amd64
         environment: *objects-env
         # in the current version of django it is not possible to create a new user with password without user interaction by using the createsuperuser command
@@ -110,7 +110,7 @@ services:
 
     objecttypen-api:
         image: maykinmedia/objecttypes-api:2.1.0
-        container_name: objecttypen-api
+        container_name: iko-objecttypen-api
         platform: linux/amd64
         ports:
             - "8011:8000"
@@ -127,7 +127,7 @@ services:
 
     objecttypen-api-database:
         image: postgres:14.1
-        container_name: objecttypen-api-database
+        container_name: iko-objecttypen-api-database
         ports:
             - "54324:5432"
         environment:
@@ -137,7 +137,7 @@ services:
 
     objecttypen-api-import:
         image: maykinmedia/objecttypes-api:2.1.0
-        container_name: objecttypen-api-import
+        container_name: iko-objecttypen-api-import
         platform: linux/amd64
         environment: *objecttypes-env
         command: sh init/init.sh
