@@ -29,6 +29,8 @@ dependencies {
     implementation("org.apache.camel.springboot:camel-jackson-starter")
     implementation("org.apache.camel.springboot:camel-jacksonxml-starter")
     implementation("org.apache.camel.springboot:camel-http-starter")
+    implementation("org.apache.camel.springboot:camel-rest-starter")
+    implementation("org.apache.camel.springboot:camel-openapi-java-starter")
     implementation("org.apache.camel:camel-rest-openapi")
 
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")

@@ -6,6 +6,7 @@ import com.ritense.iko.route.MainRoute
 import com.ritense.iko.route.ObjectsApiRoute
 import com.ritense.iko.route.OpenZaakRoute
 import com.ritense.iko.route.PetstoreRoute
+import com.ritense.iko.route.RestConfigurationRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensProfielRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensRoute
 import com.ritense.iko.route.profiel.zaak.ZakenOpvragenRoute
@@ -14,9 +15,15 @@ import org.apache.camel.CamelContext
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 
 @Configuration
 class ApplicationConfig {
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    fun restConfigurationRoute() = RestConfigurationRoute()
 
     @Bean
     fun petstore(camelContext: CamelContext) = RestOpenApiComponent(camelContext).apply {
