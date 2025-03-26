@@ -1,6 +1,5 @@
 package com.ritense.iko.route.profiel.persoongegeven
 
-import com.ritense.iko.processor.HaalcentraalResponseProcessor
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.dataformat.JsonLibrary

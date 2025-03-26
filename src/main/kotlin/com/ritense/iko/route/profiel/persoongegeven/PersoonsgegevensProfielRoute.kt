@@ -6,8 +6,21 @@ import org.apache.camel.model.rest.RestParamType.query
 class PersoonsgegevensProfielRoute : RouteBuilder() {
     override fun configure() {
         rest("profiel/persoongegeven")
+            .description("Persoonsgegevens raadplegen")
             .get()
-            .param().name("bsn").type(query).description("Burgerservicenummer").endParam()
+                .id("getPersoonsgegevens")
+                .description("Raadpleeg persoonsgegevens op basis van BSN")
+                .param()
+                    .name("bsn")
+                    .type(query)
+                    .description("Burgerservicenummer")
+                    .dataType("string")
+                    .required(true)
+                .endParam()
+                .responseMessage()
+                    .code(200)
+                    .message("Persoonsgegevens opgehaald")
+                .endResponseMessage()
             .to("direct:raadpleegMetBurgerservicenummer")
     }
 }
