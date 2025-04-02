@@ -32,6 +32,7 @@ dependencies {
     implementation("org.apache.camel.springboot:camel-rest-starter")
     implementation("org.apache.camel.springboot:camel-openapi-java-starter")
     implementation("org.apache.camel:camel-rest-openapi")
+    implementation("org.apache.camel:camel-jq")
 
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")

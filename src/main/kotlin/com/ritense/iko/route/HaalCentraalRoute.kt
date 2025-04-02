@@ -21,6 +21,27 @@ class HaalCentraalRoute : RouteBuilder() {
                 """.trimIndent()
             }
             .to("haalcentraal:Personen")
+            .log("Body before JQ: \${body}")
+            .transform().jq(
+                """
+                {
+                  burgerservicenummer: .personen[0].burgerservicenummer,
+                  geslacht: {
+                    omschrijving: .personen[0].geslacht.omschrijving
+                  },
+                  naam: {
+                    aanduidingNaamgebruik: {
+                      omschrijving: .personen[0].naam.aanduidingNaamgebruik.omschrijving
+                    },
+                    voornamen: .personen[0].naam.voornamen,
+                    geslachtsnaam: .personen[0].naam.geslachtsnaam,
+                    voorletters: .personen[0].naam.voorletters,
+                    volledigeNaam: .personen[0].naam.volledigeNaam
+                  }
+                }
+                """.trimIndent()
+            )
+            .log("After JQ before marshal: \${body}")
             .unmarshal().json()
             .process(HaalcentraalResponseProcessor)
     }
