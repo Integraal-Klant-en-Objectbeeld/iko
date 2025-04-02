@@ -19,8 +19,8 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.3"))
-    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.10.2")) // BOM
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.4"))
+    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.10.3")) // BOM
 
     implementation("org.apache.camel.springboot:camel-spring-boot")
     implementation("org.apache.camel.springboot:camel-direct-starter")
@@ -31,6 +31,7 @@ dependencies {
     implementation("org.apache.camel.springboot:camel-http-starter")
     implementation("org.apache.camel.springboot:camel-rest-starter")
     implementation("org.apache.camel.springboot:camel-openapi-java-starter")
+    implementation("org.apache.camel:camel-yaml-dsl")
     implementation("org.apache.camel:camel-rest-openapi")
     implementation("org.apache.camel:camel-jq")
 

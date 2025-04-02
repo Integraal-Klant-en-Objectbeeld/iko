@@ -6,7 +6,7 @@ import org.apache.camel.builder.RouteBuilder
 
 class HaalCentraalRoute : RouteBuilder() {
     override fun configure() {
-        from("direct:haalcentraal")
+        from("direct:haalcentraal2")
             .setHeader("Accept", constant("application/json"))
             .setHeader(Exchange.HTTP_URI).header("url")
             .removeHeader(Exchange.HTTP_PATH)

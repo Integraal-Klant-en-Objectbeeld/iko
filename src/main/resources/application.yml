@@ -1,0 +1,8 @@
+spring:
+    application:
+        name: IKO
+camel:
+    yaml:
+        routes:
+            enabled: true
+            paths: classpath:camel/*.yaml

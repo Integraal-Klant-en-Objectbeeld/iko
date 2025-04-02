@@ -1,5 +1,6 @@
 package com.ritense.iko
 
+import com.ritense.iko.processor.HaalcentraalResponseProcessor
 import com.ritense.iko.route.ErrorHandlingRoute
 import com.ritense.iko.route.HaalCentraalRoute
 import com.ritense.iko.route.MainRoute
@@ -85,4 +86,6 @@ class ApplicationConfig {
     @Bean
     fun persoonsgegevensRoute() = PersoonsgegevensRoute()
 
+    @Bean
+    fun haalcentraalResponseProcessor() = HaalcentraalResponseProcessor
 }
