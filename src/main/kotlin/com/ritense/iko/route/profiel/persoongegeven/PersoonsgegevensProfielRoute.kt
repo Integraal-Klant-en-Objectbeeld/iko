@@ -5,7 +5,7 @@ import org.apache.camel.model.rest.RestParamType.query
 
 class PersoonsgegevensProfielRoute : RouteBuilder() {
     override fun configure() {
-        rest("profiel/persoongegeven")
+        rest("profielen/persoonsgegevens")
             .description("Persoonsgegevens raadplegen")
             .get()
                 .id("getPersoonsgegevens")

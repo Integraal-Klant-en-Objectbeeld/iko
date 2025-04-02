@@ -5,7 +5,7 @@ import org.apache.camel.model.rest.RestParamType.query
 
 class ZakenProfielRoute : RouteBuilder() {
     override fun configure() {
-        rest("profiel/zaken")
+        rest("profielen/zaken")
             .get()
             .param().name("bsn").type(query).description("Burgerservicenummer").endParam()
             .to("direct:zakenOpvragen")
