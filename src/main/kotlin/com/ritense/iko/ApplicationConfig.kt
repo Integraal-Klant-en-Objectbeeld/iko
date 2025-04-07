@@ -8,6 +8,7 @@ import com.ritense.iko.route.ObjectsApiRoute
 import com.ritense.iko.route.OpenZaakRoute
 import com.ritense.iko.route.PetstoreRoute
 import com.ritense.iko.route.RestConfigurationRoute
+import com.ritense.iko.route.profile.ProfileRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensProfielRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensRoute
 import com.ritense.iko.route.profiel.zaak.ZakenOpvragenRoute
@@ -53,6 +54,9 @@ class ApplicationConfig {
         this.host = "http://localhost:8001"
         this.produces = "application/json"
     }
+
+    @Bean
+    fun profielRoute() = ProfileRoute()
 
     @Bean
     fun mainRoute() = MainRoute()
