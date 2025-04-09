@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant Admin
+    participant IKO_Admin_Portal
+    participant ProfileService
+    participant SearchService
+    participant TransformationService
+
+    Admin->>IKO_Admin_Portal: Log in
+    IKO_Admin_Portal-->>Admin: Authenticated session
+
+    Admin->>IKO_Admin_Portal: Create or modify Profile
+    IKO_Admin_Portal->>ProfileService: Save or update Profile
+    ProfileService-->>IKO_Admin_Portal: Profile created/updated
+
+    alt Attach Search
+        Admin->>IKO_Admin_Portal: Attach Search to Profile
+        IKO_Admin_Portal->>SearchService: Link Search to Profile
+        SearchService-->>IKO_Admin_Portal: Search attached
+    else Attach Transformation
+        Admin->>IKO_Admin_Portal: Attach Transformation to Profile
+        IKO_Admin_Portal->>TransformationService: Link Transformation to Profile
+        TransformationService-->>IKO_Admin_Portal: Transformation attached
+    else Attach Profile
+        Admin->>IKO_Admin_Portal: Link existing Profile
+        IKO_Admin_Portal->>ProfileService: Link Profiles
+        ProfileService-->>IKO_Admin_Portal: Profiles linked
+    end
+
+    IKO_Admin_Portal-->>Admin: Operation successful

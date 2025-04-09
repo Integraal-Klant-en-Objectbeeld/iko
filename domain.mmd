@@ -1,0 +1,77 @@
+---
+title: IKO Domain model
+---
+classDiagram
+    note for Profile "The chain of PrimarySources to SecondarySources is now defined via Mapping.
+         Each Mapping connects a Profile to a PrimarySource and defines links to SecondarySources."
+
+    class Profile {
+        +Id: string
+        +Name: string
+        +addSearch()
+        +addTransformation()
+        +addRole()
+    }
+
+    class Role {
+        +Name: string
+    }
+
+    class Transformation {
+        +JQ: string
+    }
+
+    class Search {
+        +Name: string
+        +addTransformation()
+    }
+
+    class Mapping {
+        +Id: string
+        +description: string
+    }
+
+    class PrimarySource {
+        +Name: string
+    }
+
+    class SecondarySource {
+        +Name: string
+    }
+
+    Profile --> "*" Search : defines
+    Profile --> "*" Transformation : applies
+    Profile --> "*" Role : has
+    Profile --> "*" Mapping : maps
+    Mapping --> "1" PrimarySource : links to
+    Mapping --> "*" SecondarySource : uses
+    Search --> "1" Transformation : applies
+    Search --> "1" PrimarySource : uses
+
+    class Profile {
+        <<AggregateRoot>>
+    }
+
+    class Search {
+        <<ValueObject>>
+    }
+
+    class Transformation {
+        <<ValueObject>>
+    }
+
+    class Role {
+        <<ValueObject>>
+    }
+
+    class Mapping {
+        <<Entity>>
+    }
+
+    class PrimarySource {
+        <<ValueObject>>
+    }
+
+    class SecondarySource {
+        <<ValueObject>>
+    }
