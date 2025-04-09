@@ -2,76 +2,78 @@
 title: IKO Domain model
 ---
 classDiagram
-    note for Profile "The chain of PrimarySources to SecondarySources is now defined via Mapping.
-         Each Mapping connects a Profile to a PrimarySource and defines links to SecondarySources."
+note for Mapping "Maps Profile → PrimarySource and PrimarySource → SecondarySource using IDs and optional JSON mapping."
+note for Search "Search is a standalone aggregate root and references PrimarySource."
+note for Profile "Does not directly own Sources. Sources are attached via Mapping."
 
-    class Profile {
-        +Id: string
-        +Name: string
-        +addSearch()
-        +addTransformation()
-        +addRole()
+class Profile {
++Id: string
++Name: string
++addTransformation()
++addRole()
     }
 
-    class Role {
-        +Name: string
+class Role {
++Name: string
+}
+
+class Transformation {
++JQ: string
+}
+
+class Search {
++Id: string
++Name: string
++addTransformation()
+}
+
+class Mapping {
++Id: string
++profileId: string
++primarySourceId: string
++secondarySourceId: string
++jsonMapping: string
+}
+
+class PrimarySource {
++Id: string
++Name: string
     }
 
-    class Transformation {
-        +JQ: string
+class SecondarySource {
++Id: string
++Name: string
     }
 
-    class Search {
-        +Name: string
-        +addTransformation()
-    }
+Profile --> "*" Transformation : applies
+Profile --> "*" Role : has
+Search --> "1" PrimarySource : queries
+Search --> "*" Transformation : applies
 
-    class Mapping {
-        +Id: string
-        +description: string
-    }
+class Profile {
+<<AggregateRoot>>
+}
 
-    class PrimarySource {
-        +Name: string
-    }
+class Search {
+<<AggregateRoot>>
+}
 
-    class SecondarySource {
-        +Name: string
-    }
+class Transformation {
+<<ValueObject>>
+}
 
-    Profile --> "*" Search : defines
-    Profile --> "*" Transformation : applies
-    Profile --> "*" Role : has
-    Profile --> "*" Mapping : maps
-    Mapping --> "1" PrimarySource : links to
-    Mapping --> "*" SecondarySource : uses
-    Search --> "1" Transformation : applies
-    Search --> "1" PrimarySource : uses
+class Role {
+<<ValueObject>>
+}
 
-    class Profile {
-        <<AggregateRoot>>
-    }
+class Mapping {
+<<Entity>>
+}
 
-    class Search {
-        <<ValueObject>>
-    }
+class PrimarySource {
+<<Entity>>
+}
 
-    class Transformation {
-        <<ValueObject>>
-    }
-
-    class Role {
-        <<ValueObject>>
-    }
-
-    class Mapping {
-        <<Entity>>
-    }
-
-    class PrimarySource {
-        <<ValueObject>>
-    }
-
-    class SecondarySource {
-        <<ValueObject>>
-    }
+class SecondarySource {
+<<Entity>>
+}
