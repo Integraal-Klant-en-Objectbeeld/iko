@@ -2,79 +2,75 @@
 title: IKO Domain model
 ---
 classDiagram
-note for Mapping "Maps Profile → PrimarySource and PrimarySource → SecondarySource using IDs and optional JSON mapping."
-note for Search "Search is a standalone aggregate root and references PrimarySource."
-note for Profile "Does not directly own Sources. Sources are attached via Mapping."
+    note for Relation "TODO"
+    note for Search "TODO"
+    note for Profile "TODO"
 
-class Profile {
-+Id: string
-+Name: string
-+addTransformation()
-+addRole()
+    class Profile {
+        +Id: string
+        +Name: string
+        +addTransformation()
+        +addRole()
     }
 
-class Role {
-+Name: string
-}
-
-class Transformation {
-+JQ: string
-}
-
-class Search {
-+Id: string
-+Name: string
-+addTransformation()
-}
-
-class Mapping {
-+Id: string
-+profileId: string
-+primarySourceId: string
-+secondarySourceId: string
-+jsonMapping: string
-}
-
-class PrimarySource {
-+Id: string
-+Name: string
+    class Role {
+        +Name: string
     }
 
-class SecondarySource {
-+Id: string
-+Name: string
+    class Transformation {
+        +JQ: string
     }
 
-Profile --> "*" Transformation : applies
-Profile --> "*" Role : has
-Profile --> "1" PrimarySource : must have
-Search --> "1" PrimarySource : queries
-Search --> "*" Transformation : applies
+    class Search {
+        +Id: string
+        +Name: string
+        +addTransformation()
+    }
 
-class Profile {
-<<AggregateRoot>>
-}
+    class Relation {
+        +Id: string
+        +profileId: string
+        +sourceId: string
+        +sourceToSearchMapping: Map<string, string>
+        +destinationSearchId: string
+        +jqResultMapping: string
+    }
 
-class Search {
-<<AggregateRoot>>
-}
+    class Source {
+        +Id: string
+        +Name: string
+        +Type: string
+    }
 
-class Transformation {
-<<ValueObject>>
-}
+    Profile --> "*" Transformation: applies
+    Profile --> "*" Role: has
+    Profile --> "1" Source: must have
+    Profile --> "*" Relation: at least one
+    Search --> "1" Source: one to one
+    Source --> "*" Search: supports many
+    Search --> "1" Transformation: applies
+    Relation --> "1" Search: links
 
-class Role {
-<<ValueObject>>
-}
+    class Profile {
+        <<AggregateRoot>>
+    }
 
-class Mapping {
-<<Entity>>
-}
+    class Search {
+        <<AggregateRoot>>
+    }
 
-class PrimarySource {
-<<Entity>>
-}
+    class Transformation {
+        <<ValueObject>>
+    }
 
-class SecondarySource {
-<<Entity>>
-}
+    class Role {
+        <<ValueObject>>
+    }
+
+    class Relation {
+        <<Entity>>
+    }
+
+    class Source {
+        <<Entity>>
+    }
