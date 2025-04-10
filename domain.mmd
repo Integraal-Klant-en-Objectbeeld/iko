@@ -2,9 +2,10 @@
 title: IKO Domain model
 ---
 classDiagram
-    note for Relation "TODO"
-    note for Search "TODO"
-    note for Profile "TODO"
+    note for Relation "Defines the mapping between a source and a search"
+    note for Search "Predefined way to search in a source, likely to be Beans in IKO"
+    note for Profile "Profile is dataview (Transformation) over a Primary source entity (Searchable) and its related data (Secondary source entities)"
+    note for Source "Predefined target for search, like a database or a file. Likely to be Beans in IKO"
 
     class Profile {
         +Id: string
@@ -72,5 +73,5 @@ classDiagram
     }
 
     class Source {
-        <<Entity>>
+        <<ValueObject>>
     }
