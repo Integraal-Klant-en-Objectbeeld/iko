@@ -35,6 +35,8 @@ dependencies {
     implementation("org.apache.camel:camel-rest-openapi")
     implementation("org.apache.camel:camel-jq")
 
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")

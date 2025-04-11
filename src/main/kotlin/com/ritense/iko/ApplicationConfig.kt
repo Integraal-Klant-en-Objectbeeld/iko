@@ -1,5 +1,6 @@
 package com.ritense.iko
 
+import com.ritense.iko.mvc.service.PersonClientService
 import com.ritense.iko.processor.HaalcentraalResponseProcessor
 import com.ritense.iko.route.ErrorHandlingRoute
 import com.ritense.iko.route.HaalCentraalRoute
@@ -8,12 +9,15 @@ import com.ritense.iko.route.ObjectsApiRoute
 import com.ritense.iko.route.OpenZaakRoute
 import com.ritense.iko.route.PetstoreRoute
 import com.ritense.iko.route.RestConfigurationRoute
-import com.ritense.iko.route.profile.ProfileRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensProfielRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensRoute
 import com.ritense.iko.route.profiel.zaak.ZakenOpvragenRoute
 import com.ritense.iko.route.profiel.zaak.ZakenProfielRoute
+import com.ritense.iko.route.profile.ProfileRoute
 import org.apache.camel.CamelContext
+import org.apache.camel.ConsumerTemplate
+import org.apache.camel.FluentProducerTemplate
+import org.apache.camel.ProducerTemplate
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -92,4 +96,18 @@ class ApplicationConfig {
 
     @Bean
     fun haalcentraalResponseProcessor() = HaalcentraalResponseProcessor
+
+    @Bean
+    fun producerTemplate(camelContext: CamelContext): ProducerTemplate {
+        return camelContext.createProducerTemplate()
+    }
+
+    @Bean
+    fun personClientService(
+        fluentProducerTemplate: FluentProducerTemplate,
+        consumerTemplate: ConsumerTemplate
+    ) = PersonClientService(
+        fluentProducerTemplate,
+        consumerTemplate
+    )
 }

@@ -26,5 +26,7 @@ class PersonenSearch : RouteBuilder() {
             .marshal().json(JsonLibrary.Jackson)
             .to("brp:Personen")
             .transform(jq(".personen"))
+            .unmarshal()
+            .json()
     }
 }

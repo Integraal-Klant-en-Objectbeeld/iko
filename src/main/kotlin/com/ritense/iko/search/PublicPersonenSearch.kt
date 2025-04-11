@@ -6,7 +6,9 @@ class PublicPersonenSearch : RouteBuilder() {
     override fun configure() {
         rest("/personen/searchWithBsn")
             .get()
-            .to("direct:personenSearch")
+            .to("direct:testA")
+
+        from("direct:testA").to("direct:personenSearch")
 
         rest("/personen/searchWithPostcodeEnHuisnummer")
             .get()
