@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 
 @Controller
-class MainController(
+class PublicMainController(
     private val personClientService: PersonClientService,
 ) {
 
-    @GetMapping("/")
+    @GetMapping("/public")
     fun home(): ModelAndView {
-        val mav = ModelAndView("layout")
-        mav.addObject("fragment", "fragments/search")
-        mav.addObject("view", "search")
+        val mav = ModelAndView("layout-public")
+        mav.addObject("fragment", "fragments/public/search")
+        mav.addObject("view", "public/search")
         mav.addObject(
             "searches",
             listOf(
@@ -29,24 +29,24 @@ class MainController(
         return mav
     }
 
-    @GetMapping("/search/{id}")
+    @GetMapping("/public/search/{name}")
     fun searchPage(@PathVariable name: String, model: Model): ModelAndView {
-        val mav = ModelAndView("fragments/search")
+        val mav = ModelAndView("fragments/public/search")
         mav.addObject("name", name)
         return mav
     }
 
-    @GetMapping("/search")
+    @GetMapping("/public/search")
     fun searchResults(@RequestParam search: String, model: Model): String {
         val personen = personClientService.searchPersonByBSN(search)
         model.addAttribute("results", personen)
-        return "fragments/searchResults :: search-results"
+        return "fragments/public/searchResults :: search-results"
     }
 
-    @GetMapping("/contacts/{id}")
+    @GetMapping("/public/contacts/{id}")
     fun contactDetails(@PathVariable id: Long, model: Model): String {
         model.addAttribute("contact", "contact")
-        return "fragments/contactDetails :: contact"
+        return "fragments/public/contactDetails :: contact"
     }
 
     data class SearchRequest(

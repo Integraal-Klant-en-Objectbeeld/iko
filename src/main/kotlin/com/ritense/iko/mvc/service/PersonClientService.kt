@@ -14,6 +14,12 @@ class PersonClientService(
             .request(List::class.java) as List<Any>
 
     }
+
+    fun getPersonByBSN(bsn: String): Any {
+        return fluentProducerTemplate.withHeader("bsn", bsn)
+            .to(PersonenSearch.URI)
+            .request(Any::class.java)
+    }
 }
 
 data class Person(var id: String, var name: String)

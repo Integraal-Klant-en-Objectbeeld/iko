@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IKO Admin</title>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+    <!-- IBM Plex Font -->
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400,600" rel="stylesheet">
+
+    <link rel="stylesheet" href=" https://unpkg.com/carbon-components@10/css/carbon-components.min.css">
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/accordion.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/breadcrumb.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/button.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/checkbox.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/code-snippet.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/combo-box.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/content-switcher.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/copy-button.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/data-table.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/date-picker.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/dropdown.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/file-uploader.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/floating-menu.rtl.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/form.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/inline-loading.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/input.rtl.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/link.rtl.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/list.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/loading.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/modal.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/multi-select.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/notification.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/number-input.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/overflow-menu.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/pagination.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/progress-indicator.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/radio-button.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/search.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/select.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/skeleton-placeholder.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/skeleton-text.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/skip-to-content.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/slider.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/structured-list.rtl.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/tabs.rtl.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/tag.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/textarea.rtl.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/tile.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/toggle.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/tooltip.rtl.min.js"></script>
+    <script type="module"
+            src="https://1.www.s81c.com/common/carbon/web-components/tag/latest/ui-shell.rtl.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            margin: 0;
+        }
+
+        cds-side-nav {
+            min-width: 200px;
+        }
+
+        cds-column {
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div style="display: flex; height: 100vh;">
+
+    <!-- Sidebar -->
+    <cds-side-nav id="side-nav" aria-label="IKO App" expanded>
+        <div th:replace="~{fragments/public/menu :: menu}"></div>
+    </cds-side-nav>
+
+    <!-- Main layout container -->
+    <div style="flex: 1; display: flex; flex-direction: column;">
+        <!-- Header -->
+        <cds-header aria-label="IKO App">
+            <cds-header-menu-button
+                button-label-active="Close menu"
+                button-label-inactive="Open menu"
+                id="side-nav-toggle">
+            </cds-header-menu-button>
+            <cds-header-name href="#" prefix="IKO">Admin</cds-header-name>
+        </cds-header>
+
+        <!-- Page Content -->
+        <cds-grid style="margin-top: 3rem;">
+            <cds-row>
+                <cds-column sm="4" md="8" lg="12">
+                    <div id="view-panel"></div>
+                </cds-column>
+            </cds-row>
+        </cds-grid>
+    </div>
+</div>
+
+<script type="text/javascript">htmx.logAll();</script>
+
+</body>
+</html>
