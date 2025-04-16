@@ -1,15 +1,13 @@
-<div th:fragment="menu">
+<cds-side-nav th:fragment="menu" expanded="true" aria-label="Side navigation">
     <cds-side-nav-items>
-        <cds-side-nav-menu title="Admin menu">
-            <cds-side-nav-menu-item
-                th:each="menuItem : ${menuItems}"
-                th:attr="hx-get=${menuItem.path}"
-                th:text="${menuItem.name}"
-                hx-swap="innerHTML"
-                hx-target="#view-panel"
-                hx-push-url="false"
-                href="javascript:void(0);">
-            </cds-side-nav-menu-item>
-        </cds-side-nav-menu>
+        <cds-side-nav-link
+            th:each="menuItem : ${menuItems}"
+            th:attr="hx-get=${menuItem.path}"
+            th:text="${menuItem.name}"
+            hx-swap="innerHTML"
+            hx-target="#view-panel"
+            hx-push-url="false"
+            href="javascript:void(0);">
+        </cds-side-nav-link>
     </cds-side-nav-items>
-</div>
+</cds-side-nav>

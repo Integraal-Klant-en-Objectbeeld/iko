@@ -1,26 +1,17 @@
-<div th:fragment="profile-detail" class="profile-detail" style="padding: 2rem;">
-    <section style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <cds-button kind="ghost"
-                        hx-get="/profiles"
-                        hx-target="#view-panel"
-                        hx-push-url="true">
-                Back to Profiles
-            </cds-button>
-        </div>
-
-        <cds-loading class="htmx-indicator" style="display: none;"></cds-loading>
-
-        <div class="profile-info">
-            <cds-tile>
-                <h3>Profile Details</h3>
-                <dl style="display: grid; grid-template-columns: auto 1fr; gap: 1rem; margin-top: 1rem;">
-                    <dt>ID:</dt>
-                    <dd th:text="${profile.id}"></dd>
-                    <dt>Name:</dt>
-                    <dd th:text="${profile.name}"></dd>
-                </dl>
-            </cds-tile>
-        </div>
-    </section>
-</div>
+<cds-content>
+    <cds-button kind="ghost"
+                hx-get="/profiles"
+                hx-target="#view-panel"
+                hx-push-url="true">
+        Back to Profiles
+    </cds-button>
+    <cds-tile>
+        <h3>Profile Details</h3>
+        <dl>
+            <dt>ID:</dt>
+            <dd th:text="${profile.id}"></dd>
+            <dt>Name:</dt>
+            <dd th:text="${profile.name}"></dd>
+        </dl>
+    </cds-tile>
+</cds-content>
