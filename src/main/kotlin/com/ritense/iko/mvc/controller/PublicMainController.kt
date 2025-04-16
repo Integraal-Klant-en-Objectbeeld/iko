@@ -49,7 +49,4 @@ class PublicMainController(
         return "fragments/public/contactDetails :: contact"
     }
 
-    data class SearchRequest(
-        val search: String
-    )
 }

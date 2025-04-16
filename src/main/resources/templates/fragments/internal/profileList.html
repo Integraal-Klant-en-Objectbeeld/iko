@@ -1,20 +1,15 @@
-<div th:fragment="profileList" style="padding: 4rem;" id="profile-list-view-panel">
-    <section style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 2rem;">
+<div th:fragment="profileList" style="padding: 4rem;" >
+    <section style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 2rem;" id="profile-list-view-panel">
         <h3 style="margin-bottom: 1rem;">Profiles</h3>
 
-        <!-- Loading spinner -->
-        <cds-loading class="htmx-indicator" size="small" style="display: none;"></cds-loading>
-
-        <!-- Search box -->
         <cds-search
             placeholder="Type to search..."
-            name="search"
+            name="query"
             size="lg"
-            hx-get="/profiles/search"
+            hx-get="/profile-search"
             hx-params="*"
             hx-trigger="input delay:800ms, keyup[key=='Enter']"
             hx-target="#search-results"
-            hx-indicator=".htmx-indicator"
             hx-push-url="false">
         </cds-search>
 
@@ -30,16 +25,5 @@
                 <div th:replace="~{fragments/internal/profileSearchResults :: profile-search-results}"></div>
             </cds-table-body>
         </cds-table>
-        <nav id="pagination-nav" style="display: flex; justify-content: center; margin-top: 20px;" th:fragment="pagination(totalPages, currentPage, size)">
-            <ul style="display: flex; list-style: none; padding: 0;">
-                <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}">
-                    <a href="#" th:text="${pageNum + 1}"
-                       th:attr="hx-get=@{/profiles(page=${pageNum}, size=${size})}"
-                       hx-target="#profile-list-view-panel"
-                       hx-trigger="click"
-                       th:style="${pageNum == currentPage} ? 'font-weight: bold;' : ''"></a>
-                </li>
-            </ul>
-        </nav>
     </section>
 </div>

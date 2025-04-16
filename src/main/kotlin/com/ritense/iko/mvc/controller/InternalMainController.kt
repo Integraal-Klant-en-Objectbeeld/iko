@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 
+
 @Controller()
 class InternalMainController(
     private val personClientService: PersonClientService,
@@ -33,35 +34,25 @@ class InternalMainController(
 
     @GetMapping("/profiles")
     fun profileList(
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
         model: Model
     ): ModelAndView {
         val mav = ModelAndView("fragments/internal/profileList")
-
-        // Calculate pagination values
-        val totalElements = profiles.size
-        val totalPages = (totalElements + size - 1) / size
-        val currentPage = page.coerceIn(0, maxOf(0, totalPages - 1))
-        val startIndex = currentPage * size
-        val endIndex = minOf(startIndex + size, totalElements)
-
-        // Get paginated profiles
-        val paginatedProfiles = profiles.subList(startIndex, endIndex)
-
-        // Add pagination data to the model
-        mav.addObject("profiles", paginatedProfiles)
-        mav.addObject("currentPage", currentPage)
-        mav.addObject("totalPages", totalPages)
-        mav.addObject("totalElements", totalElements)
-        mav.addObject("pageSize", size)
+        mav.addObject("profiles", profiles)
         return mav
     }
 
-    @GetMapping("/profiles/search")
-    fun searchResults(@RequestParam search: String, model: Model): ModelAndView {
-        val mav = ModelAndView("fragments/internal/profileList")
-        mav.addObject("profiles", profiles.find { it.name.contains(search) })
+    @GetMapping("/profile-search") // this is FUBAR renaming this to /profiles/search WONT WORK response is 200 but no HTML is redered.
+    fun searchResults(
+        @RequestParam query: String,
+        model: Model
+    ): ModelAndView {
+        val filteredProfiles = if (query.isBlank()) {
+            profiles
+        } else {
+            profiles.filter { it.name.contains(query, ignoreCase = true) }
+        }
+        val mav = ModelAndView("fragments/internal/profileSearchResults")
+        mav.addObject("profiles", filteredProfiles)
         return mav
     }
 
@@ -70,30 +61,6 @@ class InternalMainController(
         val mav = ModelAndView("fragments/internal/profileDetail")
         mav.addObject("profile", profiles.first { it.id == id })
         return mav
-    }
-
-    @GetMapping("/htmx/pagination")
-    fun getPagination(
-        @RequestParam(name = "page", defaultValue = "0") page: Int,
-        @RequestParam(name = "size", defaultValue = "5") size: Int,
-        model: Model
-    ): String {
-        // Calculate pagination values
-        val totalElements = profiles.size
-        val totalPages = (totalElements + size - 1) / size
-        val currentPage = page.coerceIn(0, maxOf(0, totalPages - 1))
-        val startIndex = currentPage * size
-        val endIndex = minOf(startIndex + size, totalElements)
-
-        // Get paginated profiles
-        val paginatedProfiles = profiles.subList(startIndex, endIndex)
-        model.addAttribute("profiles", paginatedProfiles)
-        model.addAttribute("currentPage", currentPage)
-        model.addAttribute("totalPages", totalPages)
-        model.addAttribute("totalElements", totalElements)
-        model.addAttribute("pageSize", size)
-
-        return "person-crud-htmx :: pagination"
     }
 }
 
