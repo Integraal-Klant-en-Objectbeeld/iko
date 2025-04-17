@@ -1,0 +1,27 @@
+<div th:fragment="profileList" id="profile-list-view-panel">
+    <h1 style="margin-bottom: 1rem;">Profiles</h1>
+
+    <cds-search
+        placeholder="Type to search..."
+        name="query"
+        size="lg"
+        hx-get="/profile-search"
+        hx-params="*"
+        hx-trigger="input delay:800ms, keyup[key=='Enter']"
+        hx-target="#search-results"
+        hx-push-url="false">
+    </cds-search>
+
+    <!-- Data table -->
+    <cds-table id="profile-table">
+        <cds-table-head>
+            <cds-table-header-row>
+                <cds-table-header-cell>Id</cds-table-header-cell>
+                <cds-table-header-cell>name</cds-table-header-cell>
+            </cds-table-header-row>
+        </cds-table-head>
+        <cds-table-body id="search-results">
+            <div th:replace="~{fragments/internal/profileSearchResults :: profile-search-results}"></div>
+        </cds-table-body>
+    </cds-table>
+</div>

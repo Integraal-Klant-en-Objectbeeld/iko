@@ -1,0 +1,77 @@
+---
+title: IKO Domain model
+---
+classDiagram
+    note for Relation "Defines the mapping between a source and a search"
+    note for Search "Predefined way to search in a source, likely to be Beans in IKO"
+    note for Profile "Profile is dataview (Transformation) over a Primary source entity (Searchable) and its related data (Secondary source entities)"
+    note for Source "Predefined target for search, like a database or a file. Likely to be Beans in IKO"
+
+    class Profile {
+        +Id: string
+        +Name: string
+        +addTransformation()
+        +addRole()
+    }
+
+    class Role {
+        +Name: string
+    }
+
+    class Transformation {
+        +JQ: string
+    }
+
+    class Search {
+        +Id: string
+        +Name: string
+        +addTransformation()
+    }
+
+    class Relation {
+        +Id: string
+        +profileId: string
+        +sourceId: string
+        +sourceToSearchMapping: Map<string, string>
+        +destinationSearchId: string
+        +jqResultMapping: string
+    }
+
+    class Source {
+        +Id: string
+        +Name: string
+        +Type: string
+    }
+
+    Profile --> "*" Transformation: applies
+    Profile --> "*" Role: has
+    Profile --> "1" Source: must have
+    Profile --> "*" Relation: at least one
+    Search --> "1" Source: one to one
+    Source --> "*" Search: supports many
+    Search --> "1" Transformation: applies
+    Relation --> "1" Search: links
+
+    class Profile {
+        <<AggregateRoot>>
+    }
+
+    class Search {
+        <<AggregateRoot>>
+    }
+
+    class Transformation {
+        <<ValueObject>>
+    }
+
+    class Role {
+        <<ValueObject>>
+    }
+
+    class Relation {
+        <<Entity>>
+    }
+
+    class Source {
+        <<ValueObject>>
+    }

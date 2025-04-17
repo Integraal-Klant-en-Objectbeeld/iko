@@ -38,3 +38,7 @@ In this file, the following services have been defined:
 
 Please review the tags of the used images and set them to the same as you're running in production.
 
+### Service
+http://localhost:8001/ OpenZaak
+http://localhost:8010/ Objects API
+http://localhost:8011/ Objecttypes API
