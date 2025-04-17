@@ -1,0 +1,11 @@
+<cds-side-nav-items th:fragment="menu">
+    <cds-side-nav-link
+        th:each="menuItem : ${menuItems}"
+        th:attr="hx-get=${menuItem.path}"
+        th:text="${menuItem.name}"
+        hx-swap="innerHTML"
+        hx-target="#view-panel"
+        hx-push-url="false"
+        href="javascript:void(0);">
+    </cds-side-nav-link>
+</cds-side-nav-items>

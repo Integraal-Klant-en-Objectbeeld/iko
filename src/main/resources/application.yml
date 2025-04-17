@@ -1,11 +1,16 @@
 spring:
     application:
         name: IKO
-    datasource:
-        url: jdbc:postgresql://localhost:5432/mydatabase
-        name: postgres
-        username: myuser
-        password: secret
+    thymeleaf: # Thymeleaf
+        cache: false
+        mode: HTML
+        encoding: UTF-8
+        prefix: file:src/main/resources/templates/
+    web:
+        resources:
+            static-locations: file:src/main/resources/static/
+            cache:
+                period: 0
 camel:
     yaml:
         routes:

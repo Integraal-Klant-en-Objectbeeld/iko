@@ -1,0 +1,15 @@
+<div th:fragment="menu">
+    <cds-side-nav-items>
+        <cds-side-nav-menu title="Searches">
+            <cds-side-nav-menu-item
+                th:each="search : ${searches}"
+                th:attr="hx-get='/search/' + ${search.name}"
+                th:text="${search.name}"
+                hx-swap="innerHTML"
+                hx-target="#view-panel"
+                hx-push-url="false"
+                href="javascript:void(0);">
+            </cds-side-nav-menu-item>
+        </cds-side-nav-menu>
+    </cds-side-nav-items>
+</div>
