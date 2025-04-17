@@ -20,7 +20,6 @@ class RelationsConfig(private val camelContext: CamelContext) {
                 Relation(
                     id = UUID.randomUUID(),
                     profileId = profileId,
-                    sourceId = profileId,
                     sourceToSearchMapping = "{ \"bsn\": \".burgerservicenummer\" }",
                     searchId = "zakenSearch_bsn",
                     transform = "{ zaken1: . }"
@@ -28,7 +27,6 @@ class RelationsConfig(private val camelContext: CamelContext) {
                 Relation(
                     id = relationId,
                     profileId = profileId,
-                    sourceId = profileId,
                     sourceToSearchMapping = "{ \"bsn\": \".burgerservicenummer\" }",
                     searchId = "zakenSearch_bsn",
                     transform = "{ zaken2: [ .primary.results[], .secondary.zaken3 ] }"
@@ -86,10 +84,6 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
                 .multicast(ResponseAggregator)
                 .parallelProcessing()
 
-            if (!profile.relations.filter { it.sourceId == source.id }.any()) {
-                multicast = multicast.to("direct:dummy")
-            }
-
             profile.relations.filter { it.sourceId == source.id }.forEach { relation ->
                 createRelationRoute(profile, relation)
 
@@ -106,7 +100,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
             .routeId("profile_${profile.id}")
             .to("direct:profile_${profile.id}")
 
-        val relations = profile.relations.filter { it.sourceId == profile.id }
+        val relations = profile.relations.filter { it.sourceId == null }
 
         from("direct:profile_${profile.id}")
             .to("direct:${profile.primarySource}")
@@ -125,11 +119,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
                 .multicast(ResponseAggregator)
                 .parallelProcessing()
 
-            if (!profile.relations.filter { it.sourceId == profile.id }.any()) {
-                multicast = multicast.to("direct:dummy")
-            }
-
-            profile.relations.filter { it.sourceId == profile.id }.forEach { relation ->
+            profile.relations.filter { it.sourceId == null }.forEach { relation ->
                 createRelationRoute(profile, relation)
 
                 multicast = multicast.to("direct:relation_${relation.id}")

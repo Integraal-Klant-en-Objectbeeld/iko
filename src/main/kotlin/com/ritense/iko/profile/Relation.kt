@@ -19,7 +19,7 @@ class Relation(
     val profileId: UUID,
 
     @Column(name = "source_id")
-    val sourceId: UUID,
+    val sourceId: UUID? = null,
 
     @Column(name = "source_to_search_mapping")
     val sourceToSearchMapping: String,
