@@ -12,6 +12,10 @@
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 
     <!-- IBM Plex Font -->
+    <link
+        rel="stylesheet"
+        href="https://1.www.s81c.com/common/carbon/web-components/tag/next/grid.css"/>
+
     <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400,600" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/carbon-components@10/css/carbon-components.min.css">
     <!-- Dynamically load Carbon Web Components -->
@@ -23,34 +27,37 @@
             'list', 'loading', 'modal', 'multi-select', 'notification', 'number-input',
             'overflow-menu', 'pagination', 'progress-indicator', 'radio-button', 'search',
             'select', 'skeleton-placeholder', 'skeleton-text', 'skip-to-content', 'slider',
-            'structured-list', 'tabs', 'tag', 'textarea', 'tile', 'toggle', 'tooltip', 'ui-shell'
+            'structured-list', 'tabs', 'tag', 'textarea', 'tile', 'toggle', 'tooltip', 'ui-shell',
         ];
         // Import each Carbon component module dynamically.
         for (const component of components) {
             import(`https://1.www.s81c.com/common/carbon/web-components/tag/latest/${component}.rtl.min.js`);
         }
     </script>
-
     <style>
         body {
             font-family: 'IBM Plex Sans', sans-serif;
             margin: 0;
+            padding: 0;
+            padding-top: 3rem;
+            padding-left: 16rem;
+            vertical-align: baseline;
         }
 
-       /* cds-grid {
-            width: 100vw;
-            max-width: 100%;
-            margin: 100px;
-            padding-left: 100px;
-        }*/
+        /* cds-grid {
+             width: 100vw;
+             max-width: 100%;
+             margin: 100px;
+             padding-left: 100px;
+         }*/
 
-       /* cds-side-nav {
-            min-width: 200px;
-        }
+        /* cds-side-nav {
+             min-width: 200px;
+         }
 
-        cds-column {
-            padding: 100rem;
-        }*/
+         cds-column {
+             padding: 100rem;
+         }*/
     </style>
 </head>
 <body>
@@ -60,23 +67,23 @@
     </cds-header-name>
     <!-- Left Panel (Navigation) -->
     <cds-side-nav style="background-color: blue;"
-                  collapse-mode="fixed"
+                  collapse-mode=""
                   th:insert="~{fragments/internal/menu :: menu}">
     </cds-side-nav>
 </cds-header>
 
-<cds-grid>
-    <cds-row>
-        <!-- Right Panel (Main Content) -->
-        <cds-column sm="3" offset="1" style="background-color: red;">
-            <div id="view-panel">
-                <cds-content>
-                    <h1 style="margin-bottom: 1rem;">Welcome to IKO</h1>
-                </cds-content>
+<main class="cds--content" style="">
+    <div class="cds--grid cds--grid--full-width">
+        <div class="cds--row">
+            <div class="cds--col ">
+                <div id="view-panel">
+                    <h1>Welcome to IKO</h1>
+                </div>
             </div>
-        </cds-column>
-    </cds-row>
-</cds-grid>
+        </div>
+    </div>
+</main>
+
 <script type="text/javascript">htmx.logAll();</script>
 </body>
 </html>
