@@ -37,20 +37,20 @@
             margin: 0;
         }
 
-        cds-grid {
+       /* cds-grid {
             width: 100vw;
             max-width: 100%;
             margin: 100px;
             padding-left: 100px;
-        }
+        }*/
 
-        cds-side-nav {
+       /* cds-side-nav {
             min-width: 200px;
         }
 
         cds-column {
             padding: 100rem;
-        }
+        }*/
     </style>
 </head>
 <body>
@@ -58,19 +58,20 @@
     <cds-header-name href="#" prefix="IKO">
         Integraal Klant & Objectbeeld
     </cds-header-name>
+    <!-- Left Panel (Navigation) -->
+    <cds-side-nav style="background-color: blue;"
+                  collapse-mode="fixed"
+                  th:insert="~{fragments/internal/menu :: menu}">
+    </cds-side-nav>
 </cds-header>
-<cds-grid full-width >
-    <cds-row>
-        <!-- Left Panel (Navigation) -->
-        <cds-column sm="4">
-            <cds-side-nav th:replace="~{fragments/internal/menu :: menu}"></cds-side-nav>
-        </cds-column>
 
+<cds-grid>
+    <cds-row>
         <!-- Right Panel (Main Content) -->
-        <cds-column sm="12">
+        <cds-column sm="3" offset="1" style="background-color: red;">
             <div id="view-panel">
                 <cds-content>
-                    <h1 style="margin-bottom: 1rem;">Welcome zsdsz jkldsajlkds jlkdsajklsda ljkljkdsa ljkdsajlks asdlkjlkjads </h1>
+                    <h1 style="margin-bottom: 1rem;">Welcome to IKO</h1>
                 </cds-content>
             </div>
         </cds-column>

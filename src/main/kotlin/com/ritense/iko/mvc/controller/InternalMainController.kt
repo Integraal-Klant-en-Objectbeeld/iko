@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 
-@Controller()
+@Controller
 class InternalMainController(
     private val personClientService: PersonClientService,
 ) {
@@ -40,7 +40,10 @@ class InternalMainController(
         return mav
     }
 
-    @GetMapping("/profile-search") // this is FUBAR renaming this to /profiles/search WONT WORK response is 200 but no HTML is redered.
+    // this is FUBAR renaming this to /profiles/search
+    // WONT WORK response is 200 but no HTML is rendered.
+    // Clash with apache camel most likely
+    @GetMapping("/profile-search")
     fun searchResults(
         @RequestParam query: String,
         model: Model
