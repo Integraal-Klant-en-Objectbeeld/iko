@@ -1,6 +1,7 @@
 package com.ritense.iko
 
 import com.ritense.iko.processor.HaalcentraalResponseProcessor
+import com.ritense.iko.profile.ProfileRepository
 import com.ritense.iko.route.ErrorHandlingRoute
 import com.ritense.iko.route.HaalCentraalRoute
 import com.ritense.iko.route.MainRoute
@@ -8,20 +9,23 @@ import com.ritense.iko.route.ObjectsApiRoute
 import com.ritense.iko.route.OpenZaakRoute
 import com.ritense.iko.route.PetstoreRoute
 import com.ritense.iko.route.RestConfigurationRoute
-import com.ritense.iko.route.profile.ProfileRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensProfielRoute
 import com.ritense.iko.route.profiel.persoongegeven.PersoonsgegevensRoute
 import com.ritense.iko.route.profiel.zaak.ZakenOpvragenRoute
 import com.ritense.iko.route.profiel.zaak.ZakenProfielRoute
 import org.apache.camel.CamelContext
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
+import org.apache.camel.spi.RestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 
 @Configuration
-class ApplicationConfig {
+class ApplicationConfig(val restConfiguration: RestConfiguration, val profileRepository: ProfileRepository) {
+
+    init {
+    }
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -47,16 +51,6 @@ class ApplicationConfig {
         this.host = "http://localhost:8010"
         this.produces = "application/json"
     }
-
-    @Bean
-    fun openZaak(camelContext: CamelContext) = RestOpenApiComponent(camelContext).apply {
-        this.specificationUri = "http://localhost:8001/zaken/api/v1/schema/openapi.yaml"
-        this.host = "http://localhost:8001"
-        this.produces = "application/json"
-    }
-
-    @Bean
-    fun profielRoute() = ProfileRoute()
 
     @Bean
     fun mainRoute() = MainRoute()

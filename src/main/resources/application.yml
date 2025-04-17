@@ -1,6 +1,11 @@
 spring:
     application:
         name: IKO
+    datasource:
+        url: jdbc:postgresql://localhost:5432/mydatabase
+        name: postgres
+        username: myuser
+        password: secret
 camel:
     yaml:
         routes:
