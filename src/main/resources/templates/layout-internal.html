@@ -40,9 +40,14 @@
             margin: 0;
             padding: 0;
             padding-top: 3rem;
-            padding-left: 16rem;
             vertical-align: baseline;
         }
+
+       @media(width > 1080px) {
+           body {
+               padding-left: 16rem;
+           }
+       }
 
         /* cds-grid {
              width: 100vw;
@@ -72,10 +77,10 @@
     </cds-side-nav>
 </cds-header>
 
-<main class="cds--content" style="">
+<main class="cds--content">
     <div class="cds--grid cds--grid--full-width">
         <div class="cds--row">
-            <div class="cds--col ">
+            <div class="cds--col">
                 <div id="view-panel">
                     <h1>Welcome to IKO</h1>
                 </div>
