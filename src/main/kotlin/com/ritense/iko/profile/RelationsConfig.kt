@@ -4,48 +4,12 @@ import com.ritense.iko.aggregator.ResponseAggregator
 import org.apache.camel.CamelContext
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.context.annotation.Configuration
-import java.util.UUID
 
 @Configuration
-class RelationsConfig(private val camelContext: CamelContext) {
-
-    var profileId = UUID.randomUUID()
-    var relationId = UUID.randomUUID()
-    var profiles: List<Profile> = listOf(
-        Profile(
-            id = profileId,
-            name = "profile1",
-            primarySource = "personenSearch",
-            relations = listOf(
-                Relation(
-                    id = UUID.randomUUID(),
-                    profileId = profileId,
-                    sourceToSearchMapping = "{ \"bsn\": \".burgerservicenummer\" }",
-                    searchId = "zakenSearch_bsn",
-                    transform = "{ zaken1: . }"
-                ),
-                Relation(
-                    id = relationId,
-                    profileId = profileId,
-                    sourceToSearchMapping = "{ \"bsn\": \".burgerservicenummer\" }",
-                    searchId = "zakenSearch_bsn",
-                    transform = "{ zaken2: [ .primary.results[], .secondary.zaken3 ] }"
-                ),
-                Relation(
-                    id = UUID.randomUUID(),
-                    profileId = profileId,
-                    sourceId = relationId,
-                    sourceToSearchMapping = "{ \"id\": \".results[0].uuid\" }",
-                    searchId = "zakenSearch",
-                    transform = "{ zaken3: . }"
-                )
-            ),
-            transform = "{ persoon: .primary, zaken: [ .secondary.zaken1.results[], .secondary.zaken2[] ] }"
-        )
-    )
+class RelationsConfig(private val camelContext: CamelContext, private val profileRepository: ProfileRepository) {
 
     init {
-        this.profiles.forEach { profile ->
+        this.profileRepository.findAll().forEach { profile ->
             camelContext.addRoutes(ProfileRouteBuilder(camelContext, profile))
         }
     }
