@@ -18,16 +18,16 @@ class Profile(
     val id: UUID = UUID.randomUUID(),
 
     @Column(name = "name")
-    val name: String = "",
+    var name: String = "",
 
     @Column(name = "primary_source")
-    val primarySource: String = "",
+    var primarySource: String = "",
 
     @OneToMany(cascade = [(CascadeType.ALL)], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "profile")
-    val relations: List<Relation> = mutableListOf(),
+    var relations: List<Relation> = mutableListOf(),
 
     @Column(name = "transform")
-    val transform: String = ""
+    var transform: String = ""
 ) {
 
 }

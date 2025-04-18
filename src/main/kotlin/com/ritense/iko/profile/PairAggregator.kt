@@ -3,15 +3,15 @@ package com.ritense.iko.profile
 import org.apache.camel.AggregationStrategy
 import org.apache.camel.Exchange
 
-object ProfileResponseAggregator : AggregationStrategy {
+object PairAggregator : AggregationStrategy {
     override fun aggregate(oldExchange: Exchange?, newExchange: Exchange): Exchange {
         if (oldExchange == null) {
             return newExchange
         }
 
         oldExchange.getIn().body = mapOf(
-            "primary" to oldExchange.getIn().body,
-            "secondary" to newExchange.getIn().body,
+            "left" to oldExchange.getIn().body,
+            "right" to newExchange.getIn().body,
         )
 
         return oldExchange
