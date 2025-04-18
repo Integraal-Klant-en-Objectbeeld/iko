@@ -12,21 +12,22 @@ import java.util.UUID
 
 @Entity
 @Table(name = "profile")
-data class Profile(
+class Profile(
     @Column(name = "id")
     @Id @GeneratedValue
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
 
     @Column(name = "name")
-    val name: String,
+    var name: String = "",
 
     @Column(name = "primary_source")
-    val primarySource: String,
+    var primarySource: String = "",
 
-    @OneToMany(cascade = [(CascadeType.ALL)], fetch = FetchType.LAZY, orphanRemoval = true)
-    val relations: List<Relation>,
+    @OneToMany(cascade = [(CascadeType.ALL)], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "profile")
+    var relations: List<Relation> = mutableListOf(),
 
     @Column(name = "transform")
-    val transform: String
+    var transform: String = ""
 ) {
+
 }

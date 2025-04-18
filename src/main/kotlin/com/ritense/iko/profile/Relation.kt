@@ -1,11 +1,13 @@
 package com.ritense.iko.profile
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import java.util.UUID
 
@@ -13,22 +15,23 @@ import java.util.UUID
 class Relation(
 
     @Id @GeneratedValue
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
 
-    @Column(name = "profile_id", nullable = false)
-    val profileId: UUID,
+    @JoinColumn(name = "profile_id")
+    @ManyToOne
+    val profile: Profile = Profile(),
 
     @Column(name = "source_id")
     val sourceId: UUID? = null,
 
     @Column(name = "source_to_search_mapping")
-    val sourceToSearchMapping: String,
+    val sourceToSearchMapping: String = "",
 
     @Column(name = "search_id")
-    val searchId: String,
+    val searchId: String = "",
 
     @Column(name = "transform")
-    val transform: String
+    val transform: String = ""
 ) {
 
     fun sourceToSearchMappingAsMap(): Map<String, String> {
