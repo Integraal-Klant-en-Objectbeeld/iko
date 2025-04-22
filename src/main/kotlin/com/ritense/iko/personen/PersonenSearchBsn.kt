@@ -12,6 +12,8 @@ class PersonenSearchBsn : RouteBuilder() {
     override fun configure() {
         from(URI)
             .routeId(this::class.java.canonicalName)
+            .removeHeaders("*", "bsn")
+            .errorHandler(noErrorHandler())
             .to(VALID_BSN)
             .setBody { exchange ->
                 mapOf(

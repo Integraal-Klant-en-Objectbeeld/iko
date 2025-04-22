@@ -18,11 +18,9 @@ class OpenZaakZaakRead(
 
         from(URI)
             .routeId(this::class.java.canonicalName)
-            .removeHeaders("*", "id")
             .setHeader("Accept-Crs", constant("EPSG:4326"))
             .setHeader("Content-Crs", constant("EPSG:4326"))
             .setHeader("Authorization", constant("Bearer ${generatedToken}"))
-            .setHeader("uuid", header("id"))
             .to("openZaak:zaak_read")
     }
 }

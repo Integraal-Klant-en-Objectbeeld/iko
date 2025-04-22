@@ -13,6 +13,9 @@ class PersonenSearchPostcodeEndHuisnummer : RouteBuilder() {
     override fun configure() {
         from(URI)
             .routeId(this::class.java.canonicalName)
+            .removeHeaders("*", "huisnummer")
+            .removeHeaders("*", "postcode")
+            .errorHandler(noErrorHandler())
             .to(VALID_POSTCODE)
             .to(VALID_HUISNUMMER)
             .setBody { exchange ->

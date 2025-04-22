@@ -35,8 +35,7 @@ class PersonenPublicEndpoints : RouteBuilder() {
         from("direct:public_personen")
             .to(PersonenSearch.URI)
             .marshal().json()
-
-
     }
 
 }
+

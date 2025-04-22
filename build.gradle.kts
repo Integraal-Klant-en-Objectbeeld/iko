@@ -34,6 +34,7 @@ dependencies {
     implementation("org.apache.camel:camel-yaml-dsl")
     implementation("org.apache.camel:camel-rest-openapi")
     implementation("org.apache.camel:camel-jq")
+    implementation("org.apache.camel:camel-bean")
 
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")

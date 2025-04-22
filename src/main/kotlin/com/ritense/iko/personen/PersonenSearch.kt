@@ -12,6 +12,8 @@ class PersonenSearch : RouteBuilder() {
     override fun configure() {
         from(URI)
             .setHeader("bsn", header("id"))
+            .removeHeaders("*", "bsn")
+            .errorHandler(noErrorHandler())
             .routeId(this::class.java.canonicalName)
             .to(VALID_BSN)
             .setBody { exchange ->

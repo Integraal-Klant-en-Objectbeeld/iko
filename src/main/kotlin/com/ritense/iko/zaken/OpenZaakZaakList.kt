@@ -16,7 +16,6 @@ class OpenZaakZaakList : RouteBuilder() {
 
         from(URI)
             .routeId(this::class.java.canonicalName)
-            .removeHeaders("*", "rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn")
             .setHeader("Accept-Crs", constant("EPSG:4326"))
             .setHeader("Authorization", constant("Bearer $generatedToken"))
             .to("openZaak:zaak_list")

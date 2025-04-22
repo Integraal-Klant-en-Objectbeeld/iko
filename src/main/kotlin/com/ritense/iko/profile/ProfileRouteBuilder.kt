@@ -10,8 +10,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
         val relations = profile.relations.filter { it.sourceId == source.id }
 
         from("direct:relation_${source.id}")
-            .routeId("relation_${source.id}_direct")
-            .removeHeaders("*")
+            .routeId("relation_direct_${source.id}")
             .marshal().json()
             .let {
                 var y = it
@@ -33,7 +32,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
 
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${source.id}")
-                .routeId("relation_${source.id}_multicast")
+                .routeId("relation_multicast_${source.id}")
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
@@ -48,10 +47,6 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
     }
 
     override fun configure() {
-        rest("/profile/${profile.name}")
-            .get("/{id}")
-            .to("direct:profile_${profile.id}")
-
         val relations = profile.relations.filter { it.sourceId == null }
 
         from("direct:profile_${profile.id}")

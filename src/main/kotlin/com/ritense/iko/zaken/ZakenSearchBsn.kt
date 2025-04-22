@@ -13,6 +13,7 @@ class ZakenSearchBsn : RouteBuilder() {
     override fun configure() {
         from(URI)
             .routeId(this::class.java.canonicalName)
+            .removeHeaders("*", "bsn")
             .errorHandler(noErrorHandler())
             .setHeader("rol__betrokkeneIdentificatie__natuurlijkPersoon__inpBsn", header("bsn"))
             .to(OpenZaakZaakList.URI)

@@ -12,9 +12,9 @@ class ZakenSearch : RouteBuilder() {
     override fun configure() {
         from(URI)
             .routeId(this::class.java.canonicalName)
+            .setHeader("uuid", header("id"))
             .errorHandler(noErrorHandler())
             .to(OpenZaakZaakRead.URI)
-            .setHeader("uuid", header("zaakId"))
             .unmarshal().json()
     }
 }
