@@ -11,6 +11,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
 
         from("direct:relation_${source.id}")
             .routeId("relation_direct_${source.id}")
+            .removeHeaders("*")
             .marshal().json()
             .let {
                 var y = it

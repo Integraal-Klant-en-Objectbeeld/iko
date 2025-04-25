@@ -5,19 +5,16 @@ import org.apache.camel.builder.RouteBuilder
 import org.springframework.stereotype.Component
 
 @Component
-class OpenZaakZaakList : RouteBuilder() {
-
+class OpenZaakApi : RouteBuilder() {
     companion object {
-        val URI = "direct:openZaak_zaakList"
+        val URI = "direct:openZaakApi"
     }
-
     override fun configure() {
         val generatedToken = TokenGeneratorService().generateToken()
 
         from(URI)
-            .routeId(this::class.java.canonicalName)
-            .setHeader("Accept-Crs", constant("EPSG:4326"))
             .setHeader("Authorization", constant("Bearer $generatedToken"))
-            .to("openZaak:zaak_list")
+            .toD("openZaak:\${header.openZaakApiOperation}")
+            .unmarshal().json()
     }
 }

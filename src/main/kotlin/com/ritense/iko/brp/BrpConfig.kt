@@ -1,4 +1,4 @@
-package com.ritense.iko.personen
+package com.ritense.iko.brp
 
 import org.apache.camel.CamelContext
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class PersonenConfig {
+class BrpConfig {
 
     @Bean
     fun brp(camelContext: CamelContext) = RestOpenApiComponent(camelContext).apply {
@@ -15,21 +15,6 @@ class PersonenConfig {
         this.host = "http://localhost:5010"
         this.produces = "application/json"
     }
-
-    @Bean
-    fun brpPersonenSearch() = BrpPersonenSearch()
-
-    @Bean
-    fun personenPublicEndpoints() = PersonenPublicEndpoints()
-
-    @Bean
-    fun persoonSearch() = PersonenSearch()
-
-    @Bean
-    fun personenSearch() = PersonenSearchBsn()
-
-    @Bean
-    fun personenSearchPostcodeEndHuisnummer() = PersonenSearchPostcodeEndHuisnummer()
 
     @Bean
     fun personenValidations() = PersonenValidations()

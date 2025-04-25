@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class ZakenConfig {
+class OpenZaakConfig {
 
     @Bean
     fun openZaak(camelContext: CamelContext) = RestOpenApiComponent(camelContext).apply {

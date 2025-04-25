@@ -20,3 +20,13 @@ as the respective `searchId` and map the parameters.
 
 - [Personen](./searches/personen.md)
 - [Zaken](./searches/zaken.md)
+
+## Add custom source and search with YAML
+
+TODO
+
+## Relations 
+
+## JQ
+
+## Authentication / OIDC
