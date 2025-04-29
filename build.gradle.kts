@@ -1,4 +1,8 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+
 plugins {
+    base
+    id("co.uzzu.dotenv.gradle") version "4.0.0"
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.4.4"
@@ -69,4 +73,8 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.withType<BootRun> {
+    environment = env.allVariables()
 }

@@ -1,6 +1,6 @@
 package com.ritense.iko.mvc.service
 
-import com.ritense.iko.brp.search.BrpPersonenSearch
+import com.ritense.iko.source.brp.search.BrpPersonenSearch
 import org.apache.camel.ConsumerTemplate
 import org.apache.camel.FluentProducerTemplate
 import org.springframework.stereotype.Service
