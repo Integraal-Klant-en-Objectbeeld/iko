@@ -1,0 +1,99 @@
+<th:block th:fragment="profile-edit">
+    <cds-content>
+        <cds-tile>
+            <cds-breadcrumb no-trailing-slash="">
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="/admin"
+                        is-currentpage="true">
+                        Home
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        hx-get="/admin/profiles"
+                        hx-target="#view-panel"
+                        is-currentpage="false"
+                        hx-push-url="true"
+                        visited="true">
+                        Profiles
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        th:attr="hx-get=@{'/admin/profiles/edit/' + ${profile.id}}"
+                        hx-target="#view-panel"
+                        is-currentpage="true"
+                        hx-push-url="true"
+                        visited="true">
+                        Detail
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+            </cds-breadcrumb>
+
+            <h2>Edit Profile:</h2>
+            <cds-form-group id="form-group" name="form-group" legend-text="Edit form">
+                <cds-stack gap="7">
+                    <cds-text-input name="id" th:value="${profile.id}" label="Id" readonly="true"></cds-text-input>
+                    <cds-text-input name="name" th:value="${profile.name}" label="Name"></cds-text-input>
+                    <cds-textarea name="transform" th:value="${profile.transform}"
+                                  label="Transform"
+                                  placeholder="JQ Transform"></cds-textarea>
+
+                    <cds-button
+                        type="button"
+                        hx-put="/admin/profiles"
+                        hx-target="#view-panel"
+                        hx-include="#form-group *">
+                        Submit
+                    </cds-button>
+
+                    <cds-table>
+                        <cds-table-header-description slot="description">
+                            Relations
+                        </cds-table-header-description>
+
+                        <!-- Toolbar + search -->
+                        <cds-table-toolbar slot="toolbar">
+                            <cds-table-toolbar-content>
+                                <cds-button
+                                    th:attr="hx-get=@{'/admin/profiles/' + ${profile.id} +'/relation/create'}"
+                                    hx-target="#modal-container"
+                                    hx-swap="innerHTML"
+                                    hx-push-url="false">
+                                    Add new Relation
+                                    <svg
+                                        focusable="false"
+                                        preserveAspectRatio="xMidYMid meet"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 32 32"
+                                        slot="icon">
+                                        <path
+                                            d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+                                    </svg>
+                                </cds-button>
+                            </cds-table-toolbar-content>
+                        </cds-table-toolbar>
+
+                        <!-- Table -->
+                        <cds-table-head>
+                            <cds-table-header-row>
+                                <cds-table-header-cell>Source</cds-table-header-cell>
+                                <cds-table-header-cell>Source to Search Mapping</cds-table-header-cell>
+                                <cds-table-header-cell>Search</cds-table-header-cell>
+                                <cds-table-header-cell>Transform</cds-table-header-cell>
+                            </cds-table-header-row>
+                        </cds-table-head>
+                        <th:block th:insert="~{fragments/internal/relations :: relations}"></th:block>
+                    </cds-table>
+                </cds-stack>
+            </cds-form-group>
+        </cds-tile>
+    </cds-content>
+</th:block>

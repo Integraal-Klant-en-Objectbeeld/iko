@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="en">-->
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en">
 <head>
     <meta charset="UTF-8">
     <title>IKO Admin</title>
@@ -9,24 +11,25 @@
     <link rel="preconnect" href="https://1.www.s81c.com">
 
     <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"
+            integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+            crossorigin="anonymous"></script>
 
-    <!-- IBM Plex Font -->
-    <link
-        rel="stylesheet"
-        href="https://1.www.s81c.com/common/carbon/web-components/tag/next/grid.css"/>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet"
+          href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"/>
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"/>
 
-    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400,600" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/carbon-components@10/css/carbon-components.min.css">
     <!-- Dynamically load Carbon Web Components -->
     <script type="module">
         const components = [
             'accordion', 'breadcrumb', 'button', 'checkbox', 'code-snippet', 'combo-box',
             'content-switcher', 'copy-button', 'data-table', 'date-picker', 'dropdown',
-            'file-uploader', 'floating-menu', 'form', 'inline-loading', 'input', 'link',
+            'file-uploader', 'floating-menu', 'form', 'form-group', 'inline-loading', 'input', 'link',
             'list', 'loading', 'modal', 'multi-select', 'notification', 'number-input',
             'overflow-menu', 'pagination', 'progress-indicator', 'radio-button', 'search',
-            'select', 'skeleton-placeholder', 'skeleton-text', 'skip-to-content', 'slider',
+            'select', 'skeleton-placeholder', 'skeleton-text', 'skip-to-content', 'slider', 'stack',
             'structured-list', 'tabs', 'tag', 'textarea', 'tile', 'toggle', 'tooltip', 'ui-shell',
         ];
         // Import each Carbon component module dynamically.
@@ -40,55 +43,62 @@
             margin: 0;
             padding: 0;
             padding-top: 3rem;
-            vertical-align: baseline;
         }
 
-       @media(width > 1080px) {
-           body {
-               padding-left: 16rem;
-           }
-       }
-
-        /* cds-grid {
-             width: 100vw;
-             max-width: 100%;
-             margin: 100px;
-             padding-left: 100px;
-         }*/
-
-        /* cds-side-nav {
-             min-width: 200px;
-         }
-
-         cds-column {
-             padding: 100rem;
-         }*/
+        @media (width > 1080px) {
+            body {
+                /*    padding-left: 16rem;*/
+            }
+        }
     </style>
 </head>
-<body>
-<cds-header aria-label="IKO App">
-    <cds-header-name href="#" prefix="IKO">
-        Integraal Klant & Objectbeeld
-    </cds-header-name>
-    <!-- Left Panel (Navigation) -->
-    <cds-side-nav style="background-color: blue;"
-                  collapse-mode=""
-                  th:insert="~{fragments/internal/menu :: menu}">
-    </cds-side-nav>
-</cds-header>
-
-<main class="cds--content">
-    <div class="cds--grid cds--grid--full-width">
+<body class="cds-theme-zone-white">
+<header>
+    <cds-header aria-label="IKO App">
+        <cds-header-name href="/admin" prefix="IKO">
+            [Integraal Klant & Objectbeeld]
+        </cds-header-name>
+        <!-- Left Panel (Navigation) -->
+        <cds-side-nav th:insert="~{fragments/internal/menu :: menu}"></cds-side-nav>
+    </cds-header>
+</header>
+<main class="cds--content main">
+    <div class="cds--css-grid cds--css-grid--full-width">
         <div class="cds--row">
-            <div class="cds--col">
-                <div id="view-panel">
-                    <h1>Welcome to IKO</h1>
+            <div class="cds--col-lg-13 cds--offset-lg-3">
+                <div id="view-panel" layout:fragment="view-panel-content">
+                    <cds-tile>
+                        <cds-breadcrumb no-trailing-slash="">
+                            <cds-breadcrumb-item>
+                                <cds-breadcrumb-link
+                                    href="/admin"
+                                    is-currentpage="true">
+                                    Home
+                                </cds-breadcrumb-link>
+                            </cds-breadcrumb-item>
+                        </cds-breadcrumb>
+                        <h2>
+                            Welcome to IKO
+                        </h2>
+                        <img
+                            class="page-landing__illo"
+                            th:src="@{tab-illo.png}"
+                            alt="Carbon illustration"
+                            width="640"
+                            height="498"/>
+                    </cds-tile>
                 </div>
             </div>
         </div>
     </div>
 </main>
-
-<script type="text/javascript">htmx.logAll();</script>
+<!--Modal container-->
+<div id="modal-container"
+     hx-on::after-swap="document.querySelector('cds-modal')?.toggleAttribute('open');">
+</div>
+<script type="text/javascript">
+    /*  htmx.logAll();*/
+    htmx.config.allowNestedOobSwaps = false; // Disable nested out-of-band swaps
+</script>
 </body>
 </html>

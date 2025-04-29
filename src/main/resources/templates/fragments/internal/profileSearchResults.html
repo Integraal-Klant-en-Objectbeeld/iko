@@ -1,9 +1,12 @@
-<cds-table-row th:fragment="profile-search-results"
-               th:each="profile : ${profiles}"
-               th:attr="hx-get=@{'/profiles/view/' + ${profile.id}},
-                         hx-target='#profile-list-view-panel',
-                         hx-swap='innerHTML',
-                         hx-push-url='true'">
-    <cds-table-cell th:text="${profile.id}"></cds-table-cell>
-    <cds-table-cell th:text="${profile.name}"></cds-table-cell>
-</cds-table-row>
+<th:block th:fragment="profile-search-results">
+    <cds-table-body id="search-results">
+        <cds-table-row th:each="profile : ${profiles}"
+                       th:attr="hx-get=@{'/admin/profiles/edit/' + ${profile.id}},
+                                 hx-target='#view-panel',
+                                 hx-swap='innerHTML',
+                                 hx-push-url='true'">
+            <cds-table-cell th:text="${profile.id}"></cds-table-cell>
+            <cds-table-cell th:text="${profile.name}"></cds-table-cell>
+        </cds-table-row>
+    </cds-table-body>
+</th:block>

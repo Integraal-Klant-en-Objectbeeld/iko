@@ -6,6 +6,7 @@
                 th:attr="hx-get='/search/' + ${search.name}"
                 th:text="${search.name}"
                 hx-swap="innerHTML"
+                hx-transition="true"
                 hx-target="#view-panel"
                 hx-push-url="false"
                 href="javascript:void(0);">

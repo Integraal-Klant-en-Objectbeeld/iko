@@ -1,72 +1,192 @@
 package com.ritense.iko.mvc.controller
 
+import com.ritense.iko.mvc.model.CreateProfileRequest
+import com.ritense.iko.mvc.model.CreateRelationRequest
 import com.ritense.iko.mvc.model.MenuItem
-import com.ritense.iko.mvc.service.PersonClientService
+import com.ritense.iko.mvc.model.ModifyProfileRequest
+import com.ritense.iko.profile.Profile
+import com.ritense.iko.profile.ProfileRepository
+import com.ritense.iko.profile.Relation
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
+import java.util.UUID
 
 @Controller
+@RequestMapping("/admin")
 class InternalMainController(
-    private val personClientService: PersonClientService,
+    private val profileRepository: ProfileRepository
 ) {
 
-    var profiles: List<Profile> = (1..500).map { i ->
-        Profile(id = i.toString(), name = "Profile $i")
-    }
+    val menuItems: List<MenuItem> = listOf(
+        MenuItem("Profiles", "/admin/profiles"),
+        MenuItem("Searches TODO", "/admin/searches"),
+    )
 
-    @GetMapping("/")
+    @GetMapping
     fun home(): ModelAndView {
         val mav = ModelAndView("layout-internal")
-        mav.addObject(
-            "menuItems",
-            listOf(
-                MenuItem("Profiles", "/profiles"),
-                MenuItem("Searches", "/searches"),
-            )
-        )
+        mav.addObject("menuItems", menuItems)
         return mav
     }
 
     @GetMapping("/profiles")
     fun profileList(
-        model: Model
+        @RequestParam(required = false, defaultValue = "") query: String,
+        @PageableDefault(size = 10) pageable: Pageable,
+        @RequestHeader("Hx-Request") isHxRequest: Boolean = false
     ): ModelAndView {
-        val mav = ModelAndView("fragments/internal/profileList")
-        mav.addObject("profiles", profiles)
-        return mav
+        val page = profileRepository.findAll(pageable)
+        return if (isHxRequest) {
+            ModelAndView("fragments/internal/profileList").apply {
+                addObject("profiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+            }
+        } else {
+            ModelAndView("fragments/internal/profileListPage").apply {
+                addObject("profiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("menuItems", menuItems)
+            }
+        }
     }
 
-    // this is FUBAR renaming this to /profiles/search
-    // WONT WORK response is 200 but no HTML is rendered.
-    // Clash with apache camel most likely
+    @GetMapping("/pagination")
+    fun pagination(
+        @RequestParam(required = false, defaultValue = "") query: String,
+        @PageableDefault(size = 10) pageable: Pageable
+    ): ModelAndView {
+        val page = profileRepository.findAll(pageable)
+        val list = ModelAndView("fragments/internal/pagination").apply {
+            addObject("profiles", page.content)
+            addObject("page", page)
+            addObject("query", query)
+        }
+        return list
+    }
+
     @GetMapping("/profile-search")
     fun searchResults(
-        @RequestParam query: String,
-        model: Model
-    ): ModelAndView {
-        val filteredProfiles = if (query.isBlank()) {
-            profiles
+        @RequestParam(required = false, defaultValue = "") query: String,
+        @PageableDefault(size = 10) pageable: Pageable,
+        @RequestHeader("Hx-Request") isHxRequest: Boolean = false
+    ): List<ModelAndView> {
+        val page = if (query.isBlank())
+            profileRepository.findAll(pageable)
+        else
+            profileRepository.findByNameContainingIgnoreCase(query.trim(), pageable)
+
+        if (isHxRequest) {
+            val searchResults = ModelAndView("fragments/internal/profileSearchResults").apply {
+                addObject("profiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+            }
+            val pagination = ModelAndView("fragments/internal/pagination").apply {
+                addObject("profiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+            }
+            return listOf(
+                searchResults,
+                pagination
+            )
         } else {
-            profiles.filter { it.name.contains(query, ignoreCase = true) }
+            return listOf(
+                ModelAndView("fragments/internal/profileSearchResultsPage").apply {
+                    addObject("profiles", page.content)
+                    addObject("page", page)
+                    addObject("query", query)
+                    addObject("menuItems", menuItems)
+                }
+            )
         }
-        val mav = ModelAndView("fragments/internal/profileSearchResults")
-        mav.addObject("profiles", filteredProfiles)
+    }
+
+    @GetMapping("/profiles/edit/{id}")
+    fun profileEdit(
+        @PathVariable id: String,
+        @RequestHeader("Hx-Request") isHxRequest: Boolean = false
+    ): ModelAndView {
+        val profile = profileRepository.getReferenceById(UUID.fromString(id))
+        return if (isHxRequest) {
+            ModelAndView("fragments/internal/profileEdit").apply {
+                addObject("profile", profile)
+                addObject("menuItems", menuItems)
+            }
+        } else {
+            ModelAndView("fragments/internal/profileEditPage").apply {
+                addObject("profile", profile)
+                addObject("menuItems", menuItems)
+            }
+        }
+    }
+
+    @GetMapping("/profiles/create")
+    fun profileCreate(): ModelAndView {
+        val mav = ModelAndView("fragments/internal/profileAdd")
         return mav
     }
 
-    @GetMapping("/profiles/view/{id}")
-    fun profileDetail(@PathVariable id: String, model: Model): ModelAndView {
-        val mav = ModelAndView("fragments/internal/profileDetail")
-        mav.addObject("profile", profiles.first { it.id == id })
+    @PutMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    fun updateProfile(@ModelAttribute request: ModifyProfileRequest): ModelAndView {
+        val result = request.run {
+            val profile = profileRepository.getReferenceById(this.id)
+            profile.handle(request)
+            profileRepository.save(profile)
+        }
+        val mav = ModelAndView("fragments/internal/profileEdit")
+        mav.addObject("profile", result)
+        return mav
+    }
+
+    @PostMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    fun createProfile(@ModelAttribute request: CreateProfileRequest): ModelAndView {
+        val result = request.run {
+            profileRepository.save(Profile.create(request))
+        }
+        val mav = ModelAndView("fragments/internal/profileEdit")
+        mav.addObject("profile", result)
+        return mav
+    }
+
+    @GetMapping("/profiles/{id}/relation/create")
+    fun relationCreate(@PathVariable id: UUID): ModelAndView {
+        val mav = ModelAndView("fragments/internal/relationAdd").apply {
+            addObject("profileId", id)
+        }
+        return mav
+    }
+
+    @PostMapping("/relation")
+    fun createRelation(@ModelAttribute request: CreateRelationRequest): ModelAndView {
+        val result = request.run {
+            profileRepository.getReferenceById(UUID.fromString(request.profileId)).apply {
+                this.relations.add(
+                    Relation(
+                        profile = this,
+                        sourceId = UUID.randomUUID(),
+                        transform = this.transform
+                    )
+                )
+                profileRepository.save(this)
+            }
+        }
+        val mav = ModelAndView("fragments/internal/relations").apply {
+            addObject("profile", result)
+        }
         return mav
     }
 }
-
-data class Profile(
-    val id: String,
-    val name: String
-)
