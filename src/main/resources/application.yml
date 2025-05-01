@@ -1,3 +1,9 @@
+logging:
+    level:
+        org:
+            springframework:
+                security: DEBUG
+
 spring:
     application:
         name: IKO
@@ -11,6 +17,26 @@ spring:
             static-locations: classpath:/static/
             cache:
                 period: 0
+    security:
+        oauth2:
+            client:
+                registration:
+                    keycloak:
+                        provider: keycloak
+                        authorization-grant-type: authorization_code
+                        scope: openid
+                        client-id: iko
+                        client-secret: 00P45NmAtiMFdDjBV2afWvbT0pGeIqDU
+                provider:
+                    keycloak:
+                        issuer-uri: http://localhost:8082/auth/realms/valtimo
+            resourceserver:
+                jwt:
+                    issuer-uri: http://localhost:8082/auth/realms/valtimo
+                    audiences: iko
+                    authority-prefix:
+                    authorities-claim-name: roles
+
 camel:
     yaml:
         routes:

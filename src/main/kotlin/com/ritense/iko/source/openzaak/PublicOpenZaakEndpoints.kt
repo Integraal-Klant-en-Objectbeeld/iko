@@ -15,14 +15,19 @@ import org.apache.camel.Exchange
 class PublicOpenZaakEndpoints : PublicSearchEndpoints() {
     override fun configure() {
 
+        onException(AccessDeniedException::class.java)
+            .handled(true)
+            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(403))
+            .setBody { e -> e.exception.message }
+
         onException(ValidationException::class.java)
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
             .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
             .setBody(constant("[]"))
 
-        id("/openZaak/zaken", OpenZaakSearchZaken.URI)
-        search("/openZaak/zaken", OpenZaakSearchZaken.URI)
+        id("/openZaak/zaken", OpenZaakSearchZaken.URI, listOf("ROLE_USER"))
+        search("/openZaak/zaken", OpenZaakSearchZaken.URI, listOf("ROLE_USER2"))
 
         id("/openZaak/zaakVerzoeken", OpenZaakSearchZaakVerzoeken.URI)
         search("/openZaak/zaakVerzoeken", OpenZaakSearchZaakVerzoeken.URI)
