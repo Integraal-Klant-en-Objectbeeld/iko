@@ -2,9 +2,9 @@
     <cds-table-body id="relations">
         <cds-table-row th:each="relation : ${profile.relations}">
             <cds-table-cell th:text="${relation.id}"></cds-table-cell>
-            <cds-table-cell th:text="${relation.transform}"></cds-table-cell>
-            <cds-table-cell th:text="${relation.transform}"></cds-table-cell>
-            <cds-table-cell th:text="${relation.transform}"></cds-table-cell>
+            <cds-table-cell th:text="${relation.sourceToSearchMapping}"></cds-table-cell>
+            <cds-table-cell th:text="${relation.searchId}"></cds-table-cell>
+            <cds-table-cell th:text="${relation.transform.expression}"></cds-table-cell>
         </cds-table-row>
     </cds-table-body>
 </th:block>

@@ -34,21 +34,47 @@
             </cds-breadcrumb>
 
             <h2>Edit Profile:</h2>
+
             <cds-form-group id="form-group" name="form-group" legend-text="Edit form">
                 <cds-stack gap="7">
-                    <cds-text-input name="id" th:value="${profile.id}" label="Id" readonly="true"></cds-text-input>
-                    <cds-text-input name="name" th:value="${profile.name}" label="Name"></cds-text-input>
-                    <cds-textarea name="transform" th:value="${profile.transform}"
-                                  label="Transform"
-                                  placeholder="JQ Transform"></cds-textarea>
+                    <form id="editForm"
+                          hx-put="/admin/profiles"
+                          hx-target="#view-panel"
+                          hx-swap="innerHTML">
+                        <!-- Form -->
+                        <cds-text-input name="id"
+                                        th:value="${profile.id}"
+                                        label="Id"
+                                        readonly="true">
+                        </cds-text-input>
+                        <cds-text-input name="name"
+                                        label="Name"
+                                        th:value="${profile.name}"
+                                        required="true">
+                        </cds-text-input>
+                        <cds-textarea   id="transform"
+                                        name="transform"
+                                        hx-oops="true"
+                                        hx-swap="outerHTML"
+                                      th:value="${profile.transform}"
+                                      label="Transform"
+                                      placeholder="JQ Transform"
+                                      required="true">
+                        </cds-textarea>
 
-                    <cds-button
-                        type="button"
-                        hx-put="/admin/profiles"
-                        hx-target="#view-panel"
-                        hx-include="#form-group *">
-                        Submit
-                    </cds-button>
+                        <!-- Button -->
+                        <button type="submit">
+                            Submit
+                        </button>
+                        <!--
+                         <cds-button
+                            type="button"
+                            hx-put="/admin/profiles"
+                            hx-target="#view-panel"
+                            hx-include="#form-group *">
+                            Submit
+                        </cds-button>-->
+                    </form>
 
                     <cds-table>
                         <cds-table-header-description slot="description">

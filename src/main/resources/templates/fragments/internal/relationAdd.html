@@ -1,21 +1,61 @@
 <th:block th:fragment="relation-add">
-    <cds-modal id="modal-container" prevent-close="false" size="md">
+    <cds-modal id="modal-container" size="md">
         <cds-modal-header>
             <cds-modal-close-button></cds-modal-close-button>
             <cds-modal-label>Add new Relation</cds-modal-label>
             <cds-modal-heading>Relation</cds-modal-heading>
         </cds-modal-header>
         <cds-modal-body>
-            <cds-modal-body-content description>
+            <!--<cds-modal-body-content description>
                 Add a new relation to the profile
-            </cds-modal-body-content>
+            </cds-modal-body-content>-->
             <cds-form-item>
-                <cds-text-input name="name" label="Name" placeholder="Name"></cds-text-input>
+                <cds-dropdown size="lg"
+                              helper-text=""
+                              title-text="Source"
+                              label="Source">
+                    <cds-dropdown-item value="1">
+                        BAG
+                    </cds-dropdown-item>
+                    <cds-dropdown-item value="2">
+                        Haalcentraal
+                    </cds-dropdown-item>
+                    <cds-dropdown-item value="3">
+                        OpenZaak
+                    </cds-dropdown-item>
+                    <cds-dropdown-item value="4">
+                        ObjectsAPI
+                    </cds-dropdown-item>
+                </cds-dropdown>
+            </cds-form-item>
+            <cds-form-item>
+                <cds-dropdown size="lg"
+                              helper-text=""
+                              title-text="Search"
+                              label="Search">
+                    <cds-dropdown-item value="1">
+                        Search 1
+                    </cds-dropdown-item>
+                    <cds-dropdown-item value="2">
+                        Search 2
+                    </cds-dropdown-item>
+                    <cds-dropdown-item value="3">
+                        Search 3
+                    </cds-dropdown-item>
+                    <cds-dropdown-item value="4">
+                        Search 4
+                    </cds-dropdown-item>
+                </cds-dropdown>
+            </cds-form-item>
+            <cds-form-item>
+                <cds-text-input name="sourceToSearchMapping"
+                                label="Source To Search Mapping"
+                                placeholder="e.g. {'bsn': '.burgerservicenummer'}"></cds-text-input>
             </cds-form-item>
             <cds-form-item>
                 <cds-textarea name="transform"
                               label="Transform"
-                              placeholder="JQ Transform"></cds-textarea>
+                              placeholder="A valid JQ expression"></cds-textarea>
             </cds-form-item>
             <input type="hidden" name="profileId" th:value="${profileId}"/>
         </cds-modal-body>

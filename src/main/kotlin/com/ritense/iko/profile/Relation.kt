@@ -2,6 +2,7 @@ package com.ritense.iko.profile
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
@@ -16,19 +17,19 @@ class Relation(
 
     @JoinColumn(name = "profile_id")
     @ManyToOne
-    val profile: Profile = Profile(),
+    var profile: Profile,
 
     @Column(name = "source_id")
-    val sourceId: UUID? = null,
+    var sourceId: UUID? = null,
 
     @Column(name = "source_to_search_mapping")
-    val sourceToSearchMapping: String = "",
+    var sourceToSearchMapping: String = "",
 
     @Column(name = "search_id")
-    val searchId: String = "",
+    var searchId: String = "",
 
-    @Column(name = "transform")
-    val transform: String = ""
+    @Embedded
+    var transform: Transform
 ) {
 
     fun sourceToSearchMappingAsMap(): Map<String, String> {
