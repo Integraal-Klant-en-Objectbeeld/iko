@@ -7,7 +7,6 @@ import com.ritense.iko.mvc.model.MenuItem
 import com.ritense.iko.mvc.model.ModifyProfileRequest
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
-import com.ritense.iko.profile.Relation
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
@@ -174,15 +173,36 @@ class InternalMainController(
     @PostMapping("/relations")
     fun createRelation(@ModelAttribute request: CreateRelationRequest): ModelAndView {
         val result = request.run {
-            profileRepository.getReferenceById(UUID.fromString(request.profileId)).apply {
-                this.relations.add(
-                    Relation(
-                        profile = this,
-                        sourceId = UUID.randomUUID(),
-                        transform = this.transform
-                    )
-                )
-                profileRepository.save(this)
+            profileRepository.getReferenceById(request.profileId).let {
+                it.addRelation(request)
+                profileRepository.save(it)
+            }
+        }
+        val mav = ModelAndView("fragments/internal/relations").apply {
+            addObject("profile", result)
+        }
+        return mav
+    }
+
+    @GetMapping("/profiles/{id}/relations/edit/{relationId}")
+    fun relationEdit(
+        @PathVariable id: UUID,
+        @PathVariable relationId: UUID,
+    ): ModelAndView {
+        val profile = profileRepository.getReferenceById(id)
+        val mav = ModelAndView("fragments/internal/relationEdit").apply {
+            addObject("profileId", profile.id)
+            addObject("relation", profile.relations.find { it.id == relationId })
+        }
+        return mav
+    }
+
+    @PutMapping("/relations")
+    fun updateRelation(@ModelAttribute request: EditRelationRequest): ModelAndView {
+        val result = request.run {
+            profileRepository.getReferenceById(request.profileId).let {
+                it.changeRelation(request)
+                profileRepository.save(it)
             }
         }
         val mav = ModelAndView("fragments/internal/relations").apply {

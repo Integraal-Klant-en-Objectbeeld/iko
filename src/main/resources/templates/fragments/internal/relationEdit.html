@@ -1,5 +1,5 @@
 <th:block th:fragment="relation-edit">
-    <cds-modal id="modal-container" prevent-close="false" size="md">
+    <cds-modal id="modal-container" size="md">
         <cds-modal-header>
             <cds-modal-close-button></cds-modal-close-button>
             <cds-modal-label>Edit Relation</cds-modal-label>
@@ -18,8 +18,8 @@
             </cds-form-item>
             <cds-form-item>
                 <cds-text-input name="sourceToSearchMapping"
-                                label="sourceToSearchMapping"
-                                placeholder="sourceToSearchMapping"
+                                label="Source to Search mapping"
+                                placeholder="Source to Search mapping"
                                 th:value="${relation.sourceToSearchMapping}">
                 </cds-text-input>
             </cds-form-item>
@@ -52,7 +52,7 @@
                 hx-target="#relations"
                 hx-swap="outerHTML"
                 hx-on::after-request="document.querySelector('cds-modal')?.toggleAttribute('open');">
-                Add
+                Edit
             </cds-modal-footer-button>
         </cds-modal-footer>
     </cds-modal>

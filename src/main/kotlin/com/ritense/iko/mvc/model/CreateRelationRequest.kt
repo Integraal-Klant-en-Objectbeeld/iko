@@ -1,8 +1,11 @@
 package com.ritense.iko.mvc.model
 
+import java.util.UUID
+
 data class CreateRelationRequest(
-    val profileId: String = "",
-    val name: String = "",
-    // val primarySource: String,
-    var transform: String = ""
+    val profileId: UUID,
+    val sourceId: String,
+    val searchId: String,
+    val sourceToSearchMapping: String,
+    var transform: String
 )
