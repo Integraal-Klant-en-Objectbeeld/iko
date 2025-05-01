@@ -210,32 +210,4 @@ class InternalMainController(
         }
         return mav
     }
-
-    @GetMapping("/profiles/{id}/relations/edit/{relationId}")
-    fun relationEdit(
-        @PathVariable id: UUID,
-        @PathVariable relationId: UUID,
-    ): ModelAndView {
-        val profile = profileRepository.getReferenceById(id)
-        val mav = ModelAndView("fragments/internal/relationEdit").apply {
-            addObject("profileId", profile.id)
-            addObject("relation", profile.relations.find { it.id == relationId })
-        }
-        return mav
-    }
-
-    @PutMapping("/relations")
-    fun updateRelation(@ModelAttribute request: EditRelationRequest): ModelAndView {
-        val result = request.run {
-            profileRepository.getReferenceById(request.profileId).let {
-                it.changeRelation(request)
-                profileRepository.save(it)
-            }
-        }
-        val mav = ModelAndView("fragments/internal/relations").apply {
-            addObject("profile", result)
-            addObject("relation", result.relations.find { it.id == request.relationId })
-        }
-        return mav
-    }
 }
