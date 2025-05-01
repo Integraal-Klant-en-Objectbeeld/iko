@@ -1,0 +1,59 @@
+<th:block th:fragment="relation-edit">
+    <cds-modal id="modal-container" prevent-close="false" size="md">
+        <cds-modal-header>
+            <cds-modal-close-button></cds-modal-close-button>
+            <cds-modal-label>Edit Relation</cds-modal-label>
+            <cds-modal-heading>Relation</cds-modal-heading>
+        </cds-modal-header>
+        <cds-modal-body>
+            <!--<cds-modal-body-content description>
+                Add a new relation to the profile
+            </cds-modal-body-content>-->
+            <cds-form-item>
+                <cds-text-input name="sourceId"
+                                label="Source"
+                                placeholder="Source ID"
+                                th:value="${relation.sourceId}">
+                </cds-text-input>
+            </cds-form-item>
+            <cds-form-item>
+                <cds-text-input name="sourceToSearchMapping"
+                                label="sourceToSearchMapping"
+                                placeholder="sourceToSearchMapping"
+                                th:value="${relation.sourceToSearchMapping}">
+                </cds-text-input>
+            </cds-form-item>
+            <cds-form-item>
+                <cds-text-input name="searchId"
+                                label="Search"
+                                placeholder="Search ID"
+                                th:value="${relation.searchId}">
+                </cds-text-input>
+            </cds-form-item>
+            <cds-form-item>
+                <cds-textarea name="transform"
+                              label="Transform"
+                              placeholder="JQ Transform"
+                              th:value="${relation.transform}">
+                </cds-textarea>
+            </cds-form-item>
+            <input type="hidden" name="profileId" th:value="${profileId}"/>
+            <input type="hidden" name="relationId" th:value="${relation.id}"/>
+        </cds-modal-body>
+        <cds-modal-footer>
+            <cds-modal-footer-button
+                kind="secondary"
+                hx-on:click="document.querySelector('cds-modal')?.toggleAttribute('open');">
+                Cancel
+            </cds-modal-footer-button>
+            <cds-modal-footer-button
+                hx-put="/admin/relations"
+                hx-include="#modal-container *"
+                hx-target="#relations"
+                hx-swap="outerHTML"
+                hx-on::after-request="document.querySelector('cds-modal')?.toggleAttribute('open');">
+                Add
+            </cds-modal-footer-button>
+        </cds-modal-footer>
+    </cds-modal>
+</th:block>

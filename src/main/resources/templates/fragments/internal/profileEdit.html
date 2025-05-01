@@ -59,7 +59,7 @@
                         <cds-table-toolbar slot="toolbar">
                             <cds-table-toolbar-content>
                                 <cds-button
-                                    th:attr="hx-get=@{'/admin/profiles/' + ${profile.id} +'/relation/create'}"
+                                    th:attr="hx-get=@{'/admin/profiles/' + ${profile.id} +'/relations/create'}"
                                     hx-target="#modal-container"
                                     hx-swap="innerHTML"
                                     hx-push-url="false">

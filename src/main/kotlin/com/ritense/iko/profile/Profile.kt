@@ -1,6 +1,7 @@
 package com.ritense.iko.profile
 
 import com.ritense.iko.mvc.model.CreateProfileRequest
+import com.ritense.iko.mvc.model.EditRelationRequest
 import com.ritense.iko.mvc.model.ModifyProfileRequest
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -34,6 +35,19 @@ class Profile(
     fun handle(request: ModifyProfileRequest) {
         this.name = request.name
         this.transform = request.transform
+    }
+
+    fun changeRelation(request: EditRelationRequest) {
+        this.relations.removeIf { it.id == request.relationId }
+        this.relations.add(
+            Relation(
+                profile = this,
+                sourceId = UUID.fromString(request.sourceId),
+                searchId = request.searchId,
+                transform = request.transform,
+                sourceToSearchMapping = request.sourceToSearchMapping
+            )
+        )
     }
 
     companion object {
