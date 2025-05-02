@@ -8,7 +8,10 @@ class BagSearchPanden : BagSearch() {
     override fun configure() {
         idAndSearchRoute(URI)
 
-        idRoute(URI, "pandIdentificatie", "identificatie")
+        idRoute(URI, "pandIdentificatie", "identificatie") { routeDefinition ->
+            routeDefinition
+                .setHeader("Accept-Crs", constant("epsg:28992"))
+        }
 
         searchRoute(
             URI, "zoekPanden", listOf(

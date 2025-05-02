@@ -10,6 +10,7 @@ abstract class PublicSearchEndpoints: RouteBuilder() {
             .to("direct:${to}_rest_id")
 
         from("direct:${to}_rest_id")
+            .errorHandler(noErrorHandler())
             .to(to)
             .marshal().json()
     }
@@ -20,6 +21,7 @@ abstract class PublicSearchEndpoints: RouteBuilder() {
             .to("direct:${to}_rest_search")
 
         from("direct:${to}_rest_search")
+            .errorHandler(noErrorHandler())
             .routeId("direct:${to}_rest_search")
             .to(to)
             .marshal().json()

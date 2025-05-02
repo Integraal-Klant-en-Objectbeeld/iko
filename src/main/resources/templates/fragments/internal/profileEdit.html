@@ -38,6 +38,11 @@
                 <cds-stack gap="7">
                     <cds-text-input name="id" th:value="${profile.id}" label="Id" readonly="true"></cds-text-input>
                     <cds-text-input name="name" th:value="${profile.name}" label="Name"></cds-text-input>
+                    <cds-text-input name="primarySource"
+                                    label="Primary Source"
+                                    th:value="${profile.primarySource}"
+                                    placeholder="Primary Source">
+                    </cds-text-input>
                     <cds-textarea name="transform" th:value="${profile.transform}"
                                   label="Transform"
                                   placeholder="JQ Transform"></cds-textarea>

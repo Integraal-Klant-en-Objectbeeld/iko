@@ -7,6 +7,7 @@ import com.ritense.iko.mvc.model.MenuItem
 import com.ritense.iko.mvc.model.ModifyProfileRequest
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
+import com.ritense.iko.profile.ProfileService
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
@@ -25,7 +26,8 @@ import java.util.UUID
 @Controller
 @RequestMapping("/admin")
 class InternalMainController(
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    private val profileService: ProfileService
 ) {
 
     val menuItems: List<MenuItem> = listOf(
@@ -145,6 +147,7 @@ class InternalMainController(
         val result = request.run {
             val profile = profileRepository.getReferenceById(this.id)
             profile.handle(request)
+            profileService.reloadRoutes(profile)
             profileRepository.save(profile)
         }
         val mav = ModelAndView("fragments/internal/profileEdit")
@@ -155,7 +158,9 @@ class InternalMainController(
     @PostMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
     fun createProfile(@ModelAttribute request: CreateProfileRequest): ModelAndView {
         val result = request.run {
-            profileRepository.save(Profile.create(request))
+            val profile = Profile.create(request)
+            profileService.reloadRoutes(profile)
+            profileRepository.save(profile)
         }
         val mav = ModelAndView("fragments/internal/profileEdit")
         mav.addObject("profile", result)
@@ -175,6 +180,7 @@ class InternalMainController(
         val result = request.run {
             profileRepository.getReferenceById(request.profileId).let {
                 it.addRelation(request)
+                profileService.reloadRoutes(it)
                 profileRepository.save(it)
             }
         }
@@ -202,11 +208,13 @@ class InternalMainController(
         val result = request.run {
             profileRepository.getReferenceById(request.profileId).let {
                 it.changeRelation(request)
+                profileService.reloadRoutes(it)
                 profileRepository.save(it)
             }
         }
         val mav = ModelAndView("fragments/internal/relations").apply {
             addObject("profile", result)
+            addObject("relation", result.relations.find { it.id == request.relationId })
         }
         return mav
     }

@@ -8,6 +8,7 @@ abstract class OpenZaakSearch : RouteBuilder() {
 
     fun idAndSearchRoute(uri: String) {
         from(uri)
+            .errorHandler(noErrorHandler())
             .choice()
             .`when`(simple("\${header.id} != null"))
             .to("${uri}_id")
@@ -22,6 +23,7 @@ abstract class OpenZaakSearch : RouteBuilder() {
         func: (RouteDefinition) -> RouteDefinition = { i -> i }
     ) {
         from("${uri}_id")
+            .errorHandler(noErrorHandler())
             .removeHeaders("*", "id")
             .setHeader("openZaakApiOperation", constant(operation))
             .setHeader(id, header("id"))
@@ -38,6 +40,7 @@ abstract class OpenZaakSearch : RouteBuilder() {
         func: (RouteDefinition) -> RouteDefinition = { i -> i }
     ) {
         from("${uri}_search")
+            .errorHandler(noErrorHandler())
             .removeHeaders(
                 "*", *headers.toTypedArray()
             )

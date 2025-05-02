@@ -8,7 +8,10 @@ class BagSearchLigplaatsen : BagSearch() {
     override fun configure() {
         idAndSearchRoute(URI)
 
-        idRoute(URI, "ligplaatsIdentificatie", "identificatie")
+        idRoute(URI, "ligplaatsIdentificatie", "identificatie") { routeDefinition ->
+            routeDefinition
+                .setHeader("Accept-Crs", constant("epsg:28992"))
+        }
 
         searchRoute(
             URI, "zoekLigplaatsen", listOf(

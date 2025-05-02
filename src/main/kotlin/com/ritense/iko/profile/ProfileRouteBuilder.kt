@@ -10,7 +10,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
         val relations = profile.relations.filter { it.sourceId == source.id }
 
         from("direct:relation_${source.id}")
-            .routeId("relation_direct_${source.id}")
+            .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
             .marshal().json()
             .let {
@@ -33,7 +33,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
 
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${source.id}")
-                .routeId("relation_multicast_${source.id}")
+                .routeId("relation_${source.id}_multicast")
                 .multicast(MapAggregator)
                 .parallelProcessing()
 

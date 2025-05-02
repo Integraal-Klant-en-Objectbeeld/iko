@@ -42,7 +42,7 @@ class Profile(
         this.relations.add(
             Relation(
                 profile = this,
-                sourceId = UUID.fromString(request.sourceId),
+                sourceId =if (request.sourceId.isNotBlank()) { UUID.fromString(request.sourceId) } else { null },
                 searchId = request.searchId,
                 transform = request.transform,
                 sourceToSearchMapping = request.sourceToSearchMapping
@@ -54,8 +54,9 @@ class Profile(
         this.relations.removeIf { it.id == request.relationId }
         this.relations.add(
             Relation(
+                id = request.relationId,
                 profile = this,
-                sourceId = UUID.fromString(request.sourceId),
+                sourceId = if (request.sourceId.isNotBlank()) { UUID.fromString(request.sourceId) } else { null },
                 searchId = request.searchId,
                 transform = request.transform,
                 sourceToSearchMapping = request.sourceToSearchMapping
@@ -69,6 +70,7 @@ class Profile(
             id = UUID.randomUUID(),
             name = request.name,
             transform = request.transform,
+            primarySource = request.primarySource,
         )
 
     }

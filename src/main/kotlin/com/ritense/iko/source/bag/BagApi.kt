@@ -14,7 +14,7 @@ class BagApi : RouteBuilder() {
             .errorHandler(noErrorHandler())
             .setHeader("Accept", constant("application/hal+json"))
             .setHeader("X-Api-Key", simple("{{iko.sources.bag.apiKey}}"))
-            .toD("bag:\${header.bagApiOperation}")
+            .toD("bag:\${header.bagApiOperation}?throwExceptionOnFailure=false")
             .unmarshal().json()
     }
 

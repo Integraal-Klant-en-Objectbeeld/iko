@@ -12,6 +12,7 @@ class BrpPersonenSearch : RouteBuilder() {
 
     override fun configure() {
         from(URI)
+            .errorHandler(noErrorHandler())
             .routeId(URI)
             .choice()
             .`when`(simple("\${header.id} != null"))
@@ -85,6 +86,7 @@ class BrpPersonenSearch : RouteBuilder() {
             .to(BrpPersonenApi.URI)
 
         from("${URI}_adresseerbaarObjectIdentificatie")
+            .errorHandler(noErrorHandler())
             .setBody { exchange ->
                 mapOf(
                     "type" to "ZoekMetAdresseerbaarObjectIdentificatie",
@@ -101,6 +103,7 @@ class BrpPersonenSearch : RouteBuilder() {
             .marshal().json()
 
         from("${URI}_nummeraanduidingIdentificatie")
+            .errorHandler(noErrorHandler())
             .setBody { exchange ->
                 mapOf(
                     "type" to "ZoekMetNummeraanduidingIdentificatie",
@@ -116,6 +119,7 @@ class BrpPersonenSearch : RouteBuilder() {
             .marshal().json()
 
         from("${URI}_straatHuisnummerEnGemeenteVanInschrijving")
+            .errorHandler(noErrorHandler())
             .setBody { exchange ->
                 mapOf(
                     "type" to "ZoekMetStraatHuisnummerEnGemeenteVanInschrijving",
@@ -134,6 +138,7 @@ class BrpPersonenSearch : RouteBuilder() {
             .marshal().json()
 
         from("${URI}_naamEnGemeenteVanInschrijving")
+            .errorHandler(noErrorHandler())
             .setBody { exchange ->
                 mapOf(
                     "type" to "ZoekMetNaamEnGemeenteVanInschrijving",
@@ -152,6 +157,7 @@ class BrpPersonenSearch : RouteBuilder() {
             .marshal().json()
 
         from("${URI}_geslachtsnaamEnGeboortedatum")
+            .errorHandler(noErrorHandler())
             .setBody { exchange ->
                 mapOf(
                     "type" to "ZoekMetGeslachtsnaamEnGeboortedatum",
@@ -171,6 +177,7 @@ class BrpPersonenSearch : RouteBuilder() {
             .marshal().json()
 
         from("${URI}_postcodeEnHuisnummer")
+            .errorHandler(noErrorHandler())
             .setBody { exchange ->
                 mapOf(
                     "type" to "ZoekMetPostcodeEnHuisnummer",
@@ -189,11 +196,10 @@ class BrpPersonenSearch : RouteBuilder() {
                 ).filter { it.value != null }
             }
             .marshal().json()
-            .log("\${body}")
 
 
         from("${URI}_burgerservicenummer")
-            .log("\${body}")
+            .errorHandler(noErrorHandler())
             .setBody { exchange ->
                 mapOf(
                     "type" to "RaadpleegMetBurgerservicenummer",
@@ -201,8 +207,6 @@ class BrpPersonenSearch : RouteBuilder() {
                     "fields" to listOf("burgerservicenummer", "naam")
                 ).filter { it.value != null }
             }
-            .log("\${body}")
             .marshal().json()
-            .log("\${body}")
     }
 }

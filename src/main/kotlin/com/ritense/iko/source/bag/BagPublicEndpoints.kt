@@ -16,6 +16,7 @@ import org.apache.camel.Exchange
 
 class BagPublicEndpoints : PublicSearchEndpoints() {
     override fun configure() {
+
         onException(ValidationException::class.java)
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))

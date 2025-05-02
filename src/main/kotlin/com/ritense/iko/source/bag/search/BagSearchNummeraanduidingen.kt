@@ -8,7 +8,7 @@ class BagSearchNummeraanduidingen : BagSearch() {
     override fun configure() {
         idAndSearchRoute(URI)
 
-        idRoute(URI, "nummeraanduidingIdentificatie", "identificatie")
+        idRoute(URI, "nummeraanduidingIdentificatie", "nummeraanduidingIdentificatie")
 
         searchRoute(
             URI, "zoekNummeraanduiding", listOf(

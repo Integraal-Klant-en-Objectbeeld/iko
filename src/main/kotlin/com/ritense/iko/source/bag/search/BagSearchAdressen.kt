@@ -8,7 +8,9 @@ class BagSearchAdressen : BagSearch() {
     override fun configure() {
         idAndSearchRoute(URI)
 
-        idRoute(URI, "bevraagAdressenMetNumId", "nummeraanduidingIdentificatie")
+        idRoute(URI, "bevraagAdressenMetNumId", "nummeraanduidingIdentificatie") {
+            it.setHeader("expand", constant("true"))
+        }
 
         searchRoute(
             URI, "bevraagAdressen", listOf(
