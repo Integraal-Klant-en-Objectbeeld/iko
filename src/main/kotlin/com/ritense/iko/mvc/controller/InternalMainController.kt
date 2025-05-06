@@ -1,19 +1,17 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.mvc.model.AddProfileForm
+import com.ritense.iko.mvc.model.CreateProfileRequest
 import com.ritense.iko.mvc.model.CreateRelationRequest
-import com.ritense.iko.mvc.model.EditProfileForm
+import com.ritense.iko.mvc.model.EditRelationRequest
 import com.ritense.iko.mvc.model.MenuItem
+import com.ritense.iko.mvc.model.ModifyProfileRequest
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
-import com.ritense.iko.profile.Relation
-import com.ritense.iko.profile.Transform
-import jakarta.validation.Valid
+import com.ritense.iko.profile.ProfileService
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
-import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -28,7 +26,8 @@ import java.util.UUID
 @Controller
 @RequestMapping("/admin")
 class InternalMainController(
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    private val profileService: ProfileService
 ) {
 
     val menuItems: List<MenuItem> = listOf(
@@ -144,41 +143,31 @@ class InternalMainController(
     }
 
     @PutMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun updateProfile(
-        @ModelAttribute form: EditProfileForm
-    ): ModelAndView {
+    fun updateProfile(@ModelAttribute request: ModifyProfileRequest): ModelAndView {
+        val result = request.run {
+            val profile = profileRepository.getReferenceById(this.id)
+            profile.handle(request)
+            profileService.reloadRoutes(profile)
+            profileRepository.save(profile)
+        }
         val mav = ModelAndView("fragments/internal/profileEdit")
-        //if (!bindingResult.hasErrors()) {
-            val result = form.run {
-                val profile = profileRepository.getReferenceById(this.id)
-                profile.handle(form)
-                profileRepository.save(profile)
-            }
-            mav.addObject("profile", result)
-        //} else {
-            //mav.addObject("profile", form)
-            //mav.addObject("errors", bindingResult.allErrors)
-        //}
+        mav.addObject("profile", result)
         return mav
     }
 
     @PostMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun createProfile(
-        @Valid @ModelAttribute request: AddProfileForm,
-        bindingResult: BindingResult
-    ): ModelAndView {
+    fun createProfile(@ModelAttribute request: CreateProfileRequest): ModelAndView {
         val result = request.run {
-            profileRepository.save(Profile.create(request))
+            val profile = Profile.create(request)
+            profileService.reloadRoutes(profile)
+            profileRepository.save(profile)
         }
         val mav = ModelAndView("fragments/internal/profileEdit")
         mav.addObject("profile", result)
-        if (bindingResult.hasErrors()) {
-            mav.addObject("errors")
-        }
         return mav
     }
 
-    @GetMapping("/profiles/{id}/relation/create")
+    @GetMapping("/profiles/{id}/relations/create")
     fun relationCreate(@PathVariable id: UUID): ModelAndView {
         val mav = ModelAndView("fragments/internal/relationAdd").apply {
             addObject("profileId", id)
@@ -186,24 +175,46 @@ class InternalMainController(
         return mav
     }
 
-    @PostMapping("/relation")
-    fun createRelation(
-        @ModelAttribute @Valid request: CreateRelationRequest
-    ): ModelAndView {
+    @PostMapping("/relations")
+    fun createRelation(@ModelAttribute request: CreateRelationRequest): ModelAndView {
         val result = request.run {
-            profileRepository.getReferenceById(request.profileId).apply {
-                this.relations.add(
-                    Relation(
-                        profile = this,
-                        sourceId = UUID.randomUUID(),
-                        transform = Transform(request.transform),
-                    )
-                )
-                profileRepository.save(this)
+            profileRepository.getReferenceById(request.profileId).let {
+                it.addRelation(request)
+                profileService.reloadRoutes(it)
+                profileRepository.save(it)
             }
         }
         val mav = ModelAndView("fragments/internal/relations").apply {
             addObject("profile", result)
+        }
+        return mav
+    }
+
+    @GetMapping("/profiles/{id}/relations/edit/{relationId}")
+    fun relationEdit(
+        @PathVariable id: UUID,
+        @PathVariable relationId: UUID,
+    ): ModelAndView {
+        val profile = profileRepository.getReferenceById(id)
+        val mav = ModelAndView("fragments/internal/relationEdit").apply {
+            addObject("profileId", profile.id)
+            addObject("relation", profile.relations.find { it.id == relationId })
+        }
+        return mav
+    }
+
+    @PutMapping("/relations")
+    fun updateRelation(@ModelAttribute request: EditRelationRequest): ModelAndView {
+        val result = request.run {
+            profileRepository.getReferenceById(request.profileId).let {
+                it.changeRelation(request)
+                profileService.reloadRoutes(it)
+                profileRepository.save(it)
+            }
+        }
+        val mav = ModelAndView("fragments/internal/relations").apply {
+            addObject("profile", result)
+            addObject("relation", result.relations.find { it.id == request.relationId })
         }
         return mav
     }

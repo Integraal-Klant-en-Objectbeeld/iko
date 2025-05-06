@@ -1,4 +1,8 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+
 plugins {
+    base
+    id("co.uzzu.dotenv.gradle") version "4.0.0"
     kotlin("jvm") version "2.1.20"
     kotlin("plugin.spring") version "2.1.20"
     kotlin("plugin.jpa") version "2.1.20"
@@ -36,6 +40,7 @@ dependencies {
     implementation("org.apache.camel:camel-yaml-dsl")
     implementation("org.apache.camel:camel-rest-openapi")
     implementation("org.apache.camel:camel-jq")
+    implementation("org.apache.camel:camel-bean")
 
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")
@@ -71,4 +76,8 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.withType<BootRun> {
+    environment = env.allVariables()
 }

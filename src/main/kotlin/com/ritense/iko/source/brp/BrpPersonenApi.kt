@@ -1,12 +1,12 @@
-package com.ritense.iko.personen
+package com.ritense.iko.source.brp
 
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 
-class BrpPersonenSearch : RouteBuilder() {
+class BrpPersonenApi : RouteBuilder() {
 
     companion object {
-        val URI = "direct:brp_personen"
+        val URI = "direct:brpPersonenApi"
     }
 
     override fun configure() {
@@ -16,7 +16,7 @@ class BrpPersonenSearch : RouteBuilder() {
             .setHeader(Exchange.HTTP_URI).header("url")
             .removeHeader(Exchange.HTTP_PATH)
             .removeHeader(Exchange.HTTP_URI)
-            .marshal().json()
             .to("brp:Personen")
+            .unmarshal().json()
     }
 }

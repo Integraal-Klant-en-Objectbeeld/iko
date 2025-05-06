@@ -16,3 +16,20 @@ camel:
         routes:
             enabled: true
             paths: classpath:camel/*.yaml
+
+iko:
+    sources:
+        brp:
+            enabled: true
+            host: # ENV
+            secret: # ENV
+        openzaak:
+            enabled: true
+            host: # ENV
+            clientId: # ENV
+            secret: # ENV
+        bag:
+            enabled: true
+            host: # ENV
+            apiKey: # ENV
+

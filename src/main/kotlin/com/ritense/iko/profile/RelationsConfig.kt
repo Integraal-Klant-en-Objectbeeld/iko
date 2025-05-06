@@ -1,6 +1,7 @@
 package com.ritense.iko.profile
 
 import org.apache.camel.CamelContext
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
@@ -15,4 +16,9 @@ class RelationsConfig(
         }
     }
 
+    @Bean
+    fun profileRoute() = ProfileRoute(profileRepository)
+
 }
+
+

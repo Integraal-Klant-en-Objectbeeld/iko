@@ -1,4 +1,4 @@
-package com.ritense.iko.personen
+package com.ritense.iko.source.brp
 
 import org.apache.camel.Exchange
 import org.apache.camel.Predicate

@@ -34,25 +34,20 @@
             </cds-breadcrumb>
 
             <h2>Edit Profile:</h2>
-
             <cds-form-group id="form-group" name="form-group" legend-text="Edit form">
                 <cds-stack gap="7">
-                    <form id="editForm"
-                          hx-put="/admin/profiles"
-                          hx-target="#view-panel"
-                          hx-swap="innerHTML">
-                        <!-- Form -->
-                        <cds-text-input name="id"
-                                        th:value="${profile.id}"
-                                        label="Id"
-                                        readonly="true">
-                        </cds-text-input>
-                        <cds-text-input name="name"
-                                        label="Name"
-                                        th:value="${profile.name}"
-                                        required="true">
-                        </cds-text-input>
-                        <cds-textarea   id="transform"
+                    <cds-text-input name="id" th:value="${profile.id}" label="Id" readonly="true"></cds-text-input>
+                    <cds-text-input name="name" th:value="${profile.name}" label="Name"></cds-text-input>
+                    <cds-text-input name="primarySource"
+                                    label="Primary Source"
+                                    th:value="${profile.primarySource}"
+                                    placeholder="Primary Source">
+                    </cds-text-input>
+                    <cds-textarea name="transform" th:value="${profile.transform}"
+                                  label="Transform"
+                                  placeholder="JQ Transform"></cds-textarea>
+                    <!--
+                     <cds-textarea   id="transform"
                                         name="transform"
                                         hx-oops="true"
                                         hx-swap="outerHTML"
@@ -61,20 +56,14 @@
                                       placeholder="JQ Transform"
                                       required="true">
                         </cds-textarea>
-
-                        <!-- Button -->
-                        <button type="submit">
-                            Submit
-                        </button>
-                        <!--
-                         <cds-button
-                            type="button"
-                            hx-put="/admin/profiles"
-                            hx-target="#view-panel"
-                            hx-include="#form-group *">
-                            Submit
-                        </cds-button>-->
-                    </form>
+                    -->
+                    <cds-button
+                        type="button"
+                        hx-put="/admin/profiles"
+                        hx-target="#view-panel"
+                        hx-include="#form-group *">
+                        Submit
+                    </cds-button>
 
                     <cds-table>
                         <cds-table-header-description slot="description">
@@ -85,7 +74,7 @@
                         <cds-table-toolbar slot="toolbar">
                             <cds-table-toolbar-content>
                                 <cds-button
-                                    th:attr="hx-get=@{'/admin/profiles/' + ${profile.id} +'/relation/create'}"
+                                    th:attr="hx-get=@{'/admin/profiles/' + ${profile.id} +'/relations/create'}"
                                     hx-target="#modal-container"
                                     hx-swap="innerHTML"
                                     hx-push-url="false">

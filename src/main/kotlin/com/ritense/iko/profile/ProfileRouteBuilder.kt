@@ -48,10 +48,6 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
     }
 
     override fun configure() {
-        rest("/profile/${profile.name}")
-            .get("/{id}")
-            .to("direct:profile_${profile.id}")
-
         val relations = profile.relations.filter { it.sourceId == null }
 
         from("direct:profile_${profile.id}")

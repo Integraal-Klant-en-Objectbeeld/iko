@@ -1,13 +1,12 @@
 package com.ritense.iko.mvc.model
 
-import jakarta.validation.constraints.NotBlank
 import java.util.UUID
 
-data class CreateRelationRequest(
+data class EditRelationRequest(
     val profileId: UUID,
+    val relationId: UUID,
     val sourceId: String,
     val searchId: String,
     val sourceToSearchMapping: String,
-    @NotBlank("Transform cannot be blank")
     var transform: String
 )
