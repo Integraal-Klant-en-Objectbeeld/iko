@@ -16,8 +16,10 @@
             crossorigin="anonymous"></script>
 
     <meta charset="UTF-8"/>
-    <link rel="stylesheet"
-          href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
+
+    <!-- Carbon v11 CDN stylesheet -->
+    <link rel="stylesheet" href="https://unpkg.com/@carbon/styles@1/css/styles.css">
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"/>
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"/>
 
@@ -40,7 +42,7 @@
     <style>
         body {
             font-family: 'IBM Plex Sans', sans-serif;
-            margin: 0;
+            margin-left: 2rem;
             padding: 0;
             padding-top: 3rem;
         }
@@ -62,31 +64,28 @@
         <cds-side-nav th:insert="~{fragments/internal/menu :: menu}"></cds-side-nav>
     </cds-header>
 </header>
-<main class="cds--content main">
-    <div class="cds--css-grid cds--css-grid--full-width">
-        <div class="cds--row">
-            <div class="cds--col-lg-13 cds--offset-lg-3">
-                <div id="view-panel" layout:fragment="view-panel-content">
-                    <cds-tile>
-                        <cds-breadcrumb no-trailing-slash="">
-                            <cds-breadcrumb-item>
-                                <cds-breadcrumb-link
-                                    href="/admin"
-                                    is-currentpage="true">
-                                    Home
-                                </cds-breadcrumb-link>
-                            </cds-breadcrumb-item>
-                        </cds-breadcrumb>
-                        <h2 class="">
-                            Welcome to IKO
-                        </h2>
-                        <img
-                            class="page-landing__illo"
-                            th:src="@{tab-illo.png}"
-                            alt="Carbon illustration"
-                            width="640"
-                            height="498"/>
-                    </cds-tile>
+<main class="cds--grid cds--grid--full-width">
+    <div class="cds--row">
+        <div class="cds--col-lg-14 cds--offset-lg-2">
+            <div id="view-panel" layout:fragment="view-panel-content">
+                <div class="cds--tile">
+                    <cds-breadcrumb no-trailing-slash="">
+                        <cds-breadcrumb-item>
+                            <cds-breadcrumb-link
+                                href="/admin"
+                                is-currentpage="true">
+                                Home
+                            </cds-breadcrumb-link>
+                        </cds-breadcrumb-item>
+                    </cds-breadcrumb>
+                    <h2 class="cds--heading-03">Welkom bij de IKO App</h2>
+                    <p class="cds--body-long-01"></p>
+                    <img
+                        class="page-landing__illo"
+                        th:src="@{tab-illo.png}"
+                        alt="Carbon illustration"
+                        width="640"
+                        height="498"/>
                 </div>
             </div>
         </div>
