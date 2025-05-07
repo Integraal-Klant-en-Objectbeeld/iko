@@ -13,19 +13,13 @@
                 <cds-dropdown name="sourceId"
                               size="lg"
                               helper-text=""
-                              title-text="Source"
-                              label="Source">
-                    <cds-dropdown-item value="1">
-                        BAG
+                              title-text="From"
+                              label="From">
+                    <cds-dropdown-item value="">
+                        Profile
                     </cds-dropdown-item>
-                    <cds-dropdown-item value="2">
-                        Haalcentraal
-                    </cds-dropdown-item>
-                    <cds-dropdown-item value="3">
-                        OpenZaak
-                    </cds-dropdown-item>
-                    <cds-dropdown-item value="4">
-                        ObjectsAPI
+                    <cds-dropdown-item th:each="source : ${sources}" th:value="${source.id}">
+                        <span th:text="${source.name}"></span>
                     </cds-dropdown-item>
                 </cds-dropdown>
             </cds-form-item>
@@ -35,23 +29,14 @@
                               helper-text=""
                               title-text="Search"
                               label="Search">
-                    <cds-dropdown-item value="1">
-                        Search 1
-                    </cds-dropdown-item>
-                    <cds-dropdown-item value="2">
-                        Search 2
-                    </cds-dropdown-item>
-                    <cds-dropdown-item value="3">
-                        Search 3
-                    </cds-dropdown-item>
-                    <cds-dropdown-item value="4">
-                        Search 4
+                    <cds-dropdown-item th:each="search : ${searches}" th:value="${search.id}">
+                        <span th:text="${search.name}"></span>
                     </cds-dropdown-item>
                 </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
                 <cds-text-input name="sourceToSearchMapping"
-                                label="Source To Search Mapping"
+                                label="Search parameter Mapping"
                                 placeholder="e.g. {'bsn': '.burgerservicenummer'}"></cds-text-input>
             </cds-form-item>
             <cds-form-item>

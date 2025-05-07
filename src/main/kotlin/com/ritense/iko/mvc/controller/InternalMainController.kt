@@ -1,13 +1,16 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.mvc.model.CreateProfileRequest
+import com.ritense.iko.mvc.model.AddProfileForm
 import com.ritense.iko.mvc.model.CreateRelationRequest
+import com.ritense.iko.mvc.model.EditProfileForm
 import com.ritense.iko.mvc.model.EditRelationRequest
 import com.ritense.iko.mvc.model.MenuItem
-import com.ritense.iko.mvc.model.ModifyProfileRequest
+import com.ritense.iko.mvc.model.Search
+import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
 import com.ritense.iko.profile.ProfileService
+import com.ritense.iko.source.SearchService
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
@@ -27,7 +30,8 @@ import java.util.UUID
 @RequestMapping("/admin")
 class InternalMainController(
     private val profileRepository: ProfileRepository,
-    private val profileService: ProfileService
+    private val profileService: ProfileService,
+    private val searchService: SearchService,
 ) {
 
     val menuItems: List<MenuItem> = listOf(
@@ -119,10 +123,10 @@ class InternalMainController(
 
     @GetMapping("/profiles/edit/{id}")
     fun profileEdit(
-        @PathVariable id: String,
+        @PathVariable id: UUID,
         @RequestHeader("Hx-Request") isHxRequest: Boolean = false
     ): ModelAndView {
-        val profile = profileRepository.getReferenceById(UUID.fromString(id))
+        val profile = profileRepository.getReferenceById(id)
         return if (isHxRequest) {
             ModelAndView("fragments/internal/profileEdit").apply {
                 addObject("profile", profile)
@@ -143,7 +147,7 @@ class InternalMainController(
     }
 
     @PutMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun updateProfile(@ModelAttribute request: ModifyProfileRequest): ModelAndView {
+    fun updateProfile(@ModelAttribute request: EditProfileForm): ModelAndView {
         val result = request.run {
             val profile = profileRepository.getReferenceById(this.id)
             profile.handle(request)
@@ -156,7 +160,7 @@ class InternalMainController(
     }
 
     @PostMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun createProfile(@ModelAttribute request: CreateProfileRequest): ModelAndView {
+    fun createProfile(@ModelAttribute request: AddProfileForm): ModelAndView {
         val result = request.run {
             val profile = Profile.create(request)
             profileService.reloadRoutes(profile)
@@ -169,8 +173,24 @@ class InternalMainController(
 
     @GetMapping("/profiles/{id}/relations/create")
     fun relationCreate(@PathVariable id: UUID): ModelAndView {
+        val profile = profileRepository.getReferenceById(id)
         val mav = ModelAndView("fragments/internal/relationAdd").apply {
             addObject("profileId", id)
+            addObject("sources", profile.relations.map { relation ->
+                Source(
+                    id = relation.id.toString(),
+                    name = relation.id.toString()
+                )
+            }
+            )
+            addObject(
+                "searches", searchService.getSearches().map {
+                    Search(
+                        id = it.value,
+                        name = it.key,
+                    )
+                }
+            )
         }
         return mav
     }

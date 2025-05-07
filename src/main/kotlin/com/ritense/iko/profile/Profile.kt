@@ -45,7 +45,7 @@ class Profile(
                 profile = this,
                 sourceId =if (request.sourceId.isNotBlank()) { UUID.fromString(request.sourceId) } else { null },
                 searchId = request.searchId,
-                transform = request.transform,
+                transform = Transform(request.transform),
                 sourceToSearchMapping = request.sourceToSearchMapping
             )
         )
@@ -59,7 +59,7 @@ class Profile(
                 profile = this,
                 sourceId = if (request.sourceId.isNotBlank()) { UUID.fromString(request.sourceId) } else { null },
                 searchId = request.searchId,
-                transform = request.transform,
+                transform = Transform(request.transform),
                 sourceToSearchMapping = request.sourceToSearchMapping
             )
         )

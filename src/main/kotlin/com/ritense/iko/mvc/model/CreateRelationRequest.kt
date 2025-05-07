@@ -8,6 +8,6 @@ data class CreateRelationRequest(
     val sourceId: String,
     val searchId: String,
     val sourceToSearchMapping: String,
-    @NotBlank("Transform cannot be blank")
+    @NotBlank(message = "Transform cannot be blank")
     var transform: String
 )
