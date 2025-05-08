@@ -1,7 +1,7 @@
 package com.ritense.iko.profile
 
 import com.ritense.iko.mvc.model.AddProfileForm
-import com.ritense.iko.mvc.model.CreateRelationRequest
+import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.EditProfileForm
 import com.ritense.iko.mvc.model.EditRelationRequest
 import jakarta.persistence.CascadeType
@@ -39,7 +39,7 @@ class Profile(
         this.transform = Transform(request.transform)
     }
 
-    fun addRelation(request: CreateRelationRequest) {
+    fun addRelation(request: AddRelationForm) {
         this.relations.add(
             Relation(
                 profile = this,

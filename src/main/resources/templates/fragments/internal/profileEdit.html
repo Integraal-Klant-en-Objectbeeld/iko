@@ -23,7 +23,7 @@
                 <cds-breadcrumb-item>
                     <cds-breadcrumb-link
                         href="javascript:void(0);"
-                        th:attr="hx-get=@{'/admin/profiles/edit/' + ${profile.id}}"
+                        th:attr="hx-get=@{'/admin/profiles/edit/' + ${form.id}}"
                         hx-target="#view-panel"
                         is-currentpage="true"
                         hx-push-url="true"
@@ -36,27 +36,20 @@
             <h2>Edit Profile:</h2>
             <cds-form-group id="form-group" name="form-group" legend-text="Edit form">
                 <cds-stack gap="7">
-                    <cds-text-input name="id" th:value="${profile.id}" label="Id" readonly="true"></cds-text-input>
-                    <cds-text-input name="name" th:value="${profile.name}" label="Name"></cds-text-input>
+                    <cds-text-input name="id" th:value="${form.id}" label="Id" readonly="true"></cds-text-input>
+                    <cds-text-input name="name" th:value="${form.name}" label="Name"></cds-text-input>
                     <cds-text-input name="primarySource"
                                     label="Primary Source"
-                                    th:value="${profile.primarySource}"
+                                    th:value="${form.primarySource}"
                                     placeholder="Primary Source">
                     </cds-text-input>
-                    <cds-textarea name="transform" th:value="${profile.transform}"
+                    <cds-textarea id="transform"
+                                  name="transform"
+                                  hx-swap-oob="true"
                                   label="Transform"
-                                  placeholder="JQ Transform"></cds-textarea>
-                    <!--
-                     <cds-textarea   id="transform"
-                                        name="transform"
-                                        hx-oops="true"
-                                        hx-swap="outerHTML"
-                                      th:value="${profile.transform}"
-                                      label="Transform"
-                                      placeholder="JQ Transform"
-                                      required="true">
-                        </cds-textarea>
-                    -->
+                                  placeholder="JQ Transform"
+                                  th:value="${form.transform}">
+                    </cds-textarea>
                     <cds-button
                         type="button"
                         hx-put="/admin/profiles"
@@ -74,10 +67,11 @@
                         <cds-table-toolbar slot="toolbar">
                             <cds-table-toolbar-content>
                                 <cds-button
-                                    th:attr="hx-get=@{'/admin/profiles/' + ${profile.id} +'/relations/create'}"
+                                    th:attr="hx-get=@{'/admin/profiles/' + ${form.id} +'/relations/create'}"
                                     hx-target="#modal-container"
                                     hx-swap="innerHTML"
-                                    hx-push-url="false">
+                                    hx-push-url="false"
+                                    hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');">
                                     Add new Relation
                                     <svg
                                         focusable="false"

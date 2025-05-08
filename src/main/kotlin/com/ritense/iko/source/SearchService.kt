@@ -17,16 +17,16 @@ class SearchService {
 
     fun getSearches(): Map<String, String> {
         return mapOf(
-            "BagSearchAdresseerbareObjecten" to BagSearchAdresseerbareObjecten.URI,
-            "BagSearchAdressen" to BagSearchAdressen.URI,
-            "BagSearchBronhouders" to BagSearchBronhouders.URI,
-            "BagSearchLigplaatsen" to BagSearchLigplaatsen.URI,
-            "BagSearchNummeraanduidingen" to BagSearchNummeraanduidingen.URI,
-            "BagSearchOpenbareRuimten" to BagSearchOpenbareRuimten.URI,
-            "BagSearchPanden" to BagSearchPanden.URI,
-            "BagSearchStandplaatsen" to BagSearchStandplaatsen.URI,
-            "BagSearchVerblijfsobjecten" to BagSearchVerblijfsobjecten.URI,
-            "BagSearchWoonplaatsen" to BagSearchWoonplaatsen.URI
+            "BagSearchAdresseerbareObjecten" to BagSearchAdresseerbareObjecten.URI.drop(7),
+            "BagSearchAdressen" to BagSearchAdressen.URI.drop(7),
+            "BagSearchBronhouders" to BagSearchBronhouders.URI.drop(7),
+            "BagSearchLigplaatsen" to BagSearchLigplaatsen.URI.drop(7),
+            "BagSearchNummeraanduidingen" to BagSearchNummeraanduidingen.URI.drop(7),
+            "BagSearchOpenbareRuimten" to BagSearchOpenbareRuimten.URI.drop(7),
+            "BagSearchPanden" to BagSearchPanden.URI.drop(7),
+            "BagSearchStandplaatsen" to BagSearchStandplaatsen.URI.drop(7),
+            "BagSearchVerblijfsobjecten" to BagSearchVerblijfsobjecten.URI.drop(7),
+            "BagSearchWoonplaatsen" to BagSearchWoonplaatsen.URI.drop(7)
         )
     }
 }

@@ -92,11 +92,9 @@
     </div>
 </main>
 <!--Modal container-->
-<div id="modal-container"
-     hx-on::after-swap="document.querySelector('cds-modal')?.toggleAttribute('open');">
-</div>
+<div id="modal-container"></div>
 <script type="text/javascript">
-    /*  htmx.logAll();*/
+    /*htmx.logAll();*/
     htmx.config.allowNestedOobSwaps = false; // Disable nested out-of-band swaps
 </script>
 </body>

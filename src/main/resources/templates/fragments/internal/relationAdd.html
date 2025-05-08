@@ -1,35 +1,43 @@
 <th:block th:fragment="relation-add">
-    <cds-modal id="modal-container" size="md">
+    <cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" th:attr="open=${errors?.hasErrors()}">
         <cds-modal-header>
             <cds-modal-close-button></cds-modal-close-button>
             <cds-modal-label>Add new Relation</cds-modal-label>
             <cds-modal-heading>Relation</cds-modal-heading>
         </cds-modal-header>
         <cds-modal-body>
-            <!--<cds-modal-body-content description>
-                Add a new relation to the profile
-            </cds-modal-body-content>-->
             <cds-form-item>
                 <cds-dropdown name="sourceId"
                               size="lg"
+                              style="width: 100%"
                               helper-text=""
                               title-text="From"
-                              label="From">
+                              label="Select a from"
+                              th:attr="
+                                invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
+                                value=${form?.sourceId}">
                     <cds-dropdown-item value="">
-                        Profile
+                        Profile as root source
                     </cds-dropdown-item>
-                    <cds-dropdown-item th:each="source : ${sources}" th:value="${source.id}">
-                        <span th:text="${source.name}"></span>
+                    <cds-dropdown-item th:each="source : ${sources}"
+                                       th:value="${source.id}">
+                        <span th:text="'Relation (' +${source.name} +')'"></span>
                     </cds-dropdown-item>
                 </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
                 <cds-dropdown name="searchId"
                               size="lg"
+                              style="width: 100%"
                               helper-text=""
                               title-text="Search"
-                              label="Search">
-                    <cds-dropdown-item th:each="search : ${searches}" th:value="${search.id}">
+                              label="Select a search"
+                              th:attr="invalid=${errors?.getFieldError('searchId') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('searchId')?.defaultMessage},
+                                value=${form?.searchId}">
+                    <cds-dropdown-item th:each="search : ${searches}"
+                                       th:value="${search.id}">
                         <span th:text="${search.name}"></span>
                     </cds-dropdown-item>
                 </cds-dropdown>
@@ -37,12 +45,21 @@
             <cds-form-item>
                 <cds-text-input name="sourceToSearchMapping"
                                 label="Search parameter Mapping"
-                                placeholder="e.g. {'bsn': '.burgerservicenummer'}"></cds-text-input>
+                                placeholder="e.g. {'bsn': '.burgerservicenummer'}"
+                                th:attr="invalid=${errors?.getFieldError('sourceToSearchMapping') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('sourceToSearchMapping')?.defaultMessage},
+                                value=${form?.sourceToSearchMapping}">
+                </cds-text-input>
             </cds-form-item>
             <cds-form-item>
                 <cds-textarea name="transform"
                               label="Transform"
-                              placeholder="A valid JQ expression"></cds-textarea>
+                              helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
+                              th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
+                                value=${form?.transform}"
+                              placeholder="e.g.: .bsn = .burgerservicenummer">
+                </cds-textarea>
             </cds-form-item>
             <input type="hidden" name="profileId" th:value="${profileId}"/>
         </cds-modal-body>
@@ -54,10 +71,9 @@
             </cds-modal-footer-button>
             <cds-modal-footer-button
                 hx-post="/admin/relations"
-                hx-include="#modal-container *"
-                hx-target="#relations"
-                hx-swap="outerHTML"
-                hx-on::after-request="document.querySelector('cds-modal')?.toggleAttribute('open');">
+                hx-include="#active-modal *"
+                hx-target="#active-modal"
+                hx-swap="outerHTML">
                 Add
             </cds-modal-footer-button>
         </cds-modal-footer>

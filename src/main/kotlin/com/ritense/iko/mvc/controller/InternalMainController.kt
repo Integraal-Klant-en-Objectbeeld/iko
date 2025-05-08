@@ -1,20 +1,23 @@
 package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.mvc.model.AddProfileForm
-import com.ritense.iko.mvc.model.CreateRelationRequest
+import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.EditProfileForm
 import com.ritense.iko.mvc.model.EditRelationRequest
 import com.ritense.iko.mvc.model.MenuItem
+import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.Search
 import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
 import com.ritense.iko.profile.ProfileService
 import com.ritense.iko.source.SearchService
+import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -127,16 +130,18 @@ class InternalMainController(
         @RequestHeader("Hx-Request") isHxRequest: Boolean = false
     ): ModelAndView {
         val profile = profileRepository.getReferenceById(id)
-        return if (isHxRequest) {
-            ModelAndView("fragments/internal/profileEdit").apply {
-                addObject("profile", profile)
-                addObject("menuItems", menuItems)
-            }
+        val form = EditProfileForm.from(profile)
+        val relations = profile.relations.map { Relation.from(it) }
+
+        val viewName = if (isHxRequest) {
+            "fragments/internal/profileEdit"
         } else {
-            ModelAndView("fragments/internal/profileEditPage").apply {
-                addObject("profile", profile)
-                addObject("menuItems", menuItems)
-            }
+            "fragments/internal/profileEditPage"
+        }
+        return ModelAndView(viewName).apply {
+            addObject("form", form)
+            addObject("relations", relations)
+            addObject("menuItems", menuItems)
         }
     }
 
@@ -148,14 +153,14 @@ class InternalMainController(
 
     @PutMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
     fun updateProfile(@ModelAttribute request: EditProfileForm): ModelAndView {
-        val result = request.run {
+        request.run {
             val profile = profileRepository.getReferenceById(this.id)
             profile.handle(request)
             profileService.reloadRoutes(profile)
             profileRepository.save(profile)
         }
         val mav = ModelAndView("fragments/internal/profileEdit")
-        mav.addObject("profile", result)
+        mav.addObject("form", request)
         return mav
     }
 
@@ -196,18 +201,55 @@ class InternalMainController(
     }
 
     @PostMapping("/relations")
-    fun createRelation(@ModelAttribute request: CreateRelationRequest): ModelAndView {
-        val result = request.run {
-            profileRepository.getReferenceById(request.profileId).let {
-                it.addRelation(request)
+    fun createRelation(
+        @Valid @ModelAttribute form: AddRelationForm,
+        bindingResult: BindingResult,
+    ): List<ModelAndView> {
+        val profile = profileRepository.getReferenceById(form.profileId)
+        val sources = profile.relations.map { relation ->
+            Source(
+                id = relation.id.toString(),
+                name = relation.id.toString()
+            )
+        }
+        val searches = searchService.getSearches().map {
+            Search(
+                id = it.value,
+                name = it.key,
+            )
+        }
+
+        if (bindingResult.hasErrors()) {
+            val fallback = ModelAndView("fragments/internal/relationAdd").apply {
+                addObject("profileId", form.profileId)
+                addObject("sources", sources)
+                addObject("searches", searches)
+                addObject("errors", bindingResult)
+                addObject("form", form)
+            }
+            return listOf(fallback)
+        }
+        val result = form.run {
+            profileRepository.getReferenceById(form.profileId).let {
+                it.addRelation(form)
                 profileService.reloadRoutes(it)
                 profileRepository.save(it)
             }
         }
-        val mav = ModelAndView("fragments/internal/relations").apply {
-            addObject("profile", result)
+        // Multiple view relationAdd + relations (OOB swap)
+        val defaultView = ModelAndView("fragments/internal/relationAdd").apply {
+            addObject("profileId", form.profileId)
+            addObject("sources", sources)
+            addObject("searches", searches)
+            addObject("form", form)
         }
-        return mav
+        val relations = ModelAndView("fragments/internal/relations").apply {
+            addObject("relations", result.relations.map { Relation.from(it) })
+        }
+        return listOf(
+            defaultView,
+            relations
+        )
     }
 
     @GetMapping("/profiles/{id}/relations/edit/{relationId}")
@@ -233,8 +275,10 @@ class InternalMainController(
             }
         }
         val mav = ModelAndView("fragments/internal/relations").apply {
-            addObject("profile", result)
-            addObject("relation", result.relations.find { it.id == request.relationId })
+            addObject(
+                "relation",
+                result.relations.single { it.id == request.relationId }.let { Relation.from(it) }
+            )
         }
         return mav
     }
