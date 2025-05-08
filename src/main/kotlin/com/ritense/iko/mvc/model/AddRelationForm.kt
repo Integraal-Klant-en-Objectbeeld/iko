@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class AddRelationForm(
     val profileId: UUID,
-    val sourceId: String = "",
+    val sourceId: String?,
     @field:NotBlank(message = "Please select a search.")
     val searchId: String,
     @field:NotBlank(message = "sourceToSearchMapping cannot be blank")

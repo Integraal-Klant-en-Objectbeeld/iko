@@ -3,7 +3,7 @@ package com.ritense.iko.mvc.controller
 import com.ritense.iko.mvc.model.AddProfileForm
 import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.EditProfileForm
-import com.ritense.iko.mvc.model.EditRelationRequest
+import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.MenuItem
 import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.Search
@@ -179,23 +179,12 @@ class InternalMainController(
     @GetMapping("/profiles/{id}/relations/create")
     fun relationCreate(@PathVariable id: UUID): ModelAndView {
         val profile = profileRepository.getReferenceById(id)
+        val sources = sources(profile)
+        val searches = searches()
         val mav = ModelAndView("fragments/internal/relationAdd").apply {
             addObject("profileId", id)
-            addObject("sources", profile.relations.map { relation ->
-                Source(
-                    id = relation.id.toString(),
-                    name = relation.id.toString()
-                )
-            }
-            )
-            addObject(
-                "searches", searchService.getSearches().map {
-                    Search(
-                        id = it.value,
-                        name = it.key,
-                    )
-                }
-            )
+            addObject("sources", sources)
+            addObject("searches", searches)
         }
         return mav
     }
@@ -206,49 +195,31 @@ class InternalMainController(
         bindingResult: BindingResult,
     ): List<ModelAndView> {
         val profile = profileRepository.getReferenceById(form.profileId)
-        val sources = profile.relations.map { relation ->
-            Source(
-                id = relation.id.toString(),
-                name = relation.id.toString()
-            )
+        val sources = sources(profile)
+        val searches = searches()
+        val view = ModelAndView("fragments/internal/relationAdd").apply {
+            addObject("profileId", form.profileId)
+            addObject("sources", sources)
+            addObject("searches", searches)
+            addObject("errors", bindingResult)
+            addObject("form", form)
         }
-        val searches = searchService.getSearches().map {
-            Search(
-                id = it.value,
-                name = it.key,
-            )
-        }
-
         if (bindingResult.hasErrors()) {
-            val fallback = ModelAndView("fragments/internal/relationAdd").apply {
-                addObject("profileId", form.profileId)
-                addObject("sources", sources)
-                addObject("searches", searches)
-                addObject("errors", bindingResult)
-                addObject("form", form)
-            }
-            return listOf(fallback)
+            return listOf(view)
         }
         val result = form.run {
-            profileRepository.getReferenceById(form.profileId).let {
+            profile.let {
                 it.addRelation(form)
                 profileService.reloadRoutes(it)
                 profileRepository.save(it)
             }
         }
-        // Multiple view relationAdd + relations (OOB swap)
-        val defaultView = ModelAndView("fragments/internal/relationAdd").apply {
-            addObject("profileId", form.profileId)
-            addObject("sources", sources)
-            addObject("searches", searches)
-            addObject("form", form)
-        }
         val relations = ModelAndView("fragments/internal/relations").apply {
             addObject("relations", result.relations.map { Relation.from(it) })
         }
         return listOf(
-            defaultView,
-            relations
+            view,
+            relations // OOB Swap
         )
     }
 
@@ -258,28 +229,65 @@ class InternalMainController(
         @PathVariable relationId: UUID,
     ): ModelAndView {
         val profile = profileRepository.getReferenceById(id)
+        val sources = sources(profile)
+        val searches = searches()
         val mav = ModelAndView("fragments/internal/relationEdit").apply {
-            addObject("profileId", profile.id)
-            addObject("relation", profile.relations.find { it.id == relationId })
+            addObject("sources", sources)
+            addObject("searches", searches)
+            addObject("form", profile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
         return mav
     }
 
     @PutMapping("/relations")
-    fun updateRelation(@ModelAttribute request: EditRelationRequest): ModelAndView {
-        val result = request.run {
-            profileRepository.getReferenceById(request.profileId).let {
-                it.changeRelation(request)
+    fun updateRelation(
+        @Valid @ModelAttribute form: EditRelationForm,
+        bindingResult: BindingResult,
+    ): List<ModelAndView> {
+        val profile = profileRepository.getReferenceById(form.profileId)
+        val sources = sources(profile)
+        val searches = searches()
+        val view = ModelAndView("fragments/internal/relationEdit").apply {
+            addObject("profileId", form.profileId)
+            addObject("sources", sources)
+            addObject("searches", searches)
+            addObject("errors", bindingResult)
+            addObject("form", form)
+        }
+        if (bindingResult.hasErrors()) {
+            return listOf(view)
+        }
+
+        val result = form.run {
+            profile.let {
+                it.changeRelation(form)
                 profileService.reloadRoutes(it)
                 profileRepository.save(it)
             }
         }
-        val mav = ModelAndView("fragments/internal/relations").apply {
-            addObject(
-                "relation",
-                result.relations.single { it.id == request.relationId }.let { Relation.from(it) }
+        val relations = ModelAndView("fragments/internal/relations").apply {
+            addObject("relations", result.relations.map { Relation.from(it) })
+        }
+        return listOf(
+            view,
+            relations // OOB Swap
+        )
+    }
+
+    private fun searches(): List<Search> = searchService.getSearches().map {
+        Search(
+            id = it.value,
+            name = it.key,
+        )
+    }
+
+    private fun sources(profile: Profile): List<Source> {
+        val sources = profile.relations.map { relation ->
+            Source(
+                id = relation.id.toString(),
+                name = relation.id.toString()
             )
         }
-        return mav
+        return sources
     }
 }

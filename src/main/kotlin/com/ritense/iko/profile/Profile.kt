@@ -3,7 +3,7 @@ package com.ritense.iko.profile
 import com.ritense.iko.mvc.model.AddProfileForm
 import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.EditProfileForm
-import com.ritense.iko.mvc.model.EditRelationRequest
+import com.ritense.iko.mvc.model.EditRelationForm
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -43,7 +43,11 @@ class Profile(
         this.relations.add(
             Relation(
                 profile = this,
-                sourceId =if (request.sourceId.isNotBlank()) { UUID.fromString(request.sourceId) } else { null },
+                sourceId = if (request.sourceId?.isNotBlank() == true) {
+                    UUID.fromString(request.sourceId)
+                } else {
+                    null
+                },
                 searchId = request.searchId,
                 transform = Transform(request.transform),
                 sourceToSearchMapping = request.sourceToSearchMapping
@@ -51,13 +55,17 @@ class Profile(
         )
     }
 
-    fun changeRelation(request: EditRelationRequest) {
-        this.relations.removeIf { it.id == request.relationId }
+    fun changeRelation(request: EditRelationForm) {
+        this.relations.removeIf { it.id == request.id }
         this.relations.add(
             Relation(
-                id = request.relationId,
+                id = request.id,
                 profile = this,
-                sourceId = if (request.sourceId.isNotBlank()) { UUID.fromString(request.sourceId) } else { null },
+                sourceId = if (request.sourceId?.isNotBlank() == true) {
+                    UUID.fromString(request.sourceId)
+                } else {
+                    null
+                },
                 searchId = request.searchId,
                 transform = Transform(request.transform),
                 sourceToSearchMapping = request.sourceToSearchMapping

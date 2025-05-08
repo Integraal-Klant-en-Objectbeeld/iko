@@ -17,7 +17,7 @@
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
-                    <cds-dropdown-item value="">
+                    <cds-dropdown-item value="" disabled>
                         Profile as root source
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
@@ -74,7 +74,7 @@
                 hx-include="#active-modal *"
                 hx-target="#active-modal"
                 hx-swap="outerHTML">
-                Add
+                Ok
             </cds-modal-footer-button>
         </cds-modal-footer>
     </cds-modal>
