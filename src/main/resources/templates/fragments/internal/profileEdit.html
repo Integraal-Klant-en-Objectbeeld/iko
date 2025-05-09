@@ -35,12 +35,7 @@
             <h4>Edit Profile:</h4>
             <cds-form-group id="form-group" name="form-group" legend-text="Edit existing profile">
                 <cds-stack gap="7">
-                    <cds-text-input name="id"
-                                    style="width: 50%"
-                                    th:value="${form.id}"
-                                    label="Id"
-                                    readonly="true">
-                    </cds-text-input>
+                    <input type="hidden" name="id" th:value="${form.id}"/>
                     <cds-text-input name="name"
                                     style="width: 50%"
                                     label="Name"
@@ -69,7 +64,7 @@
                                   style="width: 50%"
                                   label="Transform"
                                   helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                                  placeholder="e.g.: { bag: .left, brp: .right }"
+                                  placeholder="e.g.: { a: .left, b: .right }"
                                   th:attr="
                                     invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
                                     invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
