@@ -33,7 +33,7 @@
                 </cds-breadcrumb-item>
             </cds-breadcrumb>
 
-            <h2>Edit Profile:</h2>
+            <h3>Edit Profile:</h3>
             <cds-form-group id="form-group" name="form-group" legend-text="Edit existing profile">
                 <cds-stack gap="7">
                     <cds-text-input name="id"
@@ -86,55 +86,56 @@
                             Save
                         </cds-button>
                     </div>
-                    <cds-table>
-                        <cds-table-header-title slot="title">
-                            Relations
-                        </cds-table-header-title>
-                        <cds-table-header-description slot="description">
-                            A collection of relation's for this profile.
-                        </cds-table-header-description>
-
-                        <!-- Toolbar + search -->
-                        <cds-table-toolbar slot="toolbar">
-                            <cds-table-toolbar-content>
-                                <cds-button
-                                    th:attr="hx-get=@{'/admin/profiles/' + ${form.id} +'/relations/create'}"
-                                    hx-target="#modal-container"
-                                    hx-swap="innerHTML"
-                                    hx-push-url="false"
-                                    hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');">
-                                    Add new Relation
-                                    <svg
-                                        focusable="false"
-                                        preserveAspectRatio="xMidYMid meet"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="currentColor"
-                                        aria-hidden="true"
-                                        width="16"
-                                        height="16"
-                                        viewBox="0 0 32 32"
-                                        slot="icon">
-                                        <path
-                                            d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                                    </svg>
-                                </cds-button>
-                            </cds-table-toolbar-content>
-                        </cds-table-toolbar>
-
-                        <!-- Table -->
-                        <cds-table-head>
-                            <cds-table-header-row>
-                                <cds-table-header-cell>Relation</cds-table-header-cell>
-                                <cds-table-header-cell>Parent</cds-table-header-cell>
-                                <cds-table-header-cell>Search parameter mapping</cds-table-header-cell>
-                                <cds-table-header-cell>Search</cds-table-header-cell>
-                                <cds-table-header-cell>Transform</cds-table-header-cell>
-                            </cds-table-header-row>
-                        </cds-table-head>
-                        <th:block th:insert="~{fragments/internal/relations :: relations}"></th:block>
-                    </cds-table>
                 </cds-stack>
             </cds-form-group>
+            <cds-table>
+                <cds-table-header-title slot="title">
+                    Relations
+                </cds-table-header-title>
+                <cds-table-header-description slot="description">
+                    A collection of relation's for this profile.
+                </cds-table-header-description>
+
+                <!-- Toolbar + search -->
+                <cds-table-toolbar slot="toolbar">
+                    <cds-table-toolbar-content>
+                        <cds-button
+                            th:attr="hx-get=@{'/admin/profiles/' + ${form.id} +'/relations/create'}"
+                            hx-target="#modal-container"
+                            hx-swap="innerHTML"
+                            hx-push-url="false"
+                            hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');">
+                            Add new Relation
+                            <svg
+                                focusable="false"
+                                preserveAspectRatio="xMidYMid meet"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor"
+                                aria-hidden="true"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 32 32"
+                                slot="icon">
+                                <path
+                                    d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+                            </svg>
+                        </cds-button>
+                    </cds-table-toolbar-content>
+                </cds-table-toolbar>
+
+                <!-- Table -->
+                <cds-table-head>
+                    <cds-table-header-row>
+                        <cds-table-header-cell>Relation</cds-table-header-cell>
+                        <cds-table-header-cell>Parent</cds-table-header-cell>
+                        <cds-table-header-cell>Search parameter mapping</cds-table-header-cell>
+                        <cds-table-header-cell>Search</cds-table-header-cell>
+                        <cds-table-header-cell>Transform</cds-table-header-cell>
+                    </cds-table-header-row>
+                </cds-table-head>
+                <th:block th:insert="~{fragments/internal/relations :: relations}"></th:block>
+            </cds-table>
+
         </cds-tile>
     </cds-content>
 </th:block>

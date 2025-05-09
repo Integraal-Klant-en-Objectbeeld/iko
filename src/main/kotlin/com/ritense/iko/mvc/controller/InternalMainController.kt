@@ -205,7 +205,6 @@ class InternalMainController(
         return modelAndView
     }
 
-
     @GetMapping("/profiles/{id}/relations/create")
     fun relationCreate(@PathVariable id: UUID): ModelAndView {
         val profile = profileRepository.getReferenceById(id)
