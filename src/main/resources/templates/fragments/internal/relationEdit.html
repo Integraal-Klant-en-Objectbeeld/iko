@@ -43,22 +43,22 @@
                 </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
-                <cds-text-input name="sourceToSearchMapping"
-                                label="Search parameter Mapping"
-                                placeholder="e.g. {'bsn': '.burgerservicenummer'}"
-                                th:attr="invalid=${errors?.getFieldError('sourceToSearchMapping') != null} ? 'true' : null,
+                <cds-textarea name="sourceToSearchMapping"
+                              label="Search parameter Mapping"
+                              placeholder="e.g. {'searchParamA': '.myField'}"
+                              th:attr="invalid=${errors?.getFieldError('sourceToSearchMapping') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceToSearchMapping')?.defaultMessage},
                                 value=${form?.sourceToSearchMapping}">
-                </cds-text-input>
+                </cds-textarea>
             </cds-form-item>
             <cds-form-item>
                 <cds-textarea name="transform"
                               label="Transform"
                               helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
+                              placeholder="e.g. {'fieldA': '.fieldB'}"
                               th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
-                                value=${form?.transform}"
-                              placeholder="e.g.: .bsn = .burgerservicenummer">
+                                value=${form?.transform}">
                 </cds-textarea>
             </cds-form-item>
             <input type="hidden" name="profileId" th:value="${form.profileId}"/>

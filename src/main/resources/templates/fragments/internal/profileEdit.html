@@ -69,7 +69,7 @@
                                   style="width: 50%"
                                   label="Transform"
                                   helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                                  placeholder="e.g.: { bag: .left, brp: .right }"
+                                  placeholder="e.g.: { a: .left, b: .right }"
                                   th:attr="
                                     invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
                                     invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
