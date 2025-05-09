@@ -35,12 +35,7 @@
             <h4>Edit Profile:</h4>
             <cds-form-group id="form-group" name="form-group" legend-text="Edit existing profile">
                 <cds-stack gap="7">
-                    <cds-text-input name="id"
-                                    style="width: 50%"
-                                    th:value="${form.id}"
-                                    label="Id"
-                                    readonly="true">
-                    </cds-text-input>
+                    <input type="hidden" name="id" th:value="${form.id}"/>
                     <cds-text-input name="name"
                                     style="width: 50%"
                                     label="Name"
