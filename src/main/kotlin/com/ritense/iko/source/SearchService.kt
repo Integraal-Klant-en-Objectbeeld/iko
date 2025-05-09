@@ -18,6 +18,7 @@ class SearchService {
     fun getPrimarySources(): Map<String, String> {
         return mapOf(
             "BRP Personen Search" to "personenSearch",
+            "BAG Adressen Search" to "bagSearchAdressen",
         )
     }
 

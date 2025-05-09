@@ -21,7 +21,7 @@ data class EditRelationForm(
             return EditRelationForm(
                 profileId = it.profile.id,
                 id = it.id,
-                sourceId = it.sourceId.toString(),
+                sourceId = it.sourceId?.toString(),
                 searchId = it.searchId,
                 sourceToSearchMapping = it.sourceToSearchMapping,
                 transform = it.transform.expression

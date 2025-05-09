@@ -168,7 +168,6 @@ class InternalMainController(
         val profile = profileRepository.getReferenceById(id)
         val form = EditProfileForm.from(profile)
         val relations = profile.relations.map { Relation.from(it) }
-
         val viewName = if (isHxRequest) {
             "fragments/internal/profileEdit"
         } else {
@@ -205,18 +204,17 @@ class InternalMainController(
         return modelAndView
     }
 
-
     @GetMapping("/profiles/{id}/relations/create")
     fun relationCreate(@PathVariable id: UUID): ModelAndView {
         val profile = profileRepository.getReferenceById(id)
         val sources = sources(profile)
         val searches = searches()
-        val mav = ModelAndView("fragments/internal/relationAdd").apply {
+        val modelAndView = ModelAndView("fragments/internal/relationAdd").apply {
             addObject("profileId", id)
             addObject("sources", sources)
             addObject("searches", searches)
         }
-        return mav
+        return modelAndView
     }
 
     @PostMapping("/relations")
@@ -259,7 +257,7 @@ class InternalMainController(
         @PathVariable relationId: UUID,
     ): ModelAndView {
         val profile = profileRepository.getReferenceById(id)
-        val sources = sources(profile)
+        val sources = sources(profile).apply { this.removeIf { it.id == relationId.toString() } }
         val searches = searches()
         val modelAndView = ModelAndView("fragments/internal/relationEdit").apply {
             addObject("sources", sources)
@@ -275,7 +273,7 @@ class InternalMainController(
         bindingResult: BindingResult,
     ): List<ModelAndView> {
         val profile = profileRepository.getReferenceById(form.profileId)
-        val sources = sources(profile)
+        val sources = sources(profile).apply { this.removeIf { it.id == form.id.toString() } }
         val searches = searches()
         val modelAndView = ModelAndView("fragments/internal/relationEdit").apply {
             addObject("profileId", form.profileId)
@@ -287,7 +285,6 @@ class InternalMainController(
         if (bindingResult.hasErrors()) {
             return listOf(modelAndView)
         }
-
         val updatedProfile = form.run {
             profile.let {
                 it.changeRelation(form)
@@ -318,18 +315,17 @@ class InternalMainController(
         )
     }
 
-    private fun sources(profile: Profile): List<Source> {
+    private fun sources(profile: Profile): MutableList<Source> {
         val sources = profile.relations.map { relation ->
             Source(
                 id = relation.id.toString(),
                 name = relation.id.toString()
             )
-        }
+        }.toMutableList()
         return sources
     }
 
     companion object {
-
         const val HX_REQUEST_HEADER = "Hx-Request"
     }
 }

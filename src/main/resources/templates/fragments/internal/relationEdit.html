@@ -1,5 +1,5 @@
 <th:block th:fragment="relation-edit">
-    <cds-modal id="active-modal"  prevent-close-on-click-outside="true" size="md" th:attr="open=${errors?.hasErrors()}">
+    <cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" th:attr="open=${errors?.hasErrors()}">
         <cds-modal-header>
             <cds-modal-close-button></cds-modal-close-button>
             <cds-modal-label>Edit Relation</cds-modal-label>
@@ -18,7 +18,7 @@
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
                     <cds-dropdown-item value="">
-                        Profile as root source
+                        Profile root source
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
                                        th:value="${source.id}">
