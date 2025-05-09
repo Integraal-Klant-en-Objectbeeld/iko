@@ -3,8 +3,10 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 plugins {
     base
     id("co.uzzu.dotenv.gradle") version "4.0.0"
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
+    kotlin("jvm") version "2.1.20"
+    kotlin("plugin.spring") version "2.1.20"
+    kotlin("plugin.jpa") version "2.1.20"
+    kotlin("plugin.allopen") version "2.1.20"
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -42,6 +44,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")

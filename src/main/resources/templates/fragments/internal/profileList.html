@@ -1,98 +1,103 @@
 <th:block th:fragment="profile-list">
-    <cds-tile>
-        <cds-breadcrumb no-trailing-slash="">
-            <cds-breadcrumb-item>
-                <cds-breadcrumb-link>
-                    Home
-                </cds-breadcrumb-link>
-            </cds-breadcrumb-item>
-            <cds-breadcrumb-item>
-                <cds-breadcrumb-link
-                    href="javascript:void(0);"
-                    hx-get="/admin/profiles"
-                    hx-target="#view-panel"
-                    is-currentpage="true"
-                    hx-push-url="true">
-                    Profiles
-                </cds-breadcrumb-link>
-            </cds-breadcrumb-item>
-        </cds-breadcrumb>
-
-        <h2>Profiles</h2>
-
-        <!-- Data table -->
-        <cds-table id="profile-table">
-
-            <cds-table-header-description slot="description">Overview of all profiles</cds-table-header-description>
-            <!-- Toolbar + search -->
-            <cds-table-toolbar slot="toolbar">
-                <cds-table-toolbar-content>
-                    <cds-table-toolbar-search
-                        id="search-bar"
-                        placeholder="Type to search..."
-                        th:value="${query}"
-                        th:expanded="${query} ?: 'true'"
-                        name="query"
-                        size="lg"
-                        hx-get="/admin/profile-search"
-                        hx-params="*"
-                        hx-trigger="input change delay:900ms, keyup[key=='Enter']"
-                        hx-target="#search-results"
-                        hx-swap="outerHTML"
+    <cds-content>
+        <cds-tile>
+            <cds-breadcrumb no-trailing-slash="">
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link>
+                        Home
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        hx-get="/admin/profiles"
+                        hx-target="#view-panel"
+                        is-currentpage="true"
                         hx-push-url="true">
-                    </cds-table-toolbar-search>
-                    <cds-button
-                        th:attr="hx-get=@{'/admin/profiles/create'},
+                        Profiles
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+            </cds-breadcrumb>
+
+            <h2>Profiles</h2>
+
+            <!-- Data table -->
+            <cds-table id="profile-table">
+
+                <cds-table-header-description slot="description">Overview of all profiles</cds-table-header-description>
+                <!-- Toolbar + search -->
+                <cds-table-toolbar slot="toolbar">
+                    <cds-table-toolbar-content>
+                        <cds-table-toolbar-search
+                            id="search-bar"
+                            placeholder="Type to search..."
+                            th:value="${query}"
+                            th:expanded="${query} ?: 'true'"
+                            name="query"
+                            size="lg"
+                            hx-get="/admin/profile-search"
+                            hx-params="*"
+                            hx-trigger="input change delay:900ms, keyup[key=='Enter']"
+                            hx-target="#search-results"
+                            hx-swap="outerHTML"
+                            hx-push-url="true">
+                        </cds-table-toolbar-search>
+                        <cds-button
+                            th:attr="hx-get=@{'/admin/profiles/create'},
                                  hx-target='#view-panel',
                                  hx-swap='innerHTML',
                                  hx-push-url='false'">
-                        Add new Profile
-                        <svg
-                            focusable="false"
-                            preserveAspectRatio="xMidYMid meet"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            aria-hidden="true"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 32 32"
-                            slot="icon">
-                            <path d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                        </svg>
-                    </cds-button>
-                </cds-table-toolbar-content>
-            </cds-table-toolbar>
+                            Add new Profile
+                            <svg
+                                focusable="false"
+                                preserveAspectRatio="xMidYMid meet"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor"
+                                aria-hidden="true"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 32 32"
+                                slot="icon">
+                                <path d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+                            </svg>
+                        </cds-button>
+                    </cds-table-toolbar-content>
+                </cds-table-toolbar>
 
-            <!-- Header -->
-            <cds-table-head>
-                <cds-table-header-row>
-                    <cds-table-header-cell>Id</cds-table-header-cell>
+                <!-- Header -->
+                <cds-table-head>
+                    <cds-table-header-row>
+                        <cds-table-header-cell>Id</cds-table-header-cell>
 
-                    <cds-table-header-cell
-                        is-sortable
-                        size="md"
-                        hx-get="/admin/profile-search"
-                        hx-target="#search-results"
-                        hx-swap="outerHTML"
-                        hx-push-url="false"
-                        hx-trigger="cds-table-header-cell-sort"
-                        hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
-                        hx-vals="js:{
+                        <cds-table-header-cell
+                            is-sortable
+                            size="md"
+                            hx-get="/admin/profile-search"
+                            hx-target="#search-results"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-trigger="cds-table-header-cell-sort"
+                            hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
+                            hx-vals="js:{
                             sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
                             size: document.querySelector('#pagination-container').__pageSize,
                             page: document.querySelector('#pagination-container').__page - 1,
                             query: document.querySelector('#search-bar').value
                             }">
-                        Name
-                    </cds-table-header-cell>
-                </cds-table-header-row>
-            </cds-table-head>
+                            Name
+                        </cds-table-header-cell>
+                        <cds-table-header-cell>
+                            Primary Source
+                        </cds-table-header-cell>
+                    </cds-table-header-row>
+                </cds-table-head>
 
-            <th:block th:insert="~{fragments/internal/profileSearchResults :: profile-search-results}"></th:block>
-        </cds-table>
-        <!-- Pagination -->
-        <cds-pagination id="pagination-container"
-                        th:replace="~{fragments/internal/pagination :: pagination}">
-        </cds-pagination>
-    </cds-tile>
+                <th:block th:insert="~{fragments/internal/profileSearchResults :: profile-search-results}"></th:block>
+            </cds-table>
+            <!-- Pagination -->
+            <cds-pagination id="pagination-container"
+                            th:replace="~{fragments/internal/pagination :: pagination}">
+            </cds-pagination>
+        </cds-tile>
+    </cds-content>
 </th:block>

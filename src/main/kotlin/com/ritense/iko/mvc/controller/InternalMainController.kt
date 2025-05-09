@@ -1,17 +1,23 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.mvc.model.CreateProfileRequest
-import com.ritense.iko.mvc.model.CreateRelationRequest
-import com.ritense.iko.mvc.model.EditRelationRequest
+import com.ritense.iko.mvc.model.AddProfileForm
+import com.ritense.iko.mvc.model.AddRelationForm
+import com.ritense.iko.mvc.model.EditProfileForm
+import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.MenuItem
-import com.ritense.iko.mvc.model.ModifyProfileRequest
+import com.ritense.iko.mvc.model.Relation
+import com.ritense.iko.mvc.model.Search
+import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
 import com.ritense.iko.profile.ProfileService
+import com.ritense.iko.source.SearchService
+import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -27,7 +33,8 @@ import java.util.UUID
 @RequestMapping("/admin")
 class InternalMainController(
     private val profileRepository: ProfileRepository,
-    private val profileService: ProfileService
+    private val profileService: ProfileService,
+    private val searchService: SearchService,
 ) {
 
     val menuItems: List<MenuItem> = listOf(
@@ -46,7 +53,7 @@ class InternalMainController(
     fun profileList(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = 10) pageable: Pageable,
-        @RequestHeader("Hx-Request") isHxRequest: Boolean = false
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
         val page = profileRepository.findAll(pageable)
         return if (isHxRequest) {
@@ -83,7 +90,7 @@ class InternalMainController(
     fun searchResults(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = 10) pageable: Pageable,
-        @RequestHeader("Hx-Request") isHxRequest: Boolean = false
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): List<ModelAndView> {
         val page = if (query.isBlank())
             profileRepository.findAll(pageable)
@@ -117,77 +124,133 @@ class InternalMainController(
         }
     }
 
-    @GetMapping("/profiles/edit/{id}")
-    fun profileEdit(
-        @PathVariable id: String,
-        @RequestHeader("Hx-Request") isHxRequest: Boolean = false
-    ): ModelAndView {
-        val profile = profileRepository.getReferenceById(UUID.fromString(id))
-        return if (isHxRequest) {
-            ModelAndView("fragments/internal/profileEdit").apply {
-                addObject("profile", profile)
-                addObject("menuItems", menuItems)
-            }
-        } else {
-            ModelAndView("fragments/internal/profileEditPage").apply {
-                addObject("profile", profile)
-                addObject("menuItems", menuItems)
-            }
-        }
-    }
-
     @GetMapping("/profiles/create")
     fun profileCreate(): ModelAndView {
-        val mav = ModelAndView("fragments/internal/profileAdd")
-        return mav
-    }
-
-    @PutMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun updateProfile(@ModelAttribute request: ModifyProfileRequest): ModelAndView {
-        val result = request.run {
-            val profile = profileRepository.getReferenceById(this.id)
-            profile.handle(request)
-            profileService.reloadRoutes(profile)
-            profileRepository.save(profile)
+        val searches = primarySources()
+        val modelAndView = ModelAndView("fragments/internal/profileAdd").apply {
+            addObject("searches", searches)
         }
-        val mav = ModelAndView("fragments/internal/profileEdit")
-        mav.addObject("profile", result)
-        return mav
+        return modelAndView
     }
 
     @PostMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun createProfile(@ModelAttribute request: CreateProfileRequest): ModelAndView {
-        val result = request.run {
-            val profile = Profile.create(request)
+    fun createProfile(
+        @Valid @ModelAttribute form: AddProfileForm,
+        bindingResult: BindingResult
+    ): ModelAndView {
+        val searches = primarySources()
+        val modelAndView = ModelAndView("fragments/internal/profileAdd").apply {
+            addObject("form", form)
+            addObject("searches", searches)
+            addObject("errors", bindingResult)
+        }
+        if (bindingResult.hasErrors()) {
+            return modelAndView
+        }
+        val profile = form.run {
+            val profile = Profile.create(form)
             profileService.reloadRoutes(profile)
             profileRepository.save(profile)
         }
-        val mav = ModelAndView("fragments/internal/profileEdit")
-        mav.addObject("profile", result)
-        return mav
+        val redirectModelAndView = ModelAndView("fragments/internal/profileEdit").apply {
+            addObject("form", EditProfileForm.from(profile))
+            addObject("searches", searches)
+            addObject("relations", profile.relations.map { Relation.from(it) })
+        }
+        return redirectModelAndView
     }
+
+    @GetMapping("/profiles/edit/{id}")
+    fun profileEdit(
+        @PathVariable id: UUID,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
+    ): ModelAndView {
+        val profile = profileRepository.getReferenceById(id)
+        val form = EditProfileForm.from(profile)
+        val relations = profile.relations.map { Relation.from(it) }
+
+        val viewName = if (isHxRequest) {
+            "fragments/internal/profileEdit"
+        } else {
+            "fragments/internal/profileEditPage"
+        }
+        return ModelAndView(viewName).apply {
+            addObject("form", form)
+            addObject("searches", primarySources())
+            addObject("relations", relations)
+            addObject("menuItems", menuItems)
+        }
+    }
+
+    @PutMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    fun updateProfile(
+        @Valid @ModelAttribute form: EditProfileForm,
+        bindingResult: BindingResult
+    ): ModelAndView {
+        val profile = profileRepository.getReferenceById(form.id)
+        val modelAndView = ModelAndView("fragments/internal/profileEdit").apply {
+            addObject("errors", bindingResult)
+            addObject("form", form)
+            addObject("relations", profile.relations.map { Relation.from(it) })
+            addObject("searches", primarySources())
+        }
+        if (bindingResult.hasErrors()) {
+            return modelAndView
+        }
+        val profileUpdated = form.run {
+            profile.handle(form)
+            profileService.reloadRoutes(profile)
+            profileRepository.save(profile)
+        }
+        return modelAndView
+    }
+
 
     @GetMapping("/profiles/{id}/relations/create")
     fun relationCreate(@PathVariable id: UUID): ModelAndView {
+        val profile = profileRepository.getReferenceById(id)
+        val sources = sources(profile)
+        val searches = searches()
         val mav = ModelAndView("fragments/internal/relationAdd").apply {
             addObject("profileId", id)
+            addObject("sources", sources)
+            addObject("searches", searches)
         }
         return mav
     }
 
     @PostMapping("/relations")
-    fun createRelation(@ModelAttribute request: CreateRelationRequest): ModelAndView {
-        val result = request.run {
-            profileRepository.getReferenceById(request.profileId).let {
-                it.addRelation(request)
+    fun createRelation(
+        @Valid @ModelAttribute form: AddRelationForm,
+        bindingResult: BindingResult,
+    ): List<ModelAndView> {
+        val profile = profileRepository.getReferenceById(form.profileId)
+        val sources = sources(profile)
+        val searches = searches()
+        val modelAndView = ModelAndView("fragments/internal/relationAdd").apply {
+            addObject("profileId", form.profileId)
+            addObject("sources", sources)
+            addObject("searches", searches)
+            addObject("errors", bindingResult)
+            addObject("form", form)
+        }
+        if (bindingResult.hasErrors()) {
+            return listOf(modelAndView)
+        }
+        val result = form.run {
+            profile.let {
+                it.addRelation(form)
                 profileService.reloadRoutes(it)
                 profileRepository.save(it)
             }
         }
-        val mav = ModelAndView("fragments/internal/relations").apply {
-            addObject("profile", result)
+        val relationsModelAndView = ModelAndView("fragments/internal/relations").apply {
+            addObject("relations", result.relations.map { Relation.from(it) })
         }
-        return mav
+        return listOf(
+            modelAndView,
+            relationsModelAndView // OOB Swap
+        )
     }
 
     @GetMapping("/profiles/{id}/relations/edit/{relationId}")
@@ -196,26 +259,77 @@ class InternalMainController(
         @PathVariable relationId: UUID,
     ): ModelAndView {
         val profile = profileRepository.getReferenceById(id)
-        val mav = ModelAndView("fragments/internal/relationEdit").apply {
-            addObject("profileId", profile.id)
-            addObject("relation", profile.relations.find { it.id == relationId })
+        val sources = sources(profile)
+        val searches = searches()
+        val modelAndView = ModelAndView("fragments/internal/relationEdit").apply {
+            addObject("sources", sources)
+            addObject("searches", searches)
+            addObject("form", profile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
-        return mav
+        return modelAndView
     }
 
     @PutMapping("/relations")
-    fun updateRelation(@ModelAttribute request: EditRelationRequest): ModelAndView {
-        val result = request.run {
-            profileRepository.getReferenceById(request.profileId).let {
-                it.changeRelation(request)
+    fun updateRelation(
+        @Valid @ModelAttribute form: EditRelationForm,
+        bindingResult: BindingResult,
+    ): List<ModelAndView> {
+        val profile = profileRepository.getReferenceById(form.profileId)
+        val sources = sources(profile)
+        val searches = searches()
+        val modelAndView = ModelAndView("fragments/internal/relationEdit").apply {
+            addObject("profileId", form.profileId)
+            addObject("sources", sources)
+            addObject("searches", searches)
+            addObject("errors", bindingResult)
+            addObject("form", form)
+        }
+        if (bindingResult.hasErrors()) {
+            return listOf(modelAndView)
+        }
+
+        val updatedProfile = form.run {
+            profile.let {
+                it.changeRelation(form)
                 profileService.reloadRoutes(it)
                 profileRepository.save(it)
             }
         }
-        val mav = ModelAndView("fragments/internal/relations").apply {
-            addObject("profile", result)
-            addObject("relation", result.relations.find { it.id == request.relationId })
+        val relationsModelAndView = ModelAndView("fragments/internal/relations").apply {
+            addObject("relations", updatedProfile.relations.map { Relation.from(it) })
         }
-        return mav
+        return listOf(
+            modelAndView,
+            relationsModelAndView // OOB Swap
+        )
+    }
+
+    private fun primarySources(): List<Search> = searchService.getPrimarySources().map {
+        Search(
+            id = it.value,
+            name = it.key,
+        )
+    }
+
+    private fun searches(): List<Search> = searchService.getSearches().map {
+        Search(
+            id = it.value,
+            name = it.key,
+        )
+    }
+
+    private fun sources(profile: Profile): List<Source> {
+        val sources = profile.relations.map { relation ->
+            Source(
+                id = relation.id.toString(),
+                name = relation.id.toString()
+            )
+        }
+        return sources
+    }
+
+    companion object {
+
+        const val HX_REQUEST_HEADER = "Hx-Request"
     }
 }

@@ -28,7 +28,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
                     it
                 }
             }
-            .transform(jq(source.transform))
+            .transform(jq(source.transform.expression))
             .unmarshal().json()
 
         if (relations.isNotEmpty()) {
@@ -60,7 +60,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
                     it
                 }
             }
-            .transform(jq(profile.transform))
+            .transform(jq(profile.transform.expression))
             .marshal().json()
 
         if (relations.isNotEmpty()) {

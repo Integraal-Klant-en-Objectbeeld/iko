@@ -22,8 +22,8 @@ class PublicMainController(
         mav.addObject(
             "searches",
             listOf(
-                Search(1, "Personen BSN"),
-                Search(2, "Zaken")
+                Search("1", "Personen BSN"),
+                Search("2", "Zaken")
             )
         )
         return mav
