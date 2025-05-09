@@ -6,11 +6,12 @@ import java.util.UUID
 
 data class EditProfileForm(
     val id: UUID,
-    @field:NotBlank
+    @field:NotBlank(message = "Please provide a name.")
     val name: String,
-    @field:NotBlank
+    @field:NotBlank(message = "Please select a primary source.")
     val primarySource: String,
-    @field:NotBlank
+    @field:NotBlank(message = "Please provide a transform expression.")
+    @field:ValidTransform
     val transform: String
 ) {
 

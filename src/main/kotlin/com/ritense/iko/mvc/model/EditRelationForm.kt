@@ -10,9 +10,10 @@ data class EditRelationForm(
     val sourceId: String? = "",
     @field:NotBlank(message = "Please select a search.")
     val searchId: String,
-    @field:NotBlank(message = "sourceToSearchMapping cannot be blank")
+    @field:NotBlank(message = "Please provide a mapping.")
     val sourceToSearchMapping: String,
-    @field:NotBlank(message = "Transform cannot be blank")
+    @field:NotBlank(message = "Please provide a transform expression.")
+    @field:ValidTransform
     var transform: String,
 ) {
     companion object {

@@ -1,4 +1,4 @@
-<cds-content>
+<cds-content id="add-profile">
     <cds-tile>
         <cds-breadcrumb no-trailing-slash="">
             <cds-breadcrumb-item>
@@ -21,26 +21,53 @@
         </cds-breadcrumb>
 
         <h2>Add Profile:</h2>
-        <cds-form-group id="form-group" name="form-group" legend-text="Add form">
+        <cds-form-group id="form-group" name="form-group" legend-text="Add profile">
             <cds-stack gap="7">
                 <cds-text-input name="name"
                                 label="Name"
-                                placeholder="Name">
+                                style="width: 50%"
+                                th:attr="
+                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage},
+                                    value=${form?.name}
+                                  ">
                 </cds-text-input>
-                <cds-text-input name="primarySource"
-                                label="Primary Source"
-                                placeholder="Primary Source">
-                </cds-text-input>
-                <cds-textarea name="transform"
+                <cds-dropdown name="primarySource"
+                              size="lg"
+                              style="width: 50%"
+                              helper-text=""
+                              title-text="Primary Source"
+                              label="Select a Primary Source"
+                              th:attr="invalid=${errors?.getFieldError('primarySource') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('primarySource')?.defaultMessage},
+                                value=${form?.primarySource}">
+                    <cds-dropdown-item th:each="search : ${searches}"
+                                       th:value="${search.id}">
+                        <span th:text="${search.name}"></span>
+                    </cds-dropdown-item>
+                </cds-dropdown>
+                <cds-textarea id="transform"
+                              name="transform"
+                              style="width: 50%"
                               label="Transform"
-                              placeholder="JQ Transform"></cds-textarea>
-                <cds-button
-                    type="button"
-                    hx-post="/admin/profiles"
-                    hx-target="#view-panel"
-                    hx-include="#form-group *">
-                    Submit
-                </cds-button>
+                              helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
+                              placeholder="e.g.: { bag: .left, brp: .right }"
+                              th:attr="
+                                    invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
+                                    value=${form?.transform}
+                                  ">
+                </cds-textarea>
+                <div style="max-width: fit-content;">
+                    <cds-button
+                        kind="primary"
+                        hx-post="/admin/profiles"
+                        hx-target="#add-profile"
+                        hx-swap="outerHTML"
+                        hx-include="#form-group *">
+                        Save
+                    </cds-button>
+                </div>
             </cds-stack>
         </cds-form-group>
     </cds-tile>

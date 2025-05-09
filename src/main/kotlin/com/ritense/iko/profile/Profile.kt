@@ -75,11 +75,11 @@ class Profile(
 
     companion object {
 
-        fun create(request: AddProfileForm) = Profile(
+        fun create(form: AddProfileForm) = Profile(
             id = UUID.randomUUID(),
-            name = request.name,
-            primarySource = "TODO", // TODO
-            transform = Transform(request.transform),
+            name = form.name,
+            primarySource = form.primarySource,
+            transform = Transform(form.transform),
         )
 
     }

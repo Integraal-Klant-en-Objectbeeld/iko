@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service
 @Service
 class SearchService {
 
+    fun getPrimarySources(): Map<String, String> {
+        return mapOf(
+            "BRP Personen Search" to "personenSearch",
+        )
+    }
+
     fun getSearches(): Map<String, String> {
         return mapOf(
             "BagSearchAdresseerbareObjecten" to BagSearchAdresseerbareObjecten.URI.drop(7),

@@ -8,8 +8,8 @@ data class AddRelationForm(
     val sourceId: String?,
     @field:NotBlank(message = "Please select a search.")
     val searchId: String,
-    @field:NotBlank(message = "sourceToSearchMapping cannot be blank")
+    @field:NotBlank(message = "Please provide a mapping.")
     val sourceToSearchMapping: String,
-    @field:NotBlank(message = "Transform cannot be blank")
+    @field:NotBlank(message = "Please define a transform expression.")
     var transform: String,
 )
