@@ -168,7 +168,6 @@ class InternalMainController(
         val profile = profileRepository.getReferenceById(id)
         val form = EditProfileForm.from(profile)
         val relations = profile.relations.map { Relation.from(it) }
-
         val viewName = if (isHxRequest) {
             "fragments/internal/profileEdit"
         } else {
@@ -210,12 +209,12 @@ class InternalMainController(
         val profile = profileRepository.getReferenceById(id)
         val sources = sources(profile)
         val searches = searches()
-        val mav = ModelAndView("fragments/internal/relationAdd").apply {
+        val modelAndView = ModelAndView("fragments/internal/relationAdd").apply {
             addObject("profileId", id)
             addObject("sources", sources)
             addObject("searches", searches)
         }
-        return mav
+        return modelAndView
     }
 
     @PostMapping("/relations")
