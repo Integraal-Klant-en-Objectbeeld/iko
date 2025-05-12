@@ -1,9 +1,3 @@
-logging:
-    level:
-        org:
-            springframework:
-                security: DEBUG
-
 spring:
     application:
         name: IKO
@@ -25,14 +19,14 @@ spring:
                         provider: keycloak
                         authorization-grant-type: authorization_code
                         scope: openid
-                        client-id: iko
-                        client-secret: 00P45NmAtiMFdDjBV2afWvbT0pGeIqDU
+                        client-id: # ENV
+                        client-secret: # ENV
                 provider:
                     keycloak:
-                        issuer-uri: http://localhost:8082/auth/realms/valtimo
+                        issuer-uri: # ENV
             resourceserver:
                 jwt:
-                    issuer-uri: http://localhost:8082/auth/realms/valtimo
+                    issuer-uri: # ENV
                     audiences: iko
                     authority-prefix:
                     authorities-claim-name: roles

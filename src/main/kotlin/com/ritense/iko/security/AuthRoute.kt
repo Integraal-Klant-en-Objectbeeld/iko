@@ -3,9 +3,7 @@ package com.ritense.iko.security
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.stereotype.Component
 
-@Component
 class AuthRoute() : RouteBuilder() {
 
     override fun configure() {
@@ -13,6 +11,9 @@ class AuthRoute() : RouteBuilder() {
             .errorHandler(noErrorHandler())
             .process { ex ->
                 ex.getVariable("authorities", List::class.java)?.let {
+                    if (it.isEmpty()) {
+                        return@process
+                    }
                     if (SecurityContextHolder.getContext().authentication.authorities.any { x ->
                             it.contains(x.authority)
                         }) {

@@ -7,6 +7,10 @@ Some documentation about sources and searches.
     considered the entrypoint of any profile within IKO.
 - An **identification** is a single value.
 
+## Security
+
+- [Security](./security.md)
+
 ## Sources
 
 - [BRP](./sources/brp.md)

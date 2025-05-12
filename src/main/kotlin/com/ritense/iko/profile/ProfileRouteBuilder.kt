@@ -1,7 +1,10 @@
 package com.ritense.iko.profile
 
 import org.apache.camel.CamelContext
+import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
+import org.springframework.http.HttpStatus
+import org.springframework.security.access.AccessDeniedException
 
 class ProfileRouteBuilder(private val camelContext: CamelContext, private val profile: Profile) :
     RouteBuilder(camelContext) {
@@ -50,8 +53,14 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
     override fun configure() {
         val relations = profile.relations.filter { it.sourceId == null }
 
+        onException(AccessDeniedException::class.java)
+            .handled(true)
+            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
+
         from("direct:profile_${profile.id}")
             .routeId("profile_${profile.id}_direct")
+            .setVariable("authorities", constant("ROLE_PROFILE_${profile.name.replace(Regex("[^0-9a-zA-Z]+"), "_").uppercase()}"))
+            .to("direct:auth")
             .to("direct:${profile.primarySource}")
             .let {
                 if (relations.isNotEmpty()) {

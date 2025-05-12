@@ -11,6 +11,7 @@ class RelationsConfig(
 ) {
 
     init {
+
         this.profileRepository.findAll().forEach { profile ->
             camelContext.addRoutes(ProfileRouteBuilder(camelContext, profile))
         }
