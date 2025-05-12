@@ -14,11 +14,7 @@ import org.springframework.security.task.DelegatingSecurityContextTaskExecutor
 
 
 @Configuration
-class ApplicationConfig(val camelContext: CamelContext) {
-
-    init {
-        camelContext.executorServiceManager
-    }
+class ApplicationConfig() {
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -32,13 +28,9 @@ class ApplicationConfig(val camelContext: CamelContext) {
     @Bean
     fun taskExecutor(): DelegatingSecurityContextAsyncTaskExecutor {
         val executor = ThreadPoolTaskExecutor().apply {
-            corePoolSize = 1
-            maxPoolSize = 5
+            corePoolSize = 50
+            maxPoolSize = 100
             threadNamePrefix = "async-executor-"
-            setTaskDecorator({
-                println("TASK DECORATED")
-                it
-            })
             initialize()
         }
         return DelegatingSecurityContextAsyncTaskExecutor(executor)

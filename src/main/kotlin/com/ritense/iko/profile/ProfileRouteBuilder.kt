@@ -2,8 +2,11 @@ package com.ritense.iko.profile
 
 import com.ritense.iko.search.SearchRepository
 import org.apache.camel.CamelContext
+import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import java.util.UUID
+import org.springframework.http.HttpStatus
+import org.springframework.security.access.AccessDeniedException
 
 class ProfileRouteBuilder(
     private val camelContext: CamelContext,
@@ -54,9 +57,17 @@ class ProfileRouteBuilder(
 
     override fun configure() {
         val relations = profile.relations.filter { it.sourceId == null }
+
+        onException(AccessDeniedException::class.java)
+            .handled(true)
+            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
+
+
         val searchDirectName = searchRepository.getReferenceById(profile.primarySearch).routeId
         from("direct:profile_${profile.id}")
             .routeId("profile_${profile.id}_direct")
+            .setVariable("authorities", constant("ROLE_PROFILE_${searchDirectName}"))
+            .to("direct:auth")
             .to("direct:$searchDirectName")
             .let {
                 if (relations.isNotEmpty()) {
