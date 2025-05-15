@@ -1,4 +1,4 @@
-<th:block th:fragment="pagination">
+<th:block th:fragment="profilePagination">
     <cds-pagination id="pagination-container"
                     hx-swap-oob="true"
                     size="md"
@@ -8,7 +8,7 @@
                                   page-size=${page.size}"
                     hx-trigger="cds-pagination-changed-current from:closest cds-pagination,
                             cds-pagination-changed-page from:closest cds-pagination"
-                    hx-get="/admin/profile-search"
+                    hx-get="/admin/profiles/filter"
                     hx-target="#search-results"
                     hx-swap="outerHTML"
                     hx-push-url="true"

@@ -67,13 +67,13 @@ class ProfileController(
         }
     }
 
-    @GetMapping("/pagination")
+    @GetMapping("/profiles/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable
     ): ModelAndView {
         val page = profileRepository.findAll(pageable)
-        val list = ModelAndView("fragments/internal/pagination").apply {
+        val list = ModelAndView("fragments/internal/profilePagination").apply {
             addObject("profiles", page.content)
             addObject("page", page)
             addObject("query", query)
@@ -81,7 +81,7 @@ class ProfileController(
         return list
     }
 
-    @GetMapping("/profile-search")
+    @GetMapping("/profiles/filter")
     fun searchResults(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
@@ -93,12 +93,12 @@ class ProfileController(
             profileRepository.findByNameContainingIgnoreCase(query.trim(), pageable)
 
         if (isHxRequest) {
-            val searchResults = ModelAndView("fragments/internal/profileSearchResults").apply {
+            val searchResults = ModelAndView("fragments/internal/profileFilterResults").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
-            val pagination = ModelAndView("fragments/internal/pagination").apply {
+            val pagination = ModelAndView("fragments/internal/profilePagination").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -109,7 +109,7 @@ class ProfileController(
             )
         } else {
             return listOf(
-                ModelAndView("fragments/internal/profileSearchResultsPage").apply {
+                ModelAndView("fragments/internal/profileFilterResultsPage").apply {
                     addObject("profiles", page.content)
                     addObject("page", page)
                     addObject("query", query)

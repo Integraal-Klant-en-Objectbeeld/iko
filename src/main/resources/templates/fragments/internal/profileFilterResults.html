@@ -1,4 +1,4 @@
-<th:block th:fragment="profile-search-results">
+<th:block th:fragment="profile-filter-results">
     <cds-table-body id="search-results">
         <cds-table-row th:each="profile : ${profiles}"
                        th:attr="hx-get=@{'/admin/profiles/edit/' + ${profile.id}},
