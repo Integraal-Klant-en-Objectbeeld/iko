@@ -52,7 +52,7 @@ class ProfileRouteBuilder(private val camelContext: CamelContext, private val pr
 
         from("direct:profile_${profile.id}")
             .routeId("profile_${profile.id}_direct")
-            .to("direct:${profile.primarySource}")
+            .to("direct:${profile.primarySearch}")
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${profile.id}", PairAggregator)

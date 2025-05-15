@@ -33,7 +33,7 @@
                             th:expanded="${query} ?: 'true'"
                             name="query"
                             size="lg"
-                            hx-get="/admin/profile-search"
+                            hx-get="/admin/profiles/filter"
                             hx-params="*"
                             hx-trigger="input change delay:900ms, keyup[key=='Enter']"
                             hx-target="#search-results"
@@ -68,7 +68,7 @@
                         <cds-table-header-cell
                             is-sortable
                             size="md"
-                            hx-get="/admin/profile-search"
+                            hx-get="/admin/profiles/filter"
                             hx-target="#search-results"
                             hx-swap="outerHTML"
                             hx-push-url="false"
@@ -88,11 +88,11 @@
                     </cds-table-header-row>
                 </cds-table-head>
 
-                <th:block th:insert="~{fragments/internal/profileSearchResults :: profile-search-results}"></th:block>
+                <th:block th:insert="~{fragments/internal/profileFilterResults :: profile-filter-results}"></th:block>
             </cds-table>
             <!-- Pagination -->
             <cds-pagination id="pagination-container"
-                            th:replace="~{fragments/internal/pagination :: pagination}">
+                            th:replace="~{fragments/internal/profilePagination :: profilePagination}">
             </cds-pagination>
         </cds-tile>
     </cds-content>

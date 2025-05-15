@@ -32,15 +32,15 @@
                                     value=${form?.name}
                                   ">
                 </cds-text-input>
-                <cds-dropdown name="primarySource"
+                <cds-dropdown name="primarySearch"
                               size="lg"
                               style="width: 50%"
                               helper-text=""
-                              title-text="Primary Source"
-                              label="Select a Primary Source"
-                              th:attr="invalid=${errors?.getFieldError('primarySource') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('primarySource')?.defaultMessage},
-                                value=${form?.primarySource}">
+                              title-text="Primary Search"
+                              label="Select a Primary Search"
+                              th:attr="invalid=${errors?.getFieldError('primarySearch') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('primarySearch')?.defaultMessage},
+                                value=${form?.primarySearch}">
                     <cds-dropdown-item th:each="search : ${searches}"
                                        th:value="${search.id}">
                         <span th:text="${search.name}"></span>

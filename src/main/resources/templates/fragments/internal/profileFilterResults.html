@@ -1,4 +1,4 @@
-<th:block th:fragment="profile-search-results">
+<th:block th:fragment="profile-filter-results">
     <cds-table-body id="search-results">
         <cds-table-row th:each="profile : ${profiles}"
                        th:attr="hx-get=@{'/admin/profiles/edit/' + ${profile.id}},
@@ -6,7 +6,7 @@
                                  hx-swap='innerHTML',
                                  hx-push-url='true'">
             <cds-table-cell th:text="${profile.name}"></cds-table-cell>
-            <cds-table-cell th:text="${profile.primarySource}"></cds-table-cell>
+            <cds-table-cell th:text="${profile.primarySearch}"></cds-table-cell>
         </cds-table-row>
     </cds-table-body>
 </th:block>

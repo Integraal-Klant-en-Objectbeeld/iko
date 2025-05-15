@@ -1,0 +1,26 @@
+<th:block th:fragment="profilePagination">
+    <cds-pagination id="pagination-container"
+                    hx-swap-oob="true"
+                    size="md"
+                    th:attr="page=${page.number + 1},
+                                  totalPages=${page.totalPages},
+                                  total-items=${page.totalElements},
+                                  page-size=${page.size}"
+                    hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
+                    hx-get="/admin/profiles/filter"
+                    hx-target="#search-results"
+                    hx-swap="outerHTML"
+                    hx-push-url="true"
+                    hx-on:cds-pagination-changed-current="console.log('cds-pagination-changed-current', event, this.pageSize, this.page)"
+                    hx-vals="js:{
+                      size: event.detail.pageSize,
+                      page: event.detail.page - 1,
+                      query: document.querySelector('#search-bar').value
+                    }">
+        <cds-select-item value="10">10</cds-select-item>
+        <cds-select-item value="20">20</cds-select-item>
+        <cds-select-item value="30">30</cds-select-item>
+        <cds-select-item value="40">40</cds-select-item>
+        <cds-select-item value="50">50</cds-select-item>
+    </cds-pagination>
+</th:block>

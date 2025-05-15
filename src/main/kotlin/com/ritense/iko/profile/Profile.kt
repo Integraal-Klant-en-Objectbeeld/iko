@@ -17,17 +17,21 @@ import java.util.UUID
 @Entity
 @Table(name = "profile")
 class Profile(
-    @Column(name = "id")
     @Id
     val id: UUID,
 
     @Column(name = "name")
     var name: String,
 
-    @Column(name = "primary_source")
-    var primarySource: String,
+    @Column(name = "primary_search")
+    var primarySearch: String,
 
-    @OneToMany(cascade = [(CascadeType.ALL)], fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "profile")
+    @OneToMany(
+        cascade = [(CascadeType.ALL)],
+        fetch = FetchType.EAGER,
+        orphanRemoval = true,
+        mappedBy = "profile"
+    )
     var relations: MutableList<Relation> = mutableListOf(),
 
     @Embedded
@@ -78,7 +82,7 @@ class Profile(
         fun create(form: AddProfileForm) = Profile(
             id = UUID.randomUUID(),
             name = form.name,
-            primarySource = form.primarySource,
+            primarySearch = form.primarySearch,
             transform = Transform(form.transform),
         )
 

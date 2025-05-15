@@ -11,7 +11,7 @@ import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
 import com.ritense.iko.profile.ProfileService
-import com.ritense.iko.source.SearchService
+import com.ritense.iko.search.SearchService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -31,16 +31,11 @@ import java.util.UUID
 
 @Controller
 @RequestMapping("/admin")
-class InternalMainController(
+class ProfileController(
     private val profileRepository: ProfileRepository,
     private val profileService: ProfileService,
     private val searchService: SearchService,
 ) {
-
-    val menuItems: List<MenuItem> = listOf(
-        MenuItem("Profiles", "/admin/profiles"),
-        MenuItem("Searches TODO", "/admin/searches"),
-    )
 
     @GetMapping
     fun home(): ModelAndView {
@@ -52,7 +47,7 @@ class InternalMainController(
     @GetMapping("/profiles")
     fun profileList(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @PageableDefault(size = 10) pageable: Pageable,
+        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
         val page = profileRepository.findAll(pageable)
@@ -72,13 +67,13 @@ class InternalMainController(
         }
     }
 
-    @GetMapping("/pagination")
+    @GetMapping("/profiles/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @PageableDefault(size = 10) pageable: Pageable
+        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable
     ): ModelAndView {
         val page = profileRepository.findAll(pageable)
-        val list = ModelAndView("fragments/internal/pagination").apply {
+        val list = ModelAndView("fragments/internal/profilePagination").apply {
             addObject("profiles", page.content)
             addObject("page", page)
             addObject("query", query)
@@ -86,10 +81,10 @@ class InternalMainController(
         return list
     }
 
-    @GetMapping("/profile-search")
+    @GetMapping("/profiles/filter")
     fun searchResults(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @PageableDefault(size = 10) pageable: Pageable,
+        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): List<ModelAndView> {
         val page = if (query.isBlank())
@@ -98,12 +93,12 @@ class InternalMainController(
             profileRepository.findByNameContainingIgnoreCase(query.trim(), pageable)
 
         if (isHxRequest) {
-            val searchResults = ModelAndView("fragments/internal/profileSearchResults").apply {
+            val searchResults = ModelAndView("fragments/internal/profileFilterResults").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
-            val pagination = ModelAndView("fragments/internal/pagination").apply {
+            val pagination = ModelAndView("fragments/internal/profilePagination").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -114,7 +109,7 @@ class InternalMainController(
             )
         } else {
             return listOf(
-                ModelAndView("fragments/internal/profileSearchResultsPage").apply {
+                ModelAndView("fragments/internal/profileFilterResultsPage").apply {
                     addObject("profiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
@@ -126,7 +121,7 @@ class InternalMainController(
 
     @GetMapping("/profiles/create")
     fun profileCreate(): ModelAndView {
-        val searches = primarySources()
+        val searches = primarySearches()
         val modelAndView = ModelAndView("fragments/internal/profileAdd").apply {
             addObject("searches", searches)
         }
@@ -138,7 +133,7 @@ class InternalMainController(
         @Valid @ModelAttribute form: AddProfileForm,
         bindingResult: BindingResult
     ): ModelAndView {
-        val searches = primarySources()
+        val searches = primarySearches()
         val modelAndView = ModelAndView("fragments/internal/profileAdd").apply {
             addObject("form", form)
             addObject("searches", searches)
@@ -175,7 +170,7 @@ class InternalMainController(
         }
         return ModelAndView(viewName).apply {
             addObject("form", form)
-            addObject("searches", primarySources())
+            addObject("searches", primarySearches())
             addObject("relations", relations)
             addObject("menuItems", menuItems)
         }
@@ -191,7 +186,7 @@ class InternalMainController(
             addObject("errors", bindingResult)
             addObject("form", form)
             addObject("relations", profile.relations.map { Relation.from(it) })
-            addObject("searches", primarySources())
+            addObject("searches", primarySearches())
         }
         if (bindingResult.hasErrors()) {
             return modelAndView
@@ -301,31 +296,34 @@ class InternalMainController(
         )
     }
 
-    private fun primarySources(): List<Search> = searchService.getPrimarySources().map {
+    private fun primarySearches() = searchService.getPrimarySearches().map {
         Search(
-            id = it.value,
-            name = it.key,
+            id = it.id.toString(),
+            name = it.name,
         )
     }
 
-    private fun searches(): List<Search> = searchService.getSearches().map {
+    private fun searches() = searchService.getSearches().map {
         Search(
-            id = it.value,
-            name = it.key,
+            id = it.id.toString(),
+            name = it.name,
         )
     }
 
-    private fun sources(profile: Profile): MutableList<Source> {
-        val sources = profile.relations.map { relation ->
-            Source(
-                id = relation.id.toString(),
-                name = relation.id.toString()
-            )
-        }.toMutableList()
-        return sources
-    }
+    private fun sources(profile: Profile) = profile.relations.map { relation ->
+        Source(
+            id = relation.id.toString(),
+            name = relation.id.toString()
+        )
+    }.toMutableList()
 
     companion object {
         const val HX_REQUEST_HEADER = "Hx-Request"
+        const val PAGE_DEFAULT = 10
+        val menuItems: List<MenuItem> = listOf(
+            MenuItem("Profiles", "/admin/profiles"),
+            MenuItem("Searches", "/admin/searches"),
+        )
     }
+
 }

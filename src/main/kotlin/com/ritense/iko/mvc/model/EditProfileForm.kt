@@ -8,8 +8,8 @@ data class EditProfileForm(
     val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
     val name: String,
-    @field:NotBlank(message = "Please select a primary source.")
-    val primarySource: String,
+    @field:NotBlank(message = "Please select a primary search.")
+    val primarySearch: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
     val transform: String
@@ -20,7 +20,7 @@ data class EditProfileForm(
             return EditProfileForm(
                 id = profile.id,
                 name = profile.name,
-                primarySource = profile.primarySource,
+                primarySearch = profile.primarySearch,
                 transform = profile.transform.expression
             )
         }
