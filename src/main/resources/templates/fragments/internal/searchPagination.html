@@ -8,8 +8,8 @@
                                   page-size=${page.size}"
                     hx-trigger="cds-pagination-changed-current from:closest cds-pagination,
                             cds-pagination-changed-page from:closest cds-pagination"
-                    hx-get="/admin/search-filter"
-                    hx-target="#search-results"
+                    hx-get="/admin/searches/filter"
+                    hx-target="#search-filter-results"
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-on:cds-pagination-changed-current="console.log('pager event', event, this.pageSize, this.page)"

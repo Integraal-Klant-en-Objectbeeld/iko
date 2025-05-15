@@ -1,4 +1,4 @@
-<th:block th:fragment="profile-list">
+<th:block th:fragment="search-list">
     <cds-content>
         <cds-tile>
             <cds-breadcrumb no-trailing-slash="">
@@ -33,10 +33,10 @@
                             th:expanded="${query} ?: 'true'"
                             name="query"
                             size="lg"
-                            hx-get="/admin/search-filter"
+                            hx-get="/admin/searches/filter"
                             hx-params="*"
                             hx-trigger="input change delay:900ms, keyup[key=='Enter']"
-                            hx-target="#search-results"
+                            hx-target="#search-filter-results"
                             hx-swap="outerHTML"
                             hx-push-url="true">
                         </cds-table-toolbar-search>
@@ -68,16 +68,16 @@
                         <cds-table-header-cell
                             is-sortable
                             size="md"
-                            hx-get="/admin/search-filter"
-                            hx-target="#search-results"
+                            hx-get="/admin/searches/filter"
+                            hx-target="#search-filter-results"
                             hx-swap="outerHTML"
                             hx-push-url="false"
                             hx-trigger="cds-table-header-cell-sort"
                             hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
                             hx-vals="js:{
                             sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
-                            size: document.querySelector('#pagination-container').__pageSize,
-                            page: document.querySelector('#pagination-container').__page - 1,
+                            size: document.querySelector('#search-pagination-container').__pageSize,
+                            page: document.querySelector('#search-pagination-container').__page - 1,
                             query: document.querySelector('#search-bar').value
                             }">
                             Name
@@ -85,13 +85,50 @@
                         <cds-table-header-cell>
                             Primary
                         </cds-table-header-cell>
+                        <cds-table-header-cell>
+                            Operation
+                        </cds-table-header-cell>
+                        <cds-table-header-cell
+                            is-sortable
+                            size="md"
+                            hx-get="/admin/searches/filter"
+                            hx-target="#search-filter-results"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-trigger="cds-table-header-cell-sort"
+                            hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
+                            hx-vals="js:{
+                            sort: 'createdOn,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
+                            size: document.querySelector('#search-pagination-container').__pageSize,
+                            page: document.querySelector('#search-pagination-container').__page - 1,
+                            query: document.querySelector('#search-bar').value
+                            }">
+                            Created on
+                        </cds-table-header-cell>
+                        <cds-table-header-cell
+                            is-sortable
+                            size="md"
+                            hx-get="/admin/searches/filter"
+                            hx-target="#search-filter-results"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-trigger="cds-table-header-cell-sort"
+                            hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
+                            hx-vals="js:{
+                            sort: 'modifiedOn,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
+                            size: document.querySelector('#search-pagination-container').__pageSize,
+                            page: document.querySelector('#search-pagination-container').__page - 1,
+                            query: document.querySelector('#search-bar').value
+                            }">
+                            Modified On
+                        </cds-table-header-cell>
                     </cds-table-header-row>
                 </cds-table-head>
 
                 <th:block th:insert="~{fragments/internal/searchFilterResults :: search-filter-results}"></th:block>
             </cds-table>
             <!-- Pagination -->
-            <cds-pagination id="pagination-container"
+            <cds-pagination id="search-pagination-container"
                             th:replace="~{fragments/internal/searchPagination :: searchPagination}">
             </cds-pagination>
         </cds-tile>

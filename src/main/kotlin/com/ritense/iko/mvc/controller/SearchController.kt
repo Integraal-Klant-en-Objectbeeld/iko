@@ -40,7 +40,7 @@ class SearchController(
         }
     }
 
-    @GetMapping("/search-pagination")
+    @GetMapping("/searches/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable
@@ -54,7 +54,7 @@ class SearchController(
         return list
     }
 
-    @GetMapping("/search-filter")
+    @GetMapping("/searches/filter")
     fun searchFilter(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,

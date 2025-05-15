@@ -1,5 +1,5 @@
 <th:block th:fragment="search-filter-results">
-    <cds-table-body id="search-results">
+    <cds-table-body id="search-filter-results">
         <cds-table-row th:each="search : ${searches}"
                        th:attr="hx-get=@{'/admin/searches/edit/' + ${search.id}},
                                  hx-target='#view-panel',
@@ -7,6 +7,9 @@
                                  hx-push-url='true'">
             <cds-table-cell th:text="${search.name}"></cds-table-cell>
             <cds-table-cell th:text="${search.isPrimary}"></cds-table-cell>
+            <cds-table-cell th:text="${search.routeId}"></cds-table-cell>
+            <cds-table-cell th:text="${#temporals.format(search.createdOn,'dd MMMM yyyy HH:ss')}"></cds-table-cell>
+            <cds-table-cell th:text="${#temporals.format(search.modifiedOn,'dd MMMM yyyy HH:ss')}"></cds-table-cell>
         </cds-table-row>
     </cds-table-body>
 </th:block>
