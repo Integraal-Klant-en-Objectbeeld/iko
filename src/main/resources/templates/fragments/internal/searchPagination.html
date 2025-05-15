@@ -6,8 +6,7 @@
                                   totalPages=${page.totalPages},
                                   total-items=${page.totalElements},
                                   page-size=${page.size}"
-                    hx-trigger="cds-pagination-changed-current from:closest cds-pagination,
-                            cds-pagination-changed-page from:closest cds-pagination"
+                    hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
                     hx-get="/admin/searches/filter"
                     hx-target="#search-filter-results"
                     hx-swap="outerHTML"
@@ -17,8 +16,7 @@
                       size: event.detail.pageSize,
                       page: event.detail.page - 1,
                       query: document.querySelector('#search-bar').value
-                    }"
-                    start="0">
+                    }">
         <cds-select-item value="10">10</cds-select-item>
         <cds-select-item value="20">20</cds-select-item>
         <cds-select-item value="30">30</cds-select-item>
