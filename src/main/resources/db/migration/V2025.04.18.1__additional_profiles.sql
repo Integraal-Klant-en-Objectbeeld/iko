@@ -1,4 +1,4 @@
-INSERT INTO profile (id, name, primary_source, "transform")
+INSERT INTO profile (id, name, primary_search, "transform")
 VALUES ('088fd271-afb2-403f-b7c5-8732d803f534', 'profile A', 'personenSearch', '{ persoon: .left, zaken: .right }'),
        ('72d93a81-2271-44c8-bfca-b92e6eb31fdc', 'profile B', 'personenSearch', '{ persoon: .left, zaken: .right }'),
        ('dff365b8-559e-443f-8cbb-5a9d91137146', 'profile C', 'personenSearch', '{ persoon: .left, zaken: .right }'),

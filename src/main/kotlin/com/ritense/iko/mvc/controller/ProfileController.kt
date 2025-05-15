@@ -31,16 +31,11 @@ import java.util.UUID
 
 @Controller
 @RequestMapping("/admin")
-class InternalMainController(
+class ProfileController(
     private val profileRepository: ProfileRepository,
     private val profileService: ProfileService,
     private val searchService: SearchService,
 ) {
-
-    val menuItems: List<MenuItem> = listOf(
-        MenuItem("Profiles", "/admin/profiles"),
-        MenuItem("Searches TODO", "/admin/searches"),
-    )
 
     @GetMapping
     fun home(): ModelAndView {
@@ -325,6 +320,10 @@ class InternalMainController(
     companion object {
         const val HX_REQUEST_HEADER = "Hx-Request"
         const val PAGE_DEFAULT = 10
+        val menuItems: List<MenuItem> = listOf(
+            MenuItem("Profiles", "/admin/profiles"),
+            MenuItem("Searches", "/admin/searches"),
+        )
     }
 
 }
