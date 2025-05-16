@@ -78,6 +78,56 @@
                         alt="Carbon illustration"
                         width="640"
                         height="498"/>
+                    <div id="rete-container" style="width: 800px; height: 600px;"></div>
+                    <script type="module">
+                        import { NodeEditor, ClassicPreset } from "https://esm.sh/rete";
+                        import { AreaPlugin, AreaExtensions } from "https://esm.sh/rete-area-plugin";
+                        import { ConnectionPlugin, Presets as ConnectionPresets } from "https://esm.sh/rete-connection-plugin";
+                        import { LitPlugin, Presets as LitPresets } from "https://esm.sh/@retejs/lit-plugin";
+
+                        async function createEditor(container) {
+                            const socket = new ClassicPreset.Socket("socket");
+
+                            const editor = new NodeEditor();
+                            const area = new AreaPlugin(container);
+                            const render = new LitPlugin(); // MUST come before connection
+                            const connection = new ConnectionPlugin();
+
+                            render.addPreset(LitPresets.classic.setup());
+                            connection.addPreset(ConnectionPresets.classic.setup());
+
+                            editor.use(area);
+                            area.use(render);     // IMPORTANT: render must be initialized before connection
+                            area.use(connection);
+
+                            AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
+                                accumulating: AreaExtensions.accumulateOnCtrl(),
+                            });
+
+                            AreaExtensions.simpleNodesOrder(area);
+
+                            const a = new ClassicPreset.Node("A");
+                            a.addControl("a", new ClassicPreset.InputControl("text", { initial: "a" }));
+                            a.addOutput("a", new ClassicPreset.Output(socket));
+                            await editor.addNode(a);
+
+                            const b = new ClassicPreset.Node("B");
+                            b.addControl("b", new ClassicPreset.InputControl("text", { initial: "b" }));
+                            b.addInput("b", new ClassicPreset.Input(socket));
+                            await editor.addNode(b);
+
+                            await editor.addConnection(new ClassicPreset.Connection(a, "a", b, "b"));
+
+                            await area.translate(a.id, { x: 0, y: 0 });
+                            await area.translate(b.id, { x: 270, y: 0 });
+
+                            setTimeout(() => {
+                                AreaExtensions.zoomAt(area, editor.getNodes());
+                            }, 10);
+                        }
+
+                        createEditor(document.getElementById("rete-container"));
+                    </script>
                 </div>
             </div>
         </div>
