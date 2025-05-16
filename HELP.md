@@ -42,3 +42,11 @@ Please review the tags of the used images and set them to the same as you're run
 http://localhost:8001/ OpenZaak
 http://localhost:8010/ Objects API
 http://localhost:8011/ Objecttypes API
+
+### Docker container steps:
+* Building
+```./gradlew bootBuildImage --imageName=iko-app``` 
+```./gradlew bootBuildImage```
+* Running: 
+```docker run --env-file .env -p 8080:8080 iko-app```
+```docker run --env-file .env -p 8080:8080 docker.io/library/iko:0.0.1-SNAPSHOT```
