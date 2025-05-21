@@ -52,13 +52,13 @@ class ProfileController(
     ): ModelAndView {
         val page = profileRepository.findAllBy(pageable)
         return if (isHxRequest) {
-            ModelAndView("fragments/internal/profileList").apply {
+            ModelAndView("fragments/internal/profile/profileList").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
         } else {
-            ModelAndView("fragments/internal/profileListPage").apply {
+            ModelAndView("fragments/internal/profile/profileListPage").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -73,7 +73,7 @@ class ProfileController(
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable
     ): ModelAndView {
         val page = profileRepository.findAll(pageable)
-        val list = ModelAndView("fragments/internal/profilePagination").apply {
+        val list = ModelAndView("fragments/internal/profile/profilePagination").apply {
             addObject("profiles", page.content)
             addObject("page", page)
             addObject("query", query)
@@ -93,12 +93,12 @@ class ProfileController(
             profileRepository.findAllByName(query.trim(), pageable)
 
         if (isHxRequest) {
-            val searchResults = ModelAndView("fragments/internal/profileFilterResults").apply {
+            val searchResults = ModelAndView("fragments/internal/profile/profileFilterResults").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
-            val pagination = ModelAndView("fragments/internal/profilePagination").apply {
+            val pagination = ModelAndView("fragments/internal/profile/profilePagination").apply {
                 addObject("profiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -109,7 +109,7 @@ class ProfileController(
             )
         } else {
             return listOf(
-                ModelAndView("fragments/internal/profileFilterResultsPage").apply {
+                ModelAndView("fragments/internal/profile/profileFilterResultsPage").apply {
                     addObject("profiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
@@ -122,7 +122,7 @@ class ProfileController(
     @GetMapping("/profiles/create")
     fun profileCreate(): ModelAndView {
         val searches = primarySearches()
-        val modelAndView = ModelAndView("fragments/internal/profileAdd").apply {
+        val modelAndView = ModelAndView("fragments/internal/profile/profileAdd").apply {
             addObject("searches", searches)
         }
         return modelAndView
@@ -134,7 +134,7 @@ class ProfileController(
         bindingResult: BindingResult
     ): ModelAndView {
         val searches = primarySearches()
-        val modelAndView = ModelAndView("fragments/internal/profileAdd").apply {
+        val modelAndView = ModelAndView("fragments/internal/profile/profileAdd").apply {
             addObject("form", form)
             addObject("searches", searches)
             addObject("errors", bindingResult)
@@ -147,7 +147,7 @@ class ProfileController(
             profileService.reloadRoutes(profile)
             profileRepository.save(profile)
         }
-        val redirectModelAndView = ModelAndView("fragments/internal/profileEdit").apply {
+        val redirectModelAndView = ModelAndView("fragments/internal/profile/profileEdit").apply {
             addObject("form", EditProfileForm.from(profile))
             addObject("searches", searches)
             addObject("relations", profile.relations.map { Relation.from(it) })
@@ -164,9 +164,9 @@ class ProfileController(
         val form = EditProfileForm.from(profile)
         val relations = profile.relations.map { Relation.from(it) }
         val viewName = if (isHxRequest) {
-            "fragments/internal/profileEdit"
+            "fragments/internal/profile/profileEdit"
         } else {
-            "fragments/internal/profileEditPage"
+            "fragments/internal/profile/profileEditPage"
         }
         return ModelAndView(viewName).apply {
             addObject("form", form)
@@ -182,7 +182,7 @@ class ProfileController(
         bindingResult: BindingResult
     ): ModelAndView {
         val profile = profileRepository.getReferenceById(form.id)
-        val modelAndView = ModelAndView("fragments/internal/profileEdit").apply {
+        val modelAndView = ModelAndView("fragments/internal/profile/profileEdit").apply {
             addObject("errors", bindingResult)
             addObject("form", form)
             addObject("relations", profile.relations.map { Relation.from(it) })
@@ -204,7 +204,7 @@ class ProfileController(
         val profile = profileRepository.getReferenceById(id)
         val sources = sources(profile)
         val searches = searches()
-        val modelAndView = ModelAndView("fragments/internal/relationAdd").apply {
+        val modelAndView = ModelAndView("fragments/internal/relation/relationAdd").apply {
             addObject("profileId", id)
             addObject("sources", sources)
             addObject("searches", searches)
@@ -220,7 +220,7 @@ class ProfileController(
         val profile = profileRepository.getReferenceById(form.profileId)
         val sources = sources(profile)
         val searches = searches()
-        val modelAndView = ModelAndView("fragments/internal/relationAdd").apply {
+        val modelAndView = ModelAndView("fragments/internal/relation/relationAdd").apply {
             addObject("profileId", form.profileId)
             addObject("sources", sources)
             addObject("searches", searches)
@@ -237,7 +237,7 @@ class ProfileController(
                 profileRepository.save(it)
             }
         }
-        val relationsModelAndView = ModelAndView("fragments/internal/relations").apply {
+        val relationsModelAndView = ModelAndView("fragments/internal/relation/relations").apply {
             addObject("relations", result.relations.map { Relation.from(it) })
         }
         return listOf(
@@ -254,7 +254,7 @@ class ProfileController(
         val profile = profileRepository.getReferenceById(id)
         val sources = sources(profile).apply { this.removeIf { it.id == relationId.toString() } }
         val searches = searches()
-        val modelAndView = ModelAndView("fragments/internal/relationEdit").apply {
+        val modelAndView = ModelAndView("fragments/internal/relation/relationEdit").apply {
             addObject("sources", sources)
             addObject("searches", searches)
             addObject("form", profile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
@@ -270,7 +270,7 @@ class ProfileController(
         val profile = profileRepository.getReferenceById(form.profileId)
         val sources = sources(profile).apply { this.removeIf { it.id == form.id.toString() } }
         val searches = searches()
-        val modelAndView = ModelAndView("fragments/internal/relationEdit").apply {
+        val modelAndView = ModelAndView("fragments/internal/relation/relationEdit").apply {
             addObject("profileId", form.profileId)
             addObject("sources", sources)
             addObject("searches", searches)
@@ -287,7 +287,7 @@ class ProfileController(
                 profileRepository.save(it)
             }
         }
-        val relationsModelAndView = ModelAndView("fragments/internal/relations").apply {
+        val relationsModelAndView = ModelAndView("fragments/internal/relation/relations").apply {
             addObject("relations", updatedProfile.relations.map { Relation.from(it) })
         }
         return listOf(

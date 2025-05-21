@@ -3,7 +3,7 @@
         <cds-tile>
             <cds-breadcrumb no-trailing-slash="">
                 <cds-breadcrumb-item>
-                    <cds-breadcrumb-link>
+                    <cds-breadcrumb-link visited="true">
                         Home
                     </cds-breadcrumb-link>
                 </cds-breadcrumb-item>
@@ -125,11 +125,11 @@
                     </cds-table-header-row>
                 </cds-table-head>
 
-                <th:block th:insert="~{fragments/internal/searchFilterResults :: search-filter-results}"></th:block>
+                <th:block th:insert="~{fragments/internal/search/searchFilterResults :: search-filter-results}"></th:block>
             </cds-table>
             <!-- Pagination -->
             <cds-pagination id="search-pagination-container"
-                            th:replace="~{fragments/internal/searchPagination :: searchPagination}">
+                            th:replace="~{fragments/internal/search/searchPagination :: searchPagination}">
             </cds-pagination>
         </cds-tile>
     </cds-content>

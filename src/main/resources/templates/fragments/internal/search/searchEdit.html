@@ -1,0 +1,88 @@
+<th:block th:fragment="search-edit">
+    <cds-content>
+        <cds-tile>
+            <cds-breadcrumb no-trailing-slash="">
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="/admin"
+                        visited="true">
+                        Home
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        hx-get="/admin/searches"
+                        hx-target="#view-panel"
+                        is-currentpage="false"
+                        hx-push-url="true"
+                        visited="true">
+                        Searches
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        th:attr="hx-get=@{'/admin/searches/edit/' + ${form.id}}"
+                        hx-target="#view-panel"
+                        is-currentpage="true"
+                        hx-push-url="true"
+                        visited="true">
+                        Detail
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+            </cds-breadcrumb>
+            <h4>Edit Search:</h4>
+            <cds-form-group id="form-group" name="form-group" legend-text="Edit existing search">
+                <cds-stack gap="7">
+                    <input type="hidden" name="id" th:value="${form.id}"/>
+                    <cds-text-input name="name"
+                                    style="width: 50%"
+                                    label="Name"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage},
+                                    value=${form?.name}">
+                    </cds-text-input>
+
+                    <cds-dropdown name="routeId"
+                                  size="lg"
+                                  style="width: 50%"
+                                  helper-text=""
+                                  title-text="Operation"
+                                  label="Select an operation"
+                                  th:attr="invalid=${errors?.getFieldError('routeId') != null} ? 'true' : null,
+                                  invalid-text=${errors?.getFieldError('routeId')?.defaultMessage},
+                                  value=${form?.routeId}">
+                        <cds-dropdown-item th:each="route : ${routes}"
+                                           th:value="${route.id}">
+                            <span th:text="${route.name}"></span>
+                        </cds-dropdown-item>
+                    </cds-dropdown>
+                    <cds-toggle id="isPrimary"
+                                name="isPrimary"
+                                checked=""
+                                label-a="Yes"
+                                label-b="No"
+                                label-text="Toggle primary"
+                                th:attr="
+                                    invalid=${errors?.getFieldError('isPrimary') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('isPrimary')?.defaultMessage},
+                                    checked=${form?.isPrimary},
+                                    value=${form?.isPrimary}
+                                  ">
+                    </cds-toggle>
+                    <div style="max-width: fit-content;">
+                        <cds-button
+                            kind="primary"
+                            hx-put="/admin/searches"
+                            hx-target="#view-panel"
+                            hx-include="#form-group *">
+                            Save
+                        </cds-button>
+                    </div>
+                </cds-stack>
+            </cds-form-group>
+        </cds-tile>
+    </cds-content>
+</th:block>

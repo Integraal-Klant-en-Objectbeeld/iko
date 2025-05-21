@@ -3,7 +3,7 @@
         <cds-tile>
             <cds-breadcrumb no-trailing-slash="">
                 <cds-breadcrumb-item>
-                    <cds-breadcrumb-link>
+                    <cds-breadcrumb-link visited="true">
                         Home
                     </cds-breadcrumb-link>
                 </cds-breadcrumb-item>
@@ -88,11 +88,11 @@
                     </cds-table-header-row>
                 </cds-table-head>
 
-                <th:block th:insert="~{fragments/internal/profileFilterResults :: profile-filter-results}"></th:block>
+                <th:block th:insert="~{fragments/internal/profile/profileFilterResults :: profile-filter-results}"></th:block>
             </cds-table>
             <!-- Pagination -->
             <cds-pagination id="pagination-container"
-                            th:replace="~{fragments/internal/profilePagination :: profilePagination}">
+                            th:replace="~{fragments/internal/profile/profilePagination :: profilePagination}">
             </cds-pagination>
         </cds-tile>
     </cds-content>
