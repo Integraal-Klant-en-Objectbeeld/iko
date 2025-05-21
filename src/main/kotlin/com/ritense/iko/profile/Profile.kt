@@ -39,6 +39,7 @@ class Profile(
 ) {
 
     fun handle(request: EditProfileForm) {
+        this.primarySearch = request.primarySearch
         this.name = request.name
         this.transform = Transform(request.transform)
     }

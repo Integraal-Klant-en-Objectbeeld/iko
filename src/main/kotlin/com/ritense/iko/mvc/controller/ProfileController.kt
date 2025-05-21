@@ -50,7 +50,7 @@ class ProfileController(
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
-        val page = profileRepository.findAll(pageable)
+        val page = profileRepository.findAllBy(pageable)
         return if (isHxRequest) {
             ModelAndView("fragments/internal/profileList").apply {
                 addObject("profiles", page.content)
@@ -88,9 +88,9 @@ class ProfileController(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): List<ModelAndView> {
         val page = if (query.isBlank())
-            profileRepository.findAll(pageable)
+            profileRepository.findAllBy(pageable)
         else
-            profileRepository.findByNameContainingIgnoreCase(query.trim(), pageable)
+            profileRepository.findAllByName(query.trim(), pageable)
 
         if (isHxRequest) {
             val searchResults = ModelAndView("fragments/internal/profileFilterResults").apply {
