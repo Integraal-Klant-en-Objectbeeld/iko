@@ -45,8 +45,10 @@ http://localhost:8011/ Objecttypes API
 
 ### Docker container steps:
 * Building
-```./gradlew bootBuildImage --imageName=iko-app``` 
+```./gradlew bootBuildImage --imageName=iko-app```
+or (then image name will be docker.io/library/iko:X.X.X-SNAPSHOT)
 ```./gradlew bootBuildImage```
 * Running: 
 ```docker run --env-file .env -p 8080:8080 iko-app```
+or
 ```docker run --env-file .env -p 8080:8080 docker.io/library/iko:0.0.1-SNAPSHOT```
