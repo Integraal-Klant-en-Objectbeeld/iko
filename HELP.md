@@ -42,3 +42,16 @@ Please review the tags of the used images and set them to the same as you're run
 http://localhost:8001/ OpenZaak
 http://localhost:8010/ Objects API
 http://localhost:8011/ Objecttypes API
+
+### Docker container steps:
+* Building
+```./gradlew bootBuildImage --imageName=iko-app```
+or (then image name will be docker.io/library/iko:X.X.X-SNAPSHOT)
+```./gradlew bootBuildImage```
+* Running: 
+```docker run --env-file .env -p 8080:8080 iko-app```
+or
+```docker run --env-file .env -p 8080:8080 docker.io/library/iko:0.0.1-SNAPSHOT```
+
+The env.template file contains a SPRING_THYMELEAF_PREFIX=file:src/main/resources/templates/
+This is to allow local dev to have no caching when working on HTML. Remove it when running the docker container.

@@ -2,9 +2,9 @@ services:
     postgres:
         image: 'postgres:latest'
         environment:
-            - 'POSTGRES_DB=mydatabase'
-            - 'POSTGRES_PASSWORD=secret'
-            - 'POSTGRES_USER=myuser'
+            - POSTGRES_DB=iko-db
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_USER=iko-admin
         ports:
             - "5432:5432"
     haalcentraal-personen:
