@@ -4,7 +4,7 @@ import org.apache.camel.CamelContext
 import org.springframework.stereotype.Service
 
 @Service
-class ProfileService(private val camelContext: CamelContext, context: CamelContext) {
+class ProfileService(private val camelContext: CamelContext) {
 
     fun removeRoutes(profile: Profile) {
         removeRoute("profile_${profile.id}_direct")
