@@ -1,10 +1,14 @@
 package com.ritense.iko.profile
 
+import com.ritense.iko.search.SearchRepository
 import org.apache.camel.CamelContext
 import org.springframework.stereotype.Service
 
 @Service
-class ProfileService(private val camelContext: CamelContext, context: CamelContext) {
+class ProfileService(
+    private val camelContext: CamelContext,
+    private val searchRepository: SearchRepository
+) {
 
     fun removeRoutes(profile: Profile) {
         removeRoute("profile_${profile.id}_direct")
@@ -17,7 +21,7 @@ class ProfileService(private val camelContext: CamelContext, context: CamelConte
     }
 
     fun addRoutes(profile: Profile) {
-        camelContext.addRoutes(ProfileRouteBuilder(camelContext, profile))
+        camelContext.addRoutes(ProfileRouteBuilder(camelContext, profile, searchRepository))
     }
 
     fun reloadRoutes(profile: Profile) {

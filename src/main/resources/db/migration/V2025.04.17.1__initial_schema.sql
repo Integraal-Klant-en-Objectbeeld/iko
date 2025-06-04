@@ -2,7 +2,7 @@ CREATE TABLE profile
 (
     id             UUID NOT NULL,
     name           VARCHAR(255),
-    primary_search VARCHAR(255),
+    primary_search UUID,
     transform      TEXT,
     CONSTRAINT pk_profile PRIMARY KEY (id)
 );
