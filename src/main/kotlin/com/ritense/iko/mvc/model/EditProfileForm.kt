@@ -20,7 +20,7 @@ data class EditProfileForm(
             return EditProfileForm(
                 id = profile.id,
                 name = profile.name,
-                primarySearch = profile.primarySearch,
+                primarySearch = profile.primarySearch.toString(),
                 transform = profile.transform.expression
             )
         }

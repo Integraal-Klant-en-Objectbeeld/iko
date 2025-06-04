@@ -24,7 +24,7 @@ class Profile(
     var name: String,
 
     @Column(name = "primary_search")
-    var primarySearch: String,
+    var primarySearch: UUID,
 
     @OneToMany(
         cascade = [(CascadeType.ALL)],
@@ -82,7 +82,7 @@ class Profile(
         fun create(form: AddProfileForm) = Profile(
             id = UUID.randomUUID(),
             name = form.name,
-            primarySearch = form.primarySearch,
+            primarySearch = UUID.fromString(form.primarySearch),
             transform = Transform(form.transform),
         )
 
