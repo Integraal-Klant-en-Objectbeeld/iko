@@ -1,5 +1,6 @@
 package com.ritense.iko.search
 
+import com.ritense.iko.mvc.model.EditSearchForm
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -28,4 +29,12 @@ class Search(
 
     @Column(name = "is_primary")
     var isPrimary: Boolean = false
-)
+) {
+
+    fun handle(form : EditSearchForm) {
+        this.name = form.name
+        this.routeId = form.routeId
+        this.isPrimary = form.isPrimary
+    }
+
+}
