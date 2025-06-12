@@ -57,7 +57,7 @@ class SearchController(
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable
     ): ModelAndView {
         val page = searchRepository.findAll(pageable)
-        val list = ModelAndView("fragments/internal/searchPagination").apply {
+        val list = ModelAndView("fragments/internal/search/searchPagination").apply {
             addObject("searches", page.content)
             addObject("page", page)
             addObject("query", query)
@@ -77,12 +77,12 @@ class SearchController(
             searchRepository.findByNameContainingIgnoreCase(query.trim(), pageable)
 
         if (isHxRequest) {
-            val searchResults = ModelAndView("fragments/internal/searchFilterResults").apply {
+            val searchResults = ModelAndView("fragments/internal/search/searchFilterResults").apply {
                 addObject("searches", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
-            val pagination = ModelAndView("fragments/internal/searchPagination").apply {
+            val pagination = ModelAndView("fragments/internal/search/searchPagination").apply {
                 addObject("searches", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -93,7 +93,7 @@ class SearchController(
             )
         } else {
             return listOf(
-                ModelAndView("fragments/internal/searchSearchResultsPage").apply {
+                ModelAndView("fragments/internal/search/searchSearchResultsPage").apply {
                     addObject("searches", page.content)
                     addObject("page", page)
                     addObject("query", query)
@@ -113,7 +113,7 @@ class SearchController(
         val viewName = if (isHxRequest) {
             "fragments/internal/search/searchEdit"
         } else {
-            "fragments/internal/search/searchEditPage" //TODO
+            "fragments/internal/search/searchEditPage"
         }
         return ModelAndView(viewName).apply {
             addObject("form", form)
@@ -143,6 +143,11 @@ class SearchController(
         return modelAndView
     }
 
+    // TODO this should go? because the list of searches is "direct":URI -> these get configured at startup.
+    // Thoughts: The table searches is a manual list that CAN connect to beans present in the camelcontext
+    // now this only all the beans on startup being added.
+    // Having a table in between makes it a effort to OPEN a search for real use. Then the beans could already be known.
+    // So routes() could just return all the beans annotated with @Search to make a list.
     private fun routes() = camelContext.routes
         .filter { it.routeId.startsWith("direct:") && it.routeId != "direct:direct:" }
         .map {

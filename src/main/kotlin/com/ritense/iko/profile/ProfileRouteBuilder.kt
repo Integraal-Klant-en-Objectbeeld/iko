@@ -6,7 +6,7 @@ import org.apache.camel.builder.RouteBuilder
 import java.util.UUID
 
 class ProfileRouteBuilder(
-    private val camelContext: CamelContext,
+    camelContext: CamelContext,
     private val profile: Profile,
     private val searchRepository: SearchRepository
 ) : RouteBuilder(camelContext) {
@@ -57,7 +57,7 @@ class ProfileRouteBuilder(
         val searchDirectName = searchRepository.getReferenceById(profile.primarySearch).routeId
         from("direct:profile_${profile.id}")
             .routeId("profile_${profile.id}_direct")
-            .to("direct:$searchDirectName")
+            .to("direct:$searchDirectName")  // TODO this needs to be looked up in the DB is this is enabled/exists there as well.
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${profile.id}", PairAggregator)
