@@ -1,4 +1,4 @@
-package com.ritense.iko.mvc.model
+package com.ritense.iko.mvc.model.validation
 
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
