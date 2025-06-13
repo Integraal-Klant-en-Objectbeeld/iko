@@ -326,18 +326,6 @@ class ProfileController(
         )
     }.toMutableList()
 
-    @GetMapping("/profiles/check-duplicate")
-    fun checkDuplicateName(@RequestParam name: String): ModelAndView {
-        val exists: Boolean = profileRepository.existsByName(name)
-        val modelAndView = ModelAndView("fragments/internal/duplicate-name-check").apply {
-            addObject("warning", "")
-        }
-        if (exists) {
-            modelAndView.addObject("warning", "Name already exists! Please choose another.")
-        }
-        return modelAndView
-    }
-
     companion object {
         const val HX_REQUEST_HEADER = "Hx-Request"
         const val PAGE_DEFAULT = 10
