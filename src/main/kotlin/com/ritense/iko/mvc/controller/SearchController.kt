@@ -136,10 +136,8 @@ class SearchController(
         if (bindingResult.hasErrors()) {
             return modelAndView
         }
-        val result = form.run {
-            search.handle(form)
-            searchRepository.save(search)
-        }
+        search.handle(form)
+        searchRepository.save(search)
         return modelAndView
     }
 

@@ -54,24 +54,26 @@
                                   th:attr="invalid=${errors?.getFieldError('routeId') != null} ? 'true' : null,
                                   invalid-text=${errors?.getFieldError('routeId')?.defaultMessage},
                                   value=${form?.routeId}">
-                        <cds-dropdown-item th:each="route : ${routes}"
-                                           th:value="${route.id}">
+                        <cds-dropdown-item th:each="route : ${routes}" th:value="${route.id}">
                             <span th:text="${route.name}"></span>
                         </cds-dropdown-item>
                     </cds-dropdown>
-                    <cds-toggle id="isPrimary"
-                                name="isPrimary"
-                                checked=""
+                    <cds-toggle name="isPrimaryToggle"
                                 label-a="Yes"
                                 label-b="No"
-                                label-text="Toggle primary"
+                                label-text="Toggle primary "
+                                hx-trigger="cds-toggle-changed"
+                                hx-on:cds-toggle-changed="
+                                     const hidden = document.getElementById('isPrimaryInput');
+                                     hidden.value = hidden.value === 'true' ? 'false' : 'true';
+                                "
                                 th:attr="
                                     invalid=${errors?.getFieldError('isPrimary') != null} ? 'true' : null,
                                     invalid-text=${errors?.getFieldError('isPrimary')?.defaultMessage},
-                                    checked=${form?.isPrimary},
-                                    value=${form?.isPrimary}
+                                    checked=${form?.isPrimary}
                                   ">
                     </cds-toggle>
+                    <input type="hidden" name="isPrimary" id="isPrimaryInput" th:value="${form?.isPrimary}"/>
                     <div style="max-width: fit-content;">
                         <cds-button
                             kind="primary"

@@ -191,11 +191,9 @@ class ProfileController(
         if (bindingResult.hasErrors()) {
             return modelAndView
         }
-        val profileUpdated = form.run {
-            profile.handle(form)
-            profileService.reloadRoutes(profile)
-            profileRepository.save(profile)
-        }
+        profile.handle(form)
+        profileService.reloadRoutes(profile)
+        profileRepository.save(profile)
         return modelAndView
     }
 

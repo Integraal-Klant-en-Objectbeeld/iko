@@ -10,7 +10,6 @@ data class EditSearchForm(
     val name: String,
     @field:NotBlank(message = "Please select a Operation.")
     val routeId: String,
-    @field:NotBlank(message = "Please choose a primary.")
     val isPrimary: Boolean
 ) {
     companion object {
