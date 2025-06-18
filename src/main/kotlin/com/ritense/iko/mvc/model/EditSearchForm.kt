@@ -8,9 +8,10 @@ data class EditSearchForm(
     val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
     val name: String,
-    @field:NotBlank(message = "Please select a Operation.")
+    @field:NotBlank(message = "Please select a operation.")
     val routeId: String,
-    val isPrimary: Boolean
+    val isPrimary: Boolean,
+    val isActive: Boolean
 ) {
     companion object {
         fun from(search: Search): EditSearchForm {
@@ -18,7 +19,8 @@ data class EditSearchForm(
                 id = search.id,
                 name = search.name,
                 routeId = search.routeId,
-                isPrimary = search.isPrimary
+                isPrimary = search.isPrimary,
+                isActive = search.isActive
             )
         }
     }

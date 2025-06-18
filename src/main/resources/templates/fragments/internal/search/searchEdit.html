@@ -74,6 +74,22 @@
                                   ">
                     </cds-toggle>
                     <input type="hidden" name="isPrimary" id="isPrimaryInput" th:value="${form?.isPrimary}"/>
+                    <cds-toggle name="isActiveToggle"
+                                label-a="Yes"
+                                label-b="No"
+                                label-text="Toggle active "
+                                hx-trigger="cds-toggle-changed"
+                                hx-on:cds-toggle-changed="
+                                     const hidden = document.getElementById('isActive');
+                                     hidden.value = hidden.value === 'true' ? 'false' : 'true';
+                                "
+                                th:attr="
+                                    invalid=${errors?.getFieldError('isActive') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('isActive')?.defaultMessage},
+                                    checked=${form?.isActive}
+                                  ">
+                    </cds-toggle>
+                    <input type="hidden" name="isActive" id="isActiveInput" th:value="${form?.isActive}"/>
                     <div style="max-width: fit-content;">
                         <cds-button
                             kind="primary"

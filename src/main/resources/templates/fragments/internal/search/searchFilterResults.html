@@ -5,8 +5,9 @@
                                  hx-target='#view-panel',
                                  hx-swap='innerHTML',
                                  hx-push-url='true'">
+            <cds-table-cell th:text="${search.active} ? 'Yes' : 'No'"></cds-table-cell>
             <cds-table-cell th:text="${search.name}"></cds-table-cell>
-            <cds-table-cell th:text="${search.isPrimary}"></cds-table-cell>
+            <cds-table-cell th:text="${search.isPrimary} ? 'Yes' : 'No'"></cds-table-cell>
             <cds-table-cell th:text="${search.routeId}"></cds-table-cell>
             <cds-table-cell th:text="${#temporals.format(search.createdOn,'dd MMMM yyyy HH:ss')}"></cds-table-cell>
             <cds-table-cell th:text="${#temporals.format(search.modifiedOn,'dd MMMM yyyy HH:ss')}"></cds-table-cell>

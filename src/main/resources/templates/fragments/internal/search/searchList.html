@@ -40,31 +40,15 @@
                             hx-swap="outerHTML"
                             hx-push-url="true">
                         </cds-table-toolbar-search>
-                        <!--<cds-button
-                            th:attr="hx-get=@{'/admin/searches/create'},
-                                 hx-target='#view-panel',
-                                 hx-swap='innerHTML',
-                                 hx-push-url='false'">
-                            Add new Profile
-                            <svg
-                                focusable="false"
-                                preserveAspectRatio="xMidYMid meet"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                aria-hidden="true"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 32 32"
-                                slot="icon">
-                                <path d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                            </svg>
-                        </cds-button>-->
                     </cds-table-toolbar-content>
                 </cds-table-toolbar>
 
                 <!-- Header -->
                 <cds-table-head>
                     <cds-table-header-row>
+                        <cds-table-header-cell>
+                            Active
+                        </cds-table-header-cell>
                         <cds-table-header-cell
                             is-sortable
                             size="md"
