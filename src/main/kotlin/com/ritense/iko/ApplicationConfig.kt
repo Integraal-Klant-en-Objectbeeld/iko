@@ -28,9 +28,8 @@ class ApplicationConfig() {
     @Bean
     fun taskExecutor(): DelegatingSecurityContextAsyncTaskExecutor {
         val executor = ThreadPoolTaskExecutor().apply {
-            corePoolSize = 50
-            maxPoolSize = 100
-            threadNamePrefix = "async-executor-"
+            maxPoolSize = 50
+            threadNamePrefix = "security-task-executor-"
             initialize()
         }
         return DelegatingSecurityContextAsyncTaskExecutor(executor)
