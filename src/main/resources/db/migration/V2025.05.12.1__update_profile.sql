@@ -1,1 +1,0 @@
-UPDATE profile SET primary_source = 'brpPersonenSearch' where name = 'TEMP';

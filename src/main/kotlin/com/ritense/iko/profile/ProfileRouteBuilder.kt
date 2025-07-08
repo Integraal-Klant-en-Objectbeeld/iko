@@ -66,7 +66,7 @@ class ProfileRouteBuilder(
         val searchDirectName = searchRepository.getReferenceById(profile.primarySearch).routeId
         from("direct:profile_${profile.id}")
             .routeId("profile_${profile.id}_direct")
-            .setVariable("authorities", constant("ROLE_PROFILE_${searchDirectName}"))
+            .setVariable("authorities", constant("ROLE_PROFILE_${profile.name.replace("[^0-9a-zA-Z_\\-]+", "").uppercase()}"))
             .to("direct:auth")
             .to("direct:$searchDirectName")
             .let {
