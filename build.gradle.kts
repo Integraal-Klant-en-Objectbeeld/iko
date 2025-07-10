@@ -25,14 +25,15 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.4"))
-    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.10.3")) // BOM
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
+    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.11.0")) // BOM
 
     implementation("org.apache.camel.springboot:camel-spring-boot")
     implementation("org.apache.camel.springboot:camel-direct-starter")
     implementation("org.apache.camel.springboot:camel-netty-http-starter")
     implementation("org.apache.camel.springboot:camel-platform-http-starter")
     implementation("org.apache.camel.springboot:camel-jackson-starter")
+    implementation("org.apache.camel.springboot:camel-spring-security-starter")
     implementation("org.apache.camel.springboot:camel-jacksonxml-starter")
     implementation("org.apache.camel.springboot:camel-http-starter")
     implementation("org.apache.camel.springboot:camel-rest-starter")
@@ -57,6 +58,11 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // Security
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 

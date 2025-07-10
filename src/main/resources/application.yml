@@ -11,6 +11,26 @@ spring:
             static-locations: classpath:/static/
             cache:
                 period: 0
+    security:
+        oauth2:
+            client:
+                registration:
+                    keycloak:
+                        provider: keycloak
+                        authorization-grant-type: authorization_code
+                        scope: openid
+                        client-id: # ENV
+                        client-secret: # ENV
+                provider:
+                    keycloak:
+                        issuer-uri: # ENV
+            resourceserver:
+                jwt:
+                    issuer-uri: # ENV
+                    audiences: iko
+                    authority-prefix:
+                    authorities-claim-name: roles
+
 camel:
     yaml:
         routes:
