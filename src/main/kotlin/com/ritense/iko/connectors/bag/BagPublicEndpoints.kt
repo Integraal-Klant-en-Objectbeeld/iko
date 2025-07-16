@@ -11,17 +11,11 @@ import com.ritense.iko.connectors.bag.endpoints.BagEndpointStandplaatsen
 import com.ritense.iko.connectors.bag.endpoints.BagEndpointVerblijfsobjecten
 import com.ritense.iko.connectors.bag.endpoints.BagEndpointWoonplaatsen
 import com.ritense.iko.endpoints.PublicEndpoints
-import com.ritense.iko.connectors.brp.ValidationException
-import org.apache.camel.Exchange
 
 class BagPublicEndpoints : PublicEndpoints() {
     override fun configure() {
 
-        onException(ValidationException::class.java)
-            .handled(true)
-            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
-            .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-            .setBody(constant("[]"))
+        handleAccessDeniedException()
 
         id("/bag/adresseerbareObjecten", BagEndpointAdresseerbareObjecten.URI)
         search("/bag/adresseerbareObjecten", BagEndpointAdresseerbareObjecten.URI)

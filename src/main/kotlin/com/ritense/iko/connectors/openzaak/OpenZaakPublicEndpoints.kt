@@ -1,7 +1,5 @@
 package com.ritense.iko.connectors.openzaak
 
-import com.ritense.iko.endpoints.PublicEndpoints
-import com.ritense.iko.connectors.brp.ValidationException
 import com.ritense.iko.connectors.openzaak.endpoints.OpenZaakEndpointResultaten
 import com.ritense.iko.connectors.openzaak.endpoints.OpenZaakEndpointRollen
 import com.ritense.iko.connectors.openzaak.endpoints.OpenZaakEndpointStatussen
@@ -10,10 +8,9 @@ import com.ritense.iko.connectors.openzaak.endpoints.OpenZaakEndpointZaakInforma
 import com.ritense.iko.connectors.openzaak.endpoints.OpenZaakEndpointZaakObjecten
 import com.ritense.iko.connectors.openzaak.endpoints.OpenZaakEndpointZaakVerzoeken
 import com.ritense.iko.connectors.openzaak.endpoints.OpenZaakEndpointZaken
-import com.ritense.iko.search.PublicSearchEndpoints
-import org.apache.camel.Exchange
+import com.ritense.iko.endpoints.PublicEndpoints
 
-class OpenZaakPublicEndpoints : PublicSearchEndpoints() {
+class OpenZaakPublicEndpoints : PublicEndpoints() {
     override fun configure() {
         handleAccessDeniedException()
 
