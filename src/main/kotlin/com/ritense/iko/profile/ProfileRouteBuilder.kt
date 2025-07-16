@@ -1,6 +1,6 @@
 package com.ritense.iko.profile
 
-import com.ritense.iko.search.SearchRepository
+import com.ritense.iko.endpoints.EndpointRepository
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
@@ -11,12 +11,12 @@ import org.springframework.security.access.AccessDeniedException
 class ProfileRouteBuilder(
     private val camelContext: CamelContext,
     private val profile: Profile,
-    private val searchRepository: SearchRepository
+    private val endpointRepository: EndpointRepository
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(profile: Profile, source: Relation) {
         val relations = profile.relations.filter { it.sourceId == source.id }
-        val searchDirectName = searchRepository.getReferenceById(UUID.fromString(source.searchId)).routeId // TODO FIX table col type
+        val searchDirectName = endpointRepository.getReferenceById(UUID.fromString(source.searchId)).routeId // TODO FIX table col type
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
@@ -57,13 +57,12 @@ class ProfileRouteBuilder(
 
     override fun configure() {
         val relations = profile.relations.filter { it.sourceId == null }
+        val searchDirectName = endpointRepository.getReferenceById(profile.primarySearch).routeId
 
         onException(AccessDeniedException::class.java)
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
 
-
-        val searchDirectName = searchRepository.getReferenceById(profile.primarySearch).routeId
         from("direct:profile_${profile.id}")
             .routeId("profile_${profile.id}_direct")
             // TODO: Replace this constant with a ROLE that you can set on the profile.

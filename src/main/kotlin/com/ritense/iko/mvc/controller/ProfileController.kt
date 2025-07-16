@@ -11,7 +11,7 @@ import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.profile.Profile
 import com.ritense.iko.profile.ProfileRepository
 import com.ritense.iko.profile.ProfileService
-import com.ritense.iko.search.SearchService
+import com.ritense.iko.endpoints.EndpointService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -34,7 +34,7 @@ import java.util.UUID
 class ProfileController(
     private val profileRepository: ProfileRepository,
     private val profileService: ProfileService,
-    private val searchService: SearchService,
+    private val endpointService: EndpointService,
 ) {
 
     @GetMapping
@@ -296,14 +296,14 @@ class ProfileController(
         )
     }
 
-    private fun primarySearches() = searchService.getPrimarySearches().map {
+    private fun primarySearches() = endpointService.getPrimaryEndpoints().map {
         Search(
             id = it.id.toString(),
             name = it.name,
         )
     }
 
-    private fun searches() = searchService.getSearches().map {
+    private fun searches() = endpointService.getEndpoints().map {
         Search(
             id = it.id.toString(),
             name = it.name,
@@ -321,8 +321,8 @@ class ProfileController(
         const val HX_REQUEST_HEADER = "Hx-Request"
         const val PAGE_DEFAULT = 10
         val menuItems: List<MenuItem> = listOf(
-            MenuItem("Profiles", "/admin/profiles"),
-            MenuItem("Searches", "/admin/searches"),
+            MenuItem("Aggregated Data Profiles", "/admin/profiles"),
+            MenuItem("API Endpoints", "/admin/searches"),
         )
     }
 
