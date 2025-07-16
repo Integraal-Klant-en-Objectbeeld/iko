@@ -4,7 +4,7 @@ import org.apache.camel.builder.RouteBuilder
 
 class ProfileRoute(val profileRepository: ProfileRepository) : RouteBuilder() {
     override fun configure() {
-        rest("/profile")
+        rest("/profiles")
             .get("/{profileName}/{id}")
             .to("direct:profile_rest")
 
