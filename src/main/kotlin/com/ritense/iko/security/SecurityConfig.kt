@@ -21,7 +21,7 @@ class SecurityConfig {
     fun apiSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .securityMatcher(
-                "/searches/**",
+                "/endpoints/**",
                 "/profile/**"
             )
             .oauth2Login { oauth2 -> oauth2.disable() }

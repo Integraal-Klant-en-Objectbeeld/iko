@@ -169,7 +169,7 @@ services:
             KC_HTTP_RELATIVE_PATH: /auth
         volumes:
             - ./imports/keycloak:/opt/keycloak/data/import
-        command: "start-dev --import-realm --http-port=8082"
+        command: "start-dev --import-realm --http-port=8082 --hostname http://keycloak:8082"
 
     keycloak-database:
         image: postgres:15
