@@ -157,7 +157,7 @@ services:
             - keycloak-database
         image: quay.io/keycloak/keycloak:24.0.1
         ports:
-            - "8082:8080"
+            - "8082:8082"
         environment:
             KEYCLOAK_ADMIN: admin
             KEYCLOAK_ADMIN_PASSWORD: admin
@@ -169,7 +169,7 @@ services:
             KC_HTTP_RELATIVE_PATH: /auth
         volumes:
             - ./imports/keycloak:/opt/keycloak/data/import
-        command: "start-dev --import-realm"
+        command: "start-dev --import-realm --http-port=8082"
 
     keycloak-database:
         image: postgres:15
@@ -181,3 +181,24 @@ services:
             POSTGRES_PASSWORD: keycloak
         labels:
             org.springframework.boot.ignore: true
+
+    iko:
+        build: .
+        container_name: iko
+        ports:
+            - "8080:8080"
+        environment:
+            SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+            SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/iko-db
+            SPRING_DATASOURCE_USERNAME: iko-admin
+            SPRING_DATASOURCE_PASSWORD: secret
+            IKO_SOURCES_BRP_HOST: http://haalcentraal-personen:5010
+            IKO_SOURCES_OPENZAAK_HOST: http://openzaak:8001
+            IKO_SOURCES_OPENZAAK_CLIENTID: valtimo_client
+            IKO_SOURCES_OPENZAAK_SECRET: e09b8bc5-5831-4618-ab28-41411304309d
+            IKO_SOURCES_BAG_HOST: https://api.bag.kadaster.nl
+            IKO_SOURCES_BAG_APIKEY:
+            SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUERURI: http://keycloak:8082/auth/realms/valtimo
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENTID: iko
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENTSECRET: ThisIsNotASecret
+            SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI: http://keycloak:8082/auth/realms/valtimo
