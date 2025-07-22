@@ -1,13 +1,13 @@
 package com.ritense.iko.profile
 
-import com.ritense.iko.search.SearchRepository
+import com.ritense.iko.endpoints.EndpointRepository
 import org.apache.camel.CamelContext
 import org.springframework.stereotype.Service
 
 @Service
 class ProfileService(
     private val camelContext: CamelContext,
-    private val searchRepository: SearchRepository
+    private val endpointRepository: EndpointRepository
 ) {
 
     fun removeRoutes(profile: Profile) {
@@ -21,7 +21,7 @@ class ProfileService(
     }
 
     fun addRoutes(profile: Profile) {
-        camelContext.addRoutes(ProfileRouteBuilder(camelContext, profile, searchRepository))
+        camelContext.addRoutes(ProfileRouteBuilder(camelContext, profile, endpointRepository))
     }
 
     fun reloadRoutes(profile: Profile) {
