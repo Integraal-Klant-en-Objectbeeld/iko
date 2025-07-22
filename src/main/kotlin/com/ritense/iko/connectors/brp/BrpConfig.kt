@@ -10,14 +10,14 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConditionalOnProperty(
-    value = ["iko.sources.brp.enabled"],
+    value = ["iko.connectors.brp.enabled"],
     havingValue = "true",
     matchIfMissing = true
 )
 class BrpConfig {
 
     @Bean
-    fun brp(camelContext: CamelContext, @Value("\${iko.sources.brp.host}") host: String) =
+    fun brp(camelContext: CamelContext, @Value("\${iko.connectors.brp.host}") host: String) =
         RestOpenApiComponent(camelContext).apply {
             this.specificationUri =
                 "https://raw.githubusercontent.com/BRP-API/Haal-Centraal-BRP-bevragen/refs/tags/v2.2.1-mock/specificatie/genereervariant/openapi.json"

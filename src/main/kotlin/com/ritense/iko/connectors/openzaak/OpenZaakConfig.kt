@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConditionalOnProperty(name = ["iko.sources.openzaak.enabled"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = ["iko.connectors.openzaak.enabled"], havingValue = "true", matchIfMissing = true)
 class OpenZaakConfig {
 
     @Bean
-    fun openZaak(camelContext: CamelContext, @Value("\${iko.sources.openzaak.host}") host: String) =
+    fun openZaak(camelContext: CamelContext, @Value("\${iko.connectors.openzaak.host}") host: String) =
         RestOpenApiComponent(camelContext).apply {
             this.specificationUri = "http://localhost:8001/zaken/api/v1/schema/openapi.yaml"
             this.host = host

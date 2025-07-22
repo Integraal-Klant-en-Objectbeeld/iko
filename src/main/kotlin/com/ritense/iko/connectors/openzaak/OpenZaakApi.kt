@@ -9,7 +9,7 @@ class OpenZaakApi : RouteBuilder() {
     override fun configure() {
         from(URI)
             .errorHandler(noErrorHandler())
-            .bean(OpenZaakTokenService::class.java, "generateToken(*, {{iko.sources.openzaak.clientId}}, {{iko.sources.openzaak.secret}})")
+            .bean(OpenZaakTokenService::class.java, "generateToken(*, {{iko.connectors.openzaak.clientId}}, {{iko.connectors.openzaak.secret}})")
             .toD("openZaak:\${header.openZaakApiOperation}")
             .unmarshal().json()
     }

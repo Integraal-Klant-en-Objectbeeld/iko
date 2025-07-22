@@ -38,7 +38,7 @@ camel:
             paths: classpath:camel/*.yaml
 
 iko:
-    sources:
+    connectors:
         brp:
             enabled: true
             host: # ENV

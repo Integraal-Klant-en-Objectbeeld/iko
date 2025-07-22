@@ -19,14 +19,14 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConditionalOnProperty(
-    value = ["iko.sources.bag.enabled"],
+    value = ["iko.connectors.bag.enabled"],
     havingValue = "true",
     matchIfMissing = true
 )
 class BagConfig {
 
     @Bean
-    fun bag(camelContext: CamelContext, @Value("\${iko.sources.bag.host}") host: String) =
+    fun bag(camelContext: CamelContext, @Value("\${iko.connectors.bag.host}") host: String) =
         RestOpenApiComponent(camelContext).apply {
             this.specificationUri =
                 "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openapi.yaml"

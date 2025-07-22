@@ -12,7 +12,7 @@ class BagApi : RouteBuilder() {
         from(URI)
             .errorHandler(noErrorHandler())
             .setHeader("Accept", constant("application/hal+json"))
-            .setHeader("X-Api-Key", simple("{{iko.sources.bag.apiKey}}"))
+            .setHeader("X-Api-Key", simple("{{iko.connectors.bag.apiKey}}"))
             .toD("bag:\${header.bagApiOperation}?throwExceptionOnFailure=false")
             .unmarshal().json()
     }
