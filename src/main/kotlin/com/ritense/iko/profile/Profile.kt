@@ -12,15 +12,16 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.util.UUID
 
 @Entity
-@Table(name = "profile")
+@Table(name = "profile", uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])])
 class Profile(
     @Id
     val id: UUID,
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     var name: String,
 
     @Column(name = "primary_search")

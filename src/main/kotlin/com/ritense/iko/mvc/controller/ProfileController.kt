@@ -13,11 +13,14 @@ import com.ritense.iko.profile.ProfileRepository
 import com.ritense.iko.profile.ProfileService
 import com.ritense.iko.endpoints.EndpointService
 import jakarta.validation.Valid
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
+import org.springframework.validation.ObjectError
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -129,6 +132,7 @@ class ProfileController(
     }
 
     @PostMapping(path = ["/profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    @Transactional
     fun createProfile(
         @Valid @ModelAttribute form: AddProfileForm,
         bindingResult: BindingResult
@@ -142,11 +146,9 @@ class ProfileController(
         if (bindingResult.hasErrors()) {
             return modelAndView
         }
-        val profile = form.run {
-            val profile = Profile.create(form)
-            profileService.reloadRoutes(profile)
-            profileRepository.save(profile)
-        }
+        val profile = Profile.create(form)
+        profileRepository.saveAndFlush(profile)
+        profileService.reloadRoutes(profile)
         val redirectModelAndView = ModelAndView("fragments/internal/profileEdit").apply {
             addObject("form", EditProfileForm.from(profile))
             addObject("searches", searches)
@@ -280,13 +282,20 @@ class ProfileController(
         if (bindingResult.hasErrors()) {
             return listOf(modelAndView)
         }
-        val updatedProfile = form.run {
-            profile.let {
-                it.changeRelation(form)
-                profileService.reloadRoutes(it)
-                profileRepository.save(it)
+        var updatedProfile: Profile? = null
+        try {
+            updatedProfile = form.run {
+                profile.let {
+                    it.changeRelation(form)
+                    profileService.reloadRoutes(it)
+                    profileRepository.save(it)
+                }
             }
+        } catch (ex: DataIntegrityViolationException) {
+            bindingResult.addError(ObjectError("name", "A profile with this name already exists."))
+            return listOf(modelAndView)
         }
+
         val relationsModelAndView = ModelAndView("fragments/internal/relations").apply {
             addObject("relations", updatedProfile.relations.map { Relation.from(it) })
         }

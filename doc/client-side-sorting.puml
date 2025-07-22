@@ -1,0 +1,13 @@
+@startuml
+actor User
+participant "GZAC Consumer\n(Aggregated Angular App)" as GZAC
+participant "IKO API" as IKO
+
+User -> GZAC: Load Widget (Page Open)
+GZAC -> IKO: GET /search OR /profile
+IKO --> GZAC: Full Resultset (JSON Response)
+GZAC -> GZAC: Cache Response in Memory (Angular Service/Store)
+User -> GZAC: Click Sort or Enter Filter (UI Event)
+GZAC -> GZAC: Sort / Filter Cached Data (Client-side in JS)
+GZAC -> User: Update UI with new data
+@enduml
