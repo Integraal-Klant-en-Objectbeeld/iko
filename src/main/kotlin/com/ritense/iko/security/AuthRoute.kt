@@ -14,7 +14,8 @@ class AuthRoute() : RouteBuilder() {
                     if (it.isEmpty()) {
                         return@process
                     }
-                    if (SecurityContextHolder.getContext().authentication.authorities.any { x ->
+
+                    if (SecurityContextHolder.getContext().authentication != null && SecurityContextHolder.getContext().authentication.authorities.any { x ->
                             it.contains(x.authority)
                         }) {
                         return@process
