@@ -1,6 +1,6 @@
 <div th:fragment="menu">
     <cds-side-nav-items>
-        <cds-side-nav-menu title="Searches">
+        <cds-side-nav-menu title="Endpoints">
             <cds-side-nav-menu-item
                 th:each="search : ${searches}"
                 th:attr="hx-get='/search/' + ${search.name}"

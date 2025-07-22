@@ -150,3 +150,34 @@ services:
             - ./imports/objecttypes-api/init:/app/init
         depends_on:
             - objecttypen-api
+
+    keycloak:
+        container_name: iko-keycloak
+        depends_on:
+            - keycloak-database
+        image: quay.io/keycloak/keycloak:24.0.1
+        ports:
+            - "8082:8080"
+        environment:
+            KEYCLOAK_ADMIN: admin
+            KEYCLOAK_ADMIN_PASSWORD: admin
+            KC_DB: postgres
+            KC_DB_URL: jdbc:postgresql://keycloak-database/keycloak
+            KC_DB_USERNAME: keycloak
+            KC_DB_PASSWORD: keycloak
+            KC_FEATURES: token-exchange,admin-fine-grained-authz
+            KC_HTTP_RELATIVE_PATH: /auth
+        volumes:
+            - ./imports/keycloak:/opt/keycloak/data/import
+        command: "start-dev --import-realm"
+
+    keycloak-database:
+        image: postgres:15
+        container_name: iko-keycloak-database
+        ports:
+            - "5439:5432"
+        environment:
+            POSTGRES_USER: keycloak
+            POSTGRES_PASSWORD: keycloak
+        labels:
+            org.springframework.boot.ignore: true

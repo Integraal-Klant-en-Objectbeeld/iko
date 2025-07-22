@@ -1,5 +1,4 @@
 spring:
-
     application:
         name: IKO
     thymeleaf: # Thymeleaf
@@ -60,6 +59,26 @@ spring:
                     provider_disables_autocommit: true
         hibernate:
             ddl-auto: none
+    security:
+        oauth2:
+            client:
+                registration:
+                    keycloak:
+                        provider: keycloak
+                        authorization-grant-type: authorization_code
+                        scope: openid
+                        client-id: # ENV
+                        client-secret: # ENV
+                provider:
+                    keycloak:
+                        issuer-uri: # ENV
+            resourceserver:
+                jwt:
+                    issuer-uri: # ENV
+                    audiences: iko
+                    authority-prefix:
+                    authorities-claim-name: roles
+
 camel:
     yaml:
         routes:
@@ -67,7 +86,7 @@ camel:
             paths: classpath:camel/*.yaml
 
 iko:
-    sources:
+    connectors:
         brp:
             enabled: true
             host: # ENV
