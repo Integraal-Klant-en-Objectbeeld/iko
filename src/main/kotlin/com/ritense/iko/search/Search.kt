@@ -36,7 +36,6 @@ class Search(
 
     fun handle(form : EditSearchForm) {
         this.name = form.name
-        this.routeId = form.routeId
         this.isPrimary = form.isPrimary
         this.isActive = form.isActive
         this.modifiedOn = LocalDateTime.now()
