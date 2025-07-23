@@ -26,7 +26,7 @@ class Relation(
     var sourceToSearchMapping: String = "",
 
     @Column(name = "search_id")
-    var searchId: String = "",
+    var endpointId: String = "",
 
     @Embedded
     var transform: Transform

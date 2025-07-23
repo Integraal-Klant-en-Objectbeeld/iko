@@ -1,0 +1,116 @@
+<th:block th:fragment="endpoint-edit">
+    <cds-content>
+        <cds-tile>
+            <cds-breadcrumb no-trailing-slash="">
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="/admin"
+                        visited="true">
+                        Home
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        hx-get="/admin/endpoints"
+                        hx-target="#view-panel"
+                        is-currentpage="false"
+                        hx-push-url="true"
+                        visited="true">
+                        Endpoints
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        th:attr="hx-get=@{'/admin/endpoints/edit/' + ${form.id}}"
+                        hx-target="#view-panel"
+                        is-currentpage="true"
+                        hx-push-url="true"
+                        visited="true">
+                        Detail
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+            </cds-breadcrumb>
+            <h4>Edit Search:</h4>
+            <cds-form-group id="form-group" name="form-group" legend-text="Edit endpoint">
+                <cds-stack gap="7">
+                    <input type="hidden" name="id" th:value="${form.id}"/>
+                    <cds-text-input name="name"
+                                    style="width: 50%"
+                                    label="Name"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage},
+                                    value=${form?.name}">
+                    </cds-text-input>
+                    <cds-text-input name="routeId"
+                                    style="width: 50%"
+                                    label="Operation"
+                                    disabled="true"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('routeId') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('routeId')?.defaultMessage},
+                                    value=${form?.routeId}">
+                    </cds-text-input>
+
+                    <!--<cds-dropdown name="routeId"
+                                  size="lg"
+                                  style="width: 50%"
+                                  helper-text=""
+                                  title-text="Operation"
+                                  label="Select an operation"
+                                  th:attr="invalid=${errors?.getFieldError('routeId') != null} ? 'true' : null,
+                                  invalid-text=${errors?.getFieldError('routeId')?.defaultMessage},
+                                  value=${form?.routeId}">
+                        <cds-dropdown-item th:each="route : ${routes}" th:value="${route.id}">
+                            <span th:text="${route.name}"></span>
+                        </cds-dropdown-item>
+                    </cds-dropdown>-->
+
+                    <cds-toggle name="isPrimaryToggle"
+                                label-a="Yes"
+                                label-b="No"
+                                label-text="Toggle primary "
+                                hx-trigger="cds-toggle-changed"
+                                hx-on:cds-toggle-changed="
+                                     const hidden = document.getElementById('isPrimaryInput');
+                                     hidden.value = hidden.value === 'true' ? 'false' : 'true';
+                                "
+                                th:attr="
+                                    invalid=${errors?.getFieldError('isPrimary') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('isPrimary')?.defaultMessage},
+                                    checked=${form?.isPrimary}
+                                  ">
+                    </cds-toggle>
+                    <input type="hidden" name="isPrimary" id="isPrimaryInput" th:value="${form?.isPrimary}"/>
+                    <cds-toggle name="isActiveToggle"
+                                label-a="Yes"
+                                label-b="No"
+                                label-text="Toggle active "
+                                hx-trigger="cds-toggle-changed"
+                                hx-on:cds-toggle-changed="
+                                     const hidden = document.getElementById('isActive');
+                                     hidden.value = hidden.value === 'true' ? 'false' : 'true';
+                                "
+                                th:attr="
+                                    invalid=${errors?.getFieldError('isActive') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('isActive')?.defaultMessage},
+                                    checked=${form?.isActive}
+                                  ">
+                    </cds-toggle>
+                    <input type="hidden" name="isActive" id="isActiveInput" th:value="${form?.isActive}"/>
+                    <div style="max-width: fit-content;">
+                        <cds-button
+                            kind="primary"
+                            hx-put="/admin/endpoints"
+                            hx-target="#view-panel"
+                            hx-include="#form-group *">
+                            Save
+                        </cds-button>
+                    </div>
+                </cds-stack>
+            </cds-form-group>
+        </cds-tile>
+    </cds-content>
+</th:block>

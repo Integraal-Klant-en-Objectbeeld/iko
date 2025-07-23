@@ -2,9 +2,9 @@
     <cds-side-nav-items>
         <cds-side-nav-menu title="Endpoints">
             <cds-side-nav-menu-item
-                th:each="search : ${searches}"
-                th:attr="hx-get='/search/' + ${search.name}"
-                th:text="${search.name}"
+                th:each="endpoint : ${endpoints}"
+                th:attr="hx-get='/endpoint/' + ${endpoint.name}"
+                th:text="${endpoint.name}"
                 hx-swap="innerHTML"
                 hx-transition="true"
                 hx-target="#view-panel"

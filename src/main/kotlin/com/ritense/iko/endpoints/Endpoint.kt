@@ -1,5 +1,6 @@
 package com.ritense.iko.endpoints
 
+import com.ritense.iko.mvc.model.EditEndpointForm
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -27,5 +28,17 @@ class Endpoint(
     var modifiedOn: LocalDateTime? = null,
 
     @Column(name = "is_primary")
-    var isPrimary: Boolean = false
-)
+    var isPrimary: Boolean = false,
+
+    @Column(name = "is_active")
+    var isActive: Boolean = false
+) {
+
+    fun handle(form : EditEndpointForm) {
+        this.name = form.name
+        this.isPrimary = form.isPrimary
+        this.isActive = form.isActive
+        this.modifiedOn = LocalDateTime.now()
+    }
+
+}

@@ -1,8 +1,8 @@
-<th:block th:fragment="relation-edit">
+<th:block th:fragment="relation-add">
     <cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" th:attr="open=${errors?.hasErrors()}">
         <cds-modal-header>
             <cds-modal-close-button></cds-modal-close-button>
-            <cds-modal-label>Edit Relation</cds-modal-label>
+            <cds-modal-label>Add new Relation</cds-modal-label>
             <cds-modal-heading>Relation</cds-modal-heading>
         </cds-modal-header>
         <cds-modal-body>
@@ -17,7 +17,7 @@
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
-                    <cds-dropdown-item value="">
+                    <cds-dropdown-item value="" disabled>
                         Profile root source
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
@@ -27,18 +27,18 @@
                 </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
-                <cds-dropdown name="searchId"
+                <cds-dropdown name="endpointId"
                               size="lg"
                               style="width: 100%"
                               helper-text=""
-                              title-text="Search"
-                              label="Select a search"
-                              th:attr="invalid=${errors?.getFieldError('searchId') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('searchId')?.defaultMessage},
-                                value=${form?.searchId}">
-                    <cds-dropdown-item th:each="search : ${searches}"
-                                       th:value="${search.id}">
-                        <span th:text="${search.name}"></span>
+                              title-text="Endpoint"
+                              label="Select a endpoint"
+                              th:attr="invalid=${errors?.getFieldError('endpointId') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('endpointId')?.defaultMessage},
+                                value=${form?.endpointId}">
+                    <cds-dropdown-item th:each="endpoint : ${endpoints}"
+                                       th:value="${endpoint.id}">
+                        <span th:text="${endpoint.name}"></span>
                     </cds-dropdown-item>
                 </cds-dropdown>
             </cds-form-item>
@@ -61,8 +61,7 @@
                                 value=${form?.transform}">
                 </cds-textarea>
             </cds-form-item>
-            <input type="hidden" name="profileId" th:value="${form.profileId}"/>
-            <input type="hidden" name="id" th:value="${form.id}"/>
+            <input type="hidden" name="profileId" th:value="${profileId}"/>
         </cds-modal-body>
         <cds-modal-footer>
             <cds-modal-footer-button
@@ -71,7 +70,7 @@
                 Cancel
             </cds-modal-footer-button>
             <cds-modal-footer-button
-                hx-put="/admin/relations"
+                hx-post="/admin/relations"
                 hx-include="#active-modal *"
                 hx-target="#active-modal"
                 hx-swap="outerHTML">

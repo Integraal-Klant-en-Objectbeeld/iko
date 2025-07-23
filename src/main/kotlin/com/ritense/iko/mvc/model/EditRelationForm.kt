@@ -9,13 +9,13 @@ data class EditRelationForm(
     val profileId: UUID,
     val id: UUID,
     val sourceId: String? = "",
-    @field:NotBlank(message = "Please select a search.")
-    val searchId: String,
+    @field:NotBlank(message = "Please select a endpoint.")
+    val endpointId: String,
     @field:NotBlank(message = "Please provide a mapping.")
     val sourceToSearchMapping: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
-    var transform: String,
+    val transform: String
 ) {
     companion object {
         fun from(it: RelationEntity): EditRelationForm {
@@ -23,7 +23,7 @@ data class EditRelationForm(
                 profileId = it.profile.id,
                 id = it.id,
                 sourceId = it.sourceId?.toString(),
-                searchId = it.searchId,
+                endpointId = it.endpointId,
                 sourceToSearchMapping = it.sourceToSearchMapping,
                 transform = it.transform.expression
             )

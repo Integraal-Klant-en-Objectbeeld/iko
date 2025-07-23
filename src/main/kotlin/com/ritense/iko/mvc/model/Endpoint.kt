@@ -1,6 +1,6 @@
 package com.ritense.iko.mvc.model
 
-data class Search(
+data class Endpoint(
     val id: String,
     val name: String
 )
