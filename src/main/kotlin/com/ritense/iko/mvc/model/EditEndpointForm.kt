@@ -8,8 +8,7 @@ data class EditEndpointForm(
     val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
     val name: String,
-    @field:NotBlank(message = "Please select a operation.")
-    val routeId: String,
+    val routeId: String? = null,
     val isPrimary: Boolean,
     val isActive: Boolean
 ) {
