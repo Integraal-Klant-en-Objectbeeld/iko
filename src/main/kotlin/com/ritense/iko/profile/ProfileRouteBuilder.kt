@@ -57,7 +57,14 @@ class ProfileRouteBuilder(
 
     override fun configure() {
         val relations = profile.relations.filter { it.sourceId == null }
-        val searchDirectName = endpointRepository.getReferenceById(profile.primaryEndpoint).routeId
+        val endpointRoute = endpointRepository.getReferenceById(profile.primaryEndpoint)
+
+        if(!endpointRoute.isPrimary) {
+            throw IllegalStateException("The endpoint ${profile.primaryEndpoint} is not primary")
+        }
+        if(!endpointRoute.isActive) {
+            throw IllegalStateException("The endpoint ${profile.primaryEndpoint} is not active")
+        }
 
         onException(AccessDeniedException::class.java)
             .handled(true)
@@ -68,7 +75,7 @@ class ProfileRouteBuilder(
             // TODO: Replace this constant with a ROLE that you can set on the profile.
             .setVariable("authorities", constant("ROLE_PROFILE_${profile.name.replace("[^0-9a-zA-Z_\\-]+", "").uppercase()}"))
             .to("direct:auth")
-            .to("direct:$searchDirectName")  // TODO this needs to be looked up in the DB is this is enabled/exists there as well.
+            .to("direct:${endpointRoute.routeId}")
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${profile.id}", PairAggregator)

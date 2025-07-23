@@ -139,11 +139,6 @@ class ApiEndpointController(
         return modelAndView
     }
 
-    // TODO this should go? because the list of searches is "direct":URI -> these get configured at startup.
-    // Thoughts: The table searches is a manual list that CAN connect to beans present in the camelcontext
-    // now this only all the beans on startup being added.
-    // Having a table in between makes it a effort to OPEN a search for real use. Then the beans could already be known.
-    // So routes() could just return all the beans annotated with @Search to make a list.
     private fun routes() = endpointRepository.findAll()
         .map {
             Route(
@@ -151,15 +146,6 @@ class ApiEndpointController(
                 name = it.name,
             )
         }
-
-    /*private fun routes() = camelContext.routes
-        .filter { it.routeId.startsWith("direct:") && it.routeId != "direct:direct:" }
-        .map {
-            Route(
-                id = it.id.toString(),
-                name = it.routeId,
-            )
-        }*/
 
     companion object {
         const val HX_REQUEST_HEADER = "Hx-Request"
