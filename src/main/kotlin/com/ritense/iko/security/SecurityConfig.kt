@@ -8,7 +8,6 @@ import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
 import org.springframework.security.web.SecurityFilterChain
@@ -59,6 +58,9 @@ class SecurityConfig {
             .authorizeHttpRequests { authorize ->
                 authorize.requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
                     .requestMatchers("/oauth2/**", "/login/**", "/logout").permitAll()
+            }
+            .csrf {
+                it.disable()
             }
 
         return http.build()
