@@ -11,6 +11,74 @@ spring:
             static-locations: classpath:/static/
             cache:
                 period: 0
+    jackson:
+        date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+        time-zone: UTC
+    transaction:
+        default-timeout: 600 #seconds = 10min
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        #driver-class-name: com.mysql.cj.jdbc.Driver
+        password: #external
+        hikari:
+            auto-commit: false
+            data-source-properties:
+                cachePrepStmts: true
+                prepStmtCacheSize: 500
+                prepStmtCacheSqlLimit: 2048
+                useServerPrepStmts: true
+                characterEncoding: utf8
+                useUnicode: true
+                useLegacyDatetimeCode: false
+                useSSL: false
+                useLocalSessionState: true
+                rewriteBatchedStatements: true
+                cacheResultSetMetadata: true
+                cacheServerConfiguration: true
+                elideSetAutoCommits: true
+                maintainTimeStats: false
+                serverTimezone: UTC
+                allowPublicKeyRetrieval: true
+    jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: false
+        open-in-view: false
+        properties:
+            hibernate:
+                hbm2ddl.auto: none
+                generate_statistics: false
+                naming-strategy: org.springframework.boot.orm.jpa.hibernate.SpringNamingStrategy
+                cache:
+                    use_second_level_cache: false
+                    use_query_cache: false
+                    region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+                format_sql: true
+                jdbc:
+                    time_zone: UTC
+                connection:
+                    provider_disables_autocommit: true
+        hibernate:
+            ddl-auto: none
+    security:
+        oauth2:
+            client:
+                registration:
+                    keycloak:
+                        provider: keycloak
+                        authorization-grant-type: authorization_code
+                        scope: openid
+                        client-id: # ENV
+                        client-secret: # ENV
+                provider:
+                    keycloak:
+                        issuer-uri: # ENV
+            resourceserver:
+                jwt:
+                    issuer-uri: # ENV
+                    audiences: iko
+                    authority-prefix:
+                    authorities-claim-name: roles
+
 camel:
     yaml:
         routes:
@@ -18,7 +86,7 @@ camel:
             paths: classpath:camel/*.yaml
 
 iko:
-    sources:
+    connectors:
         brp:
             enabled: true
             host: # ENV

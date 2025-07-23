@@ -1,5 +1,6 @@
 package com.ritense.iko.mvc.model
 
+import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import java.util.UUID
 import com.ritense.iko.profile.Relation as RelationEntity
