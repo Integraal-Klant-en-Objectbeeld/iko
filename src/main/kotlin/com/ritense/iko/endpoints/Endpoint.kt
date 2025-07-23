@@ -1,6 +1,6 @@
 package com.ritense.iko.endpoints
 
-import com.ritense.iko.mvc.model.EditSearchForm
+import com.ritense.iko.mvc.model.EditEndpointForm
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -34,7 +34,7 @@ class Endpoint(
     var isActive: Boolean = false
 ) {
 
-    fun handle(form : EditSearchForm) {
+    fun handle(form : EditEndpointForm) {
         this.name = form.name
         this.isPrimary = form.isPrimary
         this.isActive = form.isActive

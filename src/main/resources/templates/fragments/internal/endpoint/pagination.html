@@ -1,5 +1,5 @@
-<th:block th:fragment="searchPagination">
-    <cds-pagination id="search-pagination-container"
+<th:block th:fragment="endpointPagination">
+    <cds-pagination id="endpoint-pagination-container"
                     hx-swap-oob="true"
                     size="md"
                     th:attr="page=${page.number + 1},
@@ -7,8 +7,8 @@
                                   total-items=${page.totalElements},
                                   page-size=${page.size}"
                     hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
-                    hx-get="/admin/searches/filter"
-                    hx-target="#search-filter-results"
+                    hx-get="/admin/endpoints/filter"
+                    hx-target="#endpoint-filter-results"
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-on:cds-pagination-changed-current="console.log('pager event', event, this.pageSize, this.page)"

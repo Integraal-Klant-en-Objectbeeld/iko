@@ -88,11 +88,11 @@
                     </cds-table-header-row>
                 </cds-table-head>
 
-                <th:block th:insert="~{fragments/internal/profile/profileFilterResults :: profile-filter-results}"></th:block>
+                <th:block th:insert="~{fragments/internal/profile/filterResults :: profile-filter-results}"></th:block>
             </cds-table>
             <!-- Pagination -->
             <cds-pagination id="pagination-container"
-                            th:replace="~{fragments/internal/profile/profilePagination :: profilePagination}">
+                            th:replace="~{fragments/internal/profile/pagination :: profilePagination}">
             </cds-pagination>
         </cds-tile>
     </cds-content>

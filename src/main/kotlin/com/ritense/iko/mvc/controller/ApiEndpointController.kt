@@ -1,12 +1,10 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.mvc.controller.ProfileController.Companion.menuItems
 import com.ritense.iko.endpoints.EndpointRepository
-import com.ritense.iko.mvc.model.EditSearchForm
+import com.ritense.iko.mvc.controller.ProfileController.Companion.menuItems
+import com.ritense.iko.mvc.model.EditEndpointForm
 import com.ritense.iko.mvc.model.Route
-import com.ritense.iko.search.SearchRepository
 import jakarta.validation.Valid
-import org.apache.camel.CamelContext
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
@@ -25,26 +23,25 @@ import java.util.UUID
 @Controller
 @RequestMapping("/admin")
 class ApiEndpointController(
-    private val endpointRepository: EndpointRepository,
-    private val camelContext: CamelContext
+    private val endpointRepository: EndpointRepository
 ) {
 
-    @GetMapping("/searches")
-    fun searchesList(
+    @GetMapping("/endpoints")
+    fun list(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
         val page = endpointRepository.findAll(pageable)
         return if (isHxRequest) {
-            ModelAndView("fragments/internal/search/searchList").apply {
-                addObject("searches", page.content)
+            ModelAndView("fragments/internal/endpoint/list").apply {
+                addObject("endpoints", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
         } else {
-            ModelAndView("fragments/internal/search/searchListPage").apply {
-                addObject("searches", page.content)
+            ModelAndView("fragments/internal/endpoint/listPage").apply {
+                addObject("endpoints", page.content)
                 addObject("page", page)
                 addObject("query", query)
                 addObject("menuItems", menuItems)
@@ -52,22 +49,22 @@ class ApiEndpointController(
         }
     }
 
-    @GetMapping("/searches/pagination")
-    fun searchesPagination(
+    @GetMapping("/endpoints/pagination")
+    fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable
     ): ModelAndView {
         val page = endpointRepository.findAll(pageable)
-        val list = ModelAndView("fragments/internal/searchPagination").apply {
-            addObject("searches", page.content)
+        val list = ModelAndView("fragments/internal/endpoint/pagination").apply {
+            addObject("endpoints", page.content)
             addObject("page", page)
             addObject("query", query)
         }
         return list
     }
 
-    @GetMapping("/searches/filter")
-    fun searchesFilter(
+    @GetMapping("/endpoints/filter")
+    fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
@@ -78,13 +75,13 @@ class ApiEndpointController(
             endpointRepository.findByNameContainingIgnoreCase(query.trim(), pageable)
 
         if (isHxRequest) {
-            val searchResults = ModelAndView("fragments/internal/search/searchFilterResults").apply {
-                addObject("searches", page.content)
+            val searchResults = ModelAndView("fragments/internal/endpoint/filterResults").apply {
+                addObject("endpoints", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
-            val pagination = ModelAndView("fragments/internal/search/searchPagination").apply {
-                addObject("searches", page.content)
+            val pagination = ModelAndView("fragments/internal/endpoint/pagination").apply {
+                addObject("endpoints", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
@@ -94,8 +91,8 @@ class ApiEndpointController(
             )
         } else {
             return listOf(
-                ModelAndView("fragments/internal/search/searchSearchResultsPage").apply {
-                    addObject("searches", page.content)
+                ModelAndView("fragments/internal/endpoint/filterResultsPage").apply {
+                    addObject("endpoints", page.content)
                     addObject("page", page)
                     addObject("query", query)
                     addObject("menuItems", menuItems)
@@ -104,17 +101,17 @@ class ApiEndpointController(
         }
     }
 
-    @GetMapping("/searches/edit/{id}")
-    fun searchEdit(
+    @GetMapping("/endpoints/edit/{id}")
+    fun edit(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
-        val search = searchRepository.getReferenceById(id)
-        val form = EditSearchForm.from(search)
+        val endpoint = endpointRepository.getReferenceById(id)
+        val form = EditEndpointForm.from(endpoint)
         val viewName = if (isHxRequest) {
-            "fragments/internal/search/searchEdit"
+            "fragments/internal/endpoint/edit"
         } else {
-            "fragments/internal/search/searchEditPage"
+            "fragments/internal/endpoint/editPage"
         }
         return ModelAndView(viewName).apply {
             addObject("form", form)
@@ -123,13 +120,13 @@ class ApiEndpointController(
         }
     }
 
-    @PutMapping(path = ["/searches"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun updateSearch(
-        @Valid @ModelAttribute form: EditSearchForm,
+    @PutMapping(path = ["/endpoints"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    fun edit(
+        @Valid @ModelAttribute form: EditEndpointForm,
         bindingResult: BindingResult
     ): ModelAndView {
-        val search = searchRepository.getReferenceById(form.id)
-        val modelAndView = ModelAndView("fragments/internal/search/searchEdit").apply {
+        val endpoint = endpointRepository.getReferenceById(form.id)
+        val modelAndView = ModelAndView("fragments/internal/endpoint/edit").apply {
             addObject("errors", bindingResult)
             addObject("form", form)
             addObject("routes", routes())
@@ -137,8 +134,8 @@ class ApiEndpointController(
         if (bindingResult.hasErrors()) {
             return modelAndView
         }
-        search.handle(form)
-        searchRepository.save(search)
+        endpoint.handle(form)
+        endpointRepository.save(endpoint)
         return modelAndView
     }
 
@@ -147,7 +144,7 @@ class ApiEndpointController(
     // now this only all the beans on startup being added.
     // Having a table in between makes it a effort to OPEN a search for real use. Then the beans could already be known.
     // So routes() could just return all the beans annotated with @Search to make a list.
-    private fun routes() = searchRepository.findAll()
+    private fun routes() = endpointRepository.findAll()
         .map {
             Route(
                 id = it.routeId,

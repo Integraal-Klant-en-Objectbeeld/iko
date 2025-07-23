@@ -1,0 +1,16 @@
+<th:block th:fragment="endpoint-filter-results">
+    <cds-table-body id="endpoint-filter-results">
+        <cds-table-row th:each="endpoint : ${endpoints}"
+                       th:attr="hx-get=@{'/admin/endpoints/edit/' + ${endpoint.id}},
+                                 hx-target='#view-panel',
+                                 hx-swap='innerHTML',
+                                 hx-push-url='true'">
+            <cds-table-cell th:text="${endpoint.active} ? 'Yes' : 'No'"></cds-table-cell>
+            <cds-table-cell th:text="${endpoint.name}"></cds-table-cell>
+            <cds-table-cell th:text="${endpoint.isPrimary} ? 'Yes' : 'No'"></cds-table-cell>
+            <cds-table-cell th:text="${endpoint.routeId}"></cds-table-cell>
+            <cds-table-cell th:text="${#temporals.format(endpoint.createdOn,'dd MMMM yyyy HH:ss')}"></cds-table-cell>
+            <cds-table-cell th:text="${#temporals.format(endpoint.modifiedOn,'dd MMMM yyyy HH:ss')}"></cds-table-cell>
+        </cds-table-row>
+    </cds-table-body>
+</th:block>

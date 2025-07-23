@@ -1,10 +1,10 @@
 package com.ritense.iko.mvc.model
 
-import com.ritense.iko.search.Search
+import com.ritense.iko.endpoints.Endpoint
 import jakarta.validation.constraints.NotBlank
 import java.util.UUID
 
-data class EditSearchForm(
+data class EditEndpointForm(
     val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
     val name: String,
@@ -14,13 +14,13 @@ data class EditSearchForm(
     val isActive: Boolean
 ) {
     companion object {
-        fun from(search: Search): EditSearchForm {
-            return EditSearchForm(
-                id = search.id,
-                name = search.name,
-                routeId = search.routeId,
-                isPrimary = search.isPrimary,
-                isActive = search.isActive
+        fun from(endpoint: Endpoint): EditEndpointForm {
+            return EditEndpointForm(
+                id = endpoint.id,
+                name = endpoint.name,
+                routeId = endpoint.routeId,
+                isPrimary = endpoint.isPrimary,
+                isActive = endpoint.isActive
             )
         }
     }

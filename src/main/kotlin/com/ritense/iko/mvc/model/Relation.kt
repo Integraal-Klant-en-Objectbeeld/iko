@@ -7,7 +7,7 @@ data class Relation(
     val profileId: UUID,
     val id: UUID,
     val sourceId: String,
-    val searchId: String,
+    val endpointId: String,
     val sourceToSearchMapping: String,
     val transform: String
 ) {
@@ -17,7 +17,7 @@ data class Relation(
                 profileId = it.profile.id,
                 id = it.id,
                 sourceId = it.sourceId?.toString() ?: "Profile root",
-                searchId = it.searchId,
+                endpointId = it.endpointId,
                 sourceToSearchMapping = it.sourceToSearchMapping,
                 transform = it.transform.expression
             )

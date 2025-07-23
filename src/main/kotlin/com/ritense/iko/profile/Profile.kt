@@ -25,7 +25,7 @@ class Profile(
     var name: String,
 
     @Column(name = "primary_search")
-    var primarySearch: UUID,
+    var primaryEndpoint: UUID,
 
     @OneToMany(
         cascade = [(CascadeType.ALL)],
@@ -40,7 +40,7 @@ class Profile(
 ) {
 
     fun handle(request: EditProfileForm) {
-        this.primarySearch = UUID.fromString(request.primarySearch)
+        this.primaryEndpoint = UUID.fromString(request.primaryEndpoint)
         this.name = request.name
         this.transform = Transform(request.transform)
     }
@@ -54,7 +54,7 @@ class Profile(
                 } else {
                     null
                 },
-                searchId = request.searchId,
+                endpointId = request.endpointId,
                 transform = Transform(request.transform),
                 sourceToSearchMapping = request.sourceToSearchMapping
             )
@@ -72,7 +72,7 @@ class Profile(
                 } else {
                     null
                 },
-                searchId = request.searchId,
+                endpointId = request.endpointId,
                 transform = Transform(request.transform),
                 sourceToSearchMapping = request.sourceToSearchMapping
             )
@@ -80,13 +80,12 @@ class Profile(
     }
 
     companion object {
-
         fun create(form: AddProfileForm) = Profile(
             id = UUID.randomUUID(),
             name = form.name,
-            primarySearch = UUID.fromString(form.primarySearch),
-            transform = Transform(form.transform),
+            primaryEndpoint = UUID.fromString(form.primaryEndpoint),
+            transform = Transform(form.transform)
         )
-
     }
+
 }

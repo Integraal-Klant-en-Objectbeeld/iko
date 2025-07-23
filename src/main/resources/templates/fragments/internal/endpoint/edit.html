@@ -1,4 +1,4 @@
-<th:block th:fragment="search-edit">
+<th:block th:fragment="endpoint-edit">
     <cds-content>
         <cds-tile>
             <cds-breadcrumb no-trailing-slash="">
@@ -12,18 +12,18 @@
                 <cds-breadcrumb-item>
                     <cds-breadcrumb-link
                         href="javascript:void(0);"
-                        hx-get="/admin/searches"
+                        hx-get="/admin/endpoints"
                         hx-target="#view-panel"
                         is-currentpage="false"
                         hx-push-url="true"
                         visited="true">
-                        Searches
+                        Endpoints
                     </cds-breadcrumb-link>
                 </cds-breadcrumb-item>
                 <cds-breadcrumb-item>
                     <cds-breadcrumb-link
                         href="javascript:void(0);"
-                        th:attr="hx-get=@{'/admin/searches/edit/' + ${form.id}}"
+                        th:attr="hx-get=@{'/admin/endpoints/edit/' + ${form.id}}"
                         hx-target="#view-panel"
                         is-currentpage="true"
                         hx-push-url="true"
@@ -33,7 +33,7 @@
                 </cds-breadcrumb-item>
             </cds-breadcrumb>
             <h4>Edit Search:</h4>
-            <cds-form-group id="form-group" name="form-group" legend-text="Edit existing search">
+            <cds-form-group id="form-group" name="form-group" legend-text="Edit endpoint">
                 <cds-stack gap="7">
                     <input type="hidden" name="id" th:value="${form.id}"/>
                     <cds-text-input name="name"
@@ -103,7 +103,7 @@
                     <div style="max-width: fit-content;">
                         <cds-button
                             kind="primary"
-                            hx-put="/admin/searches"
+                            hx-put="/admin/endpoints"
                             hx-target="#view-panel"
                             hx-include="#form-group *">
                             Save

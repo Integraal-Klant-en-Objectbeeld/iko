@@ -24,14 +24,14 @@ interface ProfileRepository : JpaRepository<Profile, UUID> {
         """
         SELECT  p.id
         ,       p.name
-        ,       s.name as primarySearch
+        ,       e.name as primarySearch
         FROM    profile p
-        JOIN    search s ON p.primary_search = s.id
+        JOIN    endpoint e ON p.primary_search = e.id
         """,
         countQuery = """
         SELECT  count(*)
         FROM    profile p
-        JOIN    search s ON p.primary_search = s.id
+        JOIN    endpoint e ON p.primary_search = e.id
         """,
         nativeQuery = true
     )
@@ -45,17 +45,19 @@ interface ProfileRepository : JpaRepository<Profile, UUID> {
 
     @Query(
         """
-        SELECT  p.id,
-                p.name,
-                s.name as primarySearch
+        SELECT  p.id
+        ,       p.name
+        ,       e.name as primarySearch
         FROM    profile p
-        JOIN    search s ON p.primary_search = s.id
+        JOIN    endpoint e
+        ON      p.primary_search = e.id
         WHERE   LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
         countQuery = """
         SELECT  COUNT(*)
         FROM    profile p
-        JOIN    search s ON p.primary_search = s.id
+        JOIN    endpoint e
+        ON      p.primary_search = e.id
         WHERE   LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
         nativeQuery = true

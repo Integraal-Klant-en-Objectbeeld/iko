@@ -8,8 +8,8 @@ data class AddProfileForm(
     @field:NotBlank(message = "Please provide a name.")
     @field:UniqueName
     val name: String,
-    @field:NotBlank(message = "Please select a primary search.")
-    val primarySearch: String,
+    @field:NotBlank(message = "Please select a primary endpoint.")
+    val primaryEndpoint: String,
     @field:NotBlank(message = "Please provide a transform.")
     @field:ValidTransform
     var transform: String

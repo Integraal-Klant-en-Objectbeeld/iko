@@ -4,9 +4,9 @@ import com.ritense.iko.endpoints.EndpointRepository
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
-import java.util.UUID
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
+import java.util.UUID
 
 class ProfileRouteBuilder(
     private val camelContext: CamelContext,
@@ -16,7 +16,7 @@ class ProfileRouteBuilder(
 
     fun createRelationRoute(profile: Profile, source: Relation) {
         val relations = profile.relations.filter { it.sourceId == source.id }
-        val searchDirectName = endpointRepository.getReferenceById(UUID.fromString(source.searchId)).routeId // TODO FIX table col type
+        val searchDirectName = endpointRepository.getReferenceById(UUID.fromString(source.endpointId)).routeId // TODO FIX table col type
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
@@ -57,7 +57,7 @@ class ProfileRouteBuilder(
 
     override fun configure() {
         val relations = profile.relations.filter { it.sourceId == null }
-        val searchDirectName = endpointRepository.getReferenceById(profile.primarySearch).routeId
+        val searchDirectName = endpointRepository.getReferenceById(profile.primaryEndpoint).routeId
 
         onException(AccessDeniedException::class.java)
             .handled(true)
