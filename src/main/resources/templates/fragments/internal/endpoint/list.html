@@ -66,7 +66,20 @@
                             }">
                             Name
                         </cds-table-header-cell>
-                        <cds-table-header-cell>
+                        <cds-table-header-cell
+                            is-sortable
+                            size="md"
+                            hx-get="/admin/endpoints/filter"
+                            hx-target="#endpoint-filter-results"
+                            hx-swap="outerHTML"
+                            hx-push-url="false"
+                            hx-trigger="cds-table-header-cell-sort"
+                            hx-vals="js:{
+                            sort: 'isPrimary,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
+                            size: document.querySelector('#endpoint-pagination-container').__pageSize,
+                            page: document.querySelector('#endpoint-pagination-container').__page - 1,
+                            query: document.querySelector('#search-bar').value
+                            }">
                             Primary
                         </cds-table-header-cell>
                         <cds-table-header-cell>
