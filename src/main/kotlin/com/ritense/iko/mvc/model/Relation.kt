@@ -1,10 +1,10 @@
 package com.ritense.iko.mvc.model
 
 import java.util.UUID
-import com.ritense.iko.profile.Relation as RelationEntity
+import com.ritense.iko.aggregateddataprofile.Relation as RelationEntity
 
 data class Relation(
-    val profileId: UUID,
+    val aggregatedDataProfileId: UUID,
     val id: UUID,
     val sourceId: String,
     val endpointId: String,
@@ -14,7 +14,7 @@ data class Relation(
     companion object {
         fun from(it: RelationEntity): Relation {
             return Relation(
-                profileId = it.profile.id,
+                aggregatedDataProfileId = it.aggregatedDataProfile.id,
                 id = it.id,
                 sourceId = it.sourceId?.toString() ?: "Profile root",
                 endpointId = it.endpointId,

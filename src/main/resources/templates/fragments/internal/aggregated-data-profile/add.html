@@ -11,7 +11,7 @@
             <cds-breadcrumb-item>
                 <cds-breadcrumb-link
                     href="javascript:void(0);"
-                    hx-get="/admin/profiles"
+                    hx-get="/admin/aggregated-data-profiles"
                     hx-target="#view-panel"
                     is-currentpage="false"
                     visited="true">
@@ -61,7 +61,7 @@
                 <div style="max-width: fit-content;">
                     <cds-button
                         kind="primary"
-                        hx-post="/admin/profiles"
+                        hx-post="/admin/aggregated-data-profiles"
                         hx-target="#add-profile"
                         hx-swap="outerHTML"
                         hx-include="#form-group *">

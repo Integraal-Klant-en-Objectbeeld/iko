@@ -1,4 +1,4 @@
-package com.ritense.iko.profile
+package com.ritense.iko.aggregateddataprofile
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.Column
@@ -15,9 +15,9 @@ class Relation(
     @Id
     val id: UUID = UUID.randomUUID(),
 
-    @JoinColumn(name = "profile_id")
+    @JoinColumn(name = "aggregated_data_profile_id")
     @ManyToOne
-    var profile: Profile,
+    var aggregatedDataProfile: AggregatedDataProfile,
 
     @Column(name = "source_id")
     var sourceId: UUID? = null,
@@ -25,7 +25,7 @@ class Relation(
     @Column(name = "source_to_search_mapping")
     var sourceToSearchMapping: String = "",
 
-    @Column(name = "search_id")
+    @Column(name = "endpoint_id")
     var endpointId: String = "",
 
     @Embedded

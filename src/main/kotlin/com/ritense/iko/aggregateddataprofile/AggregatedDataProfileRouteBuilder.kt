@@ -1,6 +1,7 @@
-package com.ritense.iko.profile
+package com.ritense.iko.aggregateddataprofile
 
 import com.ritense.iko.endpoints.EndpointRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
@@ -8,15 +9,15 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import java.util.UUID
 
-class ProfileRouteBuilder(
+class AggregatedDataProfileRouteBuilder(
     private val camelContext: CamelContext,
-    private val profile: Profile,
+    private val aggregatedDataProfile: AggregatedDataProfile,
     private val endpointRepository: EndpointRepository
 ) : RouteBuilder(camelContext) {
 
-    fun createRelationRoute(profile: Profile, source: Relation) {
-        val relations = profile.relations.filter { it.sourceId == source.id }
-        val searchDirectName = endpointRepository.getReferenceById(UUID.fromString(source.endpointId)).routeId // TODO FIX table col type
+    fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
+        val relations = aggregatedDataProfile.relations.filter { it.sourceId == source.id }
+        val routeId = endpointRepository.getReferenceById(UUID.fromString(source.endpointId)).routeId // TODO FIX table col type
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
@@ -29,7 +30,7 @@ class ProfileRouteBuilder(
                 y
             }
             .unmarshal().json()
-            .to("direct:${searchDirectName}").let {
+            .to("direct:${routeId}").let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${source.id}", PairAggregator)
                 } else {
@@ -45,8 +46,8 @@ class ProfileRouteBuilder(
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
-            profile.relations.filter { it.sourceId == source.id }.forEach { relation ->
-                createRelationRoute(profile, relation)
+            aggregatedDataProfile.relations.filter { it.sourceId == source.id }.forEach { relation ->
+                createRelationRoute(aggregatedDataProfile, relation)
 
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
@@ -56,49 +57,56 @@ class ProfileRouteBuilder(
     }
 
     override fun configure() {
-        val relations = profile.relations.filter { it.sourceId == null }
-        val endpointRoute = endpointRepository.getReferenceById(profile.primaryEndpoint)
+        val relations = aggregatedDataProfile.relations.filter { it.sourceId == null }
+        val endpointRoute = endpointRepository.getReferenceById(aggregatedDataProfile.primaryEndpoint)
 
         if(!endpointRoute.isPrimary) {
-            throw IllegalStateException("The endpoint ${profile.primaryEndpoint} is not primary")
+            logger.warn { "Skipping configure: The endpoint ${aggregatedDataProfile.primaryEndpoint} is not primary" }
+            return
         }
         if(!endpointRoute.isActive) {
-            throw IllegalStateException("The endpoint ${profile.primaryEndpoint} is not active")
+            logger.warn { "Skipping configure: The endpoint ${aggregatedDataProfile.primaryEndpoint} is not active" }
+            return
         }
 
         onException(AccessDeniedException::class.java)
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
 
-        from("direct:profile_${profile.id}")
-            .routeId("profile_${profile.id}_direct")
+        from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
+            .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
             // TODO: Replace this constant with a ROLE that you can set on the profile.
-            .setVariable("authorities", constant("ROLE_PROFILE_${profile.name.replace("[^0-9a-zA-Z_\\-]+", "").uppercase()}"))
+            .setVariable(
+                "authorities",
+                constant("ROLE_PROFILE_${aggregatedDataProfile.name.replace("[^0-9a-zA-Z_\\-]+", "").uppercase()}")
+            )
             .to("direct:auth")
             .to("direct:${endpointRoute.routeId}")
             .let {
                 if (relations.isNotEmpty()) {
-                    it.enrich("direct:multicast_${profile.id}", PairAggregator)
+                    it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)
                 } else {
                     it
                 }
             }
-            .transform(jq(profile.transform.expression))
+            .transform(jq(aggregatedDataProfile.transform.expression))
             .marshal().json()
 
         if (relations.isNotEmpty()) {
-            var multicast = from("direct:multicast_${profile.id}")
-                .routeId("profile_${profile.id}_multicast")
+            var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
+                .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
-            profile.relations.filter { it.sourceId == null }.forEach { relation ->
-                createRelationRoute(profile, relation)
-
+            aggregatedDataProfile.relations.filter { it.sourceId == null }.forEach { relation ->
+                createRelationRoute(aggregatedDataProfile, relation)
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
-
             multicast.end()
         }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }

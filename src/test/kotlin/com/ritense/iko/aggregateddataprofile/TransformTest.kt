@@ -1,4 +1,4 @@
-package com.ritense.iko.profile
+package com.ritense.iko.aggregateddataprofile
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

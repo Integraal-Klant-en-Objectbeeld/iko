@@ -1,4 +1,4 @@
-package com.ritense.iko.profile
+package com.ritense.iko.aggregateddataprofile
 
 import com.ritense.iko.mvc.model.AddProfileForm
 import com.ritense.iko.mvc.model.AddRelationForm
@@ -16,22 +16,25 @@ import jakarta.persistence.UniqueConstraint
 import java.util.UUID
 
 @Entity
-@Table(name = "profile", uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])])
-class Profile(
+@Table(
+    name = "aggregated_data_profile",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])]
+)
+class AggregatedDataProfile(
     @Id
     val id: UUID,
 
     @Column(name = "name", unique = true)
     var name: String,
 
-    @Column(name = "primary_search")
+    @Column(name = "primary_endpoint")
     var primaryEndpoint: UUID,
 
     @OneToMany(
         cascade = [(CascadeType.ALL)],
         fetch = FetchType.EAGER,
         orphanRemoval = true,
-        mappedBy = "profile"
+        mappedBy = "aggregatedDataProfile"
     )
     var relations: MutableList<Relation> = mutableListOf(),
 
@@ -48,7 +51,7 @@ class Profile(
     fun addRelation(request: AddRelationForm) {
         this.relations.add(
             Relation(
-                profile = this,
+                aggregatedDataProfile = this,
                 sourceId = if (request.sourceId?.isNotBlank() == true) {
                     UUID.fromString(request.sourceId)
                 } else {
@@ -66,7 +69,7 @@ class Profile(
         this.relations.add(
             Relation(
                 id = request.id,
-                profile = this,
+                aggregatedDataProfile = this,
                 sourceId = if (request.sourceId?.isNotBlank() == true) {
                     UUID.fromString(request.sourceId)
                 } else {
@@ -80,7 +83,7 @@ class Profile(
     }
 
     companion object {
-        fun create(form: AddProfileForm) = Profile(
+        fun create(form: AddProfileForm) = AggregatedDataProfile(
             id = UUID.randomUUID(),
             name = form.name,
             primaryEndpoint = UUID.fromString(form.primaryEndpoint),

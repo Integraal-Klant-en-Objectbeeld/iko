@@ -12,7 +12,7 @@
                 <cds-breadcrumb-item>
                     <cds-breadcrumb-link
                         href="javascript:void(0);"
-                        hx-get="/admin/profiles"
+                        hx-get="/admin/aggregated-data-profiles"
                         hx-target="#view-panel"
                         is-currentpage="false"
                         hx-push-url="true"
@@ -23,7 +23,7 @@
                 <cds-breadcrumb-item>
                     <cds-breadcrumb-link
                         href="javascript:void(0);"
-                        th:attr="hx-get=@{'/admin/profiles/edit/' + ${form.id}}"
+                        th:attr="hx-get=@{'/admin/aggregated-data-profiles/edit/' + ${form.id}}"
                         hx-target="#view-panel"
                         is-currentpage="true"
                         hx-push-url="true"
@@ -74,7 +74,7 @@
                     <div style="max-width: fit-content;">
                         <cds-button
                             kind="primary"
-                            hx-put="/admin/profiles"
+                            hx-put="/admin/aggregated-data-profiles"
                             hx-target="#view-panel"
                             hx-include="#form-group *">
                             Save
@@ -94,7 +94,7 @@
                 <cds-table-toolbar slot="toolbar">
                     <cds-table-toolbar-content>
                         <cds-button
-                            th:attr="hx-get=@{'/admin/profiles/' + ${form.id} +'/relations/create'}"
+                            th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.id} +'/relations/create'}"
                             hx-target="#modal-container"
                             hx-swap="innerHTML"
                             hx-push-url="false"

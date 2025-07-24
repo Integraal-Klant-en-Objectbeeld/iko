@@ -1,4 +1,4 @@
-package com.ritense.iko.profile
+package com.ritense.iko.aggregateddataprofile
 
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable

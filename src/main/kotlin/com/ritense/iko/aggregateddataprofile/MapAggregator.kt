@@ -1,4 +1,4 @@
-package com.ritense.iko.profile
+package com.ritense.iko.aggregateddataprofile
 
 import org.apache.camel.AggregationStrategy
 import org.apache.camel.Exchange

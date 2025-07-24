@@ -64,6 +64,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
+    // Logging
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")

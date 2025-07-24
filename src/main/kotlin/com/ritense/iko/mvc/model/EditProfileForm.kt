@@ -1,8 +1,8 @@
 package com.ritense.iko.mvc.model
 
+import com.ritense.iko.aggregateddataprofile.AggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueName
 import com.ritense.iko.mvc.model.validation.ValidTransform
-import com.ritense.iko.profile.Profile
 import jakarta.validation.constraints.NotBlank
 import java.util.UUID
 
@@ -19,12 +19,12 @@ data class EditProfileForm(
 ) {
 
     companion object {
-        fun from(profile: Profile): EditProfileForm {
+        fun from(aggregatedDataProfile: AggregatedDataProfile): EditProfileForm {
             return EditProfileForm(
-                id = profile.id,
-                name = profile.name,
-                primaryEndpoint = profile.primaryEndpoint.toString(),
-                transform = profile.transform.expression
+                id = aggregatedDataProfile.id,
+                name = aggregatedDataProfile.name,
+                primaryEndpoint = aggregatedDataProfile.primaryEndpoint.toString(),
+                transform = aggregatedDataProfile.transform.expression
             )
         }
     }
