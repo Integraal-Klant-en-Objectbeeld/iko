@@ -1,4 +1,4 @@
-FROM amazoncorretto:21 AS build
+FROM --platform=linux/amd64 amazoncorretto:21 AS build
 
 WORKDIR /app
 
@@ -11,7 +11,8 @@ COPY ./src /app/src
 RUN chmod +x /app/gradlew
 RUN ./gradlew :build
 
-FROM amazoncorretto:21
+# also set platform for final image
+FROM --platform=linux/amd64 amazoncorretto:21
 
 WORKDIR /app
 
