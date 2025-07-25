@@ -3,17 +3,17 @@ package com.ritense.iko.connectors.openzaak.endpoints
 
 class OpenZaakEndpointRollen : OpenZaakEndpoint() {
     companion object {
-        val URI = "direct:openZaakSearchRollen"
+        val URI = "direct:openZaakEndpointRollen"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(
             URI, "rol_read", "uuid"
         )
 
-        searchRoute(
+        endpointRoute(
             URI, "rol_list", listOf(
                 "betrokkene",
                 "betrokkeneIdentificatie__medewerker__identificatie",

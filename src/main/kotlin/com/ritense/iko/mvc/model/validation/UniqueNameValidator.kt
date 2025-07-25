@@ -1,13 +1,13 @@
 package com.ritense.iko.mvc.model.validation
 
-import com.ritense.iko.profile.ProfileRepository
+import com.ritense.iko.aggregateddataprofile.AggregatedDataProfileRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.springframework.stereotype.Component
 
 @Component
 class UniqueNameValidator(
-    private val profileRepository: ProfileRepository
+    private val profileRepository: AggregatedDataProfileRepository
 ) : ConstraintValidator<UniqueName, String> {
 
     override fun isValid(name: String?, context: ConstraintValidatorContext): Boolean {

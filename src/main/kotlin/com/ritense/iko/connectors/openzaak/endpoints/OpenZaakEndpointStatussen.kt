@@ -3,17 +3,17 @@ package com.ritense.iko.connectors.openzaak.endpoints
 
 class OpenZaakEndpointStatussen : OpenZaakEndpoint() {
     companion object {
-        val URI = "direct:openZaakSearchStatussen"
+        val URI = "direct:openZaakEndpointStatussen"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(
             URI, "status_read", "uuid"
         )
 
-        searchRoute(
+        endpointRoute(
             URI, "status_list", listOf(
                 "indicatieLaatstGezetteStatus",
                 "page",

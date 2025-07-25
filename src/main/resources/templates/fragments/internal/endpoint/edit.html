@@ -90,7 +90,7 @@
                                 label-text="Toggle active "
                                 hx-trigger="cds-toggle-changed"
                                 hx-on:cds-toggle-changed="
-                                     const hidden = document.getElementById('isActive');
+                                     const hidden = document.getElementById('isActiveInput');
                                      hidden.value = hidden.value === 'true' ? 'false' : 'true';
                                 "
                                 th:attr="

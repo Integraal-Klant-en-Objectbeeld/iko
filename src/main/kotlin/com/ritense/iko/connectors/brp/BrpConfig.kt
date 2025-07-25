@@ -35,5 +35,5 @@ class BrpConfig {
     fun brpPersonenPublicEndpoints() = BrpPersonenPublicEndpoints()
 
     @Bean
-    fun brpPersonenSearch() = BrpPersonenEndpoint()
+    fun brpPersonenEndpoint() = BrpPersonenEndpoint()
 }

@@ -3,17 +3,17 @@ package com.ritense.iko.connectors.bag.endpoints
 class BagEndpointAdresseerbareObjecten : BagEndpoint() {
 
     companion object {
-        val URI = "direct:bagSearchAdresseerbareObjecten"
+        val URI = "direct:bagEndpointAdresseerbareObjecten"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(URI, "bevragenAdresseerbaarObject", "adresseerbaarObjectIdentificatie") { routeDefinition ->
             routeDefinition.setHeader("Accept-Crs", constant("epsg:28992"))
         }
 
-        searchRoute(
+        endpointRoute(
             URI, "zoekAdresseerbareObjecten", listOf(
                 "adresseerbaarObjectIdentificatie",
                 "geldigOp",

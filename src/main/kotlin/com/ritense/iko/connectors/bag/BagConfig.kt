@@ -41,32 +41,32 @@ class BagConfig {
     fun bagPublicEndpoints() = BagPublicEndpoints()
 
     @Bean
-    fun bagSearchAdresseerbareObjecten() = BagEndpointAdresseerbareObjecten()
+    fun bagEndpointAdresseerbareObjecten() = BagEndpointAdresseerbareObjecten()
 
     @Bean
-    fun bagSearchAdressen() = BagEndpointAdressen()
+    fun bagEndpointAdressen() = BagEndpointAdressen()
 
     @Bean
-    fun bagSearchBronhouders() = BagEndpointBronhouders()
+    fun bagEndpointBronhouders() = BagEndpointBronhouders()
 
     @Bean
-    fun bagSearchLigplaatsen() = BagEndpointLigplaatsen()
+    fun bagEndpointLigplaatsen() = BagEndpointLigplaatsen()
 
     @Bean
-    fun bagSearchNummeraanduidingen() = BagEndpointNummeraanduidingen()
+    fun bagEndpointNummeraanduidingen() = BagEndpointNummeraanduidingen()
 
     @Bean
-    fun bagSearchOpenbareRuimten() = BagEndpointOpenbareRuimten()
+    fun bagEndpointOpenbareRuimten() = BagEndpointOpenbareRuimten()
 
     @Bean
-    fun bagSearchPanden() = BagEndpointPanden()
+    fun bagEndpointPanden() = BagEndpointPanden()
 
     @Bean
-    fun bagSearchStandplaatsen() = BagEndpointStandplaatsen()
+    fun bagEndpointStandplaatsen() = BagEndpointStandplaatsen()
 
     @Bean
-    fun bagSearchVerblijfsobjecten() = BagEndpointVerblijfsobjecten()
+    fun bagEndpointVerblijfsobjecten() = BagEndpointVerblijfsobjecten()
 
     @Bean
-    fun bagSearchWoonplaatsen() = BagEndpointWoonplaatsen()
+    fun bagEndpointWoonplaatsen() = BagEndpointWoonplaatsen()
 }

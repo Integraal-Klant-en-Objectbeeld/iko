@@ -6,14 +6,14 @@ import org.apache.camel.model.RouteDefinition
 
 abstract class OpenZaakEndpoint : RouteBuilder() {
 
-    fun idAndSearchRoute(uri: String) {
+    fun idAndEndpointRoute(uri: String) {
         from(uri)
             .errorHandler(noErrorHandler())
             .choice()
             .`when`(simple("\${header.id} != null"))
             .to("${uri}_id")
             .otherwise()
-            .to("${uri}_search")
+            .to("${uri}_endpoint")
     }
 
     fun idRoute(
@@ -33,13 +33,13 @@ abstract class OpenZaakEndpoint : RouteBuilder() {
             .to(OpenZaakApi.URI)
     }
 
-    fun searchRoute(
+    fun endpointRoute(
         uri: String,
         operation: String,
         headers: List<String>,
         func: (RouteDefinition) -> RouteDefinition = { i -> i }
     ) {
-        from("${uri}_search")
+        from("${uri}_endpoint")
             .errorHandler(noErrorHandler())
             .removeHeaders(
                 "*", *headers.toTypedArray()

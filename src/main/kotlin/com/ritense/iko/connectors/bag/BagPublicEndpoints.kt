@@ -18,34 +18,34 @@ class BagPublicEndpoints : PublicEndpoints() {
         handleAccessDeniedException()
 
         id("/bag/adresseerbareObjecten", BagEndpointAdresseerbareObjecten.URI)
-        search("/bag/adresseerbareObjecten", BagEndpointAdresseerbareObjecten.URI)
+        endpoint("/bag/adresseerbareObjecten", BagEndpointAdresseerbareObjecten.URI)
 
         id("/bag/adressen", BagEndpointAdressen.URI)
-        search("/bag/adressen", BagEndpointAdressen.URI)
+        endpoint("/bag/adressen", BagEndpointAdressen.URI)
 
         id("/bag/bronhouders", BagEndpointBronhouders.URI)
-        search("/bag/bronhouders", BagEndpointBronhouders.URI)
+        endpoint("/bag/bronhouders", BagEndpointBronhouders.URI)
 
         id("/bag/ligplaatsen", BagEndpointLigplaatsen.URI)
-        search("/bag/ligplaatsen", BagEndpointLigplaatsen.URI)
+        endpoint("/bag/ligplaatsen", BagEndpointLigplaatsen.URI)
 
         id("/bag/nummeraanduidingen", BagEndpointNummeraanduidingen.URI)
-        search("/bag/nummeraanduidingen", BagEndpointNummeraanduidingen.URI)
+        endpoint("/bag/nummeraanduidingen", BagEndpointNummeraanduidingen.URI)
 
         id("/bag/openbareRuimten", BagEndpointOpenbareRuimten.URI)
-        search("/bag/openbareRuimten", BagEndpointOpenbareRuimten.URI)
+        endpoint("/bag/openbareRuimten", BagEndpointOpenbareRuimten.URI)
 
         id("/bag/panden", BagEndpointPanden.URI)
-        search("/bag/panden", BagEndpointPanden.URI)
+        endpoint("/bag/panden", BagEndpointPanden.URI)
 
         id("/bag/standplaatsen", BagEndpointStandplaatsen.URI)
-        search("/bag/standplaatsen", BagEndpointStandplaatsen.URI)
+        endpoint("/bag/standplaatsen", BagEndpointStandplaatsen.URI)
 
         id("/bag/verblijfsobjecten", BagEndpointVerblijfsobjecten.URI)
-        search("/bag/verblijfsobjecten", BagEndpointVerblijfsobjecten.URI)
+        endpoint("/bag/verblijfsobjecten", BagEndpointVerblijfsobjecten.URI)
 
         id("/bag/woonplaatsen", BagEndpointWoonplaatsen.URI)
-        search("/bag/woonplaatsen", BagEndpointWoonplaatsen.URI)
+        endpoint("/bag/woonplaatsen", BagEndpointWoonplaatsen.URI)
     }
 
 }

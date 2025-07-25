@@ -7,7 +7,7 @@ import org.apache.camel.builder.RouteBuilder
 class BrpPersonenEndpoint : RouteBuilder() {
 
     companion object {
-        val URI = "direct:brpPersonenSearch"
+        val URI = "direct:brpPersonenEndpoint"
     }
 
     override fun configure() {
@@ -18,7 +18,7 @@ class BrpPersonenEndpoint : RouteBuilder() {
             .`when`(simple("\${header.id} != null"))
             .to("${URI}_id")
             .otherwise()
-            .to("${URI}_search")
+            .to("${URI}_endpoint")
 
         from("${URI}_id")
             .routeId("${URI}_id")
@@ -61,8 +61,8 @@ class BrpPersonenEndpoint : RouteBuilder() {
             .to(BrpPersonenApi.URI)
             .transform(jq(".personen[0]"))
 
-        from("${URI}_search")
-            .routeId("${URI}_search")
+        from("${URI}_endpoint")
+            .routeId("${URI}_endpoint")
             .errorHandler(noErrorHandler())
             .choice()
             .`when`(simple("\${header.type} == 'ZoekMetPostcodeEnHuisnummer'"))

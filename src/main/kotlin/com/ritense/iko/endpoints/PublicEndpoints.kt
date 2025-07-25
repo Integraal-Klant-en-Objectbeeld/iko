@@ -13,23 +13,23 @@ abstract class PublicEndpoints : RouteBuilder() {
 
         from("direct:${to}_id")
             .errorHandler(noErrorHandler())
-            .setVariable("authorities", constant("ROLE_SEARCH_${to.replace("direct:", "").uppercase()}"))
+            .setVariable("authorities", constant("ROLE_ENDPOINT_${to.replace("direct:", "").uppercase()}"))
             .to("direct:auth")
             .routeId("direct:${to}_api_id")
             .to(to)
             .marshal().json()
     }
 
-    fun search(uri: String, to: String) {
+    fun endpoint(uri: String, to: String) {
         rest("/endpoints$uri")
             .get()
-            .to("direct:${to}_search")
+            .to("direct:${to}_endpoint")
 
-        from("direct:${to}_search")
+        from("direct:${to}_endpoint")
             .errorHandler(noErrorHandler())
-            .setVariable("authorities", constant("ROLE_SEARCH_${to.replace("direct:", "").uppercase()}"))
+            .setVariable("authorities", constant("ROLE_ENDPOINT_${to.replace("direct:", "").uppercase()}"))
             .to("direct:auth")
-            .routeId("direct:${to}_api_search")
+            .routeId("direct:${to}_api_endpoint")
             .to(to)
             .marshal().json()
     }

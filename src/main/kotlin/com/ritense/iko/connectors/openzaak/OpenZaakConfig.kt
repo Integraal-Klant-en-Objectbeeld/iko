@@ -33,19 +33,19 @@ class OpenZaakConfig {
     @Bean
     fun publicOpenZaakEndpoints() = OpenZaakPublicEndpoints()
     @Bean
-    fun openZaakSearchResultaten() = OpenZaakEndpointResultaten()
+    fun openZaakEndpointResultaten() = OpenZaakEndpointResultaten()
     @Bean
-    fun openZaakSearchRollen() = OpenZaakEndpointRollen()
+    fun openZaakEndpointRollen() = OpenZaakEndpointRollen()
     @Bean
-    fun openZaakSearchStatussen() = OpenZaakEndpointStatussen()
+    fun openZaakEndpointStatussen() = OpenZaakEndpointStatussen()
     @Bean
-    fun openZaakSearchZaakContactMomenten() = OpenZaakEndpointZaakContactMomenten()
+    fun openZaakEndpointZaakContactMomenten() = OpenZaakEndpointZaakContactMomenten()
     @Bean
-    fun openZaakSearchZaakInformatieObjecten() = OpenZaakEndpointZaakInformatieObjecten()
+    fun openZaakEndpointZaakInformatieObjecten() = OpenZaakEndpointZaakInformatieObjecten()
     @Bean
-    fun openZaakSearchZaakObjecten() = OpenZaakEndpointZaakObjecten()
+    fun openZaakEndpointZaakObjecten() = OpenZaakEndpointZaakObjecten()
     @Bean
-    fun openZaakSearchZaakVerzoeken() = OpenZaakEndpointZaakVerzoeken()
+    fun openZaakEndpointZaakVerzoeken() = OpenZaakEndpointZaakVerzoeken()
     @Bean
-    fun openZaakSearchZaken() = OpenZaakEndpointZaken()
+    fun openZaakEndpointZaken() = OpenZaakEndpointZaken()
 }

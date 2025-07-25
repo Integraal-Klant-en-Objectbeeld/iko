@@ -9,7 +9,7 @@ class BrpPersonenPublicEndpoints : PublicEndpoints() {
         handleAccessDeniedException()
 
         id("/personen", BrpPersonenEndpoint.URI)
-        search("/personen", BrpPersonenEndpoint.URI)
+        endpoint("/personen", BrpPersonenEndpoint.URI)
     }
 
 }

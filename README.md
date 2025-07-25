@@ -1,4 +1,4 @@
-# Integraal Klant en Objectbeeld (IKO)
+# Integraal Klant & Objectbeeld (IKO)
 
 ## Docker
 

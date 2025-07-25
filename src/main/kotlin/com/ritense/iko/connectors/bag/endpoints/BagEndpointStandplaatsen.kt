@@ -2,15 +2,15 @@ package com.ritense.iko.connectors.bag.endpoints
 
 class BagEndpointStandplaatsen : BagEndpoint() {
     companion object {
-        val URI = "direct:bagSearchStandplaatsen"
+        val URI = "direct:bagEndpointStandplaatsen"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(URI, "standplaatsIdentificatie", "identificatie")
 
-        searchRoute(
+        endpointRoute(
             URI, "zoekStandplaatsen", listOf(
                 "geldigOp",
                 "beschikbaarOp",
