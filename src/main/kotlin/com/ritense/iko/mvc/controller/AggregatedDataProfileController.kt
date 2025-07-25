@@ -121,7 +121,7 @@ class AggregatedDataProfileController(
 
     @GetMapping("/aggregated-data-profiles/create")
     fun create(): ModelAndView {
-        val endpoints = primaryEndpoints()
+        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
             addObject("endpoints", endpoints)
         }
@@ -137,7 +137,7 @@ class AggregatedDataProfileController(
         @Valid @ModelAttribute form: AddAggregatedDataProfileForm,
         bindingResult: BindingResult
     ): ModelAndView {
-        val endpoints = primaryEndpoints()
+        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
             addObject("form", form)
             addObject("endpoints", endpoints)
@@ -172,30 +172,33 @@ class AggregatedDataProfileController(
         }
         return ModelAndView(viewName).apply {
             addObject("form", form)
-            addObject("endpoints", primaryEndpoints())
+            addObject("endpoints", endpoints())
             addObject("relations", relations)
             addObject("menuItems", menuItems)
         }
     }
 
-    @PutMapping(path = ["/aggregated-data-profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    @PutMapping(
+        path = ["/aggregated-data-profiles"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+    )
     fun edit(
         @Valid @ModelAttribute form: EditAggregatedDataProfileForm,
         bindingResult: BindingResult
     ): ModelAndView {
-        val profile = aggregatedDataProfileRepository.getReferenceById(form.id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
             addObject("errors", bindingResult)
             addObject("form", form)
-            addObject("relations", profile.relations.map { Relation.from(it) })
-            addObject("endpoints", primaryEndpoints())
+            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            addObject("endpoints", endpoints())
         }
         if (bindingResult.hasErrors()) {
             return modelAndView
         }
-        profile.handle(form)
-        aggregatedDataProfileService.reloadRoutes(profile)
-        aggregatedDataProfileRepository.save(profile)
+        aggregatedDataProfile.handle(form)
+        aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
         return modelAndView
     }
 
@@ -290,7 +293,7 @@ class AggregatedDataProfileController(
                 }
             }
         } catch (ex: DataIntegrityViolationException) {
-            bindingResult.addError(ObjectError("name", "A profile with this name already exists."))
+            bindingResult.addError(ObjectError("name", "This name already exists."))
             return listOf(modelAndView)
         }
         val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
@@ -302,17 +305,12 @@ class AggregatedDataProfileController(
         )
     }
 
-    private fun primaryEndpoints() = endpointService.getPrimaryEndpoints().map {
-        Endpoint(
-            id = it.id.toString(),
-            name = it.name,
-        )
-    }
-
     private fun endpoints() = endpointService.getEndpoints().map {
         Endpoint(
             id = it.id.toString(),
             name = it.name,
+            isPrimary = it.isPrimary,
+            isActive = it.isActive
         )
     }
 
