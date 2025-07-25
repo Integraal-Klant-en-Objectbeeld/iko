@@ -18,7 +18,7 @@
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
                     <cds-dropdown-item value="" disabled>
-                        Profile root source
+                        Root source
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
                                        th:value="${source.id}">
