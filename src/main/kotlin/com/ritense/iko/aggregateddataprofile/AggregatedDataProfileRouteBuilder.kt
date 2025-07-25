@@ -61,11 +61,11 @@ class AggregatedDataProfileRouteBuilder(
         val endpointRoute = endpointRepository.getReferenceById(aggregatedDataProfile.primaryEndpoint)
 
         if(!endpointRoute.isPrimary) {
-            logger.warn { "Skipping configure: The endpoint ${aggregatedDataProfile.primaryEndpoint} is not primary" }
+            logger.warn { "Skipping configure: The endpoint ${aggregatedDataProfile.name} is not primary" }
             return
         }
         if(!endpointRoute.isActive) {
-            logger.warn { "Skipping configure: The endpoint ${aggregatedDataProfile.primaryEndpoint} is not active" }
+            logger.warn { "Skipping configure: The endpoint ${aggregatedDataProfile.name} is not set to active" }
             return
         }
 

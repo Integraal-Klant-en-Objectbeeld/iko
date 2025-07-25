@@ -45,7 +45,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         ,       e.name as primaryEndpoint
         FROM    aggregated_data_profile adp
         JOIN    endpoint e
-        ON      adp.primary_search = e.id
+        ON      adp.primary_endpoint = e.id
         WHERE   LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
         countQuery = """

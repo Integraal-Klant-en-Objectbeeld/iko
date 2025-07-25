@@ -39,7 +39,7 @@ abstract class OpenZaakEndpoint : RouteBuilder() {
         headers: List<String>,
         func: (RouteDefinition) -> RouteDefinition = { i -> i }
     ) {
-        from("${uri}_search")
+        from("${uri}_endpoint")
             .errorHandler(noErrorHandler())
             .removeHeaders(
                 "*", *headers.toTypedArray()
