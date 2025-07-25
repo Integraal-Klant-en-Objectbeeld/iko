@@ -24,7 +24,7 @@ class AggregatedDataProfileRouteBuilder(
             .marshal().json()
             .let {
                 var y = it
-                source.sourceToSearchMappingAsMap().forEach { entry ->
+                source.sourceToEndpointMappingAsMap().forEach { entry ->
                     y = y.setHeader(entry.key).jq(entry.value, String::class.java)
                 }
                 y

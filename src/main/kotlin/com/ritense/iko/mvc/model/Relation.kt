@@ -8,7 +8,7 @@ data class Relation(
     val id: UUID,
     val sourceId: String,
     val endpointId: String,
-    val sourceToSearchMapping: String,
+    val sourceToEndpointMapping: String,
     val transform: String
 ) {
     companion object {
@@ -18,7 +18,7 @@ data class Relation(
                 id = it.id,
                 sourceId = it.sourceId?.toString() ?: "Profile root",
                 endpointId = it.endpointId,
-                sourceToSearchMapping = it.sourceToSearchMapping,
+                sourceToEndpointMapping = it.sourceToEndpointMapping,
                 transform = it.transform.expression
             )
         }

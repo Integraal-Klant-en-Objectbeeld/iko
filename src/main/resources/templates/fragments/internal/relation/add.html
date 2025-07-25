@@ -43,12 +43,12 @@
                 </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
-                <cds-textarea name="sourceToSearchMapping"
-                              label="Search parameter Mapping"
+                <cds-textarea name="sourceToEndpointMapping"
+                              label="Endpoint parameter Mapping"
                               placeholder="e.g. {'searchParamA': '.myField'}"
-                              th:attr="invalid=${errors?.getFieldError('sourceToSearchMapping') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('sourceToSearchMapping')?.defaultMessage},
-                                value=${form?.sourceToSearchMapping}">
+                              th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
+                                value=${form?.sourceToEndpointMapping}">
                 </cds-textarea>
             </cds-form-item>
             <cds-form-item>

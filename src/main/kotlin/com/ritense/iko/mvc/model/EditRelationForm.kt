@@ -12,7 +12,7 @@ data class EditRelationForm(
     @field:NotBlank(message = "Please select a endpoint.")
     val endpointId: String,
     @field:NotBlank(message = "Please provide a mapping.")
-    val sourceToSearchMapping: String,
+    val sourceToEndpointMapping: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
     val transform: String
@@ -24,7 +24,7 @@ data class EditRelationForm(
                 id = it.id,
                 sourceId = it.sourceId?.toString(),
                 endpointId = it.endpointId,
-                sourceToSearchMapping = it.sourceToSearchMapping,
+                sourceToEndpointMapping = it.sourceToEndpointMapping,
                 transform = it.transform.expression
             )
         }

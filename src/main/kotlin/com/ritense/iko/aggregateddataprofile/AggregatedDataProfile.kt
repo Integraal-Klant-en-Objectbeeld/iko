@@ -59,7 +59,7 @@ class AggregatedDataProfile(
                 },
                 endpointId = request.endpointId,
                 transform = Transform(request.transform),
-                sourceToSearchMapping = request.sourceToSearchMapping
+                sourceToEndpointMapping = request.sourceToEndpointMapping
             )
         )
     }
@@ -77,7 +77,7 @@ class AggregatedDataProfile(
                 },
                 endpointId = request.endpointId,
                 transform = Transform(request.transform),
-                sourceToSearchMapping = request.sourceToSearchMapping
+                sourceToEndpointMapping = request.sourceToEndpointMapping
             )
         )
     }

@@ -22,8 +22,8 @@ class Relation(
     @Column(name = "source_id")
     var sourceId: UUID? = null,
 
-    @Column(name = "source_to_search_mapping")
-    var sourceToSearchMapping: String = "",
+    @Column(name = "source_to_endpoint_mapping")
+    var sourceToEndpointMapping: String = "",
 
     @Column(name = "endpoint_id")
     var endpointId: String = "",
@@ -32,8 +32,8 @@ class Relation(
     var transform: Transform
 ) {
 
-    fun sourceToSearchMappingAsMap(): Map<String, String> {
-        return ObjectMapper().readValue(this.sourceToSearchMapping, Map::class.java) as Map<String, String>
+    fun sourceToEndpointMappingAsMap(): Map<String, String> {
+        return ObjectMapper().readValue(this.sourceToEndpointMapping, Map::class.java) as Map<String, String>
     }
 
 }

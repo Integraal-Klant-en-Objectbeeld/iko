@@ -9,7 +9,7 @@ data class AddRelationForm(
     @field:NotBlank(message = "Please select a endpoint.")
     val endpointId: String,
     @field:NotBlank(message = "Please provide a mapping.")
-    val sourceToSearchMapping: String,
+    val sourceToEndpointMapping: String,
     @field:NotBlank(message = "Please define a transform expression.")
     var transform: String,
 )
