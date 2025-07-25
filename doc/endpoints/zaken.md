@@ -1,19 +1,19 @@
-# Searches: Zaken 
+# Endpoints: Zaken 
 
-## Searches
+## Endpoints
 
-### ZakenSearch 
+### ZakenEndpoint
 
 Search a single zaak on UUID
 
 ```
-zakenSearch(id: UUID)
+zakenEndpoint(id: UUID)
 ```
 
-### ZakenSearch related to BSN
+### ZakenEndpoint related to BSN
 
 Returns a list of zaken that have a rol attached to them that contains the specified BSN
 
 ```
-zakenSearch_bsn(bsn: BSN)
+zakenEndpoint_bsn(bsn: BSN)
 ```

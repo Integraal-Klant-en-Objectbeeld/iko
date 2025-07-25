@@ -2,12 +2,12 @@
 title: IKO Domain model
 ---
 classDiagram
-    note for Relation "Defines the mapping between a source and a search"
-    note for Search "Predefined way to search in a source, likely to be Beans in IKO"
-    note for Profile "Profile is dataview (Transformation) over a Primary source entity (Searchable) and its related data (Secondary source entities)"
-    note for Source "Predefined target for search, like a database or a file. Likely to be Beans in IKO"
+    note for Relation "Defines the mapping between a source and a endpoint"
+    note for Endpoint "Predefined way to search in a source, likely to be Beans in IKO"
+    note for AggregatedDataProfile "AggregatedDataProfile is dataview+transformation over a Primary source entity (Endpoint) and its related data (Secondary source entities)"
+    note for Source "Predefined target for endpoint, like a database or a file. Likely to be Beans in IKO"
 
-    class Profile {
+    class AggregatedDataProfile {
         +Id: string
         +Name: string
         +addTransformation()
@@ -22,7 +22,7 @@ classDiagram
         +JQ: string
     }
 
-    class Search {
+    class Endpoint {
         +Id: string
         +Name: string
         +addTransformation()
@@ -30,11 +30,10 @@ classDiagram
 
     class Relation {
         +Id: string
-        +profileId: string
+        +aggregatedDataProfileId: string
         +sourceId: string
         +sourceToSearchMapping: Map<string, string>
-        +destinationSearchId: string
-        +jqResultMapping: string
+        +transform: string
     }
 
     class Source {
@@ -43,20 +42,20 @@ classDiagram
         +Type: string
     }
 
-    Profile --> "*" Transformation: applies
-    Profile --> "*" Role: has
-    Profile --> "1" Source: must have
-    Profile --> "*" Relation: at least one
-    Search --> "1" Source: one to one
-    Source --> "*" Search: supports many
-    Search --> "1" Transformation: applies
-    Relation --> "1" Search: links
+    AggregatedDataProfile --> "*" Transformation: applies
+    AggregatedDataProfile --> "*" Role: has
+    AggregatedDataProfile --> "1" Source: must have
+    AggregatedDataProfile --> "*" Relation: at least one
+    Endpoint --> "1" Source: one to one
+    Source --> "*" Endpoint: supports many
+    Endpoint --> "1" Transformation: applies
+    Relation --> "1" Endpoint: links
 
-    class Profile {
+    class AggregatedDataProfile {
         <<AggregateRoot>>
     }
 
-    class Search {
+    class Endpoint {
         <<AggregateRoot>>
     }
 

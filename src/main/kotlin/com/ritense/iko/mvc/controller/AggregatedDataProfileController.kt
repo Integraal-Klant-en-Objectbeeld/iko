@@ -9,9 +9,9 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_REL
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
-import com.ritense.iko.mvc.model.AddProfileForm
+import com.ritense.iko.mvc.model.AddAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.AddRelationForm
-import com.ritense.iko.mvc.model.EditProfileForm
+import com.ritense.iko.mvc.model.EditAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Endpoint
 import com.ritense.iko.mvc.model.Relation
@@ -134,7 +134,7 @@ class AggregatedDataProfileController(
     )
     @Transactional
     fun create(
-        @Valid @ModelAttribute form: AddProfileForm,
+        @Valid @ModelAttribute form: AddAggregatedDataProfileForm,
         bindingResult: BindingResult
     ): ModelAndView {
         val endpoints = primaryEndpoints()
@@ -150,7 +150,7 @@ class AggregatedDataProfileController(
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
-            addObject("form", EditProfileForm.from(aggregatedDataProfile))
+            addObject("form", EditAggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("endpoints", endpoints)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
@@ -163,7 +163,7 @@ class AggregatedDataProfileController(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
         val profile = aggregatedDataProfileRepository.getReferenceById(id)
-        val form = EditProfileForm.from(profile)
+        val form = EditAggregatedDataProfileForm.from(profile)
         val relations = profile.relations.map { Relation.from(it) }
         val viewName = if (isHxRequest) {
             "$BASE_FRAGMENT_ADG/edit"
@@ -180,7 +180,7 @@ class AggregatedDataProfileController(
 
     @PutMapping(path = ["/aggregated-data-profiles"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
     fun edit(
-        @Valid @ModelAttribute form: EditProfileForm,
+        @Valid @ModelAttribute form: EditAggregatedDataProfileForm,
         bindingResult: BindingResult
     ): ModelAndView {
         val profile = aggregatedDataProfileRepository.getReferenceById(form.id)

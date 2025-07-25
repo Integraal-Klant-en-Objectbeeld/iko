@@ -2,18 +2,18 @@ package com.ritense.iko.connectors.bag.endpoints
 
 class BagEndpointPanden : BagEndpoint() {
     companion object {
-        val URI = "direct:bagSearchPanden"
+        val URI = "direct:bagEndpointPanden"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(URI, "pandIdentificatie", "identificatie") { routeDefinition ->
             routeDefinition
                 .setHeader("Accept-Crs", constant("epsg:28992"))
         }
 
-        searchRoute(
+        endpointRoute(
             URI, "zoekPanden", listOf(
                 "beschikbaarOp",
                 "huidig",

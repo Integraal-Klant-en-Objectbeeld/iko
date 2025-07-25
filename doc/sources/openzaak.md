@@ -2,7 +2,7 @@
 
 ## Primary Source
 
-OpenZaak is a primary source for Zaken. The primary search is [ZakenSearch](../searches/zaken.md#zakensearch-).
+OpenZaak is a primary source for Zaken. The primary endpoint is [ZakenEndpoint](../endpoints/zaken.md#zakenendpoint-).
 
 ## Configuration
 

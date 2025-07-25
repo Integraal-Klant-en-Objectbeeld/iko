@@ -8,6 +8,6 @@ class ObjectenApiPublicEndpoints : PublicEndpoints() {
         handleAccessDeniedException()
 
         id("/objecten", ObjectenApiEndpointObjects.URI)
-        search("/objecten", ObjectenApiEndpointObjects.URI)
+        endpoint("/objecten", ObjectenApiEndpointObjects.URI)
     }
 }

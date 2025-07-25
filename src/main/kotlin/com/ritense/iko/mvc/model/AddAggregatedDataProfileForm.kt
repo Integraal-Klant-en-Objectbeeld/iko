@@ -4,7 +4,7 @@ import com.ritense.iko.mvc.model.validation.UniqueName
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 
-data class AddProfileForm(
+data class AddAggregatedDataProfileForm(
     @field:NotBlank(message = "Please provide a name.")
     @field:UniqueName
     val name: String,

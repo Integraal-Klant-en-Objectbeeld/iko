@@ -7,11 +7,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
-import org.springframework.core.task.TaskExecutor
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor
-import org.springframework.security.task.DelegatingSecurityContextTaskExecutor
-
 
 @Configuration
 class ApplicationConfig() {

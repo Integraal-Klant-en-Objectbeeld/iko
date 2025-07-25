@@ -16,7 +16,7 @@ class ObjectenApiEndpointObjects : RouteBuilder() {
             .`when`(simple("\${header.id} != null"))
             .to("${URI}_id")
             .otherwise()
-            .to("${URI}_search")
+            .to("${URI}_endpoint")
 
         from("${URI}_id")
             .errorHandler(noErrorHandler())
@@ -25,7 +25,7 @@ class ObjectenApiEndpointObjects : RouteBuilder() {
             .setHeader("uuid", header("id"))
             .to(ObjectenApiApi.URI)
 
-        from("${URI}_search")
+        from("${URI}_endpoint")
             .errorHandler(noErrorHandler())
             .removeHeaders(
                 "*",

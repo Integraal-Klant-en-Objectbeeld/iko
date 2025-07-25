@@ -6,7 +6,7 @@ import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import java.util.UUID
 
-data class EditProfileForm(
+data class EditAggregatedDataProfileForm(
     val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
     @field:UniqueName
@@ -19,8 +19,8 @@ data class EditProfileForm(
 ) {
 
     companion object {
-        fun from(aggregatedDataProfile: AggregatedDataProfile): EditProfileForm {
-            return EditProfileForm(
+        fun from(aggregatedDataProfile: AggregatedDataProfile): EditAggregatedDataProfileForm {
+            return EditAggregatedDataProfileForm(
                 id = aggregatedDataProfile.id,
                 name = aggregatedDataProfile.name,
                 primaryEndpoint = aggregatedDataProfile.primaryEndpoint.toString(),

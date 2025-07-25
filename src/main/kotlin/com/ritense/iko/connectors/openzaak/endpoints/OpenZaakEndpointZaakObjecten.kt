@@ -3,17 +3,17 @@ package com.ritense.iko.connectors.openzaak.endpoints
 
 class OpenZaakEndpointZaakObjecten : OpenZaakEndpoint() {
     companion object {
-        val URI = "direct:openZaakSearchZaakObjecten"
+        val URI = "direct:openZaakEndpointZaakObjecten"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(
             URI, "zaakobject_read", "uuid"
         )
 
-        searchRoute(
+        endpointRoute(
             URI, "zaakobject_list", listOf(
                 "object",
                 "objectType",

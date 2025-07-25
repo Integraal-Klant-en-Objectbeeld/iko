@@ -2,17 +2,17 @@ package com.ritense.iko.connectors.bag.endpoints
 
 class BagEndpointAdressen : BagEndpoint() {
     companion object {
-        val URI = "direct:bagSearchAdressen"
+        val URI = "direct:bagEndpointAdressen"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(URI, "bevraagAdressenMetNumId", "nummeraanduidingIdentificatie") {
             it.setHeader("expand", constant("true"))
         }
 
-        searchRoute(
+        endpointRoute(
             URI, "bevraagAdressen", listOf(
                 "zoekresultaatIdentificatie",
                 "postcode",
