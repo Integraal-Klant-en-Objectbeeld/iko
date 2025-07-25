@@ -2,6 +2,7 @@ package com.ritense.iko.aggregateddataprofile
 
 import com.ritense.iko.mvc.model.AddAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.AddRelationForm
+import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import jakarta.persistence.CascadeType
@@ -80,6 +81,10 @@ class AggregatedDataProfile(
                 sourceToEndpointMapping = request.sourceToEndpointMapping
             )
         )
+    }
+
+    fun removeRelation(request: DeleteRelationForm) {
+        this.relations.removeIf { it.id == request.id }
     }
 
     companion object {

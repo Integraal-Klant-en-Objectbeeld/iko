@@ -11,6 +11,7 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
 import com.ritense.iko.mvc.model.AddAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.AddRelationForm
+import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Endpoint
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
 import org.springframework.validation.ObjectError
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
@@ -305,6 +307,36 @@ class AggregatedDataProfileController(
         )
     }
 
+    @GetMapping("/aggregated-data-profiles/{id}/relations/edit/{relationId}/delete")
+    fun relationDelete(
+        @PathVariable id: UUID,
+        @PathVariable relationId: UUID,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/delete").apply {
+            addObject("form", aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
+        }
+        return modelAndView
+    }
+
+    @DeleteMapping("/relations")
+    fun deleteRelation(
+        @Valid @ModelAttribute form: DeleteRelationForm
+    ): List<ModelAndView> {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
+         form.run {
+            aggregatedDataProfile.let {
+                it.removeRelation(form)
+                aggregatedDataProfileService.reloadRoutes(it)
+                aggregatedDataProfileRepository.save(it)
+            }
+        }
+        val list = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
+            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+        }
+        return listOf(list)
+    }
+
     private fun endpoints() = endpointService.getEndpoints().map {
         Endpoint(
             id = it.id.toString(),
@@ -314,10 +346,20 @@ class AggregatedDataProfileController(
         )
     }
 
-    private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations.map { relation ->
-        Source(
+    private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations
+        .sortedWith(
+            compareBy<com.ritense.iko.aggregateddataprofile.Relation>(
+                // first criterion: is this relation's sourceId equal to aggregatedDataProfile.id?
+                { it.sourceId != aggregatedDataProfile.id }  // false (0) comes before true (1)
+            ).thenBy { it.sourceId } // second criterion: normal ascending by parentId
+        )
+        .map { relation -> Source(
             id = relation.id.toString(),
-            name = relation.id.toString()
+            name = if (relation.sourceId == aggregatedDataProfile.id) {
+                aggregatedDataProfile.name + ">" + relation.id// use profile name if sourceId matches
+            } else {
+                relation.id.toString() // otherwise use relation id
+            }
         )
     }.toMutableList()
 

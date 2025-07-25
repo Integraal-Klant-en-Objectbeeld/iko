@@ -1,0 +1,29 @@
+<th:block th:fragment="relation-delete">
+    <cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" th:attr="open=${errors?.hasErrors()}">
+        <cds-modal-header>
+            <cds-modal-close-button></cds-modal-close-button>
+            <cds-modal-label>Delete Relation</cds-modal-label>
+            <cds-modal-heading>Relation</cds-modal-heading>
+        </cds-modal-header>
+        <cds-modal-body>
+            Are you sure you want to delete this relation?
+            <input type="hidden" name="aggregatedDataProfileId" th:value="${form.aggregatedDataProfileId}"/>
+            <input type="hidden" name="id" th:value="${form.id}"/>
+        </cds-modal-body>
+        <cds-modal-footer>
+            <cds-modal-footer-button
+                kind="secondary"
+                hx-on:click="document.querySelector('cds-modal')?.toggleAttribute('open');">
+                Cancel
+            </cds-modal-footer-button>
+            <cds-modal-footer-button
+                kind="danger"
+                hx-delete="/admin/relations"
+                hx-include="#active-modal *"
+                hx-target="#active-modal"
+                hx-swap="outerHTML">
+                Delete
+            </cds-modal-footer-button>
+        </cds-modal-footer>
+    </cds-modal>
+</th:block>
