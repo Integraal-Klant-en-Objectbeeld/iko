@@ -11,7 +11,7 @@ import java.util.UUID
 @Repository
 interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile, UUID> {
 
-    fun findByName(name: String): AggregatedDataProfile
+    fun findByName(name: String): AggregatedDataProfile?
 
     /** Case‑insensitive “contains” search, paged */
     fun findByNameContainingIgnoreCase(

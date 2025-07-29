@@ -1,6 +1,7 @@
 package com.ritense.iko.mvc.model.validation
 
 import com.ritense.iko.aggregateddataprofile.AggregatedDataProfileRepository
+import com.ritense.iko.mvc.model.AggregatedDataProfileForm
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.springframework.stereotype.Component
@@ -8,20 +9,21 @@ import org.springframework.stereotype.Component
 @Component
 class UniqueNameValidator(
     private val profileRepository: AggregatedDataProfileRepository
-) : ConstraintValidator<UniqueName, String> {
+) : ConstraintValidator<UniqueName, AggregatedDataProfileForm> {
 
-    override fun isValid(name: String?, context: ConstraintValidatorContext): Boolean {
-        if (name.isNullOrBlank()) return true // let @NotBlank handle this
+    override fun isValid(form: AggregatedDataProfileForm, context: ConstraintValidatorContext): Boolean {
+        if (form.name.isBlank()) return true // Let @NotBlank handle this
 
-        val exists: Boolean = profileRepository.existsByName(name)
-        if (!exists) {
-            return true
-        } else {
-            // Customize the validation message
+        val existing = profileRepository.findByName(form.name)
+        val isValid = existing == null || existing.id == form.id
+
+        if (!isValid) {
             context.disableDefaultConstraintViolation()
-            context.buildConstraintViolationWithTemplate("Name already exists please choose another.")
+            context.buildConstraintViolationWithTemplate("Name already exists, please choose another.")
+                .addPropertyNode("name") // point to 'name' field
                 .addConstraintViolation()
-            return false
         }
+
+        return isValid
     }
 }

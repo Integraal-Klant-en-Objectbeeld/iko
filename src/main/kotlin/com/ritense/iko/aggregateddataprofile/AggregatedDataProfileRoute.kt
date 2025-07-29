@@ -17,7 +17,7 @@ class AggregatedDataProfileRoute(
 
                 exchange.setVariable("id", exchange.getIn().getHeader("id"))
                 exchange.setVariable("aggregatedDataProfile", aggregatedDataProfile)
-                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile!!.id)
             }
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }

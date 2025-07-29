@@ -21,7 +21,7 @@ class SecurityConfig {
         http
             .securityMatcher(
                 "/endpoints/**",
-                "/aggregated-data-profile/**"
+                "/aggregated-data-profiles/**"
             )
             .oauth2Login { oauth2 -> oauth2.disable() }
             .oauth2ResourceServer { oauth2 -> oauth2.jwt(Customizer.withDefaults()) }

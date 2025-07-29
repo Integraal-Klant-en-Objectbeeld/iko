@@ -6,10 +6,10 @@ import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import java.util.UUID
 
-data class EditAggregatedDataProfileForm(
-    val id: UUID,
+@UniqueName
+data class AggregatedDataProfileForm(
+    val id: UUID? = null,
     @field:NotBlank(message = "Please provide a name.")
-    @field:UniqueName
     val name: String,
     @field:NotBlank(message = "Please select a primary endpoint.")
     val primaryEndpoint: String,
@@ -19,8 +19,8 @@ data class EditAggregatedDataProfileForm(
 ) {
 
     companion object {
-        fun from(aggregatedDataProfile: AggregatedDataProfile): EditAggregatedDataProfileForm {
-            return EditAggregatedDataProfileForm(
+        fun from(aggregatedDataProfile: AggregatedDataProfile): AggregatedDataProfileForm {
+            return AggregatedDataProfileForm(
                 id = aggregatedDataProfile.id,
                 name = aggregatedDataProfile.name,
                 primaryEndpoint = aggregatedDataProfile.primaryEndpoint.toString(),

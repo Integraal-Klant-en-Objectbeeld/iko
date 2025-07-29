@@ -1,9 +1,8 @@
 package com.ritense.iko.aggregateddataprofile
 
-import com.ritense.iko.mvc.model.AddAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.AddRelationForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
-import com.ritense.iko.mvc.model.EditAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -43,7 +42,7 @@ class AggregatedDataProfile(
     var transform: Transform
 ) {
 
-    fun handle(request: EditAggregatedDataProfileForm) {
+    fun handle(request: AggregatedDataProfileForm) {
         this.primaryEndpoint = UUID.fromString(request.primaryEndpoint)
         this.name = request.name
         this.transform = Transform(request.transform)
@@ -88,7 +87,7 @@ class AggregatedDataProfile(
     }
 
     companion object {
-        fun create(form: AddAggregatedDataProfileForm) = AggregatedDataProfile(
+        fun create(form: AggregatedDataProfileForm) = AggregatedDataProfile(
             id = UUID.randomUUID(),
             name = form.name,
             primaryEndpoint = UUID.fromString(form.primaryEndpoint),
