@@ -22,7 +22,7 @@ class OpenZaakConfig {
     @Bean
     fun openZaak(camelContext: CamelContext, @Value("\${iko.connectors.openzaak.host}") host: String) =
         RestOpenApiComponent(camelContext).apply {
-            this.specificationUri = "http://localhost:8001/zaken/api/v1/schema/openapi.yaml"
+            this.specificationUri = "https://raw.githubusercontent.com/vng-Realisatie/zaken-api/1.5.1/src/openapi.yaml"
             this.host = host
             this.produces = "application/json"
         }
