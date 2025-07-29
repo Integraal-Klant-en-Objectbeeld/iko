@@ -2,15 +2,15 @@ package com.ritense.iko.connectors.bag.endpoints
 
 class BagEndpointBronhouders : BagEndpoint() {
     companion object {
-        val URI = "direct:bagSearchBronhouders"
+        val URI = "direct:bagEndpointBronhouders"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(URI, "bevragenBronhouder", "identificatie")
 
-        searchRoute(
+        endpointRoute(
             URI, "zoekBronhouder", listOf(
                  "woonplaatsIdentificatie",
                 "objectIdentificatie",

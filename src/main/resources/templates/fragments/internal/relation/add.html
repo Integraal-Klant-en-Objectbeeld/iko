@@ -18,7 +18,7 @@
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
                     <cds-dropdown-item value="" disabled>
-                        Profile root source
+                        Root source
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
                                        th:value="${source.id}">
@@ -37,18 +37,19 @@
                                 invalid-text=${errors?.getFieldError('endpointId')?.defaultMessage},
                                 value=${form?.endpointId}">
                     <cds-dropdown-item th:each="endpoint : ${endpoints}"
-                                       th:value="${endpoint.id}">
+                                       th:value="${endpoint.id}"
+                                       th:attr="disabled=${!endpoint.isActive}">
                         <span th:text="${endpoint.name}"></span>
                     </cds-dropdown-item>
                 </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
-                <cds-textarea name="sourceToSearchMapping"
-                              label="Search parameter Mapping"
+                <cds-textarea name="sourceToEndpointMapping"
+                              label="Endpoint parameter Mapping"
                               placeholder="e.g. {'searchParamA': '.myField'}"
-                              th:attr="invalid=${errors?.getFieldError('sourceToSearchMapping') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('sourceToSearchMapping')?.defaultMessage},
-                                value=${form?.sourceToSearchMapping}">
+                              th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
+                                value=${form?.sourceToEndpointMapping}">
                 </cds-textarea>
             </cds-form-item>
             <cds-form-item>
@@ -61,7 +62,7 @@
                                 value=${form?.transform}">
                 </cds-textarea>
             </cds-form-item>
-            <input type="hidden" name="profileId" th:value="${profileId}"/>
+            <input type="hidden" name="aggregatedDataProfileId" th:value="${aggregatedDataProfileId}"/>
         </cds-modal-body>
         <cds-modal-footer>
             <cds-modal-footer-button

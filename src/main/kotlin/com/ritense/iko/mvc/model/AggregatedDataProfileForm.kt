@@ -1,0 +1,31 @@
+package com.ritense.iko.mvc.model
+
+import com.ritense.iko.aggregateddataprofile.AggregatedDataProfile
+import com.ritense.iko.mvc.model.validation.UniqueName
+import com.ritense.iko.mvc.model.validation.ValidTransform
+import jakarta.validation.constraints.NotBlank
+import java.util.UUID
+
+@UniqueName
+data class AggregatedDataProfileForm(
+    val id: UUID? = null,
+    @field:NotBlank(message = "Please provide a name.")
+    val name: String,
+    @field:NotBlank(message = "Please select a primary endpoint.")
+    val primaryEndpoint: String,
+    @field:NotBlank(message = "Please provide a transform expression.")
+    @field:ValidTransform
+    val transform: String
+) {
+
+    companion object {
+        fun from(aggregatedDataProfile: AggregatedDataProfile): AggregatedDataProfileForm {
+            return AggregatedDataProfileForm(
+                id = aggregatedDataProfile.id,
+                name = aggregatedDataProfile.name,
+                primaryEndpoint = aggregatedDataProfile.primaryEndpoint.toString(),
+                transform = aggregatedDataProfile.transform.expression
+            )
+        }
+    }
+}

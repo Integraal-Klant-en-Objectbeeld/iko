@@ -3,11 +3,11 @@ package com.ritense.iko.connectors.openzaak.endpoints
 
 class OpenZaakEndpointZaken : OpenZaakEndpoint() {
     companion object {
-        val URI = "direct:openZaakSearchZaken"
+        val URI = "direct:openZaakEndpointZaken"
     }
 
     override fun configure() {
-        idAndSearchRoute(URI)
+        idAndEndpointRoute(URI)
 
         idRoute(
             URI, "zaak_read", "uuid"
@@ -16,7 +16,7 @@ class OpenZaakEndpointZaken : OpenZaakEndpoint() {
                 .setHeader("Accept-Crs", constant("EPSG:4326"))
         }
 
-        searchRoute(
+        endpointRoute(
             URI, "zaak_list", listOf(
                 "archiefactiedatum",
                 "archiefactiedatum__gt",

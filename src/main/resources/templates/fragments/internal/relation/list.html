@@ -1,16 +1,27 @@
 <th:block th:fragment="relations">
     <cds-table-body id="relations" hx-swap-oob="true">
         <cds-table-row th:each="relation : ${relations}"
-                       th:attr="hx-get=@{'/admin/profiles/' + ${relation.profileId} + '/relations/edit/' + ${relation.id}}"
+                       th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${relation.aggregatedDataProfileId} + '/relations/edit/' + ${relation.id}}"
                        hx-target="#modal-container"
                        hx-swap="innerHTML"
                        hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
                        hx-push-url="false">
             <cds-table-cell th:text="${relation.id}"></cds-table-cell>
             <cds-table-cell th:text="${relation.sourceId}"></cds-table-cell>
-            <cds-table-cell th:text="${relation.sourceToSearchMapping}"></cds-table-cell>
+            <cds-table-cell th:text="${relation.sourceToEndpointMapping}"></cds-table-cell>
             <cds-table-cell th:text="${relation.endpointId}"></cds-table-cell>
             <cds-table-cell th:text="${relation.transform}"></cds-table-cell>
+            <cds-table-cell>
+                <cds-button kind="danger"
+                            th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${relation.aggregatedDataProfileId} + '/relations/edit/' + ${relation.id} + '/delete'} "
+                            hx-target="#modal-container"
+                            hx-swap="innerHTML"
+                            hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
+                            hx-push-url="false"
+                            onclick="event.stopPropagation();">
+                    Delete
+                </cds-button>
+            </cds-table-cell>
         </cds-table-row>
     </cds-table-body>
 </th:block>

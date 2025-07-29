@@ -3,11 +3,11 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 plugins {
     base
     id("co.uzzu.dotenv.gradle") version "4.0.0"
-    kotlin("jvm") version "2.1.20"
-    kotlin("plugin.spring") version "2.1.20"
-    kotlin("plugin.jpa") version "2.1.20"
-    kotlin("plugin.allopen") version "2.1.20"
-    id("org.springframework.boot") version "3.4.4"
+    kotlin("jvm") version "2.2.0"
+    kotlin("plugin.spring") version "2.2.0"
+    kotlin("plugin.jpa") version "2.2.0"
+    kotlin("plugin.allopen") version "2.2.0"
+    id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -25,8 +25,8 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
-    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.11.0")) // BOM
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
+    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.13.0")) // BOM
 
     implementation("org.apache.camel.springboot:camel-spring-boot")
     implementation("org.apache.camel.springboot:camel-direct-starter")
@@ -63,6 +63,9 @@ dependencies {
     // Security
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
+    // Logging
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
 
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 

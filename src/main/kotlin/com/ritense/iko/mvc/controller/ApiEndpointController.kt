@@ -1,7 +1,9 @@
 package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.endpoints.EndpointRepository
-import com.ritense.iko.mvc.controller.ProfileController.Companion.menuItems
+import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
+import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
+import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
 import com.ritense.iko.mvc.model.EditEndpointForm
 import com.ritense.iko.mvc.model.Route
 import jakarta.validation.Valid
@@ -146,10 +148,5 @@ class ApiEndpointController(
                 name = it.name,
             )
         }
-
-    companion object {
-        const val HX_REQUEST_HEADER = "Hx-Request"
-        const val PAGE_DEFAULT = 10
-    }
 
 }

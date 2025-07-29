@@ -11,6 +11,7 @@ COPY ./src /app/src
 RUN chmod +x /app/gradlew
 RUN ./gradlew :build
 
+# also set platform for final image
 FROM amazoncorretto:21
 
 WORKDIR /app
