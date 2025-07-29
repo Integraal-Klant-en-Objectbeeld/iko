@@ -25,7 +25,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         """
         SELECT  adp.id
         ,       adp.name
-        ,       adp.name as primaryEndpoint
+        ,       e.name as primaryEndpoint
         FROM    aggregated_data_profile adp
         JOIN    endpoint e ON adp.primary_endpoint = e.id
         """,
@@ -46,14 +46,14 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         FROM    aggregated_data_profile adp
         JOIN    endpoint e
         ON      adp.primary_endpoint = e.id
-        WHERE   LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
         countQuery = """
         SELECT  COUNT(*)
         FROM    aggregated_data_profile adp
         JOIN    endpoint e
         ON      adp.primary_endpoint = e.id
-        WHERE   LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
         nativeQuery = true
     )
