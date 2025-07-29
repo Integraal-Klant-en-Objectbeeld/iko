@@ -13,7 +13,9 @@ class AggregatedDataProfileRoute(
         from("direct:aggregated_data_profile_rest")
             .routeId("aggregated_data_profile_rest")
             .process { exchange ->
-                val aggregatedDataProfile = aggregatedDataProfileRepository.findByName(exchange.getIn().getHeader("name") as String)
+                val aggregatedDataProfile = aggregatedDataProfileRepository.findByName(exchange.getIn().getHeader("aggregatedDataProfileName") as String)
+
+                // TODO throw error if not found?
 
                 exchange.setVariable("id", exchange.getIn().getHeader("id"))
                 exchange.setVariable("aggregatedDataProfile", aggregatedDataProfile)

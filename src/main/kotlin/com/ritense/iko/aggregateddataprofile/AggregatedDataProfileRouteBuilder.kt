@@ -78,7 +78,7 @@ class AggregatedDataProfileRouteBuilder(
             // TODO: Replace this constant with a ROLE that you can set on the profile.
             .setVariable(
                 "authorities",
-                constant("ROLE_PROFILE_${aggregatedDataProfile.name.replace("[^0-9a-zA-Z_\\-]+", "").uppercase()}")
+                constant("ROLE_AGGREGATED_DATA_PROFILE_${aggregatedDataProfile.name.replace("[^0-9a-zA-Z_\\-]+", "").uppercase()}")
             )
             .to("direct:auth")
             .to("direct:${endpointRoute.routeId}")
