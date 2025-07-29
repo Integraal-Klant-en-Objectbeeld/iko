@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component
 
 @Component
 class UniqueNameValidator(
-    private val profileRepository: AggregatedDataProfileRepository
+    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository
 ) : ConstraintValidator<UniqueName, AggregatedDataProfileForm> {
 
     override fun isValid(form: AggregatedDataProfileForm, context: ConstraintValidatorContext): Boolean {
         if (form.name.isBlank()) return true // Let @NotBlank handle this
 
-        val existing = profileRepository.findByName(form.name)
+        val existing = aggregatedDataProfileRepository.findByName(form.name)
         val isValid = existing == null || existing.id == form.id
 
         if (!isValid) {
