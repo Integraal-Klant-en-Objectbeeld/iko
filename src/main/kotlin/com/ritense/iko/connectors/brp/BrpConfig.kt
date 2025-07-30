@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.net.URI
 
 @Configuration
 @ConditionalOnProperty(
@@ -17,10 +18,13 @@ import org.springframework.context.annotation.Configuration
 class BrpConfig {
 
     @Bean
-    fun brp(camelContext: CamelContext, @Value("\${iko.connectors.brp.host}") host: String) =
+    fun brp(
+        camelContext: CamelContext,
+        @Value("\${iko.connectors.brp.host}") host: String,
+        @Value("\${iko.connectors.brp.specificationUri}") specificationUri: URI
+    ) =
         RestOpenApiComponent(camelContext).apply {
-            this.specificationUri =
-                "https://raw.githubusercontent.com/BRP-API/Haal-Centraal-BRP-bevragen/refs/tags/v2.2.1-mock/specificatie/genereervariant/openapi.json"
+            this.specificationUri = specificationUri.toString()
             this.host = host
             this.produces = "application/json"
         }
