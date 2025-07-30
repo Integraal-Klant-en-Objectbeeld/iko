@@ -14,15 +14,20 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.net.URI
 
 @Configuration
 @ConditionalOnProperty(name = ["iko.connectors.openzaak.enabled"], havingValue = "true", matchIfMissing = true)
 class OpenZaakConfig {
 
     @Bean
-    fun openZaak(camelContext: CamelContext, @Value("\${iko.connectors.openzaak.host}") host: String) =
+    fun openZaak(
+        camelContext: CamelContext,
+        @Value("\${iko.connectors.openzaak.host}") host: String,
+        @Value("\${iko.connectors.openzaak.specificationUri}") specificationUri: URI
+    ) =
         RestOpenApiComponent(camelContext).apply {
-            this.specificationUri = "http://localhost:8001/zaken/api/v1/schema/openapi.yaml"
+            this.specificationUri = specificationUri.toString()
             this.host = host
             this.produces = "application/json"
         }
@@ -32,20 +37,28 @@ class OpenZaakConfig {
 
     @Bean
     fun publicOpenZaakEndpoints() = OpenZaakPublicEndpoints()
+
     @Bean
     fun openZaakEndpointResultaten() = OpenZaakEndpointResultaten()
+
     @Bean
     fun openZaakEndpointRollen() = OpenZaakEndpointRollen()
+
     @Bean
     fun openZaakEndpointStatussen() = OpenZaakEndpointStatussen()
+
     @Bean
     fun openZaakEndpointZaakContactMomenten() = OpenZaakEndpointZaakContactMomenten()
+
     @Bean
     fun openZaakEndpointZaakInformatieObjecten() = OpenZaakEndpointZaakInformatieObjecten()
+
     @Bean
     fun openZaakEndpointZaakObjecten() = OpenZaakEndpointZaakObjecten()
+
     @Bean
     fun openZaakEndpointZaakVerzoeken() = OpenZaakEndpointZaakVerzoeken()
+
     @Bean
     fun openZaakEndpointZaken() = OpenZaakEndpointZaken()
 }

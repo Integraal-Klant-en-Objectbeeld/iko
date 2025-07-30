@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.net.URI
 
 @Configuration
 @ConditionalOnProperty(
@@ -26,10 +27,13 @@ import org.springframework.context.annotation.Configuration
 class BagConfig {
 
     @Bean
-    fun bag(camelContext: CamelContext, @Value("\${iko.connectors.bag.host}") host: String) =
+    fun bag(
+        camelContext: CamelContext,
+        @Value("\${iko.connectors.bag.host}") host: String,
+        @Value("\${iko.connectors.bag.specificationUri}") specificationUri: URI
+    ) =
         RestOpenApiComponent(camelContext).apply {
-            this.specificationUri =
-                "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openapi.yaml"
+            this.specificationUri = specificationUri.toString()
             this.host = host
             this.produces = "application/json"
         }
