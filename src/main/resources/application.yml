@@ -90,12 +90,12 @@ iko:
         brp:
             enabled: true
             host: # ENV
-            specificationUri: "https://raw.githubusercontent.com/BRP-API/Haal-Centraal-BRP-bevragen/refs/tags/v2.2.1-mock/specificatie/genereervariant/openapi.json"
+            specificationUri: "https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml"
             secret: # ENV
         openzaak:
             enabled: true
             host: # ENV
-            specificationUri: "http://localhost:8001/zaken/api/v1/schema/openapi.yaml"
+            specificationUri: "https://raw.githubusercontent.com/vng-Realisatie/zaken-api/1.5.1/src/openapi.yaml"
             clientId: # ENV
             secret: # ENV
         bag:
@@ -106,6 +106,6 @@ iko:
         objectenapi:
             enabled: true
             host: # ENV
-            specificationUri: "http://localhost:8010/api/v2/schema/openapi.yaml"
+            specificationUri: "https://raw.githubusercontent.com/maykinmedia/objects-api/3.1.2/src/objects/api/v2/openapi.yaml"
             token: # ENV
 
