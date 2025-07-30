@@ -24,3 +24,6 @@ This is to allow local dev to have no caching when working on HTML. Remove it wh
 
 ### Source routes
 
+## More documentation
+
+You can find more documentation [here](./doc/index.md)
