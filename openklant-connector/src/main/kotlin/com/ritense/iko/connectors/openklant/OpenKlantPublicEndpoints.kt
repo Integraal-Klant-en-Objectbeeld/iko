@@ -4,6 +4,12 @@ import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlanten
 import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlantcontacten
 import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointContactmomenten
 import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointRollen
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlantenContactmomenten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlantenKlantcontacten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlantenRollen
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlantcontactenContactmomenten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointContactmomentenKlantcontacten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointRollenKlanten
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
@@ -23,6 +29,24 @@ class OpenKlantPublicEndpoints : RouteBuilder() {
 
         id("/openklant/rollen", OpenKlantEndpointRollen.URI)
         endpoint("/openklant/rollen", OpenKlantEndpointRollen.URI)
+
+        id("/openklant/klantenContactmomenten", OpenKlantEndpointKlantenContactmomenten.URI)
+        endpoint("/openklant/klantenContactmomenten", OpenKlantEndpointKlantenContactmomenten.URI)
+
+        id("/openklant/klantenKlantcontacten", OpenKlantEndpointKlantenKlantcontacten.URI)
+        endpoint("/openklant/klantenKlantcontacten", OpenKlantEndpointKlantenKlantcontacten.URI)
+
+        id("/openklant/klantenRollen", OpenKlantEndpointKlantenRollen.URI)
+        endpoint("/openklant/klantenRollen", OpenKlantEndpointKlantenRollen.URI)
+
+        id("/openklant/klantcontactenContactmomenten", OpenKlantEndpointKlantcontactenContactmomenten.URI)
+        endpoint("/openklant/klantcontactenContactmomenten", OpenKlantEndpointKlantcontactenContactmomenten.URI)
+
+        id("/openklant/contactmomentenKlantcontacten", OpenKlantEndpointContactmomentenKlantcontacten.URI)
+        endpoint("/openklant/contactmomentenKlantcontacten", OpenKlantEndpointContactmomentenKlantcontacten.URI)
+
+        id("/openklant/rollenKlanten", OpenKlantEndpointRollenKlanten.URI)
+        endpoint("/openklant/rollenKlanten", OpenKlantEndpointRollenKlanten.URI)
     }
 
     private fun id(uri: String, to: String) {
