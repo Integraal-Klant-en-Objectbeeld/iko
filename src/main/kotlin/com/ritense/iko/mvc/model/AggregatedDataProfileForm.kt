@@ -20,7 +20,8 @@ data class AggregatedDataProfileForm(
     val primaryEndpoint: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
-    val transform: String
+    val transform: String,
+    val role: String? = null,
 ) {
 
     companion object {
@@ -28,6 +29,7 @@ data class AggregatedDataProfileForm(
             return AggregatedDataProfileForm(
                 id = aggregatedDataProfile.id,
                 name = aggregatedDataProfile.name,
+                role = aggregatedDataProfile.role,
                 primaryEndpoint = aggregatedDataProfile.primaryEndpoint.toString(),
                 transform = aggregatedDataProfile.transform.expression
             )

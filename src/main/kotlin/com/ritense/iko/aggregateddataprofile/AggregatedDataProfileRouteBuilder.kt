@@ -69,6 +69,11 @@ class AggregatedDataProfileRouteBuilder(
             return
         }
 
+        val effectiveRole = aggregatedDataProfile.role?.takeIf { it.isNotBlank() } ?: run {
+            val sanitizedName = aggregatedDataProfile.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+            "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
+        }
+
         onException(AccessDeniedException::class.java)
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
@@ -78,7 +83,7 @@ class AggregatedDataProfileRouteBuilder(
             // TODO: Replace this constant with a ROLE that you can set on the profile.
             .setVariable(
                 "authorities",
-                constant("ROLE_AGGREGATED_DATA_PROFILE_${aggregatedDataProfile.name.replace("[^0-9a-zA-Z_\\-]+", "").uppercase()}")
+                constant(effectiveRole)
             )
             .to("direct:auth")
             .to("direct:${endpointRoute.routeId}")
