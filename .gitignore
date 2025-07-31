@@ -30,7 +30,7 @@ hs_err_pid*
 
 ### Gradle template
 .gradle
-/build/
+**/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -63,6 +63,6 @@ Desktop.ini
 # AWS credentials
 **/AwsCredentials.properties
 /.env.properties
-
-# kotlin
 .kotlin
+connector-openklant/build
+iko-common/build

@@ -1,0 +1,52 @@
+<th:block th:fragment="connector-list">
+    <cds-content>
+        <cds-tile>
+            <cds-breadcrumb no-trailing-slash="">
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link visited="true">
+                        Home
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        hx-get="/admin/connectors"
+                        hx-target="#view-panel"
+                        is-currentpage="true"
+                        hx-push-url="true">
+                        Connectors
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+            </cds-breadcrumb>
+
+            <!-- Data table -->
+            <cds-table id="profile-table">
+                <cds-table-header-title slot="title">Connectors</cds-table-header-title>
+                <cds-table-header-description slot="description">Overview of all connectors
+                </cds-table-header-description>
+                <!-- Header -->
+                <cds-table-head>
+                    <cds-table-header-row>
+                        <cds-table-header-cell>
+                            Name
+                        </cds-table-header-cell>
+                        <cds-table-header-cell>
+                            Description ASDSD
+                        </cds-table-header-cell>
+                    </cds-table-header-row>
+                </cds-table-head>
+                <cds-table-body id="search-results">
+                    <cds-table-row th:each="connector : ${connectors}"
+                                   th:href="@{|/admin/connectors/${connector.id}|}"
+                                   th:hx-get="@{|/admin/connectors/${connector.id}|}"
+                                   hx-target="#view-panel"
+                                   hx-push-url="true"
+                    >
+                        <cds-table-cell th:text="${connector.name}"></cds-table-cell>
+                        <cds-table-cell th:text="${connector.description}"></cds-table-cell>
+                    </cds-table-row>
+                </cds-table-body>
+            </cds-table>
+        </cds-tile>
+    </cds-content>
+</th:block>
