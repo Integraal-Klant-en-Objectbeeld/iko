@@ -76,7 +76,11 @@ Deze endpoints vereisen een geldig JWT-token met de juiste rol:
 /aggregated-data-profiles/** → vereist: ROLE_AGGREGATED_DATA_PROFILE_{NAAM}
 ```
 
-Voorbeelden:
+Standaard wordt de rol voor een aggregatieprofiel opgebouwd uit ROLE_AGGREGATED_DATA_PROFILE_ gevolgd door de profielnaam (alle andere tekens verwijderd en in hoofdletters). In het beheer‑scherm kan per profiel echter ook een custom rol worden ingevuld. Wanneer een custom rol is ingesteld, moet het JWT‑token deze rol bevatten; de standaardrol wordt dan genegeerd.
+
+#### Voorbeelden:
+
 - `/endpoints/voorbeeld` → `ROLE_ENDPOINT_VOORBEELD`
-- `/aggregated-data-profiles/voorbeeld/121` → `ROLE_AGGREGATED_DATA_PROFILE_VOORBEELD`
+- `/aggregated-data-profiles/voorbeeld/121` → `ROLE_AGGREGATED_DATA_PROFILE_VOORBEELD`A
+- `/aggregated-data-profiles/uitzondering/2` met custom rol `ROLE_SPECIAL` → token moet `ROLE_SPECIAL` bevatten
 ``

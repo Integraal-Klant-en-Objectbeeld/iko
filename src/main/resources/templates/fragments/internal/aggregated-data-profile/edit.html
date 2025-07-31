@@ -60,6 +60,15 @@
                             <span th:text="${endpoint.name}"></span>
                         </cds-dropdown-item>
                     </cds-dropdown>
+                    <!-- Add Aggregated Data Profile form -->
+                    <cds-text-input name="role"
+                                    label="Role"
+                                    style="width: 50%"
+                                    th:attr="
+                    invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
+                    invalid-text=${errors?.getFieldError('role')?.defaultMessage},
+                    value=${form?.role}">
+                    </cds-text-input>
                     <cds-textarea id="transform"
                                   name="transform"
                                   style="width: 50%"

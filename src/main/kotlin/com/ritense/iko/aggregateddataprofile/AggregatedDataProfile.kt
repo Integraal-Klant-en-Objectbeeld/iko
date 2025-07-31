@@ -39,12 +39,22 @@ class AggregatedDataProfile(
     var relations: MutableList<Relation> = mutableListOf(),
 
     @Embedded
-    var transform: Transform
+    var transform: Transform,
+
+    @Column(name = "role")
+    var role: String? = null,
 ) {
 
     fun handle(request: AggregatedDataProfileForm) {
         this.primaryEndpoint = UUID.fromString(request.primaryEndpoint)
         this.name = request.name
+        if (!request.role.isNullOrBlank()) {
+            this.role = request.role
+        } else {
+            val sanitizedName = request.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+            val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
+            this.role = defaultRole
+        }
         this.transform = Transform(request.transform)
     }
 
@@ -87,12 +97,18 @@ class AggregatedDataProfile(
     }
 
     companion object {
-        fun create(form: AggregatedDataProfileForm) = AggregatedDataProfile(
+        fun create(form: AggregatedDataProfileForm): AggregatedDataProfile {
+        val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+        val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
+        val role = if (form.role.isNullOrBlank()) defaultRole else form.role
+        return AggregatedDataProfile(
             id = UUID.randomUUID(),
             name = form.name,
             primaryEndpoint = UUID.fromString(form.primaryEndpoint),
+            role = role,
             transform = Transform(form.transform)
         )
+    }
     }
 
 }

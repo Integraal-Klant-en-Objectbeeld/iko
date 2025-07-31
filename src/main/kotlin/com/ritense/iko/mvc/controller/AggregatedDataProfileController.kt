@@ -188,16 +188,26 @@ class AggregatedDataProfileController(
         bindingResult: BindingResult
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
+
+        if (bindingResult.hasErrors()) {
+            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
+                addObject("errors", bindingResult)
+                addObject("form", form)
+                addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+                addObject("endpoints", endpoints())
+            }
+            return modelAndView
+        }
+
+        aggregatedDataProfile.handle(form)
+        val newForm = AggregatedDataProfileForm.from(aggregatedDataProfile)
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
             addObject("errors", bindingResult)
-            addObject("form", form)
+            addObject("form", newForm)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
             addObject("endpoints", endpoints())
         }
-        if (bindingResult.hasErrors()) {
-            return modelAndView
-        }
-        aggregatedDataProfile.handle(form)
+
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
         return modelAndView
