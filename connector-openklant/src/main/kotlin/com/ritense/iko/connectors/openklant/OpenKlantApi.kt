@@ -12,8 +12,7 @@ class OpenKlantApi : RouteBuilder() {
         from(URI)
             .errorHandler(noErrorHandler())
             .setHeader("Accept", constant("application/json"))
-            // Add authentication headers if needed
-            // .setHeader("Authorization", simple("Bearer {{iko.connectors.openklant.token}}"))
+            .setHeader("Authorization", simple("Bearer {{iko.connectors.openklant.token}}"))
             .toD("openklant:\${header.openKlantOperation}?throwExceptionOnFailure=false")
             .unmarshal().json()
     }

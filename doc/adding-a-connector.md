@@ -74,7 +74,6 @@ class MyApiApi : RouteBuilder() {
         from(URI)
             .errorHandler(noErrorHandler())
             .setHeader("Accept", constant("application/json"))
-            // Add authentication headers if needed
             .setHeader("Authorization", simple("Bearer {{iko.connectors.myapi.token}}"))
             .toD("myapi:\${header.myApiOperation}?throwExceptionOnFailure=false")
             .unmarshal().json()
