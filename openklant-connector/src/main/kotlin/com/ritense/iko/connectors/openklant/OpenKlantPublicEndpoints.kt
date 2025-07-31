@@ -1,6 +1,9 @@
 package com.ritense.iko.connectors.openklant
 
 import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlanten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlantcontacten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointContactmomenten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointRollen
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
@@ -11,6 +14,15 @@ class OpenKlantPublicEndpoints : RouteBuilder() {
 
         id("/openklant/klanten", OpenKlantEndpointKlanten.URI)
         endpoint("/openklant/klanten", OpenKlantEndpointKlanten.URI)
+
+        id("/openklant/klantcontacten", OpenKlantEndpointKlantcontacten.URI)
+        endpoint("/openklant/klantcontacten", OpenKlantEndpointKlantcontacten.URI)
+
+        id("/openklant/contactmomenten", OpenKlantEndpointContactmomenten.URI)
+        endpoint("/openklant/contactmomenten", OpenKlantEndpointContactmomenten.URI)
+
+        id("/openklant/rollen", OpenKlantEndpointRollen.URI)
+        endpoint("/openklant/rollen", OpenKlantEndpointRollen.URI)
     }
 
     private fun id(uri: String, to: String) {

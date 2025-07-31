@@ -1,6 +1,9 @@
 package com.ritense.iko.connectors.openklant
 
 import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlanten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointKlantcontacten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointContactmomenten
+import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointRollen
 import org.apache.camel.CamelContext
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
 import org.springframework.beans.factory.annotation.Value
@@ -37,4 +40,13 @@ class OpenKlantConfig {
 
     @Bean
     fun openKlantEndpointKlanten() = OpenKlantEndpointKlanten()
+
+    @Bean
+    fun openKlantEndpointKlantcontacten() = OpenKlantEndpointKlantcontacten()
+
+    @Bean
+    fun openKlantEndpointContactmomenten() = OpenKlantEndpointContactmomenten()
+
+    @Bean
+    fun openKlantEndpointRollen() = OpenKlantEndpointRollen()
 }
