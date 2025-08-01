@@ -1,0 +1,7 @@
+iko:
+  connectors:
+    bag:
+      enabled: true
+      host: ${BAG_HOST:https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2}
+      specificationUri: ${BAG_SPECIFICATION_URI:https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/api-docs}
+      apiKey: ${BAG_API_KEY:}

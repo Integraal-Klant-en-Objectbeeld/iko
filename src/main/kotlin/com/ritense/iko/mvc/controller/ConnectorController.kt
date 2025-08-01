@@ -48,6 +48,12 @@ class ConnectorController {
             description = "Objects API connector",
             route = "/admin/connectors/objectenapi"
         ),
+        Connector(
+            id = "openklant",
+            name = "OpenKlant",
+            description = "OpenKlant API connector",
+            route = "/admin/connectors/openklant"
+        ),
     )
 
     /**
