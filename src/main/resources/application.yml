@@ -109,7 +109,7 @@ iko:
             specificationUri: "https://raw.githubusercontent.com/maykinmedia/objects-api/3.1.2/src/objects/api/v2/openapi.yaml"
             token: # ENV
         openklant:
-            enabled: false
+            enabled: true
             host: # ENV
             specificationUri: "https://raw.githubusercontent.com/maykinmedia/open-klant/2.10.0/src/openklant/components/klantinteracties/openapi.yaml"
             token: # ENV

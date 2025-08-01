@@ -71,7 +71,7 @@ dependencies {
     // Logging
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
 
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+    // developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
