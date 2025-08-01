@@ -64,8 +64,6 @@ services:
             timeout: 5s
             retries: 3
             start_period: 5s
-        #ports:
-        #    - "6379:6379"
 
     objecten-api:
         image: maykinmedia/objects-api:2.1.1
@@ -191,8 +189,6 @@ services:
             timeout: 5s
             retries: 3
             start_period: 5s
-        #ports:
-        #    - "6379:6379"
 
     keycloak:
         container_name: iko-keycloak
