@@ -64,4 +64,5 @@ Desktop.ini
 **/AwsCredentials.properties
 /.env.properties
 connector-openklant/build
+connector-bag/build
 iko-common/build

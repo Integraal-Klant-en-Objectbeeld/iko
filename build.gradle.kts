@@ -26,6 +26,7 @@ repositories {
 
 dependencies {
     implementation(project(":connector-openklant"))
+    implementation(project(":connector-bag"))
     implementation(project(":iko-common"))
 
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
