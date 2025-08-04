@@ -68,4 +68,5 @@ connector-openklant/build
 connector-bag/build
 connector-brp/build
 connector-openzaak/build
+connector-objectenapi/build
 iko-common/build
