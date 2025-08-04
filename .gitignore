@@ -63,5 +63,6 @@ Desktop.ini
 # AWS credentials
 **/AwsCredentials.properties
 /.env.properties
+.kotlin
 connector-openklant/build
 iko-common/build
