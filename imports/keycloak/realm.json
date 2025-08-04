@@ -73,7 +73,7 @@
             },
             {
                 "id": "6644d8b3-0556-4407-927e-fe64632860a0",
-                "name": "ROLE_ENDPOINT_BRPPERSONENSEARCH",
+                "name": "ROLE_ENDPOINT_BRPPERSONENENDPOINT",
                 "composite": false,
                 "clientRole": false,
                 "containerId": "valtimo",
@@ -547,7 +547,7 @@
         "disableableCredentialTypes": [],
         "requiredActions": [],
         "realmRoles": [
-            "ROLE_ENDPOINT_BRPPERSONENSEARCH",
+            "ROLE_ENDPOINT_BRPPERSONENENDPOINT",
             "ROLE_AGGREGATED_DATA_PROFILE_BAGBEWONERS",
             "ROLE_AGGREGATED_DATA_PROFILE_TEMP",
             "default-roles-valtimo"
@@ -1098,7 +1098,8 @@
             "clientAuthenticatorType": "client-secret",
             "secret": "ThisIsNotASecret",
             "redirectUris": [
-                "http://localhost:8080/*"
+                "http://localhost:8080/*",
+                "http://localhost:9090/*"
             ],
             "webOrigins": [
                 "/*"
@@ -1216,7 +1217,8 @@
             "clientAuthenticatorType": "client-secret",
             "redirectUris": [
                 "http://localhost:4200/*",
-                "http://localhost:8080/*"
+                "http://localhost:8080/*",
+                "http://localhost:9090/*"
             ],
             "webOrigins": [
                 "http://localhost:4200"
