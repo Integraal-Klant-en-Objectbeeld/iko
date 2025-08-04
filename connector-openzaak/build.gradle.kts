@@ -6,6 +6,10 @@ plugins {
 group = "com.ritense"
 version = "0.0.1-SNAPSHOT"
 
+kotlin {
+    jvmToolchain(21)
+}
+
 repositories {
     mavenCentral()
 }
