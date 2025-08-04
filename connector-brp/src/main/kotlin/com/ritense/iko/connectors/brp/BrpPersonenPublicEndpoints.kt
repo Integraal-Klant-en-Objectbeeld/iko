@@ -13,4 +13,3 @@ class BrpPersonenPublicEndpoints : PublicEndpoints() {
     }
 
 }
-

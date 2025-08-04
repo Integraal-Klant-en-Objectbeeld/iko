@@ -66,4 +66,5 @@ Desktop.ini
 .kotlin
 connector-openklant/build
 connector-bag/build
+connector-brp/build
 iko-common/build
