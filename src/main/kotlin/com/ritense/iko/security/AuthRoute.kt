@@ -10,7 +10,8 @@ class AuthRoute() : RouteBuilder() {
         from("direct:auth")
             .errorHandler(noErrorHandler())
             .process { ex ->
-                ex.getVariable("authorities", List::class.java)?.let {
+                val exAuthorities = ex.getVariable("authorities", List::class.java)
+                exAuthorities?.let {
                     if (it.isEmpty()) {
                         return@process
                     }
@@ -20,6 +21,8 @@ class AuthRoute() : RouteBuilder() {
                         }) {
                         return@process
                     }
+
+                    throw AccessDeniedException("User is not authorized to perform access this route. Missing authorities: $exAuthorities")
                 }
                 throw AccessDeniedException("User is not authorized to perform access this route")
             }
