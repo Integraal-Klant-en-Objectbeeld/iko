@@ -26,6 +26,7 @@ dependencies {
     implementation("org.apache.camel.springboot:camel-spring-security-starter")
     implementation("org.apache.camel.springboot:camel-rest-starter")
     implementation("org.apache.camel:camel-rest-openapi")
+    implementation("org.apache.camel:camel-jq")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")

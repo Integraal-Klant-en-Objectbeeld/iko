@@ -1,0 +1,8 @@
+iko:
+  connectors:
+    openzaak:
+      enabled: true
+      host: ${IKO_CONNECTORS_OPENZAAK_HOST:http://localhost:8001}
+      specificationUri: ${IKO_CONNECTORS_OPENZAAK_SPECIFICATION_URI:https://raw.githubusercontent.com/vng-Realisatie/zaken-api/1.5.1/src/openapi.yaml}
+      clientId: ${IKO_CONNECTORS_OPENZAAK_CLIENT_ID:iko}
+      secret: ${IKO_CONNECTORS_OPENZAAK_SECRET:secret}
