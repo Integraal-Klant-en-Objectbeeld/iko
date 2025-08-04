@@ -66,6 +66,3 @@ Desktop.ini
 .kotlin
 connector-openklant/build
 iko-common/build
-
-# Kotlin cache
-.kotlin
