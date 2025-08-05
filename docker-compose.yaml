@@ -235,7 +235,8 @@ services:
             SPRING_DATASOURCE_USERNAME: iko-admin
             SPRING_DATASOURCE_PASSWORD: secret
             IKO_CONNECTORS_BRP_HOST: http://haalcentraal-personen:5010
-            IKO_CONNECTORS_OPENZAAK_HOST: http://openzaak:8001
+            IKO_CONNECTORS_OPENZAAK_HOST: http://openzaak:8000
+            IKO_CONNECTORS_OPENZAAK_SPECIFICATIONURI: http://openzaak:8000/zaken/api/v1/schema/openapi.yaml
             IKO_CONNECTORS_OPENZAAK_CLIENTID: valtimo_client
             IKO_CONNECTORS_OPENZAAK_SECRET: e09b8bc5-5831-4618-ab28-41411304309d
             IKO_CONNECTORS_BAG_HOST: https://api.bag.kadaster.nl
