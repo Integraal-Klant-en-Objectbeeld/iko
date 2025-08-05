@@ -1,30 +1,41 @@
 package com.ritense.iko.security
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
-import org.springframework.security.config.Customizer
+import org.springframework.expression.spel.standard.SpelExpressionParser
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
+import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
 
 @EnableWebSecurity
 @Configuration
 class SecurityConfig {
+
     @Order(Ordered.LOWEST_PRECEDENCE - 1000)
     @Bean
-    fun apiSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun apiSecurityFilterChain(
+        http: HttpSecurity,
+        jwtAuthenticationConverter: JwtAuthenticationConverter
+    ): SecurityFilterChain {
         http
             .securityMatcher(
                 "/endpoints/**",
                 "/aggregated-data-profiles/**"
             )
             .oauth2Login { oauth2 -> oauth2.disable() }
-            .oauth2ResourceServer { oauth2 -> oauth2.jwt(Customizer.withDefaults()) }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
+                }
+            }
             .sessionManagement { session ->
                 session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -34,6 +45,19 @@ class SecurityConfig {
             }
 
         return http.build()
+    }
+
+    @Bean
+    fun jwtAuthenticationConverter(
+        @Value("\${spring.security.oauth2.resourceserver.jwt.authority-prefix}") prefix: String,
+        @Value("\${spring.security.oauth2.resourceserver.jwt.authorities-claim-name}") claimName: String
+    ): JwtAuthenticationConverter {
+        val grantedAuthoritiesConverter =
+            ExpressionJwtGrantedAuthoritiesConverter(SpelExpressionParser().parseRaw(claimName))
+        grantedAuthoritiesConverter.setAuthorityPrefix(prefix)
+        val jwtAuthenticationConverter = JwtAuthenticationConverter()
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter)
+        return jwtAuthenticationConverter
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE - 100)
