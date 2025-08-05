@@ -13,6 +13,7 @@ class BrpPersonenApi : RouteBuilder() {
         from(URI)
             .errorHandler(noErrorHandler())
             .setHeader("Accept", constant("application/json"))
+            .setHeader("X-Api-Key", simple("{{iko.connectors.brp.secret}}"))
             .setHeader(Exchange.HTTP_URI).header("url")
             .removeHeader(Exchange.HTTP_PATH)
             .removeHeader(Exchange.HTTP_URI)
