@@ -77,7 +77,7 @@ spring:
                     issuer-uri: # ENV
                     audiences: iko
                     authority-prefix:
-                    authorities-claim-name: roles
+                    authorities-claim-name: "[resource_access][iko][roles]"
 
 camel:
     yaml:
