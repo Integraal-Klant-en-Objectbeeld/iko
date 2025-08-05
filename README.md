@@ -19,8 +19,14 @@ docker build --platform=linux/amd64 .
 
 ## Development info 
 
+Rename the .env.template to .evn.
 The env.template file contains a SPRING_THYMELEAF_PREFIX=file:src/main/resources/templates/
 This is to allow local dev to have no caching when working on HTML. Remove it when running the docker container.
+
+### Admin  
+
+Go to http://localhost:0808/admin to access the admin.
+For a full tutorial how to create Aggregated Data Profile go to https://docs.integraal-klant-objectbeeld.nl/admin-configuratie/samengesteld-gegevensprofiel-aanmaken
 
 ### Source routes
 
