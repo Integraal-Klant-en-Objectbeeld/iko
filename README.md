@@ -19,7 +19,7 @@ docker build --platform=linux/amd64 .
 
 ## Development info 
 
-Rename the .env.template to .evn.
+Rename the .env.template to .env
 The env.template file contains a SPRING_THYMELEAF_PREFIX=file:src/main/resources/templates/
 This is to allow local dev to have no caching when working on HTML. Remove it when running the docker container.
 
