@@ -1,0 +1,6 @@
+./build
+./.kotlin
+./.idea
+./.gradle
+./doc
+./imports

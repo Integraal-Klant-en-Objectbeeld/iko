@@ -2,11 +2,7 @@ FROM amazoncorretto:21 AS build
 
 WORKDIR /app
 
-COPY ./build.gradle.kts /app/build.gradle.kts
-COPY ./settings.gradle.kts /app/settings.gradle.kts
-COPY ./gradlew /app/gradlew
-COPY ./gradle /app/gradle
-COPY ./src /app/src
+COPY . /app
 
 RUN chmod +x /app/gradlew
 RUN ./gradlew :build
