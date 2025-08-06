@@ -43,7 +43,7 @@
                                 value=${form?.primaryEndpoint}">
                     <cds-dropdown-item th:each="endpoint : ${endpoints}"
                                        th:value="${endpoint.id}"
-                                       th:attr="disabled=${!endpoint.primary && endpoint.active}">
+                                       th:attr="disabled=${!endpoint.primary || !endpoint.active}">
                         <span th:text="${endpoint.name}"></span>
                     </cds-dropdown-item>
                 </cds-dropdown>
