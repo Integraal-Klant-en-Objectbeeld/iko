@@ -8,6 +8,8 @@ import java.util.UUID
 interface EndpointRepository : JpaRepository<Endpoint, UUID> {
     fun findByName(name: String): Endpoint
 
+    fun findByRouteId(routeId: String): Endpoint?
+
     fun findAllByIsPrimaryTrueOrderByName(): List<Endpoint>
 
     /** Case‑insensitive “contains” search, paged */
