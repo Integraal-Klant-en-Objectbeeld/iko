@@ -16,11 +16,11 @@ import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointRekeningn
 import com.ritense.iko.connectors.openklant.endpoints.OpenKlantEndpointVertegenwoordigingen
 import org.apache.camel.CamelContext
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.net.URI
+import org.springframework.context.event.EventListener
 
 @Configuration
 @ConditionalOnProperty(
@@ -28,22 +28,36 @@ import java.net.URI
     havingValue = "true",
     matchIfMissing = false
 )
-class OpenKlantConfig {
+class OpenKlantConfig(
+    private val openKlantProperties: OpenKlantProperties
+) {
 
-    @Bean
-    fun openklant(
-        camelContext: CamelContext,
-        @Value("\${iko.connectors.openklant.host}") host: String,
-        @Value("\${iko.connectors.openklant.specificationUri}") specificationUri: URI
-    ) =
-        RestOpenApiComponent(camelContext).apply {
-            this.specificationUri = specificationUri.toString()
-            this.host = host
-            this.produces = "application/json"
+    @EventListener(
+        ApplicationReadyEvent::class
+    )
+    fun openklant(event: ApplicationReadyEvent) {
+        val camelContext = event.applicationContext.getBean("camelContext") as CamelContext
+        val factory = event.applicationContext.beanFactory
+
+        openKlantProperties.instances.forEach { instance ->
+            camelContext.addComponent("openklant.${instance.key}", RestOpenApiComponent(camelContext).apply {
+                this.specificationUri = instance.value.specificationUri.toString()
+                this.host = instance.value.host
+                this.produces = "application/json"
+            })
         }
 
+        if (openKlantProperties.instances.isEmpty()) {
+            camelContext.addComponent("openklant.default", RestOpenApiComponent(camelContext).apply {
+                this.specificationUri = openKlantProperties.specificationUri.toString()
+                this.host = openKlantProperties.host
+                this.produces = "application/json"
+            })
+        }
+    }
+
     @Bean
-    fun openKlantApi() = OpenKlantApi()
+    fun openKlantApi() = OpenKlantApi(openKlantProperties)
 
     @Bean
     fun openKlantPublicEndpoints() = OpenKlantPublicEndpoints()

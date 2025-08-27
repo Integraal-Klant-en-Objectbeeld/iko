@@ -1,0 +1,70 @@
+package com.ritense.iko.poc
+
+import com.nimbusds.jose.Algorithm
+import com.nimbusds.jwt.JWT
+import com.ritense.iko.connectors.openklant.OpenKlantProperties
+import com.ritense.iko.poc.db.ConnectorEndpointRepository
+import com.ritense.iko.poc.db.ConnectorEndpointRoleRepository
+import com.ritense.iko.poc.db.ConnectorInstanceRepository
+import com.ritense.iko.poc.db.ConnectorRepository
+import org.apache.camel.CamelContext
+import org.apache.camel.component.rest.openapi.RestOpenApiComponent
+import org.apache.camel.support.PluginHelper
+import org.apache.camel.support.ResourceHelper
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.event.EventListener
+import org.springframework.security.oauth2.jwt.JwtClaimsSet
+import java.nio.file.Files
+import kotlin.io.path.Path
+
+
+@Configuration
+class Config(val connectorRepository: ConnectorRepository) {
+
+    @Bean
+    fun pocEndpoint() = Endpoint()
+
+    @Bean
+    fun pocEndpointAuth(
+        connectorEndpointRepository: ConnectorEndpointRepository,
+        connectorInstanceRepository: ConnectorInstanceRepository,
+        connectorEndpointRoleRepository: ConnectorEndpointRoleRepository
+    ) = EndpointAuth(
+        connectorEndpointRepository,
+        connectorInstanceRepository,
+        connectorEndpointRoleRepository
+    )
+
+    @Bean
+    fun pocEndpointValidation(
+        connectorEndpointRepository: ConnectorEndpointRepository,
+        connectorInstanceRepository: ConnectorInstanceRepository
+    ) = EndpointValidation(connectorEndpointRepository, connectorInstanceRepository)
+
+    @Bean
+    fun ikoConnector() = Connector()
+
+    @Bean
+    fun ikoConnectorConfig(connectorInstanceRepository: ConnectorInstanceRepository) = ConnectorConfig(connectorInstanceRepository)
+
+    @Bean
+    fun ikoTransform() = Transform()
+
+    @EventListener(
+        ApplicationReadyEvent::class
+    )
+    fun openklant(event: ApplicationReadyEvent) {
+        val camelContext = event.applicationContext.getBean("camelContext") as CamelContext
+
+        connectorRepository.findAll()
+            .forEach {
+                val resource = ResourceHelper.fromBytes(
+                    "${it.tag}.yaml", it.connectorCode.toByteArray()
+                )
+                PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
+            }
+    }
+}

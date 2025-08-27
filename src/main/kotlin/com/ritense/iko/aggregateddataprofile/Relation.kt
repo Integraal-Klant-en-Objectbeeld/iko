@@ -25,8 +25,11 @@ class Relation(
     @Column(name = "source_to_endpoint_mapping")
     var sourceToEndpointMapping: String = "",
 
-    @Column(name = "endpoint_id")
-    var endpointId: String = "",
+    @Column(name = "connector_instance_id")
+    var connectorInstanceId: UUID,
+
+    @Column(name = "connector_endpoint_id")
+    var connectorEndpointId: UUID,
 
     @Embedded
     var transform: Transform

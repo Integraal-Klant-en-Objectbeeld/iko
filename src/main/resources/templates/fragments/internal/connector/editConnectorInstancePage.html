@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
+<div layout:fragment="view-panel-content">
+    <th:block th:fragment="edit">
+        <cds-content>
+            <cds-tile>
+                <cds-breadcrumb no-trailing-slash="">
+                    <cds-breadcrumb-item>
+                        <cds-breadcrumb-link visited="true">
+                            Home
+                        </cds-breadcrumb-link>
+                    </cds-breadcrumb-item>
+                    <cds-breadcrumb-item>
+                        <cds-breadcrumb-link
+                            href="javascript:void(0);"
+                            hx-get="/admin/connectors"
+                            hx-target="#view-panel"
+                            is-currentpage="true"
+                            hx-push-url="true">
+                            Connectors
+                        </cds-breadcrumb-link>
+                    </cds-breadcrumb-item>
+                </cds-breadcrumb>
+                <div>
+                    <h2>Create Connector Instance</h2>
+                </div>
+                <cds-stack gap="8">
+                    <form>
+                        <cds-form-group id="form-group" name="form-group" legend-text="Add Aggregated Data Profile">
+                            <cds-text-input name="name"
+                                            style="width: 50%"
+                                            label="Name"
+                                            th:value="${form.name}"
+                            >
+                            </cds-text-input>
+                            <cds-text-input name="description"
+                                            style="width: 50%"
+                                            label="Description"
+                                            th:value="${form.description}"
+                            ></cds-text-input>
+                            <cds-text-input name="reference"
+                                            style="width: 50%"
+                                            label="Reference"
+                                            th:value="${form.reference}"
+                            >
+                            </cds-text-input>
+                        </cds-form-group>
+
+                        <cds-button
+                            kind="primary"
+                            th:hx-post="@{|/admin/connectors/${connector.id}/instances|}"
+                            hx-target="#view-panel">
+                            <div th:if="${saved}">Saved</div>
+                            <div th:if="${!saved}">Save</div>
+                        </cds-button>
+                        <cds-button
+                            kind="primary"
+                            hx-push-url="true"
+                            th:hx-get="@{|/admin/connectors/${connector.id}|}"
+                            hx-target="#view-panel">
+                            <div>Back</div>
+                        </cds-button>
+
+                    </form>
+
+                    <cds-table id="endpoints-table">
+                        <cds-table-header-title slot="title">Config</cds-table-header-title>
+                        <cds-table-header-description slot="description">Overview of all config properties
+                        </cds-table-header-description>
+                        <cds-table-toolbar slot="toolbar">
+                            <cds-table-toolbar-content>
+                                <cds-button
+                                    th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config|}"
+                                    hx-target="#view-panel"
+                                    kind="primary"
+                                >
+                                    Add config
+                                    <svg
+                                        focusable="false"
+                                        preserveAspectRatio="xMidYMid meet"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 32 32"
+                                        slot="icon">
+                                        <path
+                                            d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+                                    </svg>
+                                </cds-button>
+                            </cds-table-toolbar-content>
+                        </cds-table-toolbar>
+                        <!-- Header -->
+                        <cds-table-head>
+                            <cds-table-header-row>
+                                <cds-table-header-cell>
+                                    Name
+                                </cds-table-header-cell>
+                                <cds-table-header-cell>
+                                    Value
+                                </cds-table-header-cell>
+
+                                <cds-table-header-cell>
+                                </cds-table-header-cell>
+                            </cds-table-header-row>
+                        </cds-table-head>
+                        <cds-table-body id="endpoints">
+                            <cds-table-row th:each="config: ${connectorInstance.config}">
+                                <cds-table-cell th:text="${config.key}"></cds-table-cell>
+                                <cds-table-cell th:text="${config.value}"></cds-table-cell>
+                                <cds-table-cell>
+                                    <cds-button kind="danger" hx-confirm="Are you sure you want to delete this config?"
+                                                th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config/${config.key}|}"
+                                                hx-target="#view-panel">
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"
+                                             width="16" height="16" viewBox="0 0 32 32" slot="icon"
+                                             class="cds--btn__icon">
+                                            <path d="M12 12H14V24H12zM18 12H20V24H18z"></path>
+                                            <path
+                                                d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path>
+                                        </svg>
+                                    </cds-button>
+                                </cds-table-cell>
+                            </cds-table-row>
+                        </cds-table-body>
+                    </cds-table>
+
+                    <cds-table id="endpoints-table">
+                        <cds-table-header-title slot="title">Roles</cds-table-header-title>
+                        <cds-table-header-description slot="description">Overview of all roles for this connector
+                            instance
+                        </cds-table-header-description>
+                        <cds-table-toolbar slot="toolbar">
+                            <cds-table-toolbar-content>
+                                <cds-button
+                                    th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles|}"
+                                    hx-target="#view-panel"
+                                    kind="primary"
+                                >
+                                    Add role
+                                    <svg
+                                        focusable="false"
+                                        preserveAspectRatio="xMidYMid meet"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 32 32"
+                                        slot="icon">
+                                        <path
+                                            d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+                                    </svg>
+                                </cds-button>
+                            </cds-table-toolbar-content>
+                        </cds-table-toolbar>
+                        <!-- Header -->
+                        <cds-table-head>
+                            <cds-table-header-row>
+                                <cds-table-header-cell>Endpoint
+                                </cds-table-header-cell>
+                                <cds-table-header-cell>
+                                    Role
+                                </cds-table-header-cell>
+                                <cds-table-header-cell></cds-table-header-cell>
+                            </cds-table-header-row>
+                        </cds-table-head>
+                        <cds-table-body id="endpoints">
+                            <cds-table-row th:each="role: ${connectorRoles}"
+                                           th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles/${role.id}|}"
+                                           hx-target="#view-panel"
+                                           kind="primary"
+                            >
+                                <cds-table-cell th:text="${role.connectorEndpoint.name}"></cds-table-cell>
+                                <cds-table-cell th:text="${role.role}"></cds-table-cell>
+                                <cds-table-cell>
+                                    <cds-button kind="danger" hx-confirm="Are you sure you want to delete this role?"
+                                                th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles/${role.id}|}"
+                                                hx-target="#view-panel">
+                                        <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"
+                                             width="16" height="16" viewBox="0 0 32 32" slot="icon"
+                                             class="cds--btn__icon">
+                                            <path d="M12 12H14V24H12zM18 12H20V24H18z"></path>
+                                            <path
+                                                d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path>
+                                        </svg>
+                                    </cds-button>
+                                </cds-table-cell>
+                            </cds-table-row>
+                        </cds-table-body>
+                    </cds-table>
+                </cds-stack>
+
+            </cds-tile>
+        </cds-content>
+    </th:block>
+</div>
+</body>
+</html>

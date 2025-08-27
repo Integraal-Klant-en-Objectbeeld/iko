@@ -9,13 +9,13 @@ data class EditRelationForm(
     val aggregatedDataProfileId: UUID,
     val id: UUID,
     val sourceId: String? = "",
-    @field:NotBlank(message = "Please select a endpoint.")
-    val endpointId: String,
     @field:NotBlank(message = "Please provide a mapping.")
     val sourceToEndpointMapping: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
-    val transform: String
+    val transform: String,
+    val connectorInstanceId: UUID,
+    val connectorEndpointId: UUID,
 ) {
     companion object {
         fun from(it: RelationEntity): EditRelationForm {
@@ -23,9 +23,10 @@ data class EditRelationForm(
                 aggregatedDataProfileId = it.aggregatedDataProfile.id,
                 id = it.id,
                 sourceId = it.sourceId?.toString(),
-                endpointId = it.endpointId,
                 sourceToEndpointMapping = it.sourceToEndpointMapping,
-                transform = it.transform.expression
+                transform = it.transform.expression,
+                connectorInstanceId = it.connectorInstanceId,
+                connectorEndpointId = it.connectorEndpointId,
             )
         }
     }

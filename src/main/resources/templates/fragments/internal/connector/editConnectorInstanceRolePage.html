@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
+<div layout:fragment="view-panel-content">
+    <th:block th:fragment="edit">
+        <cds-content>
+            <cds-tile>
+                <cds-breadcrumb no-trailing-slash="">
+                    <cds-breadcrumb-item>
+                        <cds-breadcrumb-link visited="true">
+                            Home
+                        </cds-breadcrumb-link>
+                    </cds-breadcrumb-item>
+                    <cds-breadcrumb-item>
+                        <cds-breadcrumb-link
+                            href="javascript:void(0);"
+                            hx-get="/admin/connectors"
+                            hx-target="#view-panel"
+                            is-currentpage="true"
+                            hx-push-url="true">
+                            Connectors
+                        </cds-breadcrumb-link>
+                    </cds-breadcrumb-item>
+                </cds-breadcrumb>
+                <div>
+                    <h2>Create Role</h2>
+                </div>
+                <cds-stack gap="8">
+                    <form>
+                        <cds-form-group id="form-group" name="form-group" legend-text="Add Aggregated Data Profile">
+                            <cds-text-input name="role"
+                                            style="width: 50%"
+                                            label="Key"
+                                            th:value="${form.role}"
+                            >
+                            </cds-text-input>
+                            <cds-select helper-text="Optional helper text" th:value="${form.endpointId}" invalid-text="Error message" label-text="Select an option" placeholder="" size="md" warn-text="Warning message" name="endpointId">
+                                <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}" ><span th:text="${endpoint.name}"></span></cds-select-item>
+                            </cds-select>
+                        </cds-form-group>
+
+                        <cds-button
+                            kind="primary"
+                            th:hx-put="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles/${role.id}|}"
+                            hx-target="#view-panel">
+                            Save
+                        </cds-button>
+                        <cds-button
+                            kind="primary"
+                            th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}|}"
+                            hx-target="#view-panel">
+                            <div>Back</div>
+                        </cds-button>
+                    </form>
+                </cds-stack>
+
+            </cds-tile>
+        </cds-content>
+    </th:block>
+</div>
+</body>
+</html>

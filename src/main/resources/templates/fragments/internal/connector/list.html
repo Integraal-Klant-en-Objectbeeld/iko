@@ -24,6 +24,28 @@
                 <cds-table-header-title slot="title">Connectors</cds-table-header-title>
                 <cds-table-header-description slot="description">Overview of all connectors
                 </cds-table-header-description>
+                <cds-table-toolbar slot="toolbar">
+                    <cds-table-toolbar-content>
+                        <cds-button
+                            hx-get="/admin/connectors/create"
+                            hx-target="#view-panel"
+                            kind="primary">
+                            Add connector
+                            <svg
+                                focusable="false"
+                                preserveAspectRatio="xMidYMid meet"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor"
+                                aria-hidden="true"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 32 32"
+                                slot="icon">
+                                <path d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+                            </svg>
+                        </cds-button>
+                    </cds-table-toolbar-content>
+                </cds-table-toolbar>
                 <!-- Header -->
                 <cds-table-head>
                     <cds-table-header-row>
@@ -32,6 +54,9 @@
                         </cds-table-header-cell>
                         <cds-table-header-cell>
                             Description
+                        </cds-table-header-cell>
+                        <cds-table-header-cell>
+                            Reference
                         </cds-table-header-cell>
                     </cds-table-header-row>
                 </cds-table-head>
@@ -44,6 +69,7 @@
                     >
                         <cds-table-cell th:text="${connector.name}"></cds-table-cell>
                         <cds-table-cell th:text="${connector.description}"></cds-table-cell>
+                        <cds-table-cell th:text="${connector.tag}"></cds-table-cell>
                     </cds-table-row>
                 </cds-table-body>
             </cds-table>

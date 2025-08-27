@@ -1,23 +1,30 @@
 package com.ritense.iko.aggregateddataprofile
 
 import com.ritense.iko.endpoints.EndpointRepository
+import com.ritense.iko.poc.Iko
+import com.ritense.iko.poc.db.ConnectorEndpointRepository
+import com.ritense.iko.poc.db.ConnectorInstanceRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
-import java.util.UUID
 
 class AggregatedDataProfileRouteBuilder(
     private val camelContext: CamelContext,
     private val aggregatedDataProfile: AggregatedDataProfile,
-    private val endpointRepository: EndpointRepository
+    private val endpointRepository: EndpointRepository,
+    private val connectorInstanceRepository: ConnectorInstanceRepository,
+    private val connectorEndpointRepository: ConnectorEndpointRepository,
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == source.id }
-        val routeId = endpointRepository.getReferenceById(UUID.fromString(source.endpointId)).routeId // TODO FIX table col type
+
+        val connectorInstance = connectorInstanceRepository.findById(source.connectorInstanceId).orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorEndpoint = connectorEndpointRepository.findById(source.connectorEndpointId).orElseThrow { NoSuchElementException("Connector endpoint not found") }
+
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
@@ -30,7 +37,14 @@ class AggregatedDataProfileRouteBuilder(
                 y
             }
             .unmarshal().json()
-            .to("direct:${routeId}").let {
+            .setVariable("connector", constant(connectorInstance.connector.tag))
+            .setVariable("config", constant(connectorInstance.tag))
+            .setVariable("operation", constant(connectorEndpoint.operation))
+            .to(Iko.endpoint("validate"))
+            .to(Iko.iko("config"))
+            .to(Iko.transform())
+            .to(Iko.connector())
+            .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${source.id}", PairAggregator)
                 } else {
@@ -58,16 +72,19 @@ class AggregatedDataProfileRouteBuilder(
 
     override fun configure() {
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == null }
-        val endpointRoute = endpointRepository.getReferenceById(aggregatedDataProfile.primaryEndpoint)
+//        val endpointRoute = endpointRepository.getReferenceById(aggregatedDataProfile.primaryEndpoint)
 
-        if(!endpointRoute.isPrimary) {
-            logger.warn { "Skipping configure of AggregatedDataProfile ${aggregatedDataProfile.name}: The primary endpoint ${endpointRoute.name} is not primary" }
-            return
-        }
-        if(!endpointRoute.isActive) {
-            logger.warn { "Skipping configure of AggregatedDataProfile ${aggregatedDataProfile.name}: The primary endpoint ${endpointRoute.name} is not set to active" }
-            return
-        }
+        val connectorInstance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorEndpoint = connectorEndpointRepository.findById(aggregatedDataProfile.connectorEndpointId).orElseThrow { NoSuchElementException("Connector endpoint not found") }
+
+//        if(!endpointRoute.isPrimary) {
+//            logger.warn { "Skipping configure of AggregatedDataProfile ${aggregatedDataProfile.name}: The primary endpoint ${endpointRoute.name} is not primary" }
+//            return
+//        }
+//        if(!endpointRoute.isActive) {
+//            logger.warn { "Skipping configure of AggregatedDataProfile ${aggregatedDataProfile.name}: The primary endpoint ${endpointRoute.name} is not set to active" }
+//            return
+//        }
 
         val effectiveRole = aggregatedDataProfile.role?.takeIf { it.isNotBlank() } ?: run {
             val sanitizedName = aggregatedDataProfile.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
@@ -86,7 +103,13 @@ class AggregatedDataProfileRouteBuilder(
                 constant(effectiveRole)
             )
             .to("direct:auth")
-            .to("direct:${endpointRoute.routeId}")
+            .setVariable("connector", constant(connectorInstance.connector.tag))
+            .setVariable("config", constant(connectorInstance.tag))
+            .setVariable("operation", constant(connectorEndpoint.operation))
+            .to(Iko.endpoint("validate"))
+            .to(Iko.iko("config"))
+            .to(Iko.transform())
+            .to(Iko.connector())
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)

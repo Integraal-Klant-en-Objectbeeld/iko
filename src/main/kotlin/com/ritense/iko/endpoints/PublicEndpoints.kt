@@ -4,7 +4,7 @@ import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
 
-abstract class PublicEndpoints : RouteBuilder() {
+abstract class PublicEndpointss : RouteBuilder() {
 
     fun id(uri: String, to: String) {
         rest("/endpoints$uri")

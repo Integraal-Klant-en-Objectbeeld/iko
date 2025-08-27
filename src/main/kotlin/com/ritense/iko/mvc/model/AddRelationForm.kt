@@ -6,8 +6,8 @@ import java.util.UUID
 data class AddRelationForm(
     val aggregatedDataProfileId: UUID,
     val sourceId: String?,
-    @field:NotBlank(message = "Please select a endpoint.")
-    val endpointId: String,
+    val connectorInstanceId: UUID,
+    val connectorEndpointId: UUID,
     @field:NotBlank(message = "Please provide a mapping.")
     val sourceToEndpointMapping: String,
     @field:NotBlank(message = "Please define a transform expression.")

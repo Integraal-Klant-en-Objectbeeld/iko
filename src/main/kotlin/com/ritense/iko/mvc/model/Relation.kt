@@ -7,7 +7,8 @@ data class Relation(
     val aggregatedDataProfileId: UUID,
     val id: UUID,
     val sourceId: String,
-    val endpointId: String,
+    val connectorInstanceId: UUID,
+    val connectorEndpointId: UUID,
     val sourceToEndpointMapping: String,
     val transform: String
 ) {
@@ -17,9 +18,10 @@ data class Relation(
                 aggregatedDataProfileId = it.aggregatedDataProfile.id,
                 id = it.id,
                 sourceId = it.sourceId?.toString() ?: "Profile root",
-                endpointId = it.endpointId,
                 sourceToEndpointMapping = it.sourceToEndpointMapping,
-                transform = it.transform.expression
+                transform = it.transform.expression,
+                connectorInstanceId = it.connectorInstanceId,
+                connectorEndpointId = it.connectorEndpointId
             )
         }
     }
