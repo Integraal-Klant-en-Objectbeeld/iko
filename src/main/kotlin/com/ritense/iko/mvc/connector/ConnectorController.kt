@@ -1,5 +1,7 @@
 package com.ritense.iko.mvc.connector
 
+import com.ritense.iko.mvc.connector.pages.ConnectorListPage
+import com.ritense.iko.mvc.connector.pages.ConnectorPage
 import com.ritense.iko.mvc.controller.HomeController
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
 import com.ritense.iko.poc.db.Connector
@@ -10,8 +12,12 @@ import com.ritense.iko.poc.db.ConnectorEndpointRoleRepository
 import com.ritense.iko.poc.db.ConnectorInstance
 import com.ritense.iko.poc.db.ConnectorInstanceRepository
 import com.ritense.iko.poc.db.ConnectorRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
+import org.apache.camel.CamelContext
+import org.apache.camel.support.PluginHelper
+import org.apache.camel.support.ResourceHelper
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -37,7 +43,8 @@ class ConnectorController(
     val connectorRepository: ConnectorRepository,
     val connectorInstanceRepository: ConnectorInstanceRepository,
     val connectorEndpointRepository: ConnectorEndpointRepository,
-    val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository
+    val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
+    val camelContext: CamelContext,
 ) {
     /**
      * Displays an overview of all connectors.  The list is rendered in a
@@ -51,13 +58,7 @@ class ConnectorController(
     ): ModelAndView {
         val connectors = connectorRepository.findAll()
 
-        return when (isHxRequest) {
-            true -> ModelAndView("fragments/internal/connector/list")
-            false -> ModelAndView("fragments/internal/connector/listPage")
-        }.apply {
-            addObject("connectors", connectors)
-            addObject("menuItems", HomeController.Companion.menuItems)
-        }
+        return ConnectorListPage(connectors).isHxRequest(isHxRequest).build()
     }
 
     /**
@@ -76,14 +77,7 @@ class ConnectorController(
         val instances = connectorInstanceRepository.findByConnector(connector)
         val endpoints = connectorEndpointRepository.findByConnector(connector)
 
-        return hxRequest(
-            isHxRequest, "fragments/internal/connector/detailsPage", "details", mapOf(
-                "connector" to connector,
-                "instances" to instances,
-                "endpoints" to endpoints,
-                "menuItems" to HomeController.Companion.menuItems
-            )
-        )
+        return ConnectorPage(connector, instances, endpoints).isHxRequest(isHxRequest).build()
     }
 
     @GetMapping("/{id}/edit")
@@ -121,6 +115,16 @@ class ConnectorController(
             return getEditConnectorPage(id, isHxRequest)
         }
 
+        try {
+            val resource = ResourceHelper.fromBytes(
+                "${connector.tag}.yaml", form.connectorCode.toByteArray()
+            )
+            PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to log error code" }
+            return details(id, isHxRequest)
+        }
+
         connector.name = form.name
         connector.description = form.description
         connector.tag = form.reference
@@ -144,6 +148,15 @@ class ConnectorController(
             connectorCode = form.connectorCode
         )
 
+        try {
+            val resource = ResourceHelper.fromBytes(
+                "${connector.tag}.yaml", connector.connectorCode.toByteArray()
+            )
+            PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
+        } catch (e: Exception) {
+            logger.error(e) { "failed to load connector code" }
+            return details(connector.id, isHxRequest)
+        }
         connectorRepository.save(connector)
 
         return details(connector.id, isHxRequest)
@@ -465,11 +478,12 @@ class ConnectorController(
         @PathVariable roleId: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-       val connectorInstance = connectorInstanceRepository.findById(instanceId)
+        val connectorInstance = connectorInstanceRepository.findById(instanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
         val connectorEndpoints = connectorEndpointRepository.findAll()
-        val connectorEndpointRole = connectorEndpointRoleRepository.findById(roleId).orElseThrow { NoSuchElementException("Connector endpoint role not found") }
+        val connectorEndpointRole = connectorEndpointRoleRepository.findById(roleId)
+            .orElseThrow { NoSuchElementException("Connector endpoint role not found") }
 
         return hxRequest(
             isHxRequest, "fragments/internal/connector/editConnectorInstanceRolePage", "edit", mapOf(
@@ -499,7 +513,8 @@ class ConnectorController(
             .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connectorEndpoint = connectorEndpointRepository.findById(form.endpointId)
             .orElseThrow { NoSuchElementException("Connector endpoint not found") }
-        val role = connectorEndpointRoleRepository.findById(roleId).orElseThrow { NoSuchElementException("Connector endpoint role not found") }
+        val role = connectorEndpointRoleRepository.findById(roleId)
+            .orElseThrow { NoSuchElementException("Connector endpoint role not found") }
 
         role.role = form.role
         role.connectorEndpoint = connectorEndpoint
@@ -507,5 +522,9 @@ class ConnectorController(
         connectorEndpointRoleRepository.save(role)
 
         return editConnectorInstancePage(id, instanceId, isHxRequest)
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }

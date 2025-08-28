@@ -28,7 +28,7 @@ class EndpointAuth(
                 connectorEndpointRoles.map { it.role }.toList().let {
                     log.debug("Authorizing endpoint with authority: {}", it)
                     if (it.isEmpty()) {
-                        return@process
+                        throw AccessDeniedException("No roles defined for this endpoint.")
                     }
 
                     if (SecurityContextHolder.getContext().authentication != null && SecurityContextHolder.getContext().authentication.authorities.any { x ->

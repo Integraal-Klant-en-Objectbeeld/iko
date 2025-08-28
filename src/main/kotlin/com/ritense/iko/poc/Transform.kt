@@ -6,6 +6,7 @@ import org.apache.camel.builder.RouteBuilder
 class Transform : RouteBuilder() {
     override fun configure() {
         from(transform())
+            .errorHandler(noErrorHandler())
             .choice()
             .`when` { ex -> ex.context.hasEndpoint(transform("${ex.getVariable("connector")}")) != null }
             .toD(transform("\${variable.connector}"))

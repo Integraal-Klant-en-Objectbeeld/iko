@@ -1,9 +1,16 @@
 package com.ritense.iko.poc
 
+import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
+import org.springframework.http.HttpStatus
+import org.springframework.security.access.AccessDeniedException
 
 class Endpoint() : RouteBuilder() {
     override fun configure() {
+        onException(AccessDeniedException::class.java)
+            .handled(true)
+            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
+
         rest("/endpoints")
             .get("/{iko_connector}/{iko_config}/{iko_operation}")
             .to(Iko.iko("rest:endpoint"))

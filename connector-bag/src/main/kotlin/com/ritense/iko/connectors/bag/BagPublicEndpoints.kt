@@ -11,11 +11,11 @@ import com.ritense.iko.connectors.bag.endpoints.BagEndpointStandplaatsen
 import com.ritense.iko.connectors.bag.endpoints.BagEndpointVerblijfsobjecten
 import com.ritense.iko.connectors.bag.endpoints.BagEndpointWoonplaatsen
 import com.ritense.iko.endpoints.PublicEndpoints
+import org.apache.camel.Exchange
+import org.springframework.http.HttpStatus
 
 class BagPublicEndpoints : PublicEndpoints() {
     override fun configure() {
-
-        handleAccessDeniedException()
 
         id("/bag/adresseerbareObjecten", BagEndpointAdresseerbareObjecten.URI)
         endpoint("/bag/adresseerbareObjecten", BagEndpointAdresseerbareObjecten.URI)

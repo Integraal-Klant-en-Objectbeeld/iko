@@ -7,6 +7,7 @@ import com.ritense.iko.poc.db.ConnectorEndpointRepository
 import com.ritense.iko.poc.db.ConnectorEndpointRoleRepository
 import com.ritense.iko.poc.db.ConnectorInstanceRepository
 import com.ritense.iko.poc.db.ConnectorRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.apache.camel.component.rest.openapi.RestOpenApiComponent
 import org.apache.camel.support.PluginHelper
@@ -61,10 +62,18 @@ class Config(val connectorRepository: ConnectorRepository) {
 
         connectorRepository.findAll()
             .forEach {
-                val resource = ResourceHelper.fromBytes(
-                    "${it.tag}.yaml", it.connectorCode.toByteArray()
-                )
-                PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
+                try {
+                    val resource = ResourceHelper.fromBytes(
+                        "${it.tag}.yaml", it.connectorCode.toByteArray()
+                    )
+                    PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
+                } catch (e: Exception) {
+                    logger.error(e) { "Failed to load connector ${it.tag}" }
+                }
             }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }

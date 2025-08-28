@@ -32,4 +32,4 @@ For a full tutorial how to create Aggregated Data Profile go to https://docs.int
 
 ## More documentation
 
-You can find more documentation [here](./doc/index.md)
+You can find more documentation [here](./doc/README.md)
