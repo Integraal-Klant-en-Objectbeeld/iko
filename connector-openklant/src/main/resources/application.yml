@@ -1,7 +1,0 @@
-iko:
-  connectors:
-    openklant:
-      enabled: false
-      host: # ENV
-      specificationUri: "https://raw.githubusercontent.com/maykinmedia/open-klant/2.10.0/src/openklant/components/klantinteracties/openapi.yaml"
-      token: # ENV

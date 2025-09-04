@@ -16,6 +16,8 @@ spring:
         time-zone: UTC
     transaction:
         default-timeout: 600 #seconds = 10min
+    flyway:
+        ignore-migration-patterns: versioned:missing
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         #driver-class-name: com.mysql.cj.jdbc.Driver

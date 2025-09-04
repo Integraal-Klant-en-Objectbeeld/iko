@@ -23,13 +23,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":connector-openklant"))
-    implementation(project(":connector-bag"))
-    implementation(project(":connector-brp"))
-    implementation(project(":connector-openzaak"))
-    implementation(project(":connector-objectenapi"))
-    implementation(project(":iko-common"))
-
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
     implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.13.0")) // BOM
 
