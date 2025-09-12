@@ -41,9 +41,11 @@ jobs:
                 with:
                     name: iko-image-artifact
                     path: .
+            -   name: 'Prepare repository name in lowercase'
+                run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
             -   run: |
                     docker load -i iko-image.tar
-                    docker tag iko:$IMAGE_TAG ghcr.io/${{ github.repository }}/iko:$IMAGE_TAG
-                    docker push ghcr.io/${{ github.repository }}/iko:$IMAGE_TAG
-                    docker tag iko:$IMAGE_TAG ghcr.io/${{ github.repository }}/iko:latest
-                    docker push ghcr.io/${{ github.repository }}/iko:latest
+                    docker tag iko:$IMAGE_TAG ghcr.io/${REPO_RC}/iko:$IMAGE_TAG
+                    docker push ghcr.io/${REPO_RC}/iko:$IMAGE_TAG
+                    docker tag iko:$IMAGE_TAG ghcr.io/${REPO_RC}/iko:latest
+                    docker push ghcr.io/${REPO_RC}/iko:latest
