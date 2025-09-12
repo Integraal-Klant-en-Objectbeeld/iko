@@ -17,7 +17,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 @Service
 class AesGcmEncryptionService(
-    private val aesGcmSecretKeySpec: SecretKeySpec
+    private val aesSecretKeySpec: SecretKeySpec
 ) {
 
     fun encrypt(plainText: String): String {
@@ -28,7 +28,7 @@ class AesGcmEncryptionService(
         // Initialize cipher in AES-GCM mode
         val cipher = CIPHER_THREAD_LOCAL.get()
         val gcmSpec = GCMParameterSpec(TAG_LENGTH_ENCRYPT * 8, iv)
-        cipher.init(Cipher.ENCRYPT_MODE, aesGcmSecretKeySpec, gcmSpec)
+        cipher.init(Cipher.ENCRYPT_MODE, aesSecretKeySpec, gcmSpec)
 
         // Encrypt the plaintext
         val encryptedBytes = cipher.doFinal(plainText.toByteArray(StandardCharsets.UTF_8))
@@ -57,7 +57,7 @@ class AesGcmEncryptionService(
         // Init cipher for decrypt
         val cipher = CIPHER_THREAD_LOCAL.get()
         val gcmSpec = GCMParameterSpec(TAG_LENGTH_ENCRYPT * 8, iv)
-        cipher.init(Cipher.DECRYPT_MODE, aesGcmSecretKeySpec, gcmSpec)
+        cipher.init(Cipher.DECRYPT_MODE, aesSecretKeySpec, gcmSpec)
 
         val plainBytes = cipher.doFinal(encrypted)
         return String(plainBytes, StandardCharsets.UTF_8)
