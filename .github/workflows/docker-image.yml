@@ -45,7 +45,7 @@ jobs:
                 run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
             -   run: |
                     docker load -i iko-image.tar
-                    docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}/iko:$IMAGE_TAG
-                    docker push ghcr.io/${REPO_LC}/iko:$IMAGE_TAG
-                    docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}/iko:latest
-                    docker push ghcr.io/${REPO_LC}/iko:latest
+                    docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:$IMAGE_TAG
+                    docker push ghcr.io/${REPO_LC}:$IMAGE_TAG
+                    docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:latest
+                    docker push ghcr.io/${REPO_LC}:latest
