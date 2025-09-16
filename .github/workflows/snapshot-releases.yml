@@ -56,19 +56,24 @@ jobs:
             type=ref,event=branch,prefix=branch-
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.created={{date 'RFC3339'}}
+          annotations: |
+            org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
 
       - name: Build (and push on main)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          # For multi-arch snapshots, uncomment next line:
-          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # Disable provenance attestation to prevent GHCR showing an extra Unknown/Unknown platform
+          provenance: false
