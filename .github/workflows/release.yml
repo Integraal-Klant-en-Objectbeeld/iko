@@ -1,4 +1,4 @@
-name: Build and Push Iko Docker image
+name: Start release
 
 on:
     workflow_dispatch:
