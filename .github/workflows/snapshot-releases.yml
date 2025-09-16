@@ -51,14 +51,14 @@ jobs:
             # Short SHA tag, e.g. sha-1a2b3c4
             type=sha,format=short,prefix=sha-
             # Snapshot date tag, e.g. snapshot-20250916
-            type=raw,value=snapshot-{{date "YYYYMMDD"}}
+            type=raw,value=snapshot-{{date 'YYYYMMDD'}}
             # Branch tag for non-main branches (PR builds won’t push)
             type=ref,event=branch,prefix=branch-
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.created={{date "RFC3339"}}
+            org.opencontainers.image.created={{date 'RFC3339'}}
 
       - name: Build (and push on main)
         uses: docker/build-push-action@v6
