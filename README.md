@@ -11,12 +11,6 @@ To be able to login with Keycloak into the admin panel you will have to add the 
 127.0.0.1 keycloak
 ```
 
-### Publishing
-Choos the platform to use in the build --platform=linux/amd64|linux/arm64
-```text
-docker build --platform=linux/amd64 .
-```
-
 ## Development info 
 
 Rename the .env.template to .env
