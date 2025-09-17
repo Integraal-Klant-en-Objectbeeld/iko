@@ -5,6 +5,7 @@ on:
         inputs:
             version:
                 description: 'Semver for the image (e.g., 1.2.3 or 1.2.3-beta.1)'
+                default: 0.0.1-SNAPSHOT
                 required: true
                 type: string
 
@@ -18,14 +19,50 @@ jobs:
         outputs:
             image-tag: ${{ steps.build-image.outputs.IMAGE_TAG }}
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up QEMU (for optional multi-arch)
+              uses: docker/setup-qemu-action@v3
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Extract Docker metadata (labels)
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ghcr.io/${{ github.repository }}
+                  labels: |
+                      org.opencontainers.image.title=${{ github.event.repository.name }}
+                      org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
+                      org.opencontainers.image.revision=${{ github.sha }}
+                      org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+                      org.opencontainers.image.created={{date 'RFC3339'}}
+                  annotations: |
+                      org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
+
             - id: build-image
-              name: Build the Docker image
+              name: Prepare image tag
               run: |
                   TAG=iko-$(date +%s)
-                  docker build . --file Dockerfile --tag iko:$TAG
-                  docker save iko:$TAG -o iko-image.tar
                   echo "IMAGE_TAG=$TAG" >> "$GITHUB_OUTPUT"
+
+            - name: Build Docker image (Buildx) and export as TAR
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: ./Dockerfile
+                  platforms: linux/amd64
+                  push: false
+                  tags: iko:${{ steps.build-image.outputs.IMAGE_TAG }}
+                  labels: ${{ steps.meta.outputs.labels }}
+                  annotations: ${{ steps.meta.outputs.annotations }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+                  outputs: type=docker,dest=iko-image.tar
+                  provenance: false
+
             - name: Upload image artifact
               uses: actions/upload-artifact@v4
               with:
@@ -46,6 +83,25 @@ jobs:
                     echo "Provided version '$VERSION' is not valid semver" >&2
                     exit 1
                   fi
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Update Gradle project version
+              run: |
+                  # Update Gradle version
+                  sed -i 's/^version = ".*"/version = "'"$VERSION"'"/' build.gradle.kts
+
+                  # Keep the workflow input default in sync so the dispatch form is prefilled next time
+                  sed -i 's/^\(\s*default:\s*\).*/\1'"$VERSION"'/' .github/workflows/start-manual-release.yml
+
+                  if git diff --quiet; then
+                    echo "No version or workflow default change detected"
+                  else
+                    git config user.name "github-actions[bot]"
+                    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                    git add build.gradle.kts .github/workflows/start-manual-release.yml
+                    git commit -m "chore(release): set version $VERSION and update workflow default"
+                    git push
+                  fi
             - name: Login to GitHub Container Registry
               uses: docker/login-action@v3
               with:
@@ -60,11 +116,12 @@ jobs:
               run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
             - name: Load, tag and push images
               run: |
-                  docker load -i iko-image.tar
-                  docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:$VERSION
-                  docker push ghcr.io/${REPO_LC}:$VERSION
-                  docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:latest
-                  docker push ghcr.io/${REPO_LC}:latest
+                docker load -i iko-image.tar
+                # Tag the image for both versioned and latest tags
+                docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:$VERSION
+                docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:latest
+                # Push all tags for this repository in a single call to reduce overhead
+                docker push --all-tags ghcr.io/${REPO_LC}
             - name: Create GitHub Release (auto notes)
               uses: softprops/action-gh-release@v2
               with:
