@@ -116,11 +116,12 @@ jobs:
               run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
             - name: Load, tag and push images
               run: |
-                  docker load -i iko-image.tar
-                  docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:$VERSION
-                  docker push ghcr.io/${REPO_LC}:$VERSION
-                  docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:latest
-                  docker push ghcr.io/${REPO_LC}:latest
+                docker load -i iko-image.tar
+                # Tag the image for both versioned and latest tags
+                docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:$VERSION
+                docker tag iko:$IMAGE_TAG ghcr.io/${REPO_LC}:latest
+                # Push all tags for this repository in a single call to reduce overhead
+                docker push --all-tags ghcr.io/${REPO_LC}
             - name: Create GitHub Release (auto notes)
               uses: softprops/action-gh-release@v2
               with:
