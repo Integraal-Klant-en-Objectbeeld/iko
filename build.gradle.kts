@@ -34,8 +34,8 @@ dependencies {
     implementation(project(":connector-objectenapi"))
     implementation(project(":iko-common"))
 
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
-    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.13.0")) // BOM
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
+    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.14.0")) // BOM
 
     implementation("org.apache.camel.springboot:camel-spring-boot")
     implementation("org.apache.camel.springboot:camel-direct-starter")
