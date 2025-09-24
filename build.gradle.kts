@@ -14,6 +14,10 @@ plugins {
 group = "com.ritense"
 version = "0.0.1-SNAPSHOT"
 
+springBoot {
+    buildInfo()
+}
+
 kotlin {
     jvmToolchain(21)
 }
@@ -68,6 +72,10 @@ dependencies {
     // Security
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
+    // Actuator & Metrics
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     // Logging
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
