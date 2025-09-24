@@ -19,6 +19,32 @@ import org.springframework.security.web.SecurityFilterChain
 @Configuration
 class SecurityConfig {
 
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Bean
+    fun actuatorSecurityFilterChain(
+        http: HttpSecurity,
+        jwtAuthenticationConverter: JwtAuthenticationConverter
+    ): SecurityFilterChain {
+        http
+            .securityMatcher("/actuator/**")
+            .oauth2Login { oauth2 -> oauth2.disable() }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
+                }
+            }
+            .sessionManagement { session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            }
+            .authorizeHttpRequests { authorize ->
+                authorize
+                    .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                    .anyRequest().hasAnyAuthority("ROLE_ADMIN")
+            }
+
+        return http.build()
+    }
+
     @Order(Ordered.LOWEST_PRECEDENCE - 1000)
     @Bean
     fun apiSecurityFilterChain(

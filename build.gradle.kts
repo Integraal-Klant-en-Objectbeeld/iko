@@ -14,6 +14,10 @@ plugins {
 group = "com.ritense"
 version = "0.0.1-SNAPSHOT"
 
+springBoot {
+    buildInfo()
+}
+
 kotlin {
     jvmToolchain(21)
 }
@@ -30,8 +34,8 @@ dependencies {
     implementation(project(":connector-objectenapi"))
     implementation(project(":iko-common"))
 
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
-    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.13.0")) // BOM
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
+    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.14.0")) // BOM
 
     implementation("org.apache.camel.springboot:camel-spring-boot")
     implementation("org.apache.camel.springboot:camel-direct-starter")
@@ -68,6 +72,10 @@ dependencies {
     // Security
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
+    // Actuator & Metrics
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     // Logging
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
