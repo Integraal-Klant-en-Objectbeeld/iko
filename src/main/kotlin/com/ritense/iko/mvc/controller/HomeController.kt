@@ -1,8 +1,10 @@
 package com.ritense.iko.mvc.controller
 
+import com.ritense.iko.mvc.connector.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.model.MenuItem
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 
@@ -16,11 +18,10 @@ import org.springframework.web.servlet.ModelAndView
 class HomeController {
 
     @GetMapping
-    fun home(): ModelAndView {
-        val home = ModelAndView("layout-internal").apply {
-            addObject("menuItems", menuItems)
-        }
-        return home
+    fun home(
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
+    ): ModelAndView {
+        return hxRequest(isHxRequest, "layout-v2", "details", mapOf())
     }
 
     companion object {

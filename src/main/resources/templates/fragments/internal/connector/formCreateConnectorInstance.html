@@ -1,0 +1,68 @@
+<cds-modal prevent-close-on-click-outside="true" size="md" open="true">
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-label>Add new connector instance</cds-modal-label>
+        <cds-modal-heading>Connector Instance</cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <cds-stack gap="8">
+            <th:block th:fragment="form">
+                <cds-form-group id="form-group" name="form-group">
+                    <cds-text-input name="name"
+                                    th:value="${instance?.name}"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage}
+                                    "
+                                    style="width: 50%"
+                                    required=""
+                                    label="Name"
+                                    invalid-text="Please enter a valid name"
+                    >
+                    </cds-text-input>
+
+                    <cds-text-input name="description"
+                                    th:value="${instance?.description}"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('description') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('description')?.defaultMessage}
+                                    "
+                                    style="width: 50%"
+                                    required=""
+                                    label="Description"
+                                    invalid-text="Please enter a valid description"
+                    >
+                    </cds-text-input>
+
+                    <cds-text-input name="reference"
+                                    th:value="${instance?.reference}"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('reference')?.defaultMessage}
+                                    "
+                                    style="width: 50%"
+                                    required=""
+                                    label="Reference"
+                                    invalid-text="Please enter a valid reference"
+                    >
+                    </cds-text-input>
+                </cds-form-group>
+            </th:block>
+        </cds-stack>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button
+            data-modal-close=""
+            type="button"
+            kind="secondary">
+            Cancel
+        </cds-modal-footer-button>
+        <cds-modal-footer-button
+            type="submit"
+            th:hx-post="@{|/admin/connectors/${connectorId}/instances|}" hx-target="#form-group"
+            hx-include="#form-group *"
+        >
+            Save
+        </cds-modal-footer-button>
+    </cds-modal-footer>
+</cds-modal>

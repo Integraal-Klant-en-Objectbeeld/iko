@@ -1,0 +1,72 @@
+<cds-modal prevent-close-on-click-outside="true" size="md" open="true">
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-label>Add new connector</cds-modal-label>
+        <cds-modal-heading>Connector</cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <cds-stack gap="8">
+            <th:block th:fragment="form">
+                <cds-form-group id="form-group" hx-swap-oob="true" name="form-group"
+                                legend-text="Add Aggregated Data Profile">
+                    <cds-text-input name="name"
+                                    th:value="${connector?.name}"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage}
+                                    "
+                                    style="width: 50%"
+                                    required=""
+                                    label="Name"
+                                    invalid-text="Please enter a valid name"
+                    >
+                    </cds-text-input>
+                    <input type="hidden" name="description" value="n/a"/>
+
+                    <cds-text-input name="reference"
+                                    th:value="${connector?.reference}"
+                                    th:attr="
+                                    invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
+                                    invalid-text=${errors?.getFieldError('reference')?.defaultMessage}
+                                    "
+                                    style="width: 50%"
+                                    required=""
+                                    label="Reference"
+                                    invalid-text="Please enter a valid reference"
+                    >
+                    </cds-text-input>
+                    <cds-form-item>
+                        <cds-textarea enable-counter="" counter-mode=""
+                                      th:value="${connector?.connectorCode}"
+                                      th:attr="
+                                        invalid=${errors?.getFieldError('connectorCode') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('connectorCode')?.defaultMessage}
+                                      "
+                                      label="Code"
+                                      placeholder="" rows="16" cols="0"
+                                      name="connectorCode"
+                                      invalid-text="Please enter a valid connector code"
+
+                        >
+                        </cds-textarea>
+                    </cds-form-item>
+                </cds-form-group>
+            </th:block>
+        </cds-stack>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button
+            data-modal-close=""
+            type="button"
+            kind="secondary">
+            Cancel
+        </cds-modal-footer-button>
+        <cds-modal-footer-button
+            type="submit"
+            hx-post="/admin/connectors" hx-target="#form-group"
+            hx-include="#form-group *"
+        >
+            Save
+        </cds-modal-footer-button>
+    </cds-modal-footer>
+</cds-modal>

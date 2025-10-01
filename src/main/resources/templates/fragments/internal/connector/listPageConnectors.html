@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout-v2.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
+<div layout:fragment="view-panel-content">
+    <th:block th:fragment="connector-list">
+        <div th:replace="~{layout-v2 :: breadcrumb (${ {{'Connectors', '/admin/connectors'}} })}"></div>
+        <div th:replace="~{layout-v2 :: page-header (title='Connectors')}"></div>
+        <!-- Data table -->
+        <cds-table id="profile-table">
+            <cds-table-header-title slot="title">Connectors</cds-table-header-title>
+            <cds-table-header-description slot="description">Overview of all connectors
+            </cds-table-header-description>
+            <cds-table-toolbar slot="toolbar">
+                <cds-table-toolbar-content>
+                    <cds-button
+                        hx-get="/admin/connectors/create"
+                        hx-target="#modal-container"
+                        kind="primary">
+                        Add connector
+                        <svg
+                            focusable="false"
+                            preserveAspectRatio="xMidYMid meet"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            aria-hidden="true"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 32 32"
+                            slot="icon">
+                            <path
+                                d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
+                        </svg>
+                    </cds-button>
+                </cds-table-toolbar-content>
+            </cds-table-toolbar>
+            <!-- Header -->
+            <cds-table-head>
+                <cds-table-header-row>
+                    <cds-table-header-cell>
+                        Name
+                    </cds-table-header-cell>
+                    <cds-table-header-cell>
+                        Description
+                    </cds-table-header-cell>
+                    <cds-table-header-cell>
+                        Reference
+                    </cds-table-header-cell>
+                    <cds-table-header-cell>
+
+                    </cds-table-header-cell>
+                </cds-table-header-row>
+            </cds-table-head>
+            <cds-table-body id="search-results">
+                <cds-table-row th:each="connector : ${connectors}">
+                    <cds-table-cell th:text="${connector.name}"></cds-table-cell>
+                    <cds-table-cell th:text="${connector.description}"></cds-table-cell>
+                    <cds-table-cell th:text="${connector.tag}"></cds-table-cell>
+                    <cds-table-cell class="app--table-cell-actions">
+                        <cds-button kind="ghost"
+                                    th:hx-get="@{|/admin/connectors/${connector.id}|}"
+                                    hx-push-url="true"
+                                    hx-target="#view-panel">
+                            View
+                            <svg focusable="false" preserveAspectRatio="xMidYMid meet"
+                                 xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"
+                                 width="16" height="16" viewBox="0 0 32 32" slot="icon"
+                                 class="cds--btn__icon">
+                                <defs>
+                                    <style>.cls-1 {
+                                        fill: none;
+                                    }</style>
+                                </defs>
+                                <title>view</title>
+                                <path
+                                    d="M30.94,15.66A16.69,16.69,0,0,0,16,5,16.69,16.69,0,0,0,1.06,15.66a1,1,0,0,0,0,.68A16.69,16.69,0,0,0,16,27,16.69,16.69,0,0,0,30.94,16.34,1,1,0,0,0,30.94,15.66ZM16,25c-5.3,0-10.9-3.93-12.93-9C5.1,10.93,10.7,7,16,7s10.9,3.93,12.93,9C26.9,21.07,21.3,25,16,25Z"
+                                    transform="translate(0 0)"/>
+                                <path d="M16,10a6,6,0,1,0,6,6A6,6,0,0,0,16,10Zm0,10a4,4,0,1,1,4-4A4,4,0,0,1,16,20Z"
+                                      transform="translate(0 0)"/>
+                                <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;"
+                                      class="cls-1" width="32" height="32"/>
+                            </svg>
+                        </cds-button>
+                    </cds-table-cell>
+                </cds-table-row>
+            </cds-table-body>
+        </cds-table>
+    </th:block>
+</div>
+</body>
+</html>
