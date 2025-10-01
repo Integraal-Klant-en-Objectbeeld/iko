@@ -1,37 +1,141 @@
-# Integraal Klant & Objectbeeld (IKO)
+### Integraal Klant & Objectbeeld (IKO)
 
-## Docker
+IKO is a Kotlin/Spring Boot application that uses Apache Camel to integrate with external systems via connectors. It ships with an admin UI and a Docker-based local environment.
 
-The shipped Dockerfile, builds and creates an image that can be used to run IKO. The docker compose file contains some
-services that IKO can connect to and setups a Keycloak authentication. Simply run `docker compose up -d` to run it.
+---
 
-To be able to login with Keycloak into the admin panel you will have to add the following to your respective host file.
+### Features
+- Spring Boot 3.5.x, Kotlin 2.2, JDK 21
+- Apache Camel routes (YAML DSL) auto-discovered from `classpath:camel/*.yaml`
+- OAuth2 (Keycloak) for admin login and JWT resource server
+- Connectors for BRP, OpenZaak, BAG, Objecten API, OpenKlant (configurable via environment)
+- Dockerfile for containerized runs and GitHub Actions CI/CD
 
-```text
-127.0.0.1 keycloak
-```
+---
 
-### Publishing
-Choos the platform to use in the build --platform=linux/amd64|linux/arm64
-```text
-docker build --platform=linux/amd64 .
-```
+### Prerequisites
+- Docker and Docker Compose
+- GitHub account (to use CI/CD workflows)
+- For local development: JDK 21 and Gradle wrapper
 
-## Development info 
+---
 
-Rename the .env.template to .env
-The env.template file contains a SPRING_THYMELEAF_PREFIX=file:src/main/resources/templates/
-This is to allow local dev to have no caching when working on HTML. Remove it when running the docker container.
+### Quick start with Docker
+1. Start the local stack:
+   ```bash
+   docker compose up -d
+   ```
+2. Add a hosts entry so Keycloak tokens use the hostname expected by configuration:
+   ```text
+   127.0.0.1 keycloak
+   ```
+3. Open the admin UI: `http://localhost:8080/admin`
 
-### Admin  
+Notes:
+- The shipped `Dockerfile` (repo root) builds a runnable IKO container.
+- The compose file provides dependent services and sets up Keycloak for local login.
 
-Go to http://localhost:0808/admin to access the admin.
-For a full tutorial how to create Aggregated Data Profile go to https://docs.integraal-klant-objectbeeld.nl/admin-configuratie/samengesteld-gegevensprofiel-aanmaken
+---
 
-### Source routes
+### Local development
+- Copy `.env.template` to `.env` and adjust values to your local setup.
+- For HTML live-refresh during local dev only, `.env.template` includes:
+  ```
+  SPRING_THYMELEAF_PREFIX=file:src/main/resources/templates/
+  # SPRING_WEB_RESOURCES_STATIC-LOCATIONS=file:src/main/resources/static/
+  ```
+  Remove or comment these when running inside Docker (the application defaults to classpath locations in `application.yml`).
+- Run the app via Gradle (env injected by the Dotenv Gradle plugin):
+  ```bash
+  ./gradlew bootRun
+  ```
 
-## More documentation
+---
 
+### Configuration overview
+- Main config: `src/main/resources/application.yml`
+    - Disables OSIV (`spring.jpa.open-in-view=false`)
+    - Camel YAML routes path: `classpath:camel/*.yaml`
+    - Security: OAuth2 client for admin and JWT resource server; authorities from claim `resource_access.iko.roles`
+- Connector properties are under `iko.connectors.*` and can be provided via environment variables. See `.env.template` for examples.
+
+---
+
+### Build and test
+- Run tests:
+  ```bash
+  ./gradlew test
+  ```
+- Build the application JAR:
+  ```bash
+  ./gradlew build
+  ```
+- Build a local Docker image:
+  ```bash
+  docker build -t iko:local .
+  ```
+
+---
+
+### Admin UI
+- URL: `http://localhost:8080/admin`
+- Tutorial (Aggregated Data Profile):
+  https://docs.integraal-klant-objectbeeld.nl/admin-configuratie/samengesteld-gegevensprofiel-aanmaken
+
+---
+
+### CI/CD
+
+#### Snapshot workflow (`.github/workflows/snapshot-releases.yml`)
+- Triggered on `push` and `pull_request` to `main`.
+- Builds the Docker image with Buildx (single-arch `linux/amd64`).
+- On `push` to `main`, pushes to GHCR (`ghcr.io/<owner>/<repo>`) with tags such as:
+    - `main` (default branch)
+    - `sha-<short>`
+    - `snapshot-YYYYMMDD`
+    - `branch-<name>` for non-main branches (not pushed for PRs)
+- Adds OCI labels/annotations (title, description, revision, source, created).
+
+#### Manual release workflow (`.github/workflows/start-manual-release.yml`)
+This workflow is used to cut a formal release that publishes a versioned container image and a GitHub Release.
+
+- Trigger: manually via the Actions tab (`workflow_dispatch`).
+- Input: `version` — a semantic version like `1.2.3` or `1.2.3-beta.1` (no leading `v`). The workflow validates this with a semver regex.
+- Permissions: `contents: write` (create GitHub Release) and `packages: write` (push to GHCR).
+
+How it works (two-job pipeline):
+1. `build` job
+    - Checks out code, sets up QEMU and Buildx.
+    - Extracts Docker metadata for consistent OCI labels.
+    - Builds the Docker image once and exports it as a `docker`-format TAR (`iko-image.tar`) tagged locally as `iko:iko-<epoch_seconds>`.
+    - Uploads the TAR as a short-lived artifact.
+2. `push` job
+    - Downloads the image artifact and logs into GHCR with `GITHUB_TOKEN`.
+    - Loads the image from the TAR and retags it as:
+        - `ghcr.io/<owner>/<repo>:<version>`
+        - `ghcr.io/<owner>/<repo>:latest`
+    - Pushes both tags.
+    - Creates a GitHub Release with tag `v<version>` and autogenerated release notes. If the version contains a `-` (e.g., `-rc.1`), the release is marked as a prerelease.
+
+When to use it:
+- Use `start-manual-release.yml` when you are ready to publish a stable or pre-release version to consumers.
+- Use `snapshot-releases.yml` for continuous builds on `main` or for verifying PRs.
+
+How to run a manual release:
+1. Go to GitHub → Actions → `Start release`.
+2. Click `Run workflow` and enter a semver (e.g., `1.3.0` or `1.3.0-rc.1`).
+3. Confirm to start. After completion you will have:
+    - GHCR images: `ghcr.io/<owner>/<repo>:<version>` and `:latest`.
+    - GitHub Release: tag `v<version>` with autogenerated notes.
+
+Notes and gotchas:
+- Architecture: currently builds for `linux/amd64` only. Adjust `platforms` if you need multi-arch.
+- Input version must be plain semver (e.g., `1.2.3`), not `v1.2.3`.
+- The artifact retention is short (1 day) to avoid stale reuse; the image is built once and then retagged/pushed in the separate job.
+
+---
+
+### More documentation
 You can find more documentation [here](./doc/README.md)
 
 ### Crypto
