@@ -15,9 +15,6 @@ class Connector(
     @Column(name = "name")
     var name: String,
 
-    @Column(name = "description")
-    var description: String,
-
     @Column(name = "tag")
     var tag: String,
 

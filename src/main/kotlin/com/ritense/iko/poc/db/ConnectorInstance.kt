@@ -22,9 +22,6 @@ class ConnectorInstance(
     @Column(name = "name")
     var name: String,
 
-    @Column(name = "description")
-    var description: String,
-
     @ManyToOne
     @JoinColumn(name = "connector_id")
     var connector: Connector,

@@ -1,8 +1,8 @@
 package com.ritense.iko.mvc.connector
 
+import jakarta.validation.constraints.NotBlank
+
 data class ConnectorEditForm(
-    val name: String,
-    val description: String,
-    val reference: String,
+    @field:NotBlank(message = "Please provide a connector code.")
     val connectorCode: String,
 )
