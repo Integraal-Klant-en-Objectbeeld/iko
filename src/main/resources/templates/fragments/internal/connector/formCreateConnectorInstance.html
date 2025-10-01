@@ -21,19 +21,6 @@
                     >
                     </cds-text-input>
 
-                    <cds-text-input name="description"
-                                    th:value="${instance?.description}"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('description') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('description')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    required=""
-                                    label="Description"
-                                    invalid-text="Please enter a valid description"
-                    >
-                    </cds-text-input>
-
                     <cds-text-input name="reference"
                                     th:value="${instance?.reference}"
                                     th:attr="

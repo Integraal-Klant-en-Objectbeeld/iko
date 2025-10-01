@@ -178,7 +178,6 @@ class ConnectorController(
         val connector = Connector(
             id = UUID.randomUUID(),
             name = form.name,
-            description = form.description,
             tag = form.reference,
             connectorCode = form.connectorCode
         )
@@ -409,7 +408,6 @@ class ConnectorController(
         val connectorInstance = ConnectorInstance(
             id = UUID.randomUUID(),
             name = form.name,
-            description = form.description,
             tag = form.reference,
             connector = connectorRepository.findById(id).orElseThrow(),
             config = mapOf()
@@ -454,7 +452,6 @@ class ConnectorController(
                 "endpoint" to endpoint,
                 "form" to ConnectorEndpointConfigForm(
                     name = endpoint.name,
-                    description = endpoint.description,
                     operation = endpoint.operation,
                 ),
                 "menuItems" to HomeController.Companion.menuItems,
@@ -486,7 +483,6 @@ class ConnectorController(
         var connectorEndpoint = ConnectorEndpoint(
             id = UUID.randomUUID(),
             name = form.name,
-            description = form.description,
             connector = connector,
             operation = form.operation,
         )

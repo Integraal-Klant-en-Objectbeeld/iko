@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotBlank
 class ConnectorInstanceEditForm(
     @field:NotBlank(message = "Please provide a name.")
     val name: String,
-    @field:NotBlank(message = "Please provide a description.")
-    val description: String,
     @field:NotBlank(message = "Please provide a reference.")
     val reference: String,
 )

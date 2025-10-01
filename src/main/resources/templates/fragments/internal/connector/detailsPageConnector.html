@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html layout:decorate="~{layout-v2.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <body>
 <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
 <div layout:fragment="view-panel-content">
     <th:block th:fragment="details">
         <div
-            th:replace="~{layout-v2 :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"></div>
+            th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"></div>
         <div
-            th:replace="~{layout-v2 :: page-header (pageName='Connector', title=${connector.name}, subtext=${connector.tag})}"></div>
+            th:replace="~{layout-internal :: page-header (pageName='Connector', title=${connector.name}, subtext=${connector.tag})}"></div>
 
         <cds-layout>
             <cds-tabs value="instances" type="contained" class="cds--tabs cds--tabs--contained">
@@ -76,9 +76,6 @@
                                 Name
                             </cds-table-header-cell>
                             <cds-table-header-cell>
-                                Description
-                            </cds-table-header-cell>
-                            <cds-table-header-cell>
                                 Reference
                             </cds-table-header-cell>
                             <cds-table-header-cell>
@@ -89,7 +86,6 @@
                     <cds-table-body id="endpoints">
                         <cds-table-row th:each="endpoint: ${endpoints}">
                             <cds-table-cell th:text="${endpoint.name}"></cds-table-cell>
-                            <cds-table-cell th:text="${endpoint.description}"></cds-table-cell>
                             <cds-table-cell th:text="${endpoint.operation}"></cds-table-cell>
                             <cds-table-cell class="app--table-cell-actions">
                                 <cds-button kind="ghost"

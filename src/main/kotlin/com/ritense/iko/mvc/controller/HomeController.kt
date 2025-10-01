@@ -21,7 +21,7 @@ class HomeController {
     fun home(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
-        return hxRequest(isHxRequest, "layout-v2", "details", mapOf())
+        return hxRequest(isHxRequest, "layout-internal", "details", mapOf())
     }
 
     companion object {
