@@ -13,15 +13,14 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
 
-
 @Configuration
 class Config(val connectorRepository: ConnectorRepository) {
 
     @Bean
-    fun pocEndpoint() = Endpoint()
+    fun endpoint() = Endpoint()
 
     @Bean
-    fun pocEndpointAuth(
+    fun endpointAuth(
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
         connectorEndpointRoleRepository: ConnectorEndpointRoleRepository
@@ -32,7 +31,7 @@ class Config(val connectorRepository: ConnectorRepository) {
     )
 
     @Bean
-    fun pocEndpointValidation(
+    fun endpointValidation(
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository
     ) = EndpointValidation(connectorEndpointRepository, connectorInstanceRepository)
@@ -50,7 +49,7 @@ class Config(val connectorRepository: ConnectorRepository) {
     @EventListener(
         ApplicationReadyEvent::class
     )
-    fun openklant(event: ApplicationReadyEvent) {
+    fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
         val camelContext = event.applicationContext.getBean("camelContext") as CamelContext
 
         connectorRepository.findAll()

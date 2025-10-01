@@ -72,19 +72,9 @@ class AggregatedDataProfileRouteBuilder(
 
     override fun configure() {
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == null }
-//        val endpointRoute = endpointRepository.getReferenceById(aggregatedDataProfile.primaryEndpoint)
 
         val connectorInstance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow { NoSuchElementException("Connector instance not found") }
         val connectorEndpoint = connectorEndpointRepository.findById(aggregatedDataProfile.connectorEndpointId).orElseThrow { NoSuchElementException("Connector endpoint not found") }
-
-//        if(!endpointRoute.isPrimary) {
-//            logger.warn { "Skipping configure of AggregatedDataProfile ${aggregatedDataProfile.name}: The primary endpoint ${endpointRoute.name} is not primary" }
-//            return
-//        }
-//        if(!endpointRoute.isActive) {
-//            logger.warn { "Skipping configure of AggregatedDataProfile ${aggregatedDataProfile.name}: The primary endpoint ${endpointRoute.name} is not set to active" }
-//            return
-//        }
 
         val effectiveRole = aggregatedDataProfile.role?.takeIf { it.isNotBlank() } ?: run {
             val sanitizedName = aggregatedDataProfile.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
@@ -97,7 +87,6 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
-            // TODO: Replace this constant with a ROLE that you can set on the profile.
             .setVariable(
                 "authorities",
                 constant(effectiveRole)
