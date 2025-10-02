@@ -16,12 +16,12 @@ data class AggregatedDataProfileForm(
         message = "Name may only contain letters, digits, underscores, and hyphens."
     )
     val name: String,
-    @field:NotBlank(message = "Please select a primary endpoint.")
-    val primaryEndpoint: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
     val transform: String,
     val role: String? = null,
+    val connectorInstanceId: UUID,
+    val connectorEndpointId: UUID,
 ) {
 
     companion object {
@@ -30,8 +30,9 @@ data class AggregatedDataProfileForm(
                 id = aggregatedDataProfile.id,
                 name = aggregatedDataProfile.name,
                 role = aggregatedDataProfile.role,
-                primaryEndpoint = aggregatedDataProfile.primaryEndpoint.toString(),
-                transform = aggregatedDataProfile.transform.expression
+                transform = aggregatedDataProfile.transform.expression,
+                connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
+                connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
             )
         }
     }

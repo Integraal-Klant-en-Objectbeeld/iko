@@ -1,6 +1,0 @@
-iko:
-  connectors:
-    brp:
-      enabled: true
-      host: ${IKO_CONNECTORS_BRP_HOST:http://localhost:5010}
-      specificationUri: ${IKO_CONNECTORS_BRP_SPECIFICATION_URI:https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml}

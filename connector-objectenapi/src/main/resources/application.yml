@@ -1,7 +1,0 @@
-iko:
-  connectors:
-    objectenapi:
-      enabled: true
-      host: ${IKO_CONNECTORS_OBJECTENAPI_HOST:http://localhost:8000}
-      specificationUri: ${IKO_CONNECTORS_OBJECTENAPI_SPECIFICATION_URI:https://raw.githubusercontent.com/maykinmedia/objects-api/3.1.2/src/objects/api/v2/openapi.yaml}
-      token: ${IKO_CONNECTORS_OBJECTENAPI_TOKEN:token}

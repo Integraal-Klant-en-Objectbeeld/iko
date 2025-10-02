@@ -15,7 +15,7 @@ WORKDIR /app
 # OCI image description label
 LABEL org.opencontainers.image.description="Integraal Klant & Objectbeeld (IKO) application container image"
 
-COPY --from=build /app/build/libs/iko-0.0.1-SNAPSHOT.jar /app/iko.jar
+COPY --from=build /app/build/libs/iko.jar /app/iko.jar
 
 ENTRYPOINT ["java", \
     "-agentlib:jdwp=transport=dt_socket,server=y,address=*:8000,suspend=n", \

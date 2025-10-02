@@ -25,14 +25,11 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         """
         SELECT  adp.id
         ,       adp.name
-        ,       e.name as primaryEndpoint
         FROM    aggregated_data_profile adp
-        JOIN    endpoint e ON adp.primary_endpoint = e.id
         """,
         countQuery = """
         SELECT  count(*)
         FROM    aggregated_data_profile adp
-        JOIN    endpoint e ON adp.primary_endpoint = e.id
         """,
         nativeQuery = true
     )
@@ -42,17 +39,12 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         """
         SELECT  adp.id
         ,       adp.name
-        ,       e.name as primaryEndpoint
         FROM    aggregated_data_profile adp
-        JOIN    endpoint e
-        ON      adp.primary_endpoint = e.id
         WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
         countQuery = """
         SELECT  COUNT(*)
         FROM    aggregated_data_profile adp
-        JOIN    endpoint e
-        ON      adp.primary_endpoint = e.id
         WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
         nativeQuery = true
@@ -62,6 +54,5 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
     interface AggregatedDataProfileListItem {
         val id: String
         val name: String
-        val primaryEndpoint: String
     }
 }

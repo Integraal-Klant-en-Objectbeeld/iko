@@ -1,13 +1,17 @@
 package com.ritense.iko.aggregateddataprofile
 
 import com.ritense.iko.endpoints.EndpointRepository
+import com.ritense.iko.poc.db.ConnectorEndpointRepository
+import com.ritense.iko.poc.db.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
 import org.springframework.stereotype.Service
 
 @Service
 class AggregatedDataProfileService(
     private val camelContext: CamelContext,
-    private val endpointRepository: EndpointRepository
+    private val endpointRepository: EndpointRepository,
+    private val connectorEndpointRepository: ConnectorEndpointRepository,
+    private val connectorInstanceRepository: ConnectorInstanceRepository
 ) {
 
     fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
@@ -21,7 +25,15 @@ class AggregatedDataProfileService(
     }
 
     fun addRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-        camelContext.addRoutes(AggregatedDataProfileRouteBuilder(camelContext, aggregatedDataProfile, endpointRepository))
+        camelContext.addRoutes(
+            AggregatedDataProfileRouteBuilder(
+                camelContext,
+                aggregatedDataProfile,
+                endpointRepository,
+                connectorEndpointRepository = connectorEndpointRepository,
+                connectorInstanceRepository = connectorInstanceRepository
+            )
+        )
     }
 
     fun reloadRoutes(aggregatedDataProfile: AggregatedDataProfile) {

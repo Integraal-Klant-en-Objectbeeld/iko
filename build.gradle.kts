@@ -12,7 +12,13 @@ plugins {
 }
 
 group = "com.ritense"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.2-SNAPSHOT"
+
+tasks.jar {
+    archiveBaseName.set("iko")
+    archiveVersion.set("") // removes version
+    archiveClassifier.set("") // removes classifier
+}
 
 springBoot {
     buildInfo()
@@ -22,20 +28,19 @@ kotlin {
     jvmToolchain(21)
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(project(":connector-openklant"))
-    implementation(project(":connector-bag"))
-    implementation(project(":connector-brp"))
-    implementation(project(":connector-openzaak"))
-    implementation(project(":connector-objectenapi"))
-    implementation(project(":iko-common"))
-
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
-    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.14.0")) // BOM
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
+    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.13.0")) // BOM
 
     implementation("org.apache.camel.springboot:camel-spring-boot")
     implementation("org.apache.camel.springboot:camel-direct-starter")
@@ -47,6 +52,7 @@ dependencies {
     implementation("org.apache.camel.springboot:camel-http-starter")
     implementation("org.apache.camel.springboot:camel-rest-starter")
     implementation("org.apache.camel.springboot:camel-openapi-java-starter")
+    implementation("org.apache.camel.springboot:camel-groovy-starter")
     implementation("org.apache.camel:camel-yaml-dsl")
     implementation("org.apache.camel:camel-rest-openapi")
     implementation("org.apache.camel:camel-jq")

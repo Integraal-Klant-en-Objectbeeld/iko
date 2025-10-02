@@ -27,8 +27,11 @@ class AggregatedDataProfile(
     @Column(name = "name", unique = true)
     var name: String,
 
-    @Column(name = "primary_endpoint")
-    var primaryEndpoint: UUID,
+    @Column(name = "connector_instance_id")
+    var connectorInstanceId: UUID,
+
+    @Column(name = "connector_endpoint_id")
+    var connectorEndpointId: UUID,
 
     @OneToMany(
         cascade = [(CascadeType.ALL)],
@@ -46,7 +49,6 @@ class AggregatedDataProfile(
 ) {
 
     fun handle(request: AggregatedDataProfileForm) {
-        this.primaryEndpoint = UUID.fromString(request.primaryEndpoint)
         this.name = request.name
         if (!request.role.isNullOrBlank()) {
             this.role = request.role
@@ -55,6 +57,8 @@ class AggregatedDataProfile(
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             this.role = defaultRole
         }
+        this.connectorEndpointId = request.connectorEndpointId
+        this.connectorInstanceId = request.connectorInstanceId
         this.transform = Transform(request.transform)
     }
 
@@ -67,9 +71,10 @@ class AggregatedDataProfile(
                 } else {
                     null
                 },
-                endpointId = request.endpointId,
                 transform = Transform(request.transform),
-                sourceToEndpointMapping = request.sourceToEndpointMapping
+                sourceToEndpointMapping = request.sourceToEndpointMapping,
+                connectorEndpointId = request.connectorEndpointId,
+                connectorInstanceId = request.connectorInstanceId
             )
         )
     }
@@ -85,9 +90,10 @@ class AggregatedDataProfile(
                 } else {
                     null
                 },
-                endpointId = request.endpointId,
                 transform = Transform(request.transform),
-                sourceToEndpointMapping = request.sourceToEndpointMapping
+                sourceToEndpointMapping = request.sourceToEndpointMapping,
+                connectorInstanceId = request.connectorInstanceId,
+                connectorEndpointId = request.connectorEndpointId,
             )
         )
     }
@@ -104,9 +110,10 @@ class AggregatedDataProfile(
         return AggregatedDataProfile(
             id = UUID.randomUUID(),
             name = form.name,
-            primaryEndpoint = UUID.fromString(form.primaryEndpoint),
             role = role,
-            transform = Transform(form.transform)
+            transform = Transform(form.transform),
+            connectorEndpointId = form.connectorEndpointId,
+            connectorInstanceId = form.connectorInstanceId,
         )
     }
     }

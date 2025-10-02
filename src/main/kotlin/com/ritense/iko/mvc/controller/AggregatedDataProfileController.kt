@@ -16,6 +16,9 @@ import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Endpoint
 import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.Source
+import com.ritense.iko.poc.db.ConnectorEndpointRepository
+import com.ritense.iko.poc.db.ConnectorInstanceRepository
+import com.ritense.iko.poc.db.ConnectorRepository
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
@@ -43,6 +46,9 @@ class AggregatedDataProfileController(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val aggregatedDataProfileService: AggregatedDataProfileService,
     private val endpointService: EndpointService,
+    private val connectorInstanceRepository: ConnectorInstanceRepository,
+    private val connectorEndpointRepository: ConnectorEndpointRepository,
+    private val connectorRepository: ConnectorRepository
 ) {
 
     @GetMapping("/aggregated-data-profiles")
@@ -124,9 +130,21 @@ class AggregatedDataProfileController(
     fun create(): ModelAndView {
         val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("endpoints", endpoints)
+            addObject("connectorEndpoints", emptyList<Any>())
         }
         return modelAndView
+    }
+
+    @GetMapping("/aggregated-data-profiles/create/endpoints")
+    fun endpoints(@RequestParam connectorInstanceId: UUID): ModelAndView {
+        val connector = connectorInstanceRepository.findById(connectorInstanceId).orElseThrow { NoSuchElementException("Connector not found") }
+        val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
+
+        return ModelAndView("$BASE_FRAGMENT_ADG/add :: connectorEndpoints").apply {
+            addObject("connectorEndpoints", endpoints)
+        }
     }
 
     @PostMapping(
@@ -171,11 +189,14 @@ class AggregatedDataProfileController(
         } else {
             "$BASE_FRAGMENT_ADG/editPage"
         }
+        val instance = connectorInstanceRepository.findById(profile.connectorInstanceId).orElseThrow()
         return ModelAndView(viewName).apply {
             addObject("form", form)
             addObject("endpoints", endpoints())
             addObject("relations", relations)
             addObject("menuItems", menuItems)
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
         }
     }
 
@@ -189,12 +210,15 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
 
+        val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", form)
                 addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
                 addObject("endpoints", endpoints())
+                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
             }
             return modelAndView
         }
@@ -206,6 +230,8 @@ class AggregatedDataProfileController(
             addObject("form", newForm)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
             addObject("endpoints", endpoints())
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
         }
 
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
@@ -220,6 +246,7 @@ class AggregatedDataProfileController(
         val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("sources", sources)
             addObject("endpoints", endpoints)
         }
@@ -266,11 +293,14 @@ class AggregatedDataProfileController(
         @PathVariable relationId: UUID,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val relation = aggregatedDataProfile.relations.find { it.id == relationId }
+        val connector = connectorInstanceRepository.findById(relation?.connectorInstanceId).orElseThrow()
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
         val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
             addObject("sources", sources)
-            addObject("endpoints", endpoints)
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
             addObject("form", aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
         return modelAndView

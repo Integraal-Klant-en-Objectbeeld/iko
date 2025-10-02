@@ -13,11 +13,18 @@
             integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
             crossorigin="anonymous"></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/carbon-components@10/css/carbon-components.min.css"/>
+    <script href="https://unpkg.com/carbon-components@10/scripts/carbon-components.min.js"></script>
+
     <!-- Carbon v11 CDN stylesheet -->
     <link rel="stylesheet" href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css">
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"/>
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"/>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"></script>
 
     <!-- Dynamically load Carbon Web Components -->
     <script type="module">
@@ -41,35 +48,104 @@
             padding: 0;
             padding-top: 3rem;
         }
+
         .cds--toggle__switch--checked::before {
             transform: translateX(1.5rem) !important;
         }
+
+        .app--table-cell-actions {
+            display: flex;
+            flex-flow: row;
+            justify-content: flex-end;
+        }
+
+        cds-header ~ cds-side-nav {
+            block-size: calc(100% - 3rem);
+            margin-block-start: 3rem
+        }
+
+        body {
+            transition: margin-left .11s cubic-bezier(.2, 0, 1, .9);
+            will-change: margin-left;
+        }
+
+        @media (min-width: 66rem) {
+            body {
+                margin-inline-start: 16rem
+            }
+        }
+
+        #page-header {
+            margin-top: 4rem;
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
-<body class="cds-theme-zone-g10">
-<header>
-    <cds-header aria-label="IKO App">
-        <cds-header-name href="/admin" prefix="IKO">
-            [Integraal Klant & Objectbeeld]
-        </cds-header-name>
-        <!-- Left Panel (Navigation) -->
-        <cds-side-nav th:insert="~{fragments/internal/menu :: menu}"></cds-side-nav>
-    </cds-header>
-</header>
-<main class="cds--grid cds--grid--full-width">
-    <div class="cds--row">
-        <div class="cds--col-lg-14 cds--offset-lg-2">
-            <div id="view-panel" layout:fragment="view-panel-content">
-                <div class="cds--tile">
-                    <cds-breadcrumb no-trailing-slash="">
-                        <cds-breadcrumb-item>
-                            <cds-breadcrumb-link
-                                href="/admin"
-                                is-currentpage="true">
-                                Home
-                            </cds-breadcrumb-link>
-                        </cds-breadcrumb-item>
-                    </cds-breadcrumb>
+<body class="cds-theme-zone-white">
+<cds-header aria-label="IBM Platform Name">
+    <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+    <cds-header-name href="javascript:void 0" prefix="IKO" hx-get="/admin" hx-target="#view-panel" hx-push-url="true">
+        [Platform]
+    </cds-header-name>
+    <cds-side-nav aria-label="Side navigation" collapse-mode="responsive">
+        <cds-side-nav-items>
+            <cds-side-nav-link href="javascript:void(0)"
+                               hx-get="/admin/aggregated-data-profiles"
+                               hx-push-url="true"
+                               hx-target="#view-panel">
+                <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                     fill="currentColor" slot="title-icon" width="16" height="16" viewBox="0 0 16 16"
+                     aria-hidden="true">
+                    <path
+                        d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"></path>
+                </svg>
+                Aggregated Data Profiles
+            </cds-side-nav-link>
+            <cds-side-nav-link href="javascript:void(0)" hx-get="/admin/connectors" hx-target="#view-panel"
+                               hx-push-url="true">
+                <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                     fill="currentColor" slot="title-icon" width="16" height="16" viewBox="0 0 16 16"
+                     aria-hidden="true">
+                    <path
+                        d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"></path>
+                </svg>
+                Connectors
+            </cds-side-nav-link>
+        </cds-side-nav-items>
+    </cds-side-nav>
+</cds-header>
+
+<main class="cds--content cds-ce-demo-devenv--ui-shell-content">
+    <div class="cds--grid">
+        <div class="cds--row">
+            <div class="cds--col-lg-13">
+                <div id="view-panel" layout:fragment="view-panel-content" th:fragment="details">
+                    <div id="breadcrumb" th:fragment="breadcrumb (entries)">
+                        <cds-breadcrumb no-trailing-slash="" th:if="${entries != null}">
+                            <cds-breadcrumb-item>
+                                <cds-breadcrumb>
+                                    Home
+                                </cds-breadcrumb>
+                            </cds-breadcrumb-item>
+                            <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
+                                <cds-breadcrumb-link
+                                    href="javascript:void(0)"
+                                    th:hx-get="${breadcrumb[1]}"
+                                    hx-push-url="true"
+                                    hx-target="#view-panel"
+                                    th:attrappend="is-currentpage=${iter.last}?'true'"
+                                    th:is-currentpage="${iter.last}"
+                                    th:text="${breadcrumb[0]}">
+                                </cds-breadcrumb-link>
+                            </cds-breadcrumb-item>
+                        </cds-breadcrumb>
+                    </div>
+
+                    <div id="page-header" th:fragment="page-header">
+                        <h4><span th:text="${pageName} ?: '&nbsp;'"></span></h4>
+                        <h2><span th:text="${title}"></span></h2>
+                        <small><em><span th:text="${subtext ?: '&nbsp;'}"></span></em></small>
+                    </div>
                     <h4>Welcome to IKO</h4>
                     <img
                         class="page-landing__illo"
@@ -82,11 +158,17 @@
         </div>
     </div>
 </main>
+
+
 <!--Modal container-->
 <div id="modal-container"></div>
 <script type="text/javascript">
-    /*htmx.logAll();*/
+    // htmx.logAll();
     htmx.config.allowNestedOobSwaps = false; // Disable nested out-of-band swaps
+
+    document.body.addEventListener("close-modal", function (evt) {
+        document.querySelector("#modal-container cds-modal").toggleAttribute("open");
+    });
 </script>
 </body>
 </html>

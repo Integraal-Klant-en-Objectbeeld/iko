@@ -27,21 +27,23 @@
                 </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
-                <cds-dropdown name="endpointId"
-                              size="lg"
-                              style="width: 100%"
-                              helper-text=""
-                              title-text="Endpoint"
-                              label="Select a endpoint"
-                              th:attr="invalid=${errors?.getFieldError('endpointId') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('endpointId')?.defaultMessage},
-                                value=${form?.endpointId}">
-                    <cds-dropdown-item th:each="endpoint : ${endpoints}"
-                                       th:value="${endpoint.id}"
-                                       th:attr="disabled=${!endpoint.isActive}">
-                        <span th:text="${endpoint.name}"></span>
-                    </cds-dropdown-item>
-                </cds-dropdown>
+                <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
+                            hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
+                            hx-target="#formRelationEndpoints"
+                >
+
+                    <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                        (<span th:text="${instance.connector.name}"></span>)
+                        <span th:text="${instance.name}"></span>
+                    </cds-select-item>
+                </cds-select>
+                <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
+                    <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId">
+                        <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+                            <span th:text="${endpoint.name}"></span>
+                        </cds-select-item>
+                    </cds-select>
+                </div>
             </cds-form-item>
             <cds-form-item>
                 <cds-textarea name="sourceToEndpointMapping"
