@@ -6,9 +6,12 @@ spring:
         mode: HTML
         encoding: UTF-8
         prefix: classpath:/templates/
+    mvc:
+        static-path-pattern: /assets/**
     web:
         resources:
             static-locations: classpath:/static/
+            static-path: /asser
             cache:
                 period: 0
     jackson:
