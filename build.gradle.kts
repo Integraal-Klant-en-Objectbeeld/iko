@@ -14,7 +14,7 @@ plugins {
 group = "com.ritense"
 version = "0.0.2-SNAPSHOT"
 
-tasks.jar {
+tasks.bootJar {
     archiveBaseName.set("iko")
     archiveVersion.set("") // removes version
     archiveClassifier.set("") // removes classifier
