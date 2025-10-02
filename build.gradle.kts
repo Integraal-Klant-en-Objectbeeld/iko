@@ -15,6 +15,12 @@ group = "com.ritense"
 version = "0.0.2-SNAPSHOT"
 
 tasks.jar {
+    // build only the Spring Boot executable jar; disable plain jar to avoid confusion in Docker
+    enabled = false
+}
+
+// Ensure the Spring Boot fat jar is produced as a stable, unversioned name matching the Dockerfile
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     archiveBaseName.set("iko")
     archiveVersion.set("") // removes version
     archiveClassifier.set("") // removes classifier
