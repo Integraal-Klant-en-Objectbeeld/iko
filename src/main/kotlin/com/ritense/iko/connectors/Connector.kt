@@ -1,6 +1,6 @@
-package com.ritense.iko.poc
+package com.ritense.iko.connectors
 
-import com.ritense.iko.poc.Iko.Companion.connector
+import com.ritense.iko.connectors.Iko.Companion.connector
 import org.apache.camel.builder.RouteBuilder
 
 class Connector : RouteBuilder() {

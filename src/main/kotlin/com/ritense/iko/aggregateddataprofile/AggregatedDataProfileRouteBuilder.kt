@@ -1,9 +1,9 @@
 package com.ritense.iko.aggregateddataprofile
 
 import com.ritense.iko.endpoints.EndpointRepository
-import com.ritense.iko.poc.Iko
-import com.ritense.iko.poc.db.ConnectorEndpointRepository
-import com.ritense.iko.poc.db.ConnectorInstanceRepository
+import com.ritense.iko.connectors.Iko
+import com.ritense.iko.connectors.db.ConnectorEndpointRepository
+import com.ritense.iko.connectors.db.ConnectorInstanceRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange

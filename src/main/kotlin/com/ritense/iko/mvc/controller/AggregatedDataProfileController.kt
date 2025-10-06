@@ -16,9 +16,9 @@ import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Endpoint
 import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.Source
-import com.ritense.iko.poc.db.ConnectorEndpointRepository
-import com.ritense.iko.poc.db.ConnectorInstanceRepository
-import com.ritense.iko.poc.db.ConnectorRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRepository
+import com.ritense.iko.connectors.db.ConnectorInstanceRepository
+import com.ritense.iko.connectors.db.ConnectorRepository
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable

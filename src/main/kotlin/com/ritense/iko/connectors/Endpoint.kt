@@ -1,4 +1,4 @@
-package com.ritense.iko.poc
+package com.ritense.iko.connectors
 
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder

@@ -1,8 +1,8 @@
-package com.ritense.iko.poc
+package com.ritense.iko.connectors
 
-import com.ritense.iko.poc.db.ConnectorEndpointRepository
-import com.ritense.iko.poc.db.ConnectorEndpointRoleRepository
-import com.ritense.iko.poc.db.ConnectorInstanceRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRoleRepository
+import com.ritense.iko.connectors.db.ConnectorInstanceRepository
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder

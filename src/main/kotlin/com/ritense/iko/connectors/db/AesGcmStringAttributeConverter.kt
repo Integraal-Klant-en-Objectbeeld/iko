@@ -1,4 +1,4 @@
-package com.ritense.iko.poc.db
+package com.ritense.iko.connectors.db
 
 import com.ritense.iko.crypto.AesGcmEncryptionService
 import jakarta.persistence.AttributeConverter

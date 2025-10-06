@@ -2,14 +2,14 @@ package com.ritense.iko.mvc.connector
 
 import com.ritense.iko.mvc.controller.HomeController
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
-import com.ritense.iko.poc.db.Connector
-import com.ritense.iko.poc.db.ConnectorEndpoint
-import com.ritense.iko.poc.db.ConnectorEndpointRepository
-import com.ritense.iko.poc.db.ConnectorEndpointRole
-import com.ritense.iko.poc.db.ConnectorEndpointRoleRepository
-import com.ritense.iko.poc.db.ConnectorInstance
-import com.ritense.iko.poc.db.ConnectorInstanceRepository
-import com.ritense.iko.poc.db.ConnectorRepository
+import com.ritense.iko.connectors.db.Connector
+import com.ritense.iko.connectors.db.ConnectorEndpoint
+import com.ritense.iko.connectors.db.ConnectorEndpointRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRole
+import com.ritense.iko.connectors.db.ConnectorEndpointRoleRepository
+import com.ritense.iko.connectors.db.ConnectorInstance
+import com.ritense.iko.connectors.db.ConnectorInstanceRepository
+import com.ritense.iko.connectors.db.ConnectorRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid

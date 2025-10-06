@@ -1,4 +1,4 @@
-package com.ritense.iko.poc
+package com.ritense.iko.connectors
 
 class Iko {
 

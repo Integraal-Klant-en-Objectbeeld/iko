@@ -1,4 +1,4 @@
-package com.ritense.iko.poc.db
+package com.ritense.iko.connectors.db
 
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
