@@ -203,7 +203,6 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
-        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
 
         return details(connector.id, isHxRequest)
     }
@@ -418,7 +417,6 @@ class ConnectorController(
         response.setHeader("HX-Push-Url", "/admin/connectors/$id/instances/${connectorInstance.id}")
         response.setHeader("HX-Retarget", "#view-panel")
         response.setHeader("HX-Trigger", "close-modal")
-        response.setHeader("HX-Reswap", "outerHTML")
 
         return editConnectorInstancePage(id, connectorInstance.id, isHxRequest)
     }
