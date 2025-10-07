@@ -1,7 +1,7 @@
-package com.ritense.iko.poc
+package com.ritense.iko.connectors
 
-import com.ritense.iko.poc.db.ConnectorEndpointRepository
-import com.ritense.iko.poc.db.ConnectorInstanceRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRepository
+import com.ritense.iko.connectors.db.ConnectorInstanceRepository
 import org.apache.camel.builder.RouteBuilder
 
 class EndpointValidation(

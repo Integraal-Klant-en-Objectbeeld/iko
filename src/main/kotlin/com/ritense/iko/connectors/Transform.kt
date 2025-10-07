@@ -1,6 +1,6 @@
-package com.ritense.iko.poc
+package com.ritense.iko.connectors
 
-import com.ritense.iko.poc.Iko.Companion.transform
+import com.ritense.iko.connectors.Iko.Companion.transform
 import org.apache.camel.builder.RouteBuilder
 
 class Transform : RouteBuilder() {

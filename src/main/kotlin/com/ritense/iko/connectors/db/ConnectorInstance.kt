@@ -1,4 +1,4 @@
-package com.ritense.iko.poc.db
+package com.ritense.iko.connectors.db
 
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column

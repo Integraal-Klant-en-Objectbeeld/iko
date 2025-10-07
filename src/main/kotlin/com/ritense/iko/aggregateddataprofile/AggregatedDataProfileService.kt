@@ -1,8 +1,8 @@
 package com.ritense.iko.aggregateddataprofile
 
 import com.ritense.iko.endpoints.EndpointRepository
-import com.ritense.iko.poc.db.ConnectorEndpointRepository
-import com.ritense.iko.poc.db.ConnectorInstanceRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRepository
+import com.ritense.iko.connectors.db.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
 import org.springframework.stereotype.Service
 

@@ -1,9 +1,9 @@
-package com.ritense.iko.poc
+package com.ritense.iko.connectors
 
-import com.ritense.iko.poc.db.ConnectorEndpointRepository
-import com.ritense.iko.poc.db.ConnectorEndpointRoleRepository
-import com.ritense.iko.poc.db.ConnectorInstanceRepository
-import com.ritense.iko.poc.db.ConnectorRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRepository
+import com.ritense.iko.connectors.db.ConnectorEndpointRoleRepository
+import com.ritense.iko.connectors.db.ConnectorInstanceRepository
+import com.ritense.iko.connectors.db.ConnectorRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.apache.camel.support.PluginHelper
