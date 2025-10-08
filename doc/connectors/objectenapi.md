@@ -3,8 +3,8 @@
 ## Configuration
 
 The configuration properties of the objecten api are:
-- **host**: Base URL of the objecten api
-- **specificationUri**: The specification uri of the objecten api (could be a file or a url)
+- **host**: Base URL
+- **specificationUri**: The specification uri (could be a file or a url)
 - **token**: The token to use for authentication
 
 ## Endpoints
