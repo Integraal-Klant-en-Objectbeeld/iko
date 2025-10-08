@@ -3,8 +3,8 @@
 ## Configuration
 
 The configuration properties of openzaak are:
-- **host**: Base URL of openzaak 
-- **specificationUri**: The specification uri of openzaak (could be a file or a url)
+- **host**: Base URL 
+- **specificationUri**: The specification uri (could be a file or a url)
 - **clientId**: The token to use for authentication
 - **clientSecret**: The secret to use for authentication
 
