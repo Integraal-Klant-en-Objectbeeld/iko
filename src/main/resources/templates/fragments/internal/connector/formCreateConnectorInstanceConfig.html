@@ -18,6 +18,8 @@
                                     label="Key">
                     </cds-text-input>
                     <cds-text-input name="value"
+                                    type="password"
+                                    show-password-visibility-toggle="true"
                                     th:value="${config?.value}"
                                     th:attr="
                             invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
@@ -41,8 +43,7 @@
             type="submit"
             th:hx-post="@{|/admin/connectors/${connectorId}/instances/${instanceId}/config|}"
             hx-target="#form-group"
-            hx-include="#form-group *"
-        >
+            hx-include="#form-group *">
             Save
         </cds-modal-footer-button>
     </cds-modal-footer>
