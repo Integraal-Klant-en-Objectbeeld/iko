@@ -26,15 +26,6 @@
                                     style="width: 50%"
                                     label="Value">
                     </cds-text-input>
-                    <cds-text-input name="secured"
-                             th:value="${config?.secured}"
-                             th:attr="
-                            invalid=${errors?.getFieldError('secured') != null} ? 'true' : null,
-                            invalid-text=${errors?.getFieldError('secured')?.defaultMessage}
-                            "
-                             style="width: 50%"
-                             label="Secured">
-                    </cds-text-input>
                 </cds-form-group>
             </th:block>
         </cds-stack>
