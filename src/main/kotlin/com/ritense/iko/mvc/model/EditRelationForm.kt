@@ -3,7 +3,7 @@ package com.ritense.iko.mvc.model
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import java.util.UUID
-import com.ritense.iko.aggregateddataprofile.Relation as RelationEntity
+import com.ritense.iko.aggregateddataprofile.domain.Relation as RelationEntity
 
 data class EditRelationForm(
     val aggregatedDataProfileId: UUID,

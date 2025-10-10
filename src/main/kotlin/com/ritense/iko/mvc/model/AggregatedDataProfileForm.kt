@@ -1,6 +1,6 @@
 package com.ritense.iko.mvc.model
 
-import com.ritense.iko.aggregateddataprofile.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueName
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank

@@ -8,7 +8,7 @@
         <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" hx-swap-oob="true" name="form-group"
-                                legend-text="Add Aggregated Data Profile">
+                                legend-text="Add Connector">
                     <cds-text-input name="name"
                                     th:value="${connector?.name}"
                                     th:attr="
@@ -18,8 +18,7 @@
                                     style="width: 50%"
                                     required=""
                                     label="Name"
-                                    invalid-text="Please enter a valid name"
-                    >
+                                    invalid-text="Please enter a valid name">
                     </cds-text-input>
 
                     <cds-text-input name="reference"
@@ -31,8 +30,7 @@
                                     style="width: 50%"
                                     required=""
                                     label="Reference"
-                                    invalid-text="Please enter a valid reference"
-                    >
+                                    invalid-text="Please enter a valid reference">
                     </cds-text-input>
                     <cds-form-item>
                         <cds-textarea enable-counter="" counter-mode=""
@@ -44,9 +42,7 @@
                                       label="Code"
                                       placeholder="" rows="16" cols="0"
                                       name="connectorCode"
-                                      invalid-text="Please enter a valid connector code"
-
-                        >
+                                      invalid-text="Please enter a valid connector code">
                         </cds-textarea>
                     </cds-form-item>
                 </cds-form-group>
@@ -63,8 +59,7 @@
         <cds-modal-footer-button
             type="submit"
             hx-post="/admin/connectors" hx-target="#form-group"
-            hx-include="#form-group *"
-        >
+            hx-include="#form-group *">
             Save
         </cds-modal-footer-button>
     </cds-modal-footer>

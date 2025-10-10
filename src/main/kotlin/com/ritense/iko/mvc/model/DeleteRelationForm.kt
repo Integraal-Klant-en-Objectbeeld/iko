@@ -1,7 +1,7 @@
 package com.ritense.iko.mvc.model
 
 import java.util.UUID
-import com.ritense.iko.aggregateddataprofile.Relation as RelationEntity
+import com.ritense.iko.aggregateddataprofile.domain.Relation as RelationEntity
 
 data class DeleteRelationForm(
     val aggregatedDataProfileId: UUID,

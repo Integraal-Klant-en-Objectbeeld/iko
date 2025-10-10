@@ -1,15 +1,21 @@
 package com.ritense.iko.mvc.connector
 
+import com.ritense.iko.connectors.domain.Connector
+import com.ritense.iko.connectors.domain.ConnectorEndpoint
+import com.ritense.iko.connectors.domain.ConnectorEndpointRole
+import com.ritense.iko.connectors.domain.ConnectorInstance
+import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
+import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
+import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
+import com.ritense.iko.connectors.repository.ConnectorRepository
 import com.ritense.iko.mvc.controller.HomeController
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
-import com.ritense.iko.connectors.db.Connector
-import com.ritense.iko.connectors.db.ConnectorEndpoint
-import com.ritense.iko.connectors.db.ConnectorEndpointRepository
-import com.ritense.iko.connectors.db.ConnectorEndpointRole
-import com.ritense.iko.connectors.db.ConnectorEndpointRoleRepository
-import com.ritense.iko.connectors.db.ConnectorInstance
-import com.ritense.iko.connectors.db.ConnectorInstanceRepository
-import com.ritense.iko.connectors.db.ConnectorRepository
+import com.ritense.iko.mvc.model.connector.ConnectorCreateForm
+import com.ritense.iko.mvc.model.connector.ConnectorEditForm
+import com.ritense.iko.mvc.model.connector.ConnectorEndpointConfigForm
+import com.ritense.iko.mvc.model.connector.ConnectorInstanceConfigEditForm
+import com.ritense.iko.mvc.model.connector.ConnectorInstanceEditForm
+import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -452,7 +458,7 @@ class ConnectorController(
                     name = endpoint.name,
                     operation = endpoint.operation,
                 ),
-                "menuItems" to HomeController.Companion.menuItems,
+                "menuItems" to HomeController.menuItems,
                 "saved" to false
             )
         )
