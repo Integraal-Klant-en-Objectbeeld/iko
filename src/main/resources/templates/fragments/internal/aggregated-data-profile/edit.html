@@ -48,9 +48,7 @@
                     <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
                                 th:value="${form?.connectorInstanceId}"
                                 hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
-                                hx-target="#formEndpoints"
-                    >
-
+                                hx-target="#formEndpoints">
                         <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
                             (<span th:text="${instance.connector.name}"></span>)
                             <span th:text="${instance.name}"></span>

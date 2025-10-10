@@ -92,6 +92,9 @@
             <cds-side-nav-link href="javascript:void(0)"
                                hx-get="/admin/aggregated-data-profiles"
                                hx-push-url="true"
+                               hx-on::after-request="
+         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
+         this?.toggleAttribute('active');"
                                hx-target="#view-panel">
                 <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
                      fill="currentColor" slot="title-icon" width="16" height="16" viewBox="0 0 16 16"
@@ -101,7 +104,12 @@
                 </svg>
                 Aggregated Data Profiles
             </cds-side-nav-link>
-            <cds-side-nav-link href="javascript:void(0)" hx-get="/admin/connectors" hx-target="#view-panel"
+            <cds-side-nav-link href="javascript:void(0)"
+                               hx-get="/admin/connectors"
+                               hx-target="#view-panel"
+                               hx-on::after-request="
+         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
+         this?.toggleAttribute('active');"
                                hx-push-url="true">
                 <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
                      fill="currentColor" slot="title-icon" width="16" height="16" viewBox="0 0 16 16"

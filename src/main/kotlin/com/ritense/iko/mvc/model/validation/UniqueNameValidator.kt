@@ -1,6 +1,6 @@
 package com.ritense.iko.mvc.model.validation
 
-import com.ritense.iko.aggregateddataprofile.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.mvc.model.AggregatedDataProfileForm
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext

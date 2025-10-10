@@ -1,9 +1,11 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.aggregateddataprofile.AggregatedDataProfile
-import com.ritense.iko.aggregateddataprofile.AggregatedDataProfileRepository
-import com.ritense.iko.aggregateddataprofile.AggregatedDataProfileService
-import com.ritense.iko.endpoints.EndpointService
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
+import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
+import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
+import com.ritense.iko.connectors.repository.ConnectorRepository
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_RELATION
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
@@ -13,12 +15,8 @@ import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
-import com.ritense.iko.mvc.model.Endpoint
 import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.Source
-import com.ritense.iko.connectors.db.ConnectorEndpointRepository
-import com.ritense.iko.connectors.db.ConnectorInstanceRepository
-import com.ritense.iko.connectors.db.ConnectorRepository
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
@@ -45,7 +43,6 @@ import java.util.UUID
 class AggregatedDataProfileController(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val aggregatedDataProfileService: AggregatedDataProfileService,
-    private val endpointService: EndpointService,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorRepository: ConnectorRepository
@@ -128,10 +125,8 @@ class AggregatedDataProfileController(
 
     @GetMapping("/aggregated-data-profiles/create")
     fun create(): ModelAndView {
-        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
             addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("endpoints", endpoints)
             addObject("connectorEndpoints", emptyList<Any>())
         }
         return modelAndView
@@ -156,10 +151,8 @@ class AggregatedDataProfileController(
         @Valid @ModelAttribute form: AggregatedDataProfileForm,
         bindingResult: BindingResult
     ): ModelAndView {
-        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
             addObject("form", form)
-            addObject("endpoints", endpoints)
             addObject("errors", bindingResult)
         }
         if (bindingResult.hasErrors()) {
@@ -170,7 +163,6 @@ class AggregatedDataProfileController(
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
-            addObject("endpoints", endpoints)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
         return redirectModelAndView
@@ -192,7 +184,6 @@ class AggregatedDataProfileController(
         val instance = connectorInstanceRepository.findById(profile.connectorInstanceId).orElseThrow()
         return ModelAndView(viewName).apply {
             addObject("form", form)
-            addObject("endpoints", endpoints())
             addObject("relations", relations)
             addObject("menuItems", menuItems)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
@@ -216,7 +207,6 @@ class AggregatedDataProfileController(
                 addObject("errors", bindingResult)
                 addObject("form", form)
                 addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-                addObject("endpoints", endpoints())
                 addObject("connectorInstances", connectorInstanceRepository.findAll())
                 addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
             }
@@ -229,7 +219,6 @@ class AggregatedDataProfileController(
             addObject("errors", bindingResult)
             addObject("form", newForm)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-            addObject("endpoints", endpoints())
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
         }
@@ -243,12 +232,10 @@ class AggregatedDataProfileController(
     fun relationCreate(@PathVariable id: UUID): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val sources = sources(aggregatedDataProfile)
-        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("sources", sources)
-            addObject("endpoints", endpoints)
         }
         return modelAndView
     }
@@ -260,11 +247,9 @@ class AggregatedDataProfileController(
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile)
-        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
             addObject("sources", sources)
-            addObject("endpoints", endpoints)
             addObject("errors", bindingResult)
             addObject("form", form)
         }
@@ -296,7 +281,6 @@ class AggregatedDataProfileController(
         val relation = aggregatedDataProfile.relations.find { it.id == relationId }
         val connector = connectorInstanceRepository.findById(relation?.connectorInstanceId).orElseThrow()
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
-        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
             addObject("sources", sources)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
@@ -313,11 +297,9 @@ class AggregatedDataProfileController(
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
-        val endpoints = endpoints()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
             addObject("sources", sources)
-            addObject("endpoints", endpoints)
             addObject("errors", bindingResult)
             addObject("form", form)
         }
@@ -376,18 +358,9 @@ class AggregatedDataProfileController(
         return listOf(list)
     }
 
-    private fun endpoints() = endpointService.getEndpoints().map {
-        Endpoint(
-            id = it.id.toString(),
-            name = it.name,
-            isPrimary = it.isPrimary,
-            isActive = it.isActive
-        )
-    }
-
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations
         .sortedWith(
-            compareBy<com.ritense.iko.aggregateddataprofile.Relation>(
+            compareBy<com.ritense.iko.aggregateddataprofile.domain.Relation>(
                 // first criterion: is this relation's sourceId equal to aggregatedDataProfile.id?
                 { it.sourceId != aggregatedDataProfile.id }  // false (0) comes before true (1)
             ).thenBy { it.sourceId } // second criterion: normal ascending by parentId

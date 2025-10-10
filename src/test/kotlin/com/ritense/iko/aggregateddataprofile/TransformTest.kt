@@ -1,5 +1,6 @@
 package com.ritense.iko.aggregateddataprofile
 
+import com.ritense.iko.aggregateddataprofile.domain.Transform
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
