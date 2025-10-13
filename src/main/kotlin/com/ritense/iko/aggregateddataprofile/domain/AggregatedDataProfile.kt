@@ -74,7 +74,8 @@ class AggregatedDataProfile(
                 transform = Transform(request.transform),
                 sourceToEndpointMapping = request.sourceToEndpointMapping,
                 connectorEndpointId = request.connectorEndpointId,
-                connectorInstanceId = request.connectorInstanceId
+                connectorInstanceId = request.connectorInstanceId,
+                propertyName = request.propertyName
             )
         )
     }
@@ -94,6 +95,7 @@ class AggregatedDataProfile(
                 sourceToEndpointMapping = request.sourceToEndpointMapping,
                 connectorInstanceId = request.connectorInstanceId,
                 connectorEndpointId = request.connectorEndpointId,
+                propertyName = request.propertyName
             )
         )
     }

@@ -19,6 +19,9 @@ class Relation(
     @ManyToOne
     var aggregatedDataProfile: AggregatedDataProfile,
 
+    @Column(name = "property_name")
+    var propertyName: String,
+
     @Column(name = "source_id")
     var sourceId: UUID? = null,
 
