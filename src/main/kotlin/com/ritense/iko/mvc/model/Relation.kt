@@ -9,6 +9,7 @@ data class Relation(
     val sourceId: String,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
+    val propertyName: String,
     val sourceToEndpointMapping: String,
     val transform: String
 ) {
@@ -21,7 +22,8 @@ data class Relation(
                 sourceToEndpointMapping = it.sourceToEndpointMapping,
                 transform = it.transform.expression,
                 connectorInstanceId = it.connectorInstanceId,
-                connectorEndpointId = it.connectorEndpointId
+                connectorEndpointId = it.connectorEndpointId,
+                propertyName = it.propertyName,
             )
         }
     }
