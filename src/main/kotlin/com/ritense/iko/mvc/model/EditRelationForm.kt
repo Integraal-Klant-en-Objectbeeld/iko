@@ -14,6 +14,8 @@ data class EditRelationForm(
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
     val transform: String,
+    @field:NotBlank(message = "Please provide a property name.")
+    val propertyName: String,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
 ) {
@@ -27,6 +29,7 @@ data class EditRelationForm(
                 transform = it.transform.expression,
                 connectorInstanceId = it.connectorInstanceId,
                 connectorEndpointId = it.connectorEndpointId,
+                propertyName = it.propertyName,
             )
         }
     }

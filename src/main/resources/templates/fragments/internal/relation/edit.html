@@ -45,6 +45,7 @@
                     </cds-select>
                 </div>
             </cds-form-item>
+
             <cds-form-item>
                 <cds-textarea name="sourceToEndpointMapping"
                               label="Endpoint parameter Mapping"
@@ -53,6 +54,15 @@
                                 invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
                                 value=${form?.sourceToEndpointMapping}">
                 </cds-textarea>
+            </cds-form-item>
+            <cds-form-item>
+                <cds-text-input name="propertyName"
+                                label="Property Name"
+                                placeholder="e.g. relation"
+                                th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('propertyName')?.defaultMessage},
+                                value=${form?.propertyName}">
+                </cds-text-input>
             </cds-form-item>
             <cds-form-item>
                 <cds-textarea name="transform"

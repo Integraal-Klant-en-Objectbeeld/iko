@@ -9,6 +9,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
+import org.apache.camel.component.jackson.JacksonConstants
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 
@@ -20,6 +21,8 @@ class AggregatedDataProfileRouteBuilder(
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
+        camelContext.globalOptions.put(JacksonConstants.ENABLE_TYPE_CONVERTER, "true")
+
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == source.id }
 
         val connectorInstance = connectorInstanceRepository.findById(source.connectorInstanceId).orElseThrow { NoSuchElementException("Connector instance not found") }
@@ -40,6 +43,7 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
+            .setVariable("relationPropertyName", constant(source.propertyName))
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
