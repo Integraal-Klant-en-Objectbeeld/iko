@@ -7,27 +7,28 @@
     <cds-modal-body>
         <cds-stack gap="8">
             <th:block th:fragment="form">
-                 <cds-form-group id="form-group" name="form-group">
-                            <cds-text-input name="key"
-                                            th:value="${config?.key}"
-                                            th:attr="
-                                    invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('key')?.defaultMessage}
-                                    "
-                                            style="width: 50%"
-                                            label="Key"
-                            >
-                            </cds-text-input>
-                            <cds-text-input name="value"
-                                            th:value="${config?.value}"
-                                            th:attr="
-                                    invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('value')?.defaultMessage}
-                                    "
-                                            style="width: 50%"
-                                            label="Value"
-                            ></cds-text-input>
-                        </cds-form-group>
+                <cds-form-group id="form-group" name="form-group">
+                    <cds-text-input name="key"
+                                    th:value="${config?.key}"
+                                    th:attr="
+                            invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
+                            invalid-text=${errors?.getFieldError('key')?.defaultMessage}
+                            "
+                                    style="width: 50%"
+                                    label="Key">
+                    </cds-text-input>
+                    <cds-text-input name="value"
+                                    type="password"
+                                    show-password-visibility-toggle="true"
+                                    th:value="${config?.value}"
+                                    th:attr="
+                            invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
+                            invalid-text=${errors?.getFieldError('value')?.defaultMessage}
+                            "
+                                    style="width: 50%"
+                                    label="Value">
+                    </cds-text-input>
+                </cds-form-group>
             </th:block>
         </cds-stack>
     </cds-modal-body>
@@ -42,8 +43,7 @@
             type="submit"
             th:hx-post="@{|/admin/connectors/${connectorId}/instances/${instanceId}/config|}"
             hx-target="#form-group"
-            hx-include="#form-group *"
-        >
+            hx-include="#form-group *">
             Save
         </cds-modal-footer-button>
     </cds-modal-footer>

@@ -36,7 +36,6 @@ class HomeController {
          */
         val menuItems: List<MenuItem> = listOf(
             MenuItem("Aggregated Data Profiles", "/admin/aggregated-data-profiles"),
-            MenuItem("API Endpoints", "/admin/endpoints"),
             MenuItem("Connectors", "/admin/connectors"),
         )
     }
