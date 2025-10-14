@@ -1,7 +1,7 @@
 -- Widen value column to store AES-GCM Base64 payloads
 ALTER TABLE relation
-    add COLUMN property_name VARCHAR(255);
+    ADD COLUMN property_name VARCHAR(255);
 
-update relation set property_name = id;
+UPDATE relation SET property_name = id;
 
-alter table relation alter column property_name set not null;
+ALTER TABLE relation ALTER COLUMN property_name SET NOT NULL;
