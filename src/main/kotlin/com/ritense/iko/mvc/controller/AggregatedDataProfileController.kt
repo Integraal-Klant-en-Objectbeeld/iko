@@ -69,6 +69,7 @@ class AggregatedDataProfileController(
                 addObject("menuItems", menuItems)
             }
         }
+        // 2
     }
 
     @GetMapping("/aggregated-data-profiles/pagination")
