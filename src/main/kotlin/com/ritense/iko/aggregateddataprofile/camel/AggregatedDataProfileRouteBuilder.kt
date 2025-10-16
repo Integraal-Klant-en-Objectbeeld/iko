@@ -9,11 +9,14 @@ import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.Level
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
+import org.apache.camel.LoggingLevel
 import org.apache.camel.builder.FlexibleAggregationStrategy
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
+import org.apache.camel.model.dataformat.JsonLibrary
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 
@@ -34,16 +37,11 @@ class AggregatedDataProfileRouteBuilder(
         val connectorEndpoint = connectorEndpointRepository.findById(source.connectorEndpointId)
             .orElseThrow { NoSuchElementException("Connector endpoint not found") }
 
-        val endpointMappingIsMap = source.sourceToEndpointMapping.trim().startsWith("{")
-        val endpointMappingIsArray = source.sourceToEndpointMapping.trim().startsWith("[")
-
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
             .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
-            .log("VAR: \${variable.endpointMapping}")
             .marshal().json()
-
             .choice()
             .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isArray }
             .to("direct:relation_${source.id}_array")
@@ -57,6 +55,7 @@ class AggregatedDataProfileRouteBuilder(
                     it.getIn().setHeader(key, value)
                 }
             }
+            .removeVariable("endpointMapping")
             .to("direct:relation_${source.id}_loop")
 
         from("direct:relation_${source.id}_array")
@@ -67,17 +66,18 @@ class AggregatedDataProfileRouteBuilder(
                     .castAs(JsonNode::class.java)
                     .accumulateInCollection(ArrayList::class.java)
             )
+            .parallelProcessing()
             .process { ex ->
                 ex.getIn().getBody(ObjectNode::class.java).forEachEntry { key, value ->
                     ex.getIn().setHeader(key, value)
                 }
             }
+            .removeVariable("endpointMapping")
             .to("direct:relation_${source.id}_loop")
             .end()
 
         from("direct:relation_${source.id}_loop")
             .routeId("relation_${source.id}_loop")
-            .removeVariable("endpointMapping")
             .unmarshal().json()
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
@@ -95,11 +95,6 @@ class AggregatedDataProfileRouteBuilder(
                 }
             }
             .transform(jq(source.transform.expression))
-            .process { ex ->
-                if (ex.getIn().body == null) {
-                    ex.getIn().body = ""
-                }
-            }
             .unmarshal().json()
 
         if (relations.isNotEmpty()) {
