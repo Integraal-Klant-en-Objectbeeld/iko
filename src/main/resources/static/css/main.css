@@ -4,6 +4,29 @@ body {
     padding-top: 3rem;
 }
 
+.text-secondary {
+    font-family: var(--cds-body-01-font-family);
+    font-size: var(--cds-body-01-font-size);
+    font-weight: var(--cds-body-01-font-weight);
+    line-height: var(--cds-body-01-line-height);
+    letter-spacing: var(--cds-body-01-letter-spacing);
+}
+
+.cds--layer-01 {
+    background-color: var(--cds-layer);
+}
+
+.right-sidebar-panel-content{
+    padding: 15px 16px 15px 16px;
+}
+
+.header-user-name{
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    padding: 15px 16px 15px 16px;
+}
+
 .cds--toggle__switch--checked::before {
     transform: translateX(1.5rem) !important;
 }
@@ -33,4 +56,8 @@ body {
 #page-header {
     margin-top: 4rem;
     margin-bottom: 2rem;
+}
+
+.user-name{
+    width: 100%;
 }

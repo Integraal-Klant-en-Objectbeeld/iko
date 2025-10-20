@@ -27,8 +27,8 @@
     <link href="/assets/css/main.css" rel="stylesheet"/>
 
 </head>
-<body class="cds-theme-zone-white">
-<cds-header aria-label="IBM Platform Name">
+<body cds-theme="g10" class="cds-theme-zone-g10">
+<cds-header class="cds--layer-01" aria-label="IBM Platform Name">
     <cds-header-menu-button
         button-label-active="Close menu"
         button-label-inactive="Open menu">
@@ -43,8 +43,8 @@
         [Platform]
     </cds-header-name>
 
-    <!-- Right-aligned actions -->
     <div class="cds--header__global">
+        <span class="text-secondary header-user-name">Randell Bakker</span>
         <cds-header-global-action
             button-label-active="Close switcher"
             button-label-inactive="Open switcher"
@@ -54,15 +54,17 @@
             <svg aria-hidden="true" focusable="false" height="20" slot="icon" viewBox="0 0 32 32"
                  width="20" xmlns="http://www.w3.org/2000/svg">
                 <path
-                    d="M14 4H18V8H14zM4 4H8V8H4zM24 4H28V8H24zM14 14H18V18H14zM4 14H8V18H4zM24 14H28V18H24zM14 24H18V28H14zM4 24H8V28H4zM24 24H28V28H24z"/>
+                    d="M16 4a5 5 0 11-5 5 5 5 0 015-5m0-2a7 7 0 107 7A7 7 0 0016 2zM26 30H24V25a5 5 0 00-5-5H13a5 5 0 00-5 5v5H6V25a7 7 0 017-7h6a7 7 0 017 7z"/>
             </svg>
         </cds-header-global-action>
     </div>
 
-
-    <cds-header-panel aria-label="Header Panel" id="switcher-panel">
-        <!-- switcher content -->
+    <cds-header-panel class="cds--layer-01" aria-label="Header Panel" id="switcher-panel">
+        <div class="right-sidebar-panel-content">
+            <cds-link>Afmelden</cds-link>
+        </div>
     </cds-header-panel>
+
 </cds-header>
 
 <!--  Left side navigation  -->
@@ -102,8 +104,6 @@
 </cds-side-nav>
 
 <!--  Right side navigation  -->
-
-
 <main class="cds--content cds-ce-demo-devenv--ui-shell-content">
     <div class="cds--grid">
         <div class="cds--row">
