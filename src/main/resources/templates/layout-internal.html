@@ -1,127 +1,108 @@
 <!DOCTYPE html>
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
     <title>IKO Admin</title>
 
     <!-- Preconnects for faster resource loading -->
-    <link rel="preconnect" href="https://unpkg.com">
-    <link rel="preconnect" href="https://1.www.s81c.com">
+    <link href="https://unpkg.com" rel="preconnect">
+    <link href="https://1.www.s81c.com" rel="preconnect">
 
     <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@2.0.4"
+    <script crossorigin="anonymous"
             integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
-            crossorigin="anonymous"></script>
-
-    <link rel="stylesheet" href="https://unpkg.com/carbon-components@10/css/carbon-components.min.css"/>
-    <script href="https://unpkg.com/carbon-components@10/scripts/carbon-components.min.js"></script>
+            src="https://unpkg.com/htmx.org@2.0.4"></script>
 
     <!-- Carbon v11 CDN stylesheet -->
-    <link rel="stylesheet" href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css">
-    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
-    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"/>
-    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"/>
+    <link href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css" rel="stylesheet">
+    <link href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css" rel="stylesheet"/>
+    <link href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css" rel="stylesheet"/>
+    <link href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css" rel="stylesheet"/>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"></script>
 
-    <!-- Dynamically load Carbon Web Components -->
-    <script type="module">
-        const components = [
-            'accordion', 'breadcrumb', 'button', 'checkbox', 'code-snippet', 'combo-box',
-            'content-switcher', 'copy-button', 'data-table', 'date-picker', 'dropdown',
-            'file-uploader', 'floating-menu', 'form', 'form-group', 'inline-loading', 'input', 'link',
-            'list', 'loading', 'modal', 'multi-select', 'notification', 'number-input',
-            'overflow-menu', 'pagination', 'progress-indicator', 'radio-button', 'search',
-            'select', 'skeleton-placeholder', 'skeleton-text', 'skip-to-content', 'slider', 'stack',
-            'structured-list', 'tabs', 'tag', 'textarea', 'tile', 'toggle', 'tooltip', 'ui-shell'
-        ];
-        // Import each Carbon component module dynamically.
-        for (const component of components) {
-            import(`https://1.www.s81c.com/common/carbon/web-components/tag/latest/${component}.rtl.min.js`);
-        }
-    </script>
-    <style>
-        body {
-            margin-left: 2rem;
-            padding: 0;
-            padding-top: 3rem;
-        }
+    <script src="/assets/js/carbon-components-loader.js" type="module"></script>
+    <link href="/assets/css/main.css" rel="stylesheet"/>
 
-        .cds--toggle__switch--checked::before {
-            transform: translateX(1.5rem) !important;
-        }
-
-        .app--table-cell-actions {
-            display: flex;
-            flex-flow: row;
-            justify-content: flex-end;
-        }
-
-        cds-header ~ cds-side-nav {
-            block-size: calc(100% - 3rem);
-            margin-block-start: 3rem
-        }
-
-        body {
-            transition: margin-left .11s cubic-bezier(.2, 0, 1, .9);
-            will-change: margin-left;
-        }
-
-        @media (min-width: 66rem) {
-            body {
-                margin-inline-start: 16rem
-            }
-        }
-
-        #page-header {
-            margin-top: 4rem;
-            margin-bottom: 2rem;
-        }
-    </style>
 </head>
 <body class="cds-theme-zone-white">
 <cds-header aria-label="IBM Platform Name">
-    <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
-    <cds-header-name href="javascript:void 0" prefix="IKO" hx-get="/admin" hx-target="#view-panel" hx-push-url="true">
+    <cds-header-menu-button
+        button-label-active="Close menu"
+        button-label-inactive="Open menu">
+    </cds-header-menu-button>
+
+    <cds-header-name
+        href="javascript:void(0)"
+        hx-get="/admin"
+        hx-push-url="true"
+        hx-target="#view-panel"
+        prefix="IKO">
         [Platform]
     </cds-header-name>
-    <cds-side-nav aria-label="Side navigation" collapse-mode="responsive">
-        <cds-side-nav-items>
-            <cds-side-nav-link href="javascript:void(0)"
-                               hx-get="/admin/aggregated-data-profiles"
-                               hx-push-url="true"
-                               hx-on::after-request="
-         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
-         this?.toggleAttribute('active');"
-                               hx-target="#view-panel">
-                <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
-                     fill="currentColor" slot="title-icon" width="16" height="16" viewBox="0 0 16 16"
-                     aria-hidden="true">
-                    <path
-                        d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"></path>
-                </svg>
-                Aggregated Data Profiles
-            </cds-side-nav-link>
-            <cds-side-nav-link href="javascript:void(0)"
-                               hx-get="/admin/connectors"
-                               hx-target="#view-panel"
-                               hx-on::after-request="
-         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
-         this?.toggleAttribute('active');"
-                               hx-push-url="true">
-                <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
-                     fill="currentColor" slot="title-icon" width="16" height="16" viewBox="0 0 16 16"
-                     aria-hidden="true">
-                    <path
-                        d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"></path>
-                </svg>
-                Connectors
-            </cds-side-nav-link>
-        </cds-side-nav-items>
-    </cds-side-nav>
+
+    <!-- Right-aligned actions -->
+    <div class="cds--header__global">
+        <cds-header-global-action
+            button-label-active="Close switcher"
+            button-label-inactive="Open switcher"
+            panel-id="switcher-panel"
+            tooltip-alignment="right"
+            tooltip-text="Open switcher">
+            <svg aria-hidden="true" focusable="false" height="20" slot="icon" viewBox="0 0 32 32"
+                 width="20" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M14 4H18V8H14zM4 4H8V8H4zM24 4H28V8H24zM14 14H18V18H14zM4 14H8V18H4zM24 14H28V18H24zM14 24H18V28H14zM4 24H8V28H4zM24 24H28V28H24z"/>
+            </svg>
+        </cds-header-global-action>
+    </div>
+
+
+    <cds-header-panel aria-label="Header Panel" id="switcher-panel">
+        <!-- switcher content -->
+    </cds-header-panel>
 </cds-header>
+
+<!--  Left side navigation  -->
+<cds-side-nav aria-label="Side navigation" collapse-mode="responsive">
+    <cds-side-nav-items>
+        <cds-side-nav-link href="javascript:void(0)"
+                           hx-get="/admin/aggregated-data-profiles"
+                           hx-on::after-request="
+         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
+         this?.toggleAttribute('active');"
+                           hx-push-url="true"
+                           hx-target="#view-panel">
+            <svg aria-hidden="true" fill="currentColor" focusable="false"
+                 height="16" preserveAspectRatio="xMidYMid meet" slot="title-icon" viewBox="0 0 16 16" width="16"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"></path>
+            </svg>
+            Aggregated Data Profiles
+        </cds-side-nav-link>
+        <cds-side-nav-link href="javascript:void(0)"
+                           hx-get="/admin/connectors"
+                           hx-on::after-request="
+         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
+         this?.toggleAttribute('active');"
+                           hx-push-url="true"
+                           hx-target="#view-panel">
+            <svg aria-hidden="true" fill="currentColor" focusable="false"
+                 height="16" preserveAspectRatio="xMidYMid meet" slot="title-icon" viewBox="0 0 16 16" width="16"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"></path>
+            </svg>
+            Connectors
+        </cds-side-nav-link>
+    </cds-side-nav-items>
+</cds-side-nav>
+
+<!--  Right side navigation  -->
+
 
 <main class="cds--content cds-ce-demo-devenv--ui-shell-content">
     <div class="cds--grid">
@@ -138,10 +119,10 @@
                             <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
                                 <cds-breadcrumb-link
                                     href="javascript:void(0)"
-                                    th:hx-get="${breadcrumb[1]}"
                                     hx-push-url="true"
                                     hx-target="#view-panel"
                                     th:attrappend="is-currentpage=${iter.last}?'true'"
+                                    th:hx-get="${breadcrumb[1]}"
                                     th:is-currentpage="${iter.last}"
                                     th:text="${breadcrumb[0]}">
                                 </cds-breadcrumb-link>
@@ -156,11 +137,11 @@
                     </div>
                     <h4>Welcome to IKO</h4>
                     <img
-                        class="page-landing__illo"
-                        th:src="@{assets/tab-illo.png}"
                         alt="Carbon illustration"
-                        width="640"
-                        height="498"/>
+                        class="page-landing__illo"
+                        height="498"
+                        th:src="@{assets/tab-illo.png}"
+                        width="640"/>
                 </div>
             </div>
         </div>
@@ -171,12 +152,9 @@
 <!--Modal container-->
 <div id="modal-container"></div>
 <script type="text/javascript">
-    // htmx.logAll();
+    /*htmx.logAll();*/
     htmx.config.allowNestedOobSwaps = false; // Disable nested out-of-band swaps
-
-    document.body.addEventListener("close-modal", function (evt) {
-        document.querySelector("#modal-container cds-modal").toggleAttribute("open");
-    });
 </script>
+
 </body>
 </html>

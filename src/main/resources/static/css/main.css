@@ -1,0 +1,36 @@
+body {
+    margin-left: 2rem;
+    padding: 0;
+    padding-top: 3rem;
+}
+
+.cds--toggle__switch--checked::before {
+    transform: translateX(1.5rem) !important;
+}
+
+.app--table-cell-actions {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-end;
+}
+
+cds-header ~ cds-side-nav {
+    block-size: calc(100% - 3rem);
+    margin-block-start: 3rem
+}
+
+body {
+    transition: margin-left .11s cubic-bezier(.2, 0, 1, .9);
+    will-change: margin-left;
+}
+
+@media (min-width: 66rem) {
+    body {
+        margin-inline-start: 16rem
+    }
+}
+
+#page-header {
+    margin-top: 4rem;
+    margin-bottom: 2rem;
+}
