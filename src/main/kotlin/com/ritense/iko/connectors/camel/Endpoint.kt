@@ -34,6 +34,7 @@ class Endpoint() : RouteBuilder() {
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
+            .setVariable("id", header("id"))
             .removeHeaders("iko_*")
             .to(Iko.endpoint("validate"))
             .to(Iko.endpoint("auth"))
