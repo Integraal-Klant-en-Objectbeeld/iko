@@ -32,7 +32,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                     excludePattern: "data_attrs|data_attr|date|fields|ordering|page|pageSize|registrationDate|type"
               - setHeader:
                     name: "Accept-Crs"
-                    constant: "EPSG:28992"
+                    constant: "EPSG:4326"
 - route:
       id: "direct:iko:endpoint:transform:REFERENCE.object_read"
       errorHandler:
@@ -48,7 +48,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                     excludePattern: "uuid|fields"
               - setHeader:
                     name: "Accept-Crs"
-                    constant: "EPSG:28992"
+                    constant: "EPSG:4326"
 - route:
       id: "direct:iko:connector:REFERENCE"
       errorHandler:
@@ -56,8 +56,6 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
       from:
           uri: "direct:iko:connector:REFERENCE"
           steps:
-              - removeHeaders:
-                    pattern: "*"
               - setHeader:
                     name: "Accept"
                     constant: "application/json"

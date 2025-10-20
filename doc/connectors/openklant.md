@@ -43,8 +43,6 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
       from:
           uri: "direct:iko:connector:REFERENCE"
           steps:
-              - removeHeaders:
-                    pattern: "*"
               - setHeader:
                     name: "Accept"
                     constant: "application/json"
