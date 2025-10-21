@@ -28,6 +28,7 @@ class Endpoint() : RouteBuilder() {
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .to(Iko.connector())
+            .marshal().json()
 
         from(Iko.iko("rest:endpoint.id"))
             .errorHandler(noErrorHandler())
@@ -41,7 +42,7 @@ class Endpoint() : RouteBuilder() {
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .toD(Iko.connector())
-
+            .marshal().json()
 
     }
 }
