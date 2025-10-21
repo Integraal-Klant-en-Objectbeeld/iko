@@ -52,7 +52,7 @@ class AggregatedDataProfileRouteBuilder(
             .routeId("relation_${source.id}_map")
             .process {
                 it.getVariable("endpointMapping", ObjectNode::class.java).forEachEntry { key, value ->
-                    it.getIn().setHeader(key, value)
+                    it.getIn().setHeader(key, value.asText())
                 }
             }
             .removeVariable("endpointMapping")
@@ -69,7 +69,7 @@ class AggregatedDataProfileRouteBuilder(
             .parallelProcessing()
             .process { ex ->
                 ex.getIn().getBody(ObjectNode::class.java).forEachEntry { key, value ->
-                    ex.getIn().setHeader(key, value)
+                    ex.getIn().setHeader(key, value.asText())
                 }
             }
             .removeVariable("endpointMapping")

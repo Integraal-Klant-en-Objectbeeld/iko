@@ -5,14 +5,15 @@ import org.apache.camel.Exchange
 
 object PairAggregator : AggregationStrategy {
     override fun aggregate(oldExchange: Exchange?, newExchange: Exchange): Exchange {
-        if (oldExchange == null) {
-            newExchange.getIn().body = mutableMapOf(newExchange.getVariable("relationPropertyName") to newExchange.getIn().body)
+       if (oldExchange == null) {
             return newExchange
         }
 
-        val oldBody = oldExchange.getIn().body as MutableMap<*, *>
-        val newBody = newExchange.getIn().body
-        (oldExchange.getIn().body as MutableMap<Any?, Any?>).put(newExchange.getVariable("relationPropertyName"), newBody)
+        oldExchange.getIn().body = mapOf(
+            "left" to oldExchange.getIn().body,
+            "right" to newExchange.getIn().body,
+        )
+
         return oldExchange
     }
 }
