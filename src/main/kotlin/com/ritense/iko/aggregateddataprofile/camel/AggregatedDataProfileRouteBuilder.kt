@@ -57,6 +57,8 @@ class AggregatedDataProfileRouteBuilder(
             }
             .removeVariable("endpointMapping")
             .to("direct:relation_${source.id}_loop")
+            .transform(jq(source.transform.expression))
+            .unmarshal().json()
 
         from("direct:relation_${source.id}_array")
             .routeId("relation_${source.id}_array")
@@ -75,6 +77,8 @@ class AggregatedDataProfileRouteBuilder(
             .removeVariable("endpointMapping")
             .to("direct:relation_${source.id}_loop")
             .end()
+            .transform(jq(source.transform.expression))
+            .unmarshal().json()
 
         from("direct:relation_${source.id}_loop")
             .routeId("relation_${source.id}_loop")
@@ -94,8 +98,6 @@ class AggregatedDataProfileRouteBuilder(
                     it
                 }
             }
-            .transform(jq(source.transform.expression))
-            .unmarshal().json()
 
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${source.id}")
