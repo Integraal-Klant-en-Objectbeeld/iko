@@ -13,6 +13,8 @@ The configuration properties of openzaak are:
 Openzaak has the following endpoints:
 - zaak_list
 - zaak_read
+- zaakinformatieobject_list
+- zaakinformatieobject_read
 
 Other endpoints can be found by inspecting the specification.
 
@@ -21,6 +23,29 @@ Other endpoints can be found by inspecting the specification.
 Copy the connector code down below and replace the `REFERENCE` with the refernce of the connector.`
 
 ```yaml
+- route:
+      id: "direct:iko:endpoint:transform:REFERENCE.zaakinformatieobject_read"
+      errorHandler:
+          noErrorHandler: {}
+      from:
+          uri: "direct:iko:endpoint:transform:REFERENCE.zaakinformatieobject_read"
+          steps:
+              - setHeader:
+                    name: "uuid"
+                    variable: "id"
+              - removeHeaders:
+                    pattern: "*"
+                    excludePattern: "uuid"
+- route:
+      id: "direct:iko:endpoint:transform:REFERENCE.zaakinformatieobject_list"
+      errorHandler:
+          noErrorHandler: {}
+      from:
+          uri: "direct:iko:endpoint:transform:REFERENCE.zaakinformatieobject_list"
+          steps:
+              - removeHeaders:
+                    pattern: "*"
+                    excludePattern: "informatieobject|zaak"
 - route:
       id: "direct:iko:endpoint:transform:REFERENCE.zaak_list" 
       errorHandler:
