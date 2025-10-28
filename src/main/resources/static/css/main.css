@@ -12,15 +12,11 @@ body {
     letter-spacing: var(--cds-body-01-letter-spacing);
 }
 
-.cds--layer-01 {
-    background-color: var(--cds-layer);
-}
-
-.right-sidebar-panel-content{
+.right-sidebar-panel-content {
     padding: 15px 16px 15px 16px;
 }
 
-.header-user-name{
+.header-user-name {
     display: flex;
     align-items: center;
     justify-self: center;
@@ -56,8 +52,4 @@ body {
 #page-header {
     margin-top: 4rem;
     margin-bottom: 2rem;
-}
-
-.user-name{
-    width: 100%;
 }
