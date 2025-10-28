@@ -1,9 +1,9 @@
 body {
-    margin-left: 2rem;
+    margin: 0;
     padding: 0;
-    padding-top: 3rem;
 }
 
+/* Carbon typography helper */
 .text-secondary {
     font-family: var(--cds-body-01-font-family);
     font-size: var(--cds-body-01-font-size);
@@ -12,44 +12,25 @@ body {
     letter-spacing: var(--cds-body-01-letter-spacing);
 }
 
-.right-sidebar-panel-content {
-    padding: 15px 16px 15px 16px;
-}
-
-.header-user-name {
+/* Align items in the header’s global bar */
+cds-header-global-bar {
     display: flex;
-    align-items: center;
-    justify-self: center;
-    padding: 15px 16px 15px 16px;
-}
-
-.cds--toggle__switch--checked::before {
-    transform: translateX(1.5rem) !important;
-}
-
-.app--table-cell-actions {
-    display: flex;
-    flex-flow: row;
     justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-cds-header ~ cds-side-nav {
-    block-size: calc(100% - 3rem);
-    margin-block-start: 3rem
+/* Keep header layout balanced */
+cds-header {
+    justify-content: space-between;
 }
 
-body {
-    transition: margin-left .11s cubic-bezier(.2, 0, 1, .9);
-    will-change: margin-left;
+/* Make links feel clickable */
+cds-link {
+    cursor: pointer;
 }
 
-@media (min-width: 66rem) {
-    body {
-        margin-inline-start: 16rem
-    }
-}
 
-#page-header {
-    margin-top: 4rem;
-    margin-bottom: 2rem;
+#app-content{
+    margin-left: 256px;
 }

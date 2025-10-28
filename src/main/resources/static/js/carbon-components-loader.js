@@ -56,6 +56,5 @@ if (!window.__CARBON_IBM_LOADER__) {
             }
         }
         const ms = Math.round(performance.now() - started);
-        console.log(`[Carbon IBM Loader] Loaded ${COMPONENTS.length} components from ${VERSION} in ~${ms}ms`);
     })();
 }

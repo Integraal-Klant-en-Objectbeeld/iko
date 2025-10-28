@@ -56,11 +56,13 @@
         <link rel="stylesheet" href="/assets/css/main.css" />
     </head>
     <body class="cds-theme-zone-white">
-        <cds-header class="cds-theme-zone-g10">
+        <!--  Header  -->
+        <cds-header aria-label="IBM Platform Name">
             <cds-header-menu-button
                 button-label-active="Close menu"
                 button-label-inactive="Open menu"
-            ></cds-header-menu-button>
+            >
+            </cds-header-menu-button>
 
             <cds-header-name
                 href="javascript:void(0)"
@@ -68,32 +70,29 @@
                 hx-push-url="true"
                 hx-target="#view-panel"
                 prefix="IKO"
-            >
-                [Platform]
+                >[Platform]
             </cds-header-name>
 
-            <cds-header-global-bar slot="global">
-                <span
-                    class="text-secondary header-user-name"
-                    th:text="${username} ?: '&nbsp;'"
-                >
-                    Randell Bakker
-                </span>
+            <!-- NO slot attribute here -->
+            <cds-header-global-bar>
+                <cds-link href="javascript:void(0)" class="header-user-name">
+                    <span th:text="${username} ?: '&nbsp;'"
+                        >Randell Bakker</span
+                    >
+                </cds-link>
+
                 <cds-header-global-action
-                    button-label-active="Close switcher"
-                    button-label-inactive="Open switcher"
                     panel-id="switcher-panel"
                     tooltip-alignment="right"
                     tooltip-text="Open switcher"
                 >
                     <svg
+                        slot="icon"
                         aria-hidden="true"
                         focusable="false"
-                        height="20"
-                        slot="icon"
-                        viewBox="0 0 32 32"
                         width="20"
-                        xmlns="http://www.w3.org/2000/svg"
+                        height="20"
+                        viewBox="0 0 32 32"
                     >
                         <path
                             d="M16 4a5 5 0 11-5 5 5 5 0 015-5m0-2a7 7 0 107 7A7 7 0 0016 2zM26 30H24V25a5 5 0 00-5-5H13a5 5 0 00-5 5v5H6V25a7 7 0 017-7h6a7 7 0 017 7z"
@@ -102,126 +101,65 @@
                 </cds-header-global-action>
             </cds-header-global-bar>
 
-            <!-- User Sidebar panel-->
-            <cds-header-panel id="switcher-panel" class="cds-theme-zone-g10">
+            <cds-header-panel id="switcher-panel">
                 <cds-tabs value="account">
-                    <cds-tab
-                        id="tab-account"
-                        target="panel-account"
-                        value="account"
-                        >Account</cds-tab
-                    >
+                    <cds-tab value="account">Account</cds-tab>
                 </cds-tabs>
-                <cds-tab-panel value="account">
-                    <cds-structured-list>
-                        <cds-structured-list-head>
-                            <cds-structured-list-header-row>
-                                <cds-structured-list-header-cell
-                                    >Snelkoppelingen</cds-structured-list-header-cell
-                                >
-                            </cds-structured-list-header-row>
-                        </cds-structured-list-head>
-
-                        <cds-structured-list-body>
-                            <cds-structured-list-row>
-                                <cds-structured-list-cell>
-                                    <cds-link
-                                        href="https://docs.integraal-klant-objectbeeld.nl"
-                                        target="_blank"
-                                        >Help</cds-link
+                <cds-tab-panels>
+                    <cds-tab-panel value="account">
+                        <cds-structured-list>
+                            <cds-structured-list-head>
+                                <cds-structured-list-header-row>
+                                    <cds-structured-list-header-cell
+                                        >Snelkoppelingen</cds-structured-list-header-cell
                                     >
-                                </cds-structured-list-cell>
-                            </cds-structured-list-row>
+                                </cds-structured-list-header-row>
+                            </cds-structured-list-head>
 
-                            <cds-structured-list-row>
-                                <cds-structured-list-cell>
-                                    <cds-link href="/logout">
-                                        Afmelden
-                                    </cds-link>
-                                </cds-structured-list-cell>
-                            </cds-structured-list-row>
-                        </cds-structured-list-body>
-                    </cds-structured-list>
-                </cds-tab-panel>
+                            <cds-structured-list-body>
+                                <cds-structured-list-row>
+                                    <cds-structured-list-cell>
+                                        <cds-link
+                                            href="https://docs.integraal-klant-objectbeeld.nl"
+                                            target="_blank"
+                                            >Help</cds-link
+                                        >
+                                    </cds-structured-list-cell>
+                                </cds-structured-list-row>
+
+                                <cds-structured-list-row>
+                                    <cds-structured-list-cell>
+                                        <cds-link href="/logout">
+                                            Afmelden
+                                        </cds-link>
+                                    </cds-structured-list-cell>
+                                </cds-structured-list-row>
+                            </cds-structured-list-body>
+                        </cds-structured-list>
+                    </cds-tab-panel>
+                </cds-tab-panels>
             </cds-header-panel>
         </cds-header>
-
         <!--  Left side navigation  -->
-        <cds-side-nav
-            class="cds-theme-zone-g10"
-            aria-label="Side navigation"
-            collapse-mode="responsive"
-        >
-            <cds-side-nav-items>
-                <cds-side-nav-link
-                    href="javascript:void(0)"
-                    hx-get="/admin/aggregated-data-profiles"
-                    hx-on::after-request="document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));this?.toggleAttribute('active');"
-                    hx-push-url="true"
-                    hx-target="#view-panel"
-                >
-                    <svg
-                        aria-hidden="true"
-                        fill="currentColor"
-                        focusable="false"
-                        height="16"
-                        preserveAspectRatio="xMidYMid meet"
-                        slot="title-icon"
-                        viewBox="0 0 16 16"
-                        width="16"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"
-                        ></path>
-                    </svg>
-                    Aggregated Data Profiles
-                </cds-side-nav-link>
-                <cds-side-nav-link
-                    href="javascript:void(0)"
-                    hx-get="/admin/connectors"
-                    hx-on::after-request="
-         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
-         this?.toggleAttribute('active');"
-                    hx-push-url="true"
-                    hx-target="#view-panel"
-                >
-                    <svg
-                        aria-hidden="true"
-                        fill="currentColor"
-                        focusable="false"
-                        height="16"
-                        preserveAspectRatio="xMidYMid meet"
-                        slot="title-icon"
-                        viewBox="0 0 16 16"
-                        width="16"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M4.1 12.6l-.6.8c.6.5 1.3.9 2.1 1.2l.3-.9C5.3 13.4 4.7 13 4.1 12.6zM2.1 9l-1 .2c.1.8.4 1.6.8 2.3L2.8 11C2.4 10.4 2.2 9.7 2.1 9zM5.9 2.4L5.6 1.4C4.8 1.7 4.1 2.1 3.5 2.7l.6.8C4.7 3 5.3 2.6 5.9 2.4zM2.8 5L1.9 4.5C1.5 5.2 1.3 6 1.1 6.8l1 .2C2.2 6.3 2.5 5.6 2.8 5zM8 1v1c3.3 0 6 2.7 6 6s-2.7 6-6 6v1c3.9 0 7-3.1 7-7S11.9 1 8 1z"
-                        ></path>
-                    </svg>
-                    Connectors
-                </cds-side-nav-link>
-            </cds-side-nav-items>
-        </cds-side-nav>
+        <div th:replace="~{fragments/internal/side-nav :: side-nav}"></div>
 
-        <!--  Right side navigation  -->
-        <main class="cds--content cds-ce-demo-devenv--ui-shell-content">
-            <div class="cds--grid">
-                <div class="cds--row">
-                    <div class="cds--col-lg-13">
-                        <div
+        <!--  Main content  -->
+        <cds-content>
+            <cds-grid condensed>
+                <cds-row>
+                    <cds-col lg="13">
+                        <section
                             id="view-panel"
                             layout:fragment="view-panel-content"
                             th:fragment="details"
                         >
+                            <!-- Breadcrumb -->
                             <div
                                 id="breadcrumb"
                                 th:fragment="breadcrumb (entries)"
                             >
                                 <cds-breadcrumb
-                                    no-trailing-slash=""
+                                    no-trailing-slash
                                     th:if="${entries != null}"
                                 >
                                     <cds-breadcrumb-item>
@@ -238,12 +176,14 @@
                                             th:hx-get="${breadcrumb[1]}"
                                             th:is-currentpage="${iter.last}"
                                             th:text="${breadcrumb[0]}"
-                                        ></cds-breadcrumb-link>
+                                        >
+                                        </cds-breadcrumb-link>
                                     </cds-breadcrumb-item>
                                 </cds-breadcrumb>
                             </div>
 
-                            <div id="page-header" th:fragment="page-header">
+                            <!-- Page header -->
+                            <header id="page-header" th:fragment="page-header">
                                 <h4>
                                     <span
                                         th:text="${pageName} ?: '&nbsp;'"
@@ -257,20 +197,20 @@
                                         ></span
                                     ></em>
                                 </small>
-                            </div>
+                            </header>
+
                             <h4>Welcome to IKO</h4>
                             <img
-                                alt="Carbon illustration"
-                                class="page-landing__illo"
-                                height="498"
                                 th:src="@{assets/tab-illo.png}"
+                                alt="Carbon illustration"
                                 width="640"
+                                height="498"
                             />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+                        </section>
+                    </cds-col>
+                </cds-row>
+            </cds-grid>
+        </cds-content>
 
         <!--Modal container-->
         <div id="modal-container"></div>
