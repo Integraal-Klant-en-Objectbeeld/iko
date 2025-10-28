@@ -106,18 +106,18 @@ class AggregatedDataProfile(
 
     companion object {
         fun create(form: AggregatedDataProfileForm): AggregatedDataProfile {
-        val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
-        val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
-        val role = if (form.role.isNullOrBlank()) defaultRole else form.role
-        return AggregatedDataProfile(
-            id = UUID.randomUUID(),
-            name = form.name,
-            role = role,
-            transform = Transform(form.transform),
-            connectorEndpointId = form.connectorEndpointId,
-            connectorInstanceId = form.connectorInstanceId,
-        )
-    }
+            val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+            val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
+            val role = if (form.role.isNullOrBlank()) defaultRole else form.role
+            return AggregatedDataProfile(
+                id = UUID.randomUUID(),
+                name = form.name,
+                role = role,
+                transform = Transform(form.transform),
+                connectorEndpointId = form.connectorEndpointId,
+                connectorInstanceId = form.connectorInstanceId,
+            )
+        }
     }
 
 }
