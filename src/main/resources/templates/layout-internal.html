@@ -67,8 +67,8 @@
         <div th:replace="~{fragments/internal/side-nav :: side-nav}"></div>
 
         <!--  Main content  -->
-        <main>
-            <cds-content id="app-content" class="g10">
+        <main  class="g10">
+            <cds-content id="app-content">
                 <cds-grid condensed>
                     <cds-row>
                         <cds-col lg="13">
@@ -99,12 +99,6 @@
                                 </header>
 
                                 <h4>Welcome to IKO</h4>
-                                <img
-                                    th:src="@{assets/tab-illo.png}"
-                                    alt="Carbon illustration"
-                                    width="640"
-                                    height="498"
-                                />
                             </section>
                         </cds-col>
                     </cds-row>

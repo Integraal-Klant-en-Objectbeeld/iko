@@ -10,29 +10,35 @@ body {
 main {
     display: grid;
     height: 100vh;
-
-    cds-content {
-        padding: var(--cds-spacing-09);
-        display: block;
-        margin-left: 257px;
-    }
+    padding: var(--cds-spacing-09);
+    margin-left: 257px;
 }
 
-
 .text-secondary {
-    font-family: var(--cds-body-01-font-family), serif;
-    font-size: var(--cds-body-01-font-size);
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
+    font-size: var(--cds-body-compact-01-font-size);
     font-weight: var(--cds-body-01-font-weight);
     line-height: var(--cds-body-01-line-height);
     letter-spacing: var(--cds-body-01-letter-spacing);
 }
-
 
 cds-header {
     justify-content: space-between;
 
     .header-panel {
         background: #ffffff;
+
+        cds-structured-list-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* keep text and tag left-aligned */
+        }
+
+        cds-structured-list-cell cds-tag {
+            display: inline-flex; /* keeps the tag only as wide as its content */
+            margin-top: var(--cds-spacing-03, 0.5rem);
+        }
+
     }
 
     cds-header-global-bar {
@@ -41,7 +47,7 @@ cds-header {
         align-items: center;
         gap: 0.5rem;
 
-        cds-link {
+        cds-link span {
             color: #000000;
         }
     }
@@ -50,7 +56,6 @@ cds-header {
 cds-link {
     cursor: pointer;
 }
-
 
 .g10 {
     background-color: #f4f4f4;

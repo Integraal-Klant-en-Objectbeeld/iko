@@ -18,7 +18,7 @@
 
         <cds-header-global-bar>
             <cds-link href="javascript:void(0)" class="header-user-name">
-                <span th:text="${username} ?: '&nbsp;'">Randell Bakker</span>
+                <span th:text="${name} ?: '&nbsp;'"></span>
             </cds-link>
 
             <cds-header-global-action
@@ -48,6 +48,60 @@
             <cds-tab-panels>
                 <cds-tab-panel value="account">
                     <cds-structured-list>
+                        <cds-structured-list-head>
+                            <cds-structured-list-header-row>
+                                <cds-structured-list-header-cell>
+                                    Gegevens
+                                </cds-structured-list-header-cell>
+                            </cds-structured-list-header-row>
+                        </cds-structured-list-head>
+
+                        <cds-structured-list-body>
+                            <cds-structured-list-row>
+                                <cds-structured-list-cell>
+                                    E-mail
+                                    <cds-tag
+                                        type="blue"
+                                        title="Clear filters"
+                                        size="md"
+                                    >
+                                        <span
+                                            th:text="${email} ?: '&nbsp;'"
+                                        ></span>
+                                    </cds-tag>
+                                </cds-structured-list-cell>
+                            </cds-structured-list-row>
+
+                            <cds-structured-list-row>
+                                <cds-structured-list-cell>
+                                    <span>Gebruikersnaam</span>
+                                    <cds-tag
+                                        type="blue"
+                                        title="Clear filters"
+                                        size="md"
+                                        ><span
+                                            th:text="${username} ?: '&nbsp;'"
+                                        ></span
+                                    ></cds-tag>
+                                </cds-structured-list-cell>
+                            </cds-structured-list-row>
+
+                            <cds-structured-list-row>
+                                <cds-structured-list-cell>
+                                    <span>Naam</span>
+                                    <cds-tag
+                                        type="blue"
+                                        title="Clear filters"
+                                        size="md"
+                                    >
+                                        <span
+                                            th:text="${name} ?: '&nbsp;'"
+                                        ></span>
+                                    </cds-tag>
+                                </cds-structured-list-cell>
+                            </cds-structured-list-row>
+                        </cds-structured-list-body>
+
                         <cds-structured-list-head>
                             <cds-structured-list-header-row>
                                 <cds-structured-list-header-cell>

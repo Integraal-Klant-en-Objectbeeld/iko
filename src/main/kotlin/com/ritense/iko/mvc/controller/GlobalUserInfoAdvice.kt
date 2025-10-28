@@ -18,6 +18,20 @@ internal class GlobalUserInfoAdvice {
     @ModelAttribute("username")
     fun username(@AuthenticationPrincipal principal: OidcUser?): String? {
         val claims = principal?.userInfo?.claims ?: return null
+        val username = claims["preferred_username"] as? String
+        return if (!username.isNullOrBlank()) username else "Unknown username"
+    }
+
+    @ModelAttribute("email")
+    fun email(@AuthenticationPrincipal principal: OidcUser?): String? {
+        val claims = principal?.userInfo?.claims ?: return null
+        val email = claims["email"] as? String
+        return if (!email.isNullOrBlank()) email else "Unknown email address"
+    }
+
+    @ModelAttribute("name")
+    fun name(@AuthenticationPrincipal principal: OidcUser?): String? {
+        val claims = principal?.userInfo?.claims ?: return null
         val name = claims["name"] as? String
         return if (!name.isNullOrBlank()) name else "Unknown user"
     }
