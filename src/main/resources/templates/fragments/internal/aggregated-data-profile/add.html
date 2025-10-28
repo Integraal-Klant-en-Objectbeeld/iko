@@ -1,24 +1,6 @@
 <cds-content id="add-profile">
     <cds-tile>
-        <cds-breadcrumb no-trailing-slash="">
-            <cds-breadcrumb-item>
-                <cds-breadcrumb-link
-                    href="/admin"
-                    visited="true">
-                    Home
-                </cds-breadcrumb-link>
-            </cds-breadcrumb-item>
-            <cds-breadcrumb-item>
-                <cds-breadcrumb-link
-                    href="javascript:void(0);"
-                    hx-get="/admin/aggregated-data-profiles"
-                    hx-target="#view-panel"
-                    is-currentpage="false"
-                    visited="true">
-                    Aggregated Data Profiles
-                </cds-breadcrumb-link>
-            </cds-breadcrumb-item>
-        </cds-breadcrumb>
+        <div th:replace="~{fragments/internal/breadcrumb :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}, {'Add', '/admin/aggregated-data-profiles/create'} } })}"></div>
 
         <h4>Add Aggregated Data Profile:</h4>
         <cds-form-group id="form-group" name="form-group" legend-text="Add Aggregated Data Profile">

@@ -1,5 +1,5 @@
 <th:block th:fragment="profile-list">
-    <div th:replace="~{layout-internal :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}} })}"></div>
+    <div th:replace="~{fragments/internal/breadcrumb :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}} })}"></div>
     <div th:replace="~{layout-internal :: page-header (title='Aggregated Data Profiles')}"></div>
 
     <!-- Data table -->

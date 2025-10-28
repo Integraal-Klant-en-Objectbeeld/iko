@@ -3,14 +3,21 @@ body {
     padding: 0;
 }
 
-main{
-    display: grid;
-    height: 100vh;
+#breadcrumb {
+    margin-top: var(--cds-spacing-06);
 }
 
-#view-panel{
-    padding: var(--cds-spacing-09);
+main {
+    display: grid;
+    height: 100vh;
+
+    cds-content {
+        padding: var(--cds-spacing-09);
+        display: block;
+        margin-left: 257px;
+    }
 }
+
 
 .text-secondary {
     font-family: var(--cds-body-01-font-family), serif;
@@ -20,58 +27,31 @@ main{
     letter-spacing: var(--cds-body-01-letter-spacing);
 }
 
-cds-header-global-bar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0.5rem;
-
-    cds-link {
-        color: #000000;
-    }
-}
-
-.header-panel {
-    background: #ffffff;
-}
 
 cds-header {
     justify-content: space-between;
+
+    .header-panel {
+        background: #ffffff;
+    }
+
+    cds-header-global-bar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.5rem;
+
+        cds-link {
+            color: #000000;
+        }
+    }
 }
 
 cds-link {
     cursor: pointer;
 }
 
-/* Layout: place content next to the side nav on larger screens */
-/* Ensure host element lays out like a block so margins/padding apply as expected */
-cds-content {
-    display: block;
-}
 
-/* Carbon breakpoint lg ≈ 66rem (1056px) */
-@media (min-width: 66rem) {
-    /* When side nav is expanded, offset content by the nav width */
-    cds-side-nav[expanded] + main cds-content#app-content {
-        margin-left: var(--cds-side-nav-width, 16rem);
-        transition: margin-left 160ms ease;
-    }
-
-    /* When side nav is collapsed into rail (if used), use the rail width */
-    cds-side-nav:not([expanded]) + main cds-content#app-content {
-        margin-left: var(--cds-side-nav-rail-width, 3rem);
-        transition: margin-left 160ms ease;
-    }
-}
-
-/* On small screens, keep content full width; nav overlays */
-@media (max-width: 65.99rem) {
-    cds-side-nav + main cds-content#app-content {
-        margin-left: 0;
-    }
-}
-
-
-.g10{
+.g10 {
     background-color: #f4f4f4;
 }

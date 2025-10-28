@@ -77,39 +77,6 @@
                                 layout:fragment="view-panel-content"
                                 th:fragment="details"
                             >
-                                <!-- Breadcrumb -->
-                                <div
-                                    id="breadcrumb"
-                                    th:fragment="breadcrumb (entries)"
-                                >
-                                    <cds-breadcrumb
-                                        no-trailing-slash
-                                        th:if="${entries != null}"
-                                    >
-                                        <!-- Home -->
-                                        <cds-breadcrumb-item>
-                                            <cds-breadcrumb-link
-                                                href="javascript:void(0)"
-                                                >Home</cds-breadcrumb-link
-                                            >
-                                        </cds-breadcrumb-item>
-
-                                        <!-- Dynamic items -->
-                                        <cds-breadcrumb-item
-                                            th:each="breadcrumb, iter : ${entries}"
-                                        >
-                                            <cds-breadcrumb-link
-                                                href="javascript:void(0)"
-                                                th:hx-get="${breadcrumb[1]}"
-                                                hx-push-url="true"
-                                                hx-target="#view-panel"
-                                                th:attr="is-currentpage=${iter.last} ? 'true' : null"
-                                                th:text="${breadcrumb[0]}"
-                                            >
-                                            </cds-breadcrumb-link>
-                                        </cds-breadcrumb-item>
-                                    </cds-breadcrumb>
-                                </div>
 
                                 <!-- Page header -->
                                 <header
