@@ -68,7 +68,10 @@ spring:
                     keycloak:
                         provider: keycloak
                         authorization-grant-type: authorization_code
-                        scope: openid
+                        scope:
+                            - openid
+                            - profile
+                            - email
                         client-id: # ENV
                         client-secret: # ENV
                 provider:
