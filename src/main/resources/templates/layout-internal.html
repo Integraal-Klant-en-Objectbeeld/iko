@@ -1,6 +1,9 @@
 <!doctype html>
 <!--suppress ALL -->
-<html class="cds-theme-zone-white" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html
+    class="cds-theme-zone-white"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
     <head>
         <meta charset="UTF-8" />
         <title>IKO Admin</title>
@@ -24,18 +27,20 @@
         <!-- Carbon Web Components (IBM CDN, prebundled version) -->
         <link
             rel="stylesheet"
-            href="https://1.www.s81c.com/common/carbon/web-components/version/v2.40.1/index.css"
+            href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css"
         />
 
-        <link
-            rel="stylesheet"
-            href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"
-        />
-
-        <!-- IBM Plex font family (matches Carbon typography) -->
         <link
             rel="stylesheet"
             href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"
         />
 
         <!-- Highlight.js for code samples -->
@@ -145,7 +150,7 @@
 
         <!--  Main content  -->
         <main>
-            <cds-content id="app-content" class="cds-theme-zone-g10">
+            <cds-content id="app-content" class="g10">
                 <cds-grid condensed>
                     <cds-row>
                         <cds-col lg="13">

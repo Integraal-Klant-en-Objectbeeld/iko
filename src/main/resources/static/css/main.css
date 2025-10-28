@@ -3,6 +3,15 @@ body {
     padding: 0;
 }
 
+main{
+    display: grid;
+    height: 100vh;
+}
+
+#view-panel{
+    padding: var(--cds-spacing-09);
+}
+
 .text-secondary {
     font-family: var(--cds-body-01-font-family);
     font-size: var(--cds-body-01-font-size);
@@ -16,9 +25,13 @@ cds-header-global-bar {
     justify-content: flex-end;
     align-items: center;
     gap: 0.5rem;
+
+    cds-link {
+        color: #000000;
+    }
 }
 
-.header-panel{
+.header-panel {
     background: #ffffff;
 }
 
@@ -43,6 +56,7 @@ cds-content {
         margin-left: var(--cds-side-nav-width, 16rem);
         transition: margin-left 160ms ease;
     }
+
     /* When side nav is collapsed into rail (if used), use the rail width */
     cds-side-nav:not([expanded]) + main cds-content#app-content {
         margin-left: var(--cds-side-nav-rail-width, 3rem);
@@ -57,19 +71,7 @@ cds-content {
     }
 }
 
-/* Ensure header panels (e.g., user menu/right panel opened from the global action bar) overlay the content instead of pushing layout */
-/* Carbon's cds-header height is ~3rem by default; use the CSS var if provided */
-cds-header-panel {
-    position: fixed;               /* take out of normal flow so it doesn't shift content */
-    top: var(--cds-header-height, 3rem);
-    right: 0;
-    height: calc(100vh - var(--cds-header-height, 3rem));
-    z-index: 1000;                 /* above page content but below modals */
-    /* Let the component decide its width; if needed, cap it to viewport */
-    max-width: min(28rem, 100vw);
-}
 
-/* When the header panel renders a backdrop/overlay element, make sure it's above content */
-cds-header-panel::backdrop {
-    z-index: 999;                  /* slightly below the panel itself */
+.g10{
+    background-color: #f4f4f4;
 }
