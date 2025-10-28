@@ -3,7 +3,6 @@ body {
     padding: 0;
 }
 
-/* Carbon typography helper */
 .text-secondary {
     font-family: var(--cds-body-01-font-family);
     font-size: var(--cds-body-01-font-size);
@@ -12,7 +11,6 @@ body {
     letter-spacing: var(--cds-body-01-letter-spacing);
 }
 
-/* Align items in the header’s global bar */
 cds-header-global-bar {
     display: flex;
     justify-content: flex-end;
@@ -20,17 +18,58 @@ cds-header-global-bar {
     gap: 0.5rem;
 }
 
-/* Keep header layout balanced */
+.header-panel{
+    background: #ffffff;
+}
+
 cds-header {
     justify-content: space-between;
 }
 
-/* Make links feel clickable */
 cds-link {
     cursor: pointer;
 }
 
+/* Layout: place content next to the side nav on larger screens */
+/* Ensure host element lays out like a block so margins/padding apply as expected */
+cds-content {
+    display: block;
+}
 
-#app-content{
-    margin-left: 256px;
+/* Carbon breakpoint lg ≈ 66rem (1056px) */
+@media (min-width: 66rem) {
+    /* When side nav is expanded, offset content by the nav width */
+    cds-side-nav[expanded] + main cds-content#app-content {
+        margin-left: var(--cds-side-nav-width, 16rem);
+        transition: margin-left 160ms ease;
+    }
+    /* When side nav is collapsed into rail (if used), use the rail width */
+    cds-side-nav:not([expanded]) + main cds-content#app-content {
+        margin-left: var(--cds-side-nav-rail-width, 3rem);
+        transition: margin-left 160ms ease;
+    }
+}
+
+/* On small screens, keep content full width; nav overlays */
+@media (max-width: 65.99rem) {
+    cds-side-nav + main cds-content#app-content {
+        margin-left: 0;
+    }
+}
+
+/* Ensure header panels (e.g., user menu/right panel opened from the global action bar) overlay the content instead of pushing layout */
+/* Carbon's cds-header height is ~3rem by default; use the CSS var if provided */
+cds-header-panel {
+    position: fixed;               /* take out of normal flow so it doesn't shift content */
+    top: var(--cds-header-height, 3rem);
+    right: 0;
+    height: calc(100vh - var(--cds-header-height, 3rem));
+    z-index: 1000;                 /* above page content but below modals */
+    /* Let the component decide its width; if needed, cap it to viewport */
+    max-width: min(28rem, 100vw);
+}
+
+/* When the header panel renders a backdrop/overlay element, make sure it's above content */
+cds-header-panel::backdrop {
+    z-index: 999;                  /* slightly below the panel itself */
 }

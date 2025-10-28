@@ -1,6 +1,6 @@
 <!doctype html>
 <!--suppress ALL -->
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html class="cds-theme-zone-white" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <head>
         <meta charset="UTF-8" />
         <title>IKO Admin</title>
@@ -55,7 +55,7 @@
         <!-- Application stylesheet -->
         <link rel="stylesheet" href="/assets/css/main.css" />
     </head>
-    <body class="cds-theme-zone-white">
+    <body>
         <!--  Header  -->
         <cds-header aria-label="IBM Platform Name">
             <cds-header-menu-button
@@ -101,7 +101,7 @@
                 </cds-header-global-action>
             </cds-header-global-bar>
 
-            <cds-header-panel id="switcher-panel">
+            <cds-header-panel id="switcher-panel" class="header-panel">
                 <cds-tabs value="account">
                     <cds-tab value="account">Account</cds-tab>
                 </cds-tabs>
@@ -144,73 +144,83 @@
         <div th:replace="~{fragments/internal/side-nav :: side-nav}"></div>
 
         <!--  Main content  -->
-        <cds-content>
-            <cds-grid condensed>
-                <cds-row>
-                    <cds-col lg="13">
-                        <section
-                            id="view-panel"
-                            layout:fragment="view-panel-content"
-                            th:fragment="details"
-                        >
-                            <!-- Breadcrumb -->
-                            <div
-                                id="breadcrumb"
-                                th:fragment="breadcrumb (entries)"
+        <main>
+            <cds-content id="app-content" class="cds-theme-zone-g10">
+                <cds-grid condensed>
+                    <cds-row>
+                        <cds-col lg="13">
+                            <section
+                                id="view-panel"
+                                layout:fragment="view-panel-content"
+                                th:fragment="details"
                             >
-                                <cds-breadcrumb
-                                    no-trailing-slash
-                                    th:if="${entries != null}"
+                                <!-- Breadcrumb -->
+                                <div
+                                    id="breadcrumb"
+                                    th:fragment="breadcrumb (entries)"
                                 >
-                                    <cds-breadcrumb-item>
-                                        <cds-breadcrumb>Home</cds-breadcrumb>
-                                    </cds-breadcrumb-item>
-                                    <cds-breadcrumb-item
-                                        th:each="breadcrumb, iter : ${entries}"
+                                    <cds-breadcrumb
+                                        no-trailing-slash
+                                        th:if="${entries != null}"
                                     >
-                                        <cds-breadcrumb-link
-                                            href="javascript:void(0)"
-                                            hx-push-url="true"
-                                            hx-target="#view-panel"
-                                            th:attrappend="is-currentpage=${iter.last}?'true'"
-                                            th:hx-get="${breadcrumb[1]}"
-                                            th:is-currentpage="${iter.last}"
-                                            th:text="${breadcrumb[0]}"
+                                        <!-- Home -->
+                                        <cds-breadcrumb-item>
+                                            <cds-breadcrumb-link
+                                                href="javascript:void(0)"
+                                                >Home</cds-breadcrumb-link
+                                            >
+                                        </cds-breadcrumb-item>
+
+                                        <!-- Dynamic items -->
+                                        <cds-breadcrumb-item
+                                            th:each="breadcrumb, iter : ${entries}"
                                         >
-                                        </cds-breadcrumb-link>
-                                    </cds-breadcrumb-item>
-                                </cds-breadcrumb>
-                            </div>
+                                            <cds-breadcrumb-link
+                                                href="javascript:void(0)"
+                                                th:hx-get="${breadcrumb[1]}"
+                                                hx-push-url="true"
+                                                hx-target="#view-panel"
+                                                th:attr="is-currentpage=${iter.last} ? 'true' : null"
+                                                th:text="${breadcrumb[0]}"
+                                            >
+                                            </cds-breadcrumb-link>
+                                        </cds-breadcrumb-item>
+                                    </cds-breadcrumb>
+                                </div>
 
-                            <!-- Page header -->
-                            <header id="page-header" th:fragment="page-header">
-                                <h4>
-                                    <span
-                                        th:text="${pageName} ?: '&nbsp;'"
-                                    ></span>
-                                </h4>
-                                <h2><span th:text="${title}"></span></h2>
-                                <small>
-                                    <em
-                                        ><span
-                                            th:text="${subtext ?: '&nbsp;'}"
-                                        ></span
-                                    ></em>
-                                </small>
-                            </header>
+                                <!-- Page header -->
+                                <header
+                                    id="page-header"
+                                    th:fragment="page-header"
+                                >
+                                    <h4>
+                                        <span
+                                            th:text="${pageName} ?: '&nbsp;'"
+                                        ></span>
+                                    </h4>
+                                    <h2><span th:text="${title}"></span></h2>
+                                    <small>
+                                        <em
+                                            ><span
+                                                th:text="${subtext ?: '&nbsp;'}"
+                                            ></span
+                                        ></em>
+                                    </small>
+                                </header>
 
-                            <h4>Welcome to IKO</h4>
-                            <img
-                                th:src="@{assets/tab-illo.png}"
-                                alt="Carbon illustration"
-                                width="640"
-                                height="498"
-                            />
-                        </section>
-                    </cds-col>
-                </cds-row>
-            </cds-grid>
-        </cds-content>
+                                <h4>Welcome to IKO</h4>
+                                <img
+                                    th:src="@{assets/tab-illo.png}"
+                                    alt="Carbon illustration"
+                                    width="640"
+                                    height="498"
+                                />
+                            </section>
+                        </cds-col>
+                    </cds-row>
+                </cds-grid>
+            </cds-content>
+        </main>
 
         <!--Modal container-->
         <div id="modal-container"></div>
