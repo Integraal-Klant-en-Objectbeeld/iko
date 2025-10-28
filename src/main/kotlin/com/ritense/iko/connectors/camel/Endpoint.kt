@@ -28,19 +28,21 @@ class Endpoint() : RouteBuilder() {
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .to(Iko.connector())
+            .marshal().json()
 
         from(Iko.iko("rest:endpoint.id"))
             .errorHandler(noErrorHandler())
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
+            .setVariable("id", header("id"))
             .removeHeaders("iko_*")
             .to(Iko.endpoint("validate"))
             .to(Iko.endpoint("auth"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .toD(Iko.connector())
-
+            .marshal().json()
 
     }
 }

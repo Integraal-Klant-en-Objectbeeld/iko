@@ -1,6 +1,6 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.mvc.connector.ConnectorController.Companion.hxRequest
+import com.ritense.iko.mvc.controller.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.model.MenuItem
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
