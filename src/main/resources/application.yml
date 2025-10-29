@@ -102,6 +102,8 @@ camel:
         routes:
             enabled: true
             paths: classpath:camel/*.yaml
+    trace:
+        enabled: true
 
 iko:
     connectors:
