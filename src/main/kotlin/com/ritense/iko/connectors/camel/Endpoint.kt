@@ -18,6 +18,7 @@ class Endpoint() : RouteBuilder() {
             .to(Iko.iko("rest:endpoint.id"))
 
         from(Iko.iko("rest:endpoint"))
+            .routeId("rest-endpoint")
             .errorHandler(noErrorHandler())
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
@@ -31,6 +32,7 @@ class Endpoint() : RouteBuilder() {
             .marshal().json()
 
         from(Iko.iko("rest:endpoint.id"))
+            .routeId("rest-endpoint-id")
             .errorHandler(noErrorHandler())
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
