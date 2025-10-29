@@ -53,6 +53,7 @@ dependencies {
     implementation("org.apache.camel.springboot:camel-rest-starter")
     implementation("org.apache.camel.springboot:camel-openapi-java-starter")
     implementation("org.apache.camel.springboot:camel-groovy-starter")
+    implementation("org.apache.camel:camel-management")
     implementation("org.apache.camel:camel-yaml-dsl")
     implementation("org.apache.camel:camel-rest-openapi")
     implementation("org.apache.camel:camel-jq")
