@@ -59,9 +59,9 @@
                     hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
                     hx-vals="js:{
                     sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
-                    size: document.querySelector('#pagination-container').__pageSize,
-                    page: document.querySelector('#pagination-container').__page - 1,
-                    query: document.querySelector('#search-bar').value
+                    size: (document.querySelector('#pagination-container')?.__pageSize) ?? 10,
+                    page: ((document.querySelector('#pagination-container')?.__page) ?? 1) - 1,
+                    query: (document.querySelector('#search-bar') || { value: '' }).value
                     }">
                     Name
                 </cds-table-header-cell>
