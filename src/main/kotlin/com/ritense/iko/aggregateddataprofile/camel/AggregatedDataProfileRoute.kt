@@ -12,7 +12,7 @@ class AggregatedDataProfileRoute(
             .to("direct:aggregated_data_profile_rest")
 
         from("direct:aggregated_data_profile_rest")
-            .routeId("aggregated_data_profile_rest")
+            .routeId("aggregated-data-profile-rest")
             .setVariable("id", header("iko_id"))
             .setVariable("profile", header("iko_profile"))
             .removeHeaders("iko_*")
