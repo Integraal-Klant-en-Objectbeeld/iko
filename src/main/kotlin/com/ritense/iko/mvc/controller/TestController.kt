@@ -2,7 +2,7 @@ package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
-import com.ritense.iko.mvc.model.AggregatedDataProfileForm
+import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
 import jakarta.validation.Valid
 import org.apache.camel.CamelContext
@@ -28,16 +28,24 @@ class TestController(
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
     )
     fun test(
-        @Valid @ModelAttribute form: AggregatedDataProfileForm,
+        @Valid @ModelAttribute form: TestAggregatedDataProfileForm,
     ): ModelAndView {
         val tracer = camelContext.camelContextExtension.getContextPlugin(BacklogTracer::class.java)
         requireNotNull(tracer) { "BacklogTracer plugin not found in CamelContext" }
         tracer.clear() // Clean history first
 
         // Run ADP
-        val adp = aggregatedDataProfileRepository.getReferenceById(form.id!!)
-        val adpEndpointUri = "direct:aggregated_data_profile_${adp.id}"
-        val result = producerTemplate.requestBody(adpEndpointUri, null, String::class.java)
+        val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
+        val headers = mapOf(
+            "iko_id" to form.testId,
+            "iko_profile" to form.name,
+        )
+        val result = producerTemplate.requestBodyAndHeaders(
+            adpEndpointUri,
+            "{}",
+            headers,
+            String::class.java
+        )
 
         // Fetch traces
         val traces = tracer.dumpAllTracedMessages()?.map {

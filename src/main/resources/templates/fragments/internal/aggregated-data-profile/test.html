@@ -57,7 +57,7 @@
                                           style="width: 100%;"
                                           label="Transform"
                                           rows="auto"
-                                          value=".">
+                                          th:attr="value=${form.transform}">
                             </cds-textarea>
                             <cds-textarea id="output"
                                           name="output"
@@ -71,7 +71,8 @@
                                 <cds-button id="back" kind="secondary"
                                             th:hx-get="@{|/admin/aggregated-data-profiles/edit/${form.id}}"
                                             hx-target="#view-panel">
-                                    Back</cds-button>
+                                    Back
+                                </cds-button>
                             </div>
 
                             <script type="application/javascript">
