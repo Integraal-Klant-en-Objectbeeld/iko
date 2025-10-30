@@ -27,7 +27,7 @@
     "oauth2DeviceCodeLifespan": 600,
     "oauth2DevicePollingInterval": 5,
     "enabled": true,
-    "sslRequired": "NONE",
+    "sslRequired": "none",
     "registrationAllowed": false,
     "registrationEmailAsUsername": false,
     "rememberMe": false,
@@ -56,6 +56,14 @@
                 "attributes": {}
             },
             {
+                "id": "6644d8b3-0556-4407-927e-fe64632860a0",
+                "name": "ROLE_ENDPOINT_BRPPERSONENENDPOINT",
+                "composite": false,
+                "clientRole": false,
+                "containerId": "valtimo",
+                "attributes": {}
+            },
+            {
                 "id": "b8feef22-2fe3-4536-b624-89d76bdc9e06",
                 "name": "ROLE_USER",
                 "composite": false,
@@ -72,8 +80,9 @@
                 "attributes": {}
             },
             {
-                "id": "6644d8b3-0556-4407-927e-fe64632860a0",
-                "name": "ROLE_ENDPOINT_BRPPERSONENENDPOINT",
+                "id": "0b60197e-6a2f-477d-8e31-14dc804e032f",
+                "name": "offline_access",
+                "description": "${role_offline-access}",
                 "composite": false,
                 "clientRole": false,
                 "containerId": "valtimo",
@@ -90,15 +99,6 @@
             {
                 "id": "8644d8b3-0556-4407-927e-fe64632860a0",
                 "name": "ROLE_AGGREGATED_DATA_PROFILE_TEMP",
-                "composite": false,
-                "clientRole": false,
-                "containerId": "valtimo",
-                "attributes": {}
-            },
-            {
-                "id": "0b60197e-6a2f-477d-8e31-14dc804e032f",
-                "name": "offline_access",
-                "description": "${role_offline-access}",
                 "composite": false,
                 "clientRole": false,
                 "containerId": "valtimo",
@@ -371,6 +371,7 @@
                     "attributes": {}
                 }
             ],
+            "iko": [],
             "account": [
                 {
                     "id": "9a3d1d45-7792-4f93-8a9c-daaaec459832",
@@ -536,258 +537,6 @@
     "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
     "webAuthnPolicyPasswordlessAcceptableAaguids": [],
     "webAuthnPolicyPasswordlessExtraOrigins": [],
-    "users": [{
-        "id": "2a6173b4-ab0a-4db4-a64a-c4585ab10d34",
-        "username": "service-account-iko",
-        "emailVerified": false,
-        "createdTimestamp": 1747038733031,
-        "enabled": true,
-        "totp": false,
-        "serviceAccountClientId": "iko",
-        "disableableCredentialTypes": [],
-        "requiredActions": [],
-        "realmRoles": [
-            "ROLE_ENDPOINT_BRPPERSONENENDPOINT",
-            "ROLE_AGGREGATED_DATA_PROFILE_BAGBEWONERS",
-            "ROLE_AGGREGATED_DATA_PROFILE_TEMP",
-            "default-roles-valtimo"
-        ],
-        "notBefore": 0,
-        "groups": []
-    },
-        {
-            "id": "748ea4cd-1055-44e0-b1ad-a5e2bf884d76",
-            "username": "admin",
-            "firstName": "Asha",
-            "lastName": "Miller",
-            "email": "admin@example.com",
-            "emailVerified": true,
-            "createdTimestamp": 1628668592363,
-            "enabled": true,
-            "totp": false,
-            "credentials": [
-                {
-                    "id": "74f462c7-f2a8-4f9f-ab1e-8d7666244ac5",
-                    "type": "password",
-                    "createdDate": 1628668665101,
-                    "secretData": "{\"value\":\"KS++hmY0SuUg54rDZFeYUZnvDLUxsT6BWGolDUFZXwKLsAdn9MlyTZ0L3o/ZqbmuIMCbhHcQ0bmWKN/51VDYgQ==\",\"salt\":\"C8u6wkV06uwk4RlG4UoPHw==\",\"additionalParameters\":{}}",
-                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-                }
-            ],
-            "disableableCredentialTypes": [],
-            "requiredActions": [],
-            "realmRoles": [
-                "ROLE_ADMIN",
-                "ROLE_USER",
-                "default-roles-valtimo"
-            ],
-            "notBefore": 0,
-            "groups": []
-        },
-        {
-            "id": "59d9f86b-8dfa-4f1f-990a-a65d379c88ed",
-            "username": "admin-mfa",
-            "firstName": "Rosa",
-            "lastName": "Becker",
-            "email": "admin-mfa@example.com",
-            "emailVerified": true,
-            "createdTimestamp": 1718628463142,
-            "enabled": true,
-            "totp": true,
-            "credentials": [
-                {
-                    "id": "5cbb53d5-d5d9-40f7-a314-60b3a3c989dc",
-                    "type": "password",
-                    "userLabel": "",
-                    "createdDate": 1718628692043,
-                    "secretData": "{\"value\":\"/eBF+Uz7ZED8OCgWkeEAl8H+5s2iUeIz2HipPNCtM8CoR2WiMWRmLVAt3wnLcsqovhaayIabCkwER4XHWMLQgw==\",\"salt\":\"bYvr4VoucSgF075WG2vLQQ==\",\"additionalParameters\":{}}",
-                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-                },
-                {
-                    "id": "4a1f1cb6-31b6-4850-b9bf-aba1943747d1",
-                    "type": "otp",
-                    "userLabel": "",
-                    "createdDate": 1718698532734,
-                    "secretData": "{\"value\":\"HnlHWidyISaIPmwb8j3P\"}",
-                    "credentialData": "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA256\"}"
-                }
-            ],
-            "disableableCredentialTypes": [],
-            "requiredActions": [],
-            "realmRoles": [
-                "ROLE_ADMIN",
-                "ROLE_USER",
-                "default-roles-valtimo"
-            ],
-            "notBefore": 0,
-            "groups": []
-        },
-        {
-            "id": "6491fd73-1d0a-4d85-8624-8b7adf58b404",
-            "username": "developer",
-            "firstName": "Morgan",
-            "lastName": "Finch",
-            "email": "developer@example.com",
-            "emailVerified": true,
-            "createdTimestamp": 1628668771639,
-            "enabled": true,
-            "totp": false,
-            "credentials": [
-                {
-                    "id": "c6ce7e0d-2d21-4fef-a498-67b5f1ab8b52",
-                    "type": "password",
-                    "createdDate": 1628668805173,
-                    "secretData": "{\"value\":\"kPDAuyQC1GRjqrkiCtIYHtWrnLt9fbYTO6e2TBUx3usunp+gTUd3n6qw7rAPXzL1TlHcVbk7D6YnvE5JM+WWKg==\",\"salt\":\"5L7wFnJ5D3RWAkNH2T48pQ==\",\"additionalParameters\":{}}",
-                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-                }
-            ],
-            "disableableCredentialTypes": [],
-            "requiredActions": [],
-            "realmRoles": [
-                "ROLE_ADMIN",
-                "ROLE_USER",
-                "ROLE_DEVELOPER",
-                "default-roles-valtimo"
-            ],
-            "notBefore": 0,
-            "groups": []
-        },
-        {
-            "id": "3045e6bc-0796-4f67-a5ad-0fb9fbd14abc",
-            "username": "developer-mfa",
-            "firstName": "Joshua",
-            "lastName": "Hart",
-            "email": "developer-mfa@example.com",
-            "emailVerified": true,
-            "createdTimestamp": 1718628572090,
-            "enabled": true,
-            "totp": true,
-            "credentials": [
-                {
-                    "id": "2f0876a7-7b7a-4186-8577-29cb41bd00d4",
-                    "type": "password",
-                    "userLabel": "",
-                    "createdDate": 1718628720180,
-                    "secretData": "{\"value\":\"N3MMMavBkFr9pQBuRd2/HCLZsoy0iLJquKEp7UAlJKKKKF12JNXkzwxB0ty2yEf6t/CsgsPjV+xEa8iiO/PxGg==\",\"salt\":\"E0PAJJytJZCkCLn+baki5g==\",\"additionalParameters\":{}}",
-                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-                },
-                {
-                    "id": "ba9e50db-88f0-438c-bf64-3ea06a4df861",
-                    "type": "otp",
-                    "userLabel": "",
-                    "createdDate": 1718698581312,
-                    "secretData": "{\"value\":\"GaTBeM6p33c5NH7Mc3vx\"}",
-                    "credentialData": "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA256\"}"
-                }
-            ],
-            "disableableCredentialTypes": [],
-            "requiredActions": [],
-            "realmRoles": [
-                "ROLE_ADMIN",
-                "ROLE_USER",
-                "ROLE_DEVELOPER",
-                "default-roles-valtimo"
-            ],
-            "notBefore": 0,
-            "groups": []
-        },
-        {
-            "id": "49b83f69-6612-48c6-ba71-c5551a876ec3",
-            "username": "service-account-valtimo-user-m2m-client",
-            "emailVerified": false,
-            "createdTimestamp": 1628582803715,
-            "enabled": true,
-            "totp": false,
-            "serviceAccountClientId": "valtimo-user-m2m-client",
-            "credentials": [],
-            "disableableCredentialTypes": [],
-            "requiredActions": [],
-            "realmRoles": [
-                "default-roles-valtimo"
-            ],
-            "clientRoles": {
-                "realm-management": [
-                    "manage-users",
-                    "view-realm",
-                    "query-clients",
-                    "query-realms",
-                    "query-users",
-                    "query-groups",
-                    "view-users",
-                    "view-clients"
-                ]
-            },
-            "notBefore": 0,
-            "groups": []
-        },
-        {
-            "id": "0966ae7e-da7c-4d3a-aa71-221fe41adb8e",
-            "username": "user",
-            "firstName": "James",
-            "lastName": "Vance",
-            "email": "user@example.com",
-            "emailVerified": true,
-            "createdTimestamp": 1628521890031,
-            "enabled": true,
-            "totp": false,
-            "credentials": [
-                {
-                    "id": "0f01c33f-9631-4ae0-bb2b-ef2b8b07b43d",
-                    "type": "password",
-                    "createdDate": 1628522168278,
-                    "secretData": "{\"value\":\"BNeODzlJda7HmVBcvEOtdR2MCQbdFLrF+s8esumJRRPmeZ+7+PQzCDT3NJwh6VQXnx38HceDkhQqoPEl+0c10Q==\",\"salt\":\"VPcGyLNgGHlM4Kt7MwNmOw==\",\"additionalParameters\":{}}",
-                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-                }
-            ],
-            "disableableCredentialTypes": [],
-            "requiredActions": [],
-            "realmRoles": [
-                "ROLE_USER",
-                "default-roles-valtimo"
-            ],
-            "notBefore": 0,
-            "groups": [
-                "/test-group"
-            ]
-        },
-        {
-            "id": "04f49c10-5757-4d0e-8bf0-f7acc582b288",
-            "username": "user-mfa",
-            "firstName": "Sebastian",
-            "lastName": "Barnes",
-            "email": "user-mfa@example.com",
-            "emailVerified": true,
-            "createdTimestamp": 1718628650181,
-            "enabled": true,
-            "totp": true,
-            "credentials": [
-                {
-                    "id": "4d0aed7e-66b9-46bd-843b-1c11639b2da1",
-                    "type": "password",
-                    "userLabel": "",
-                    "createdDate": 1718628735758,
-                    "secretData": "{\"value\":\"0+bDNqBOtyPyM8VKQHYxA7DaT8XrkZBYPvAGygRODwYP6xfN6OjK2PEzCcHxKF9l73dbbi+28Xequ6HF0GfDsw==\",\"salt\":\"no76sOoUrQ4KlLNFjThEyg==\",\"additionalParameters\":{}}",
-                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-                },
-                {
-                    "id": "6e2102dc-70a4-4c7b-b8b9-ce57c58a2534",
-                    "type": "otp",
-                    "userLabel": "",
-                    "createdDate": 1718698624970,
-                    "secretData": "{\"value\":\"hxK3kwG19vz1MM4U7j1k\"}",
-                    "credentialData": "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA256\"}"
-                }
-            ],
-            "disableableCredentialTypes": [],
-            "requiredActions": [],
-            "realmRoles": [
-                "ROLE_USER",
-                "default-roles-valtimo"
-            ],
-            "notBefore": 0,
-            "groups": []
-        }
-    ],
     "scopeMappings": [
         {
             "clientScope": "offline_access",
@@ -984,6 +733,137 @@
             ]
         },
         {
+            "id": "00ef1911-4f87-4d72-b49f-c3ed78cfb2cd",
+            "clientId": "iko",
+            "name": "IKO",
+            "description": "",
+            "rootUrl": "",
+            "adminUrl": "",
+            "baseUrl": "",
+            "surrogateAuthRequired": false,
+            "enabled": true,
+            "alwaysDisplayInConsole": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "ThisIsNotASecret",
+            "redirectUris": [
+                "http://localhost:8080/*",
+                "http://localhost:9090/*"
+            ],
+            "webOrigins": [
+                "/*"
+            ],
+            "notBefore": 0,
+            "bearerOnly": false,
+            "consentRequired": false,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": true,
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "publicClient": false,
+            "frontchannelLogout": true,
+            "protocol": "openid-connect",
+            "attributes": {
+                "oidc.ciba.grant.enabled": "false",
+                "client.secret.creation.time": "1746515719",
+                "backchannel.logout.session.required": "true",
+                "post.logout.redirect.uris": "+",
+                "oauth2.device.authorization.grant.enabled": "false",
+                "display.on.consent.screen": "false",
+                "backchannel.logout.revoke.offline.tokens": "false"
+            },
+            "authenticationFlowBindingOverrides": {},
+            "fullScopeAllowed": true,
+            "nodeReRegistrationTimeout": -1,
+            "protocolMappers": [
+                {
+                    "id": "ad4be950-70c5-4f92-895d-7a4e7bd34c06",
+                    "name": "Client IP Address",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.session.note": "clientAddress",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "clientAddress",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "5b08c38d-28f6-4939-a669-b68eea4c7304",
+                    "name": "realm roles",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "introspection.token.claim": "true",
+                        "multivalued": "true",
+                        "userinfo.token.claim": "false",
+                        "user.attribute": "foo",
+                        "id.token.claim": "true",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "true",
+                        "claim.name": "roles",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "75851e13-03a1-451e-abfb-acb60e5d06a7",
+                    "name": "Client Host",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.session.note": "clientHost",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "clientHost",
+                        "jsonType.label": "String"
+                    }
+                },
+                {
+                    "id": "94b9701e-95fa-402b-9b1a-65061174c77b",
+                    "name": "IKO",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-audience-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "included.client.audience": "iko",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "false",
+                        "id.token.claim": "true",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "true"
+                    }
+                },
+                {
+                    "id": "f4aab71e-dc1a-42a0-a957-e0d61b28d5c4",
+                    "name": "Client ID",
+                    "protocol": "openid-connect",
+                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
+                    "consentRequired": false,
+                    "config": {
+                        "user.session.note": "client_id",
+                        "introspection.token.claim": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "client_id",
+                        "jsonType.label": "String"
+                    }
+                }
+            ],
+            "defaultClientScopes": [
+                "profile",
+                "email"
+            ],
+            "optionalClientScopes": []
+        },
+        {
             "id": "d6b11019-d0a7-440d-8745-839fde4f0548",
             "clientId": "realm-management",
             "name": "${client_realm-management}",
@@ -1086,129 +966,6 @@
             ]
         },
         {
-            "clientId": "iko",
-            "name": "IKO",
-            "description": "",
-            "rootUrl": "",
-            "adminUrl": "",
-            "baseUrl": "",
-            "surrogateAuthRequired": false,
-            "enabled": true,
-            "alwaysDisplayInConsole": true,
-            "clientAuthenticatorType": "client-secret",
-            "secret": "ThisIsNotASecret",
-            "redirectUris": [
-                "http://localhost:8080/*",
-                "http://localhost:9090/*"
-            ],
-            "webOrigins": [
-                "/*"
-            ],
-            "notBefore": 0,
-            "bearerOnly": false,
-            "consentRequired": false,
-            "standardFlowEnabled": true,
-            "implicitFlowEnabled": true,
-            "directAccessGrantsEnabled": true,
-            "serviceAccountsEnabled": true,
-            "publicClient": false,
-            "frontchannelLogout": true,
-            "protocol": "openid-connect",
-            "attributes": {
-                "oidc.ciba.grant.enabled": "false",
-                "client.secret.creation.time": "1746515719",
-                "backchannel.logout.session.required": "true",
-                "oauth2.device.authorization.grant.enabled": "false",
-                "display.on.consent.screen": "false",
-                "backchannel.logout.revoke.offline.tokens": "false"
-            },
-            "authenticationFlowBindingOverrides": {},
-            "fullScopeAllowed": true,
-            "nodeReRegistrationTimeout": -1,
-            "protocolMappers": [
-                {
-                    "name": "Client IP Address",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "user.session.note": "clientAddress",
-                        "introspection.token.claim": "true",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
-                        "claim.name": "clientAddress",
-                        "jsonType.label": "String"
-                    }
-                },
-                {
-                    "name": "realm roles",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usermodel-realm-role-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "introspection.token.claim": "true",
-                        "multivalued": "true",
-                        "userinfo.token.claim": "false",
-                        "user.attribute": "foo",
-                        "id.token.claim": "true",
-                        "lightweight.claim": "false",
-                        "access.token.claim": "true",
-                        "claim.name": "roles",
-                        "jsonType.label": "String"
-                    }
-                },
-                {
-                    "name": "Client Host",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "user.session.note": "clientHost",
-                        "introspection.token.claim": "true",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
-                        "claim.name": "clientHost",
-                        "jsonType.label": "String"
-                    }
-                },
-                {
-                    "name": "IKO",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-audience-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "included.client.audience": "iko",
-                        "introspection.token.claim": "true",
-                        "userinfo.token.claim": "false",
-                        "id.token.claim": "true",
-                        "lightweight.claim": "false",
-                        "access.token.claim": "true"
-                    }
-                },
-                {
-                    "name": "Client ID",
-                    "protocol": "openid-connect",
-                    "protocolMapper": "oidc-usersessionmodel-note-mapper",
-                    "consentRequired": false,
-                    "config": {
-                        "user.session.note": "client_id",
-                        "introspection.token.claim": "true",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
-                        "claim.name": "client_id",
-                        "jsonType.label": "String"
-                    }
-                }
-            ],
-            "defaultClientScopes": [],
-            "optionalClientScopes": [],
-            "access": {
-                "view": true,
-                "configure": true,
-                "manage": true
-            }
-        },
-        {
             "id": "a25ca0c6-9231-4df9-bfaf-f9c302d3033d",
             "clientId": "valtimo-console",
             "surrogateAuthRequired": false,
@@ -1216,8 +973,8 @@
             "alwaysDisplayInConsole": false,
             "clientAuthenticatorType": "client-secret",
             "redirectUris": [
-                "http://localhost:4200/*",
                 "http://localhost:8080/*",
+                "http://localhost:4200/*",
                 "http://localhost:9090/*"
             ],
             "webOrigins": [
@@ -1597,10 +1354,14 @@
                     "protocolMapper": "oidc-usermodel-attribute-mapper",
                     "consentRequired": false,
                     "config": {
+                        "aggregate.attrs": "false",
+                        "introspection.token.claim": "true",
+                        "multivalued": "false",
                         "userinfo.token.claim": "true",
                         "user.attribute": "updatedAt",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "updated_at",
                         "jsonType.label": "String"
                     }
@@ -1612,10 +1373,12 @@
                     "protocolMapper": "oidc-usermodel-property-mapper",
                     "consentRequired": false,
                     "config": {
+                        "introspection.token.claim": "true",
                         "userinfo.token.claim": "true",
                         "user.attribute": "lastName",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "family_name",
                         "jsonType.label": "String"
                     }
@@ -1627,10 +1390,12 @@
                     "protocolMapper": "oidc-usermodel-property-mapper",
                     "consentRequired": false,
                     "config": {
+                        "introspection.token.claim": "true",
                         "userinfo.token.claim": "true",
                         "user.attribute": "firstName",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "given_name",
                         "jsonType.label": "String"
                     }
@@ -1642,10 +1407,12 @@
                     "protocolMapper": "oidc-usermodel-property-mapper",
                     "consentRequired": false,
                     "config": {
+                        "introspection.token.claim": "true",
                         "userinfo.token.claim": "true",
                         "user.attribute": "username",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "preferred_username",
                         "jsonType.label": "String"
                     }
@@ -1657,8 +1424,10 @@
                     "protocolMapper": "oidc-full-name-mapper",
                     "consentRequired": false,
                     "config": {
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
+                        "introspection.token.claim": "true",
                         "userinfo.token.claim": "true"
                     }
                 },
@@ -1669,10 +1438,14 @@
                     "protocolMapper": "oidc-usermodel-attribute-mapper",
                     "consentRequired": false,
                     "config": {
+                        "aggregate.attrs": "false",
+                        "introspection.token.claim": "true",
+                        "multivalued": "false",
                         "userinfo.token.claim": "true",
                         "user.attribute": "middleName",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "middle_name",
                         "jsonType.label": "String"
                     }
@@ -1684,10 +1457,14 @@
                     "protocolMapper": "oidc-usermodel-attribute-mapper",
                     "consentRequired": false,
                     "config": {
+                        "aggregate.attrs": "false",
+                        "introspection.token.claim": "true",
+                        "multivalued": "false",
                         "userinfo.token.claim": "true",
                         "user.attribute": "zoneinfo",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "zoneinfo",
                         "jsonType.label": "String"
                     }
@@ -1699,10 +1476,14 @@
                     "protocolMapper": "oidc-usermodel-attribute-mapper",
                     "consentRequired": false,
                     "config": {
+                        "aggregate.attrs": "false",
+                        "introspection.token.claim": "true",
+                        "multivalued": "false",
                         "userinfo.token.claim": "true",
                         "user.attribute": "picture",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "picture",
                         "jsonType.label": "String"
                     }
@@ -1714,10 +1495,14 @@
                     "protocolMapper": "oidc-usermodel-attribute-mapper",
                     "consentRequired": false,
                     "config": {
+                        "aggregate.attrs": "false",
+                        "introspection.token.claim": "true",
+                        "multivalued": "false",
                         "userinfo.token.claim": "true",
                         "user.attribute": "birthdate",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "birthdate",
                         "jsonType.label": "String"
                     }
@@ -1729,10 +1514,14 @@
                     "protocolMapper": "oidc-usermodel-attribute-mapper",
                     "consentRequired": false,
                     "config": {
+                        "aggregate.attrs": "false",
+                        "introspection.token.claim": "true",
+                        "multivalued": "false",
                         "userinfo.token.claim": "true",
                         "user.attribute": "gender",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "gender",
                         "jsonType.label": "String"
                     }
@@ -1817,10 +1606,12 @@
                     "protocolMapper": "oidc-usermodel-property-mapper",
                     "consentRequired": false,
                     "config": {
+                        "introspection.token.claim": "true",
                         "userinfo.token.claim": "true",
                         "user.attribute": "email",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "email",
                         "jsonType.label": "String"
                     }
@@ -1832,10 +1623,12 @@
                     "protocolMapper": "oidc-usermodel-property-mapper",
                     "consentRequired": false,
                     "config": {
+                        "introspection.token.claim": "true",
                         "userinfo.token.claim": "true",
                         "user.attribute": "emailVerified",
-                        "id.token.claim": "true",
-                        "access.token.claim": "true",
+                        "id.token.claim": "false",
+                        "lightweight.claim": "false",
+                        "access.token.claim": "false",
                         "claim.name": "email_verified",
                         "jsonType.label": "boolean"
                     }
@@ -1991,13 +1784,13 @@
                 "subComponents": {},
                 "config": {
                     "allowed-protocol-mapper-types": [
-                        "oidc-full-name-mapper",
                         "oidc-address-mapper",
-                        "oidc-usermodel-property-mapper",
                         "saml-user-property-mapper",
                         "saml-role-list-mapper",
-                        "oidc-usermodel-attribute-mapper",
                         "oidc-sha256-pairwise-sub-mapper",
+                        "oidc-usermodel-property-mapper",
+                        "oidc-usermodel-attribute-mapper",
+                        "oidc-full-name-mapper",
                         "saml-user-attribute-mapper"
                     ]
                 }
@@ -2010,14 +1803,14 @@
                 "subComponents": {},
                 "config": {
                     "allowed-protocol-mapper-types": [
-                        "oidc-address-mapper",
-                        "oidc-sha256-pairwise-sub-mapper",
-                        "saml-user-attribute-mapper",
                         "saml-role-list-mapper",
-                        "oidc-full-name-mapper",
                         "saml-user-property-mapper",
+                        "saml-user-attribute-mapper",
                         "oidc-usermodel-attribute-mapper",
-                        "oidc-usermodel-property-mapper"
+                        "oidc-usermodel-property-mapper",
+                        "oidc-address-mapper",
+                        "oidc-full-name-mapper",
+                        "oidc-sha256-pairwise-sub-mapper"
                     ]
                 }
             },
@@ -2773,5 +2566,259 @@
     },
     "clientPolicies": {
         "policies": []
-    }
+    },
+    "users": [
+        {
+            "id": "748ea4cd-1055-44e0-b1ad-a5e2bf884d76",
+            "username": "admin",
+            "firstName": "Asha",
+            "lastName": "Miller",
+            "email": "admin@example.com",
+            "emailVerified": true,
+            "createdTimestamp": 1628668592363,
+            "enabled": true,
+            "totp": false,
+            "credentials": [
+                {
+                    "id": "74f462c7-f2a8-4f9f-ab1e-8d7666244ac5",
+                    "type": "password",
+                    "createdDate": 1628668665101,
+                    "secretData": "{\"value\":\"KS++hmY0SuUg54rDZFeYUZnvDLUxsT6BWGolDUFZXwKLsAdn9MlyTZ0L3o/ZqbmuIMCbhHcQ0bmWKN/51VDYgQ==\",\"salt\":\"C8u6wkV06uwk4RlG4UoPHw==\",\"additionalParameters\":{}}",
+                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+                }
+            ],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "ROLE_ADMIN",
+                "ROLE_USER",
+                "default-roles-valtimo"
+            ],
+            "notBefore": 0,
+            "groups": []
+        },
+        {
+            "id": "59d9f86b-8dfa-4f1f-990a-a65d379c88ed",
+            "username": "admin-mfa",
+            "firstName": "Rosa",
+            "lastName": "Becker",
+            "email": "admin-mfa@example.com",
+            "emailVerified": true,
+            "createdTimestamp": 1718628463142,
+            "enabled": true,
+            "totp": true,
+            "credentials": [
+                {
+                    "id": "5cbb53d5-d5d9-40f7-a314-60b3a3c989dc",
+                    "type": "password",
+                    "userLabel": "",
+                    "createdDate": 1718628692043,
+                    "secretData": "{\"value\":\"/eBF+Uz7ZED8OCgWkeEAl8H+5s2iUeIz2HipPNCtM8CoR2WiMWRmLVAt3wnLcsqovhaayIabCkwER4XHWMLQgw==\",\"salt\":\"bYvr4VoucSgF075WG2vLQQ==\",\"additionalParameters\":{}}",
+                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+                },
+                {
+                    "id": "4a1f1cb6-31b6-4850-b9bf-aba1943747d1",
+                    "type": "otp",
+                    "userLabel": "",
+                    "createdDate": 1718698532734,
+                    "secretData": "{\"value\":\"HnlHWidyISaIPmwb8j3P\"}",
+                    "credentialData": "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA256\"}"
+                }
+            ],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "ROLE_ADMIN",
+                "ROLE_USER",
+                "default-roles-valtimo"
+            ],
+            "notBefore": 0,
+            "groups": []
+        },
+        {
+            "id": "6491fd73-1d0a-4d85-8624-8b7adf58b404",
+            "username": "developer",
+            "firstName": "Morgan",
+            "lastName": "Finch",
+            "email": "developer@example.com",
+            "emailVerified": true,
+            "createdTimestamp": 1628668771639,
+            "enabled": true,
+            "totp": false,
+            "credentials": [
+                {
+                    "id": "c6ce7e0d-2d21-4fef-a498-67b5f1ab8b52",
+                    "type": "password",
+                    "createdDate": 1628668805173,
+                    "secretData": "{\"value\":\"kPDAuyQC1GRjqrkiCtIYHtWrnLt9fbYTO6e2TBUx3usunp+gTUd3n6qw7rAPXzL1TlHcVbk7D6YnvE5JM+WWKg==\",\"salt\":\"5L7wFnJ5D3RWAkNH2T48pQ==\",\"additionalParameters\":{}}",
+                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+                }
+            ],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "ROLE_ADMIN",
+                "ROLE_USER",
+                "ROLE_DEVELOPER",
+                "default-roles-valtimo"
+            ],
+            "notBefore": 0,
+            "groups": []
+        },
+        {
+            "id": "3045e6bc-0796-4f67-a5ad-0fb9fbd14abc",
+            "username": "developer-mfa",
+            "firstName": "Joshua",
+            "lastName": "Hart",
+            "email": "developer-mfa@example.com",
+            "emailVerified": true,
+            "createdTimestamp": 1718628572090,
+            "enabled": true,
+            "totp": true,
+            "credentials": [
+                {
+                    "id": "2f0876a7-7b7a-4186-8577-29cb41bd00d4",
+                    "type": "password",
+                    "userLabel": "",
+                    "createdDate": 1718628720180,
+                    "secretData": "{\"value\":\"N3MMMavBkFr9pQBuRd2/HCLZsoy0iLJquKEp7UAlJKKKKF12JNXkzwxB0ty2yEf6t/CsgsPjV+xEa8iiO/PxGg==\",\"salt\":\"E0PAJJytJZCkCLn+baki5g==\",\"additionalParameters\":{}}",
+                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+                },
+                {
+                    "id": "ba9e50db-88f0-438c-bf64-3ea06a4df861",
+                    "type": "otp",
+                    "userLabel": "",
+                    "createdDate": 1718698581312,
+                    "secretData": "{\"value\":\"GaTBeM6p33c5NH7Mc3vx\"}",
+                    "credentialData": "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA256\"}"
+                }
+            ],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "ROLE_ADMIN",
+                "ROLE_USER",
+                "ROLE_DEVELOPER",
+                "default-roles-valtimo"
+            ],
+            "notBefore": 0,
+            "groups": []
+        },
+        {
+            "id": "2a6173b4-ab0a-4db4-a64a-c4585ab10d34",
+            "username": "service-account-iko",
+            "emailVerified": false,
+            "createdTimestamp": 1747038733031,
+            "enabled": true,
+            "totp": false,
+            "serviceAccountClientId": "iko",
+            "credentials": [],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "ROLE_ENDPOINT_BRPPERSONENENDPOINT",
+                "ROLE_AGGREGATED_DATA_PROFILE_BAGBEWONERS",
+                "ROLE_AGGREGATED_DATA_PROFILE_TEMP",
+                "default-roles-valtimo"
+            ],
+            "notBefore": 0,
+            "groups": []
+        },
+        {
+            "id": "49b83f69-6612-48c6-ba71-c5551a876ec3",
+            "username": "service-account-valtimo-user-m2m-client",
+            "emailVerified": false,
+            "createdTimestamp": 1628582803715,
+            "enabled": true,
+            "totp": false,
+            "serviceAccountClientId": "valtimo-user-m2m-client",
+            "credentials": [],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "default-roles-valtimo"
+            ],
+            "clientRoles": {
+                "realm-management": [
+                    "manage-users",
+                    "view-realm",
+                    "query-clients",
+                    "query-realms",
+                    "query-users",
+                    "query-groups",
+                    "view-users",
+                    "view-clients"
+                ]
+            },
+            "notBefore": 0,
+            "groups": []
+        },
+        {
+            "id": "0966ae7e-da7c-4d3a-aa71-221fe41adb8e",
+            "username": "user",
+            "firstName": "James",
+            "lastName": "Vance",
+            "email": "user@example.com",
+            "emailVerified": true,
+            "createdTimestamp": 1628521890031,
+            "enabled": true,
+            "totp": false,
+            "credentials": [
+                {
+                    "id": "0f01c33f-9631-4ae0-bb2b-ef2b8b07b43d",
+                    "type": "password",
+                    "createdDate": 1628522168278,
+                    "secretData": "{\"value\":\"BNeODzlJda7HmVBcvEOtdR2MCQbdFLrF+s8esumJRRPmeZ+7+PQzCDT3NJwh6VQXnx38HceDkhQqoPEl+0c10Q==\",\"salt\":\"VPcGyLNgGHlM4Kt7MwNmOw==\",\"additionalParameters\":{}}",
+                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+                }
+            ],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "ROLE_USER",
+                "default-roles-valtimo"
+            ],
+            "notBefore": 0,
+            "groups": [
+                "/test-group"
+            ]
+        },
+        {
+            "id": "04f49c10-5757-4d0e-8bf0-f7acc582b288",
+            "username": "user-mfa",
+            "firstName": "Sebastian",
+            "lastName": "Barnes",
+            "email": "user-mfa@example.com",
+            "emailVerified": true,
+            "createdTimestamp": 1718628650181,
+            "enabled": true,
+            "totp": true,
+            "credentials": [
+                {
+                    "id": "4d0aed7e-66b9-46bd-843b-1c11639b2da1",
+                    "type": "password",
+                    "userLabel": "",
+                    "createdDate": 1718628735758,
+                    "secretData": "{\"value\":\"0+bDNqBOtyPyM8VKQHYxA7DaT8XrkZBYPvAGygRODwYP6xfN6OjK2PEzCcHxKF9l73dbbi+28Xequ6HF0GfDsw==\",\"salt\":\"no76sOoUrQ4KlLNFjThEyg==\",\"additionalParameters\":{}}",
+                    "credentialData": "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+                },
+                {
+                    "id": "6e2102dc-70a4-4c7b-b8b9-ce57c58a2534",
+                    "type": "otp",
+                    "userLabel": "",
+                    "createdDate": 1718698624970,
+                    "secretData": "{\"value\":\"hxK3kwG19vz1MM4U7j1k\"}",
+                    "credentialData": "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA256\"}"
+                }
+            ],
+            "disableableCredentialTypes": [],
+            "requiredActions": [],
+            "realmRoles": [
+                "ROLE_USER",
+                "default-roles-valtimo"
+            ],
+            "notBefore": 0,
+            "groups": []
+        }
+    ]
 }

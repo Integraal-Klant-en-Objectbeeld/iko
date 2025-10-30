@@ -4,7 +4,7 @@
 <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
 <div layout:fragment="view-panel-content">
     <th:block th:fragment="connector-list">
-        <div th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}} })}"></div>
+        <div th:replace="~{fragments/internal/breadcrumb :: breadcrumb (${ {{'Connectors', '/admin/connectors'}} })}"></div>
         <div th:replace="~{layout-internal :: page-header (title='Connectors')}"></div>
         <!-- Data table -->
         <cds-table id="profile-table">

@@ -1,21 +1,22 @@
 <th:block th:fragment="profilePagination">
     <cds-pagination id="pagination-container"
+                    th:if="${page.totalPages > 1}"
                     hx-swap-oob="true"
                     size="md"
-                    th:attr="page=${page.number + 1},
-                                  totalPages=${page.totalPages},
-                                  total-items=${page.totalElements},
+                    th:attr="start=${page.number * page.size},
+                                  total=${page.totalElements},
                                   page-size=${page.size}"
-                    hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
+                    hx-trigger="cds-pagination-changed-current, cds-pagination-changed-page-size from:closest cds-pagination"
                     hx-get="/admin/aggregated-data-profiles/filter"
                     hx-target="#search-results"
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-on:cds-pagination-changed-current="console.log('cds-pagination-changed-current', event, this.pageSize, this.page)"
+                    hx-on:cds-pagination-changed-page-size="console.log('cds-pagination-changed-page-size', event, this.pageSize, this.page)"
                     hx-vals="js:{
-                      size: event.detail.pageSize,
-                      page: event.detail.page - 1,
-                      query: document.querySelector('#search-bar').value
+                      size: (event.detail && event.detail.pageSize) ? event.detail.pageSize : (this.pageSize || 10),
+                      page: ((event.detail && (event.detail.page != null)) ? event.detail.page : (this.page || 1)) - 1,
+                      query: (document.querySelector('#search-bar') || { value: '' }).value
                     }">
         <cds-select-item value="10">10</cds-select-item>
         <cds-select-item value="20">20</cds-select-item>

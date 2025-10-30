@@ -2,8 +2,11 @@ package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.mvc.controller.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.model.MenuItem
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.core.oidc.user.OidcUser
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
@@ -38,6 +41,27 @@ class HomeController {
             MenuItem("Aggregated Data Profiles", "/admin/aggregated-data-profiles"),
             MenuItem("Connectors", "/admin/connectors"),
         )
+    }
+
+    @ModelAttribute("username")
+    fun username(@AuthenticationPrincipal principal: OidcUser): String? {
+        val claims = principal.userInfo?.claims ?: return null
+        val username = claims["preferred_username"] as? String
+        return if (!username.isNullOrBlank()) username else "Unknown username"
+    }
+
+    @ModelAttribute("email")
+    fun email(@AuthenticationPrincipal principal: OidcUser): String? {
+        val claims = principal.userInfo?.claims ?: return null
+        val email = claims["email"] as? String
+        return if (!email.isNullOrBlank()) email else "Unknown email address"
+    }
+
+    @ModelAttribute("name")
+    fun name(@AuthenticationPrincipal principal: OidcUser): String? {
+        val claims = principal.userInfo?.claims ?: return null
+        val name = claims["name"] as? String
+        return if (!name.isNullOrBlank()) name else "Unknown user"
     }
 
 }

@@ -5,7 +5,7 @@
 <div layout:fragment="view-panel-content">
     <th:block th:fragment="details">
         <div
-            th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"></div>
+            th:replace="~{fragments/internal/breadcrumb :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"></div>
         <div
             th:replace="~{layout-internal :: page-header (pageName='Connector', title=${connector.name}, subtext=${connector.tag})}"></div>
 
