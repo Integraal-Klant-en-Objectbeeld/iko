@@ -104,6 +104,9 @@ camel:
             paths: classpath:camel/*.yaml
     trace:
         enabled: true
+        backlog-size: 1000
+        remove-on-dump: true
+        trace-pattern: "*"
 
 iko:
     connectors:
