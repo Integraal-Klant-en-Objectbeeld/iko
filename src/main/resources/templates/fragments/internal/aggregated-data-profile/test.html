@@ -1,0 +1,144 @@
+<th:block th:fragment="profile-debug">
+    <cds-content>
+        <cds-tile>
+            <cds-breadcrumb no-trailing-slash="">
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link href="/admin" visited="true">Home</cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        hx-get="/admin/aggregated-data-profiles"
+                        hx-target="#view-panel"
+                        is-currentpage="false"
+                        hx-push-url="true"
+                        visited="true">
+                        Aggregated Data Profiles
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+                <cds-breadcrumb-item>
+                    <cds-breadcrumb-link
+                        href="javascript:void(0);"
+                        th:attr="hx-get=@{'/admin/aggregated-data-profiles/edit/' + ${form.id}}"
+                        hx-target="#view-panel"
+                        is-currentpage="true"
+                        hx-push-url="true"
+                        visited="true">
+                        Detail
+                    </cds-breadcrumb-link>
+                </cds-breadcrumb-item>
+            </cds-breadcrumb>
+            <style>
+                .cds-ce-demo-devenv--tab-panels{flex:1;align-self:stretch;padding:1rem}
+            </style>
+            <br>
+            <cds-tabs value="result" type="contained">
+                <cds-tab id="tab-result" target="panel-result" value="result">
+                    Result
+                </cds-tab>
+                <cds-tab id="tab-trace" target="panel-trace" value="trace">
+                    Trace
+                </cds-tab>
+            </cds-tabs>
+            <div class="cds-ce-demo-devenv--tab-panels">
+                <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" hidden="">
+                    <h4>Result:</h4>
+                    <cds-form-group id="form-group" name="form-group" legend-text="API result">
+                        <cds-stack gap="7">
+                            <cds-textarea id="testResult"
+                                          name="Test result"
+                                          style="width: 100%;"
+                                          label="Result"
+                                          rows="auto"
+                                          th:attr="value=${testResult}">
+                            </cds-textarea>
+                            <cds-textarea id="query"
+                                          name="query"
+                                          style="width: 100%;"
+                                          label="Transform"
+                                          rows="auto"
+                                          th:attr="value=${form.transform}">
+                            </cds-textarea>
+                            <cds-textarea id="output"
+                                          name="output"
+                                          style="width: 100%;"
+                                          label="Output"
+                                          rows="auto">
+                            </cds-textarea>
+                            <div id="error" style="color:#c00;"></div>
+                            <div style="max-width: fit-content;">
+                                <cds-button id="run" kind="primary">Apply transform</cds-button>
+                                <cds-button id="back" kind="secondary"
+                                            th:hx-get="@{|/admin/aggregated-data-profiles/edit/${form.id}}"
+                                            hx-target="#view-panel">
+                                    Back
+                                </cds-button>
+                            </div>
+
+                            <script type="application/javascript">
+                                // Helper: pretty-print anything
+                                function pretty(v) {
+                                    try { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); }
+                                    catch { return String(v); }
+                                }
+                                document.getElementById('run').addEventListener('click', async () => {
+                                    let outEl = document.getElementById('output');
+                                    let errEl = document.getElementById('error');
+                                    errEl.textContent = '';
+                                    outEl.textContent = 'Running...';
+
+                                    let data;
+                                    let jsonEl;
+                                    try {
+                                        jsonEl = document.getElementById('testResult').value;
+                                        data = JSON.parse(jsonEl);
+                                    } catch (e) {
+                                        errEl.textContent = 'Invalid JSON: ' + e.message;
+                                        outEl.value = '';
+                                        return;
+                                    }
+                                    try {
+                                        let program = document.getElementById('query').value;
+                                        let result = (await jq).json(data, program);
+                                        outEl.value = Array.isArray(result) && result.length > 1
+                                            ? pretty(result)
+                                            : pretty(Array.isArray(result) ? result[0] : result);
+                                    } catch (e) {
+                                        errEl.textContent = 'jq error: ' + (e?.message || e);
+                                        outEl.textContent = '';
+                                    }
+                                });
+                            </script>
+                        </cds-stack>
+                    </cds-form-group>
+                </div>
+                <div id="panel-trace" role="tabpanel" aria-labelledby="tab-trace" hidden="">
+                    <cds-table>
+                        <cds-table-head>
+                            <cds-table-header-row>
+                                <cds-table-header-cell>ID</cds-table-header-cell>
+                                <cds-table-header-cell>Timestamp</cds-table-header-cell>
+                                <cds-table-header-cell>Route / Location</cds-table-header-cell>
+                                <cds-table-header-cell>Elapsed</cds-table-header-cell>
+                                <cds-table-header-cell>Status</cds-table-header-cell>
+                            </cds-table-header-row>
+                        </cds-table-head>
+                        <cds-table-body>
+                            <cds-table-row th:each="trace : ${traces}">
+                                <cds-table-cell th:text="${trace.id}"></cds-table-cell>
+                                <cds-table-cell th:text="${trace.timestamp}"></cds-table-cell>
+                                <cds-table-cell th:text="${(trace.route) + ' - ' + (trace.location)}"></cds-table-cell>
+                                <cds-table-cell th:text="${trace.elapsed}"></cds-table-cell>
+                                <cds-table-cell th:text="${trace.status}"
+                                                th:style="${trace.status == 'OK' ? 'color: var(--cds-support-success);' :
+                                                trace.status == 'FAILED' ? 'color: var(--cds-support-error);' :
+                                                trace.status == 'IN_PROGRESS' ? 'color: var(--cds-support-info);' : ''}">
+                                </cds-table-cell>
+                            </cds-table-row>
+                        </cds-table-body>
+                    </cds-table>
+                </div>
+            </div>
+        </cds-tile>
+    </cds-content>
+</th:block>

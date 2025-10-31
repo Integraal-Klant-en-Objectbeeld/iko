@@ -12,6 +12,7 @@ class EndpointValidation(
 ) : RouteBuilder() {
     override fun configure() {
         from(Iko.endpoint("validate"))
+            .routeId("endpoint-validation")
             .errorHandler(noErrorHandler())
             .process { ex ->
                 val connector = ex.getVariable("connector", String::class.java)

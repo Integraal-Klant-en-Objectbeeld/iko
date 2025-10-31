@@ -4,8 +4,9 @@ import org.apache.camel.builder.RouteBuilder
 
 class Connector : RouteBuilder() {
     override fun configure() {
-        from(Iko.Companion.connector())
+        from(Iko.connector())
+            .routeId("connector")
             .errorHandler(noErrorHandler())
-            .toD(Iko.Companion.connector("\${variable.connector}"))
+            .toD(Iko.connector("\${variable.connector}"))
     }
 }

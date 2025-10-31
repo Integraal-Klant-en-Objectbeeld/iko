@@ -2,21 +2,16 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.ritense.iko.aggregateddataprofile.camel.MapAggregator
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
-import io.github.oshai.kotlinlogging.KotlinLogging
-import io.github.oshai.kotlinlogging.Level
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
-import org.apache.camel.LoggingLevel
 import org.apache.camel.builder.FlexibleAggregationStrategy
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
-import org.apache.camel.model.dataformat.JsonLibrary
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 
@@ -170,7 +165,4 @@ class AggregatedDataProfileRouteBuilder(
         }
     }
 
-    companion object {
-        private val logger = KotlinLogging.logger {}
-    }
 }

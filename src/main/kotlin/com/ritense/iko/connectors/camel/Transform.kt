@@ -4,23 +4,18 @@ import org.apache.camel.builder.RouteBuilder
 
 class Transform : RouteBuilder() {
     override fun configure() {
-        from(Iko.Companion.transform())
+        from(Iko.transform())
+            .routeId("transform")
             .errorHandler(noErrorHandler())
             .choice()
-            .`when` { ex -> ex.context.hasEndpoint(Iko.Companion.transform("${ex.getVariable("connector")}")) != null }
-            .toD(Iko.Companion.transform("\${variable.connector}"))
+            .`when` { ex -> ex.context.hasEndpoint(Iko.transform("${ex.getVariable("connector")}")) != null }
+            .toD(Iko.transform("\${variable.connector}"))
             .end()
             .choice()
             .`when` { ex -> ex.context.hasEndpoint(
-                Iko.Companion.transform(
-                    "${ex.getVariable("connector")}.${
-                        ex.getVariable(
-                            "operation"
-                        )
-                    }"
-                )
+                Iko.transform("${ex.getVariable("connector")}.${ex.getVariable("operation")}")
             ) != null }
-            .toD(Iko.Companion.transform("\${variable.connector}.\${variable.operation}"))
+            .toD(Iko.transform("\${variable.connector}.\${variable.operation}"))
             .end()
     }
 }

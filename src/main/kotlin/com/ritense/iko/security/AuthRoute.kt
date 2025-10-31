@@ -8,6 +8,7 @@ class AuthRoute() : RouteBuilder() {
 
     override fun configure() {
         from("direct:auth")
+            .routeId("authenticate")
             .errorHandler(noErrorHandler())
             .process { ex ->
                 val exAuthorities = ex.getVariable("authorities", List::class.java)
