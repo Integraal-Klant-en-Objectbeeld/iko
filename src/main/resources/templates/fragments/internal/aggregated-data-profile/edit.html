@@ -95,14 +95,17 @@
                             kind="primary"
                             hx-put="/admin/aggregated-data-profiles"
                             hx-target="#view-panel"
-                            hx-include="#form-group *">
+                            hx-include="#form-group *"
+                            hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Saving…'; this.setAttribute('disabled','');"
+                            hx-on::after-request="if(this.dataset.label){ this.textContent=this.dataset.label; this.removeAttribute('disabled'); delete this.dataset.label; }">
                             Save
                         </cds-button>
                         <cds-button
                             kind="secondary"
                             hx-post="/admin/aggregated-data-profiles/test"
                             hx-target="#view-panel"
-                            hx-include="#form-group *, [id='testId'], [id='name']">
+                            hx-include="#form-group *, [id='testId'], [id='name']"
+                            hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');">
                             Test
                         </cds-button>
                     </div>
