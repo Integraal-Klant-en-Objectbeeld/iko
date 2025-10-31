@@ -5,19 +5,13 @@ import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRep
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
-import com.ritense.iko.connectors.repository.ConnectorRepository
-import com.ritense.iko.mvc.provider.UserInfoValueProvider
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_RELATION
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
-import com.ritense.iko.mvc.model.AddRelationForm
-import com.ritense.iko.mvc.model.AggregatedDataProfileForm
-import com.ritense.iko.mvc.model.DeleteRelationForm
-import com.ritense.iko.mvc.model.EditRelationForm
-import com.ritense.iko.mvc.model.Relation
-import com.ritense.iko.mvc.model.Source
+import com.ritense.iko.mvc.model.*
+import com.ritense.iko.mvc.provider.SecurityContextHelper
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
@@ -27,17 +21,9 @@ import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
 import org.springframework.validation.ObjectError
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
-import java.util.UUID
+import java.util.*
 
 @Controller
 @RequestMapping("/admin")
@@ -67,7 +53,7 @@ class AggregatedDataProfileController(
                 addObject("page", page)
                 addObject("query", query)
                 addObject("menuItems", menuItems)
-                addObject("userInfoName", userInfoValue())
+                addObject("username" to SecurityContextHelper.getCurrentUserName())
             }
         }
     }
@@ -119,7 +105,7 @@ class AggregatedDataProfileController(
                     addObject("page", page)
                     addObject("query", query)
                     addObject("menuItems", menuItems)
-                    addObject("userInfoName", userInfoValue())
+                    addObject("username" to SecurityContextHelper.getCurrentUserName())
                 }
             )
         }
@@ -136,7 +122,8 @@ class AggregatedDataProfileController(
 
     @GetMapping("/aggregated-data-profiles/create/endpoints")
     fun endpoints(@RequestParam connectorInstanceId: UUID): ModelAndView {
-        val connector = connectorInstanceRepository.findById(connectorInstanceId).orElseThrow { NoSuchElementException("Connector not found") }
+        val connector = connectorInstanceRepository.findById(connectorInstanceId)
+            .orElseThrow { NoSuchElementException("Connector not found") }
         val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
 
         return ModelAndView("$BASE_FRAGMENT_ADG/add :: connectorEndpoints").apply {
@@ -190,7 +177,7 @@ class AggregatedDataProfileController(
             addObject("menuItems", menuItems)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
-            addObject("userInfoName", userInfoValue())
+            addObject("username" to SecurityContextHelper.getCurrentUserName())
         }
     }
 
@@ -288,7 +275,9 @@ class AggregatedDataProfileController(
             addObject("sources", sources)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
-            addObject("form", aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
+            addObject(
+                "form",
+                aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
         return modelAndView
     }
@@ -338,7 +327,9 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/delete").apply {
-            addObject("form", aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
+            addObject(
+                "form",
+                aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
         return modelAndView
     }
@@ -348,7 +339,7 @@ class AggregatedDataProfileController(
         @Valid @ModelAttribute form: DeleteRelationForm
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
-         form.run {
+        form.run {
             aggregatedDataProfile.let {
                 it.removeRelation(form)
                 aggregatedDataProfileService.reloadRoutes(it)
@@ -368,18 +359,14 @@ class AggregatedDataProfileController(
                 { it.sourceId != aggregatedDataProfile.id }  // false (0) comes before true (1)
             ).thenBy { it.sourceId } // second criterion: normal ascending by parentId
         )
-        .map { relation -> Source(
-            id = relation.id.toString(),
-            name = if (relation.sourceId == aggregatedDataProfile.id) {
-                aggregatedDataProfile.name + ">" + relation.id// use profile name if sourceId matches
-            } else {
-                relation.id.toString() // otherwise use relation id
-            }
-        )
-    }.toMutableList()
-
-    companion object {
-        fun userInfoValue(): String = UserInfoValueProvider.getCurrentUserInfoValue("name")
-    }
-
+        .map { relation ->
+            Source(
+                id = relation.id.toString(),
+                name = if (relation.sourceId == aggregatedDataProfile.id) {
+                    aggregatedDataProfile.name + ">" + relation.id// use profile name if sourceId matches
+                } else {
+                    relation.id.toString() // otherwise use relation id
+                }
+            )
+        }.toMutableList()
 }

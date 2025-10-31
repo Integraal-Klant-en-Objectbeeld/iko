@@ -8,13 +8,8 @@ import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
-import com.ritense.iko.mvc.provider.UserInfoValueProvider
-import com.ritense.iko.mvc.model.connector.ConnectorCreateForm
-import com.ritense.iko.mvc.model.connector.ConnectorEditForm
-import com.ritense.iko.mvc.model.connector.ConnectorEndpointConfigForm
-import com.ritense.iko.mvc.model.connector.ConnectorInstanceConfigEditForm
-import com.ritense.iko.mvc.model.connector.ConnectorInstanceEditForm
-import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
+import com.ritense.iko.mvc.model.connector.*
+import com.ritense.iko.mvc.provider.SecurityContextHelper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -24,16 +19,9 @@ import org.apache.camel.support.ResourceHelper
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
-import java.util.UUID
+import java.util.*
 
 /**
  * Controller responsible for displaying a list of available connectors and
@@ -70,7 +58,7 @@ class ConnectorController(
             },
             mapOf(
                 "connectors" to connectors,
-                "userInfoName" to userInfoValue()
+                "username" to SecurityContextHelper.getCurrentUserName()
             )
         )
     }
@@ -100,7 +88,7 @@ class ConnectorController(
                 "connector" to connector,
                 "instances" to instances,
                 "endpoints" to endpoints,
-                "userInfoName" to userInfoValue()
+                "username" to SecurityContextHelper.getCurrentUserName()
             )
         )
     }
@@ -618,7 +606,5 @@ class ConnectorController(
                 false -> ModelAndView(template, properties)
             }
         }
-
-        fun userInfoValue(): String = UserInfoValueProvider.getCurrentUserInfoValue("name")
     }
 }

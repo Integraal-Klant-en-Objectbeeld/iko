@@ -1,8 +1,8 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.mvc.provider.UserInfoValueProvider
 import com.ritense.iko.mvc.controller.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.model.MenuItem
+import com.ritense.iko.mvc.provider.SecurityContextHelper
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
@@ -23,9 +23,12 @@ internal class HomeController {
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         return hxRequest(
-            isHxRequest, "layout-internal", "details", mapOf(
+            isHxRequest,
+            "layout-internal",
+            "details",
+            mapOf(
                 "menuItems" to menuItems,
-                "userInfoName" to userInfoValue(),
+                "username" to SecurityContextHelper.getCurrentUserName()
             )
         )
     }
@@ -44,8 +47,6 @@ internal class HomeController {
             MenuItem("Aggregated Data Profiles", "/admin/aggregated-data-profiles"),
             MenuItem("Connectors", "/admin/connectors"),
         )
-
-        fun userInfoValue(): String = UserInfoValueProvider.getCurrentUserInfoValue("name")
     }
 
 }

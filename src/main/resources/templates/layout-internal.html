@@ -69,7 +69,7 @@
 
     <cds-header-global-bar>
         <cds-link href="javascript:void(0)" class="header-user-name">
-            <span th:text="${userInfoName} ?: ''"></span>
+            <span th:text="${username} ?: ''"></span>
         </cds-link>
 
         <cds-header-global-action
@@ -107,6 +107,13 @@
                         </cds-structured-list-header-row>
                     </cds-structured-list-head>
                     <cds-structured-list-body>
+                        <cds-structured-list-row>
+                            <cds-structured-list-cell>
+                                <cds-link href="https://docs.integraal-klant-objectbeeld.nl" target="_blank">
+                                    Help
+                                </cds-link>
+                            </cds-structured-list-cell>
+                        </cds-structured-list-row>
                         <cds-structured-list-row>
                             <cds-structured-list-cell>
                                 <cds-link href="/logout">
