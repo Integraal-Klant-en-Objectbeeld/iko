@@ -1,6 +1,5 @@
 package com.ritense.iko.mvc.controller
 
-import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
@@ -18,7 +17,6 @@ import org.springframework.web.servlet.ModelAndView
 @Controller
 @RequestMapping("/admin")
 class TestController(
-    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val producerTemplate: ProducerTemplate,
     private val camelContext: CamelContext
 ) {
@@ -40,12 +38,17 @@ class TestController(
             "iko_id" to form.testId,
             "iko_profile" to form.name,
         )
-        val result = producerTemplate.requestBodyAndHeaders(
-            adpEndpointUri,
-            "{}",
-            headers,
-            String::class.java
-        )
+        var result: String
+        try {
+            result = producerTemplate.requestBodyAndHeaders(
+                adpEndpointUri,
+                "{}",
+                headers,
+                String::class.java
+            )
+        } catch (ex: Exception) {
+            result = ex.message!!
+        }
 
         // Fetch traces
         val traces = tracer.dumpAllTracedMessages()?.map {
