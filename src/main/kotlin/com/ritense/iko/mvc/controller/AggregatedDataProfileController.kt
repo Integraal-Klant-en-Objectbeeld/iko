@@ -10,7 +10,12 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_REL
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
-import com.ritense.iko.mvc.model.*
+import com.ritense.iko.mvc.model.AddRelationForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileForm
+import com.ritense.iko.mvc.model.DeleteRelationForm
+import com.ritense.iko.mvc.model.EditRelationForm
+import com.ritense.iko.mvc.model.Relation
+import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.mvc.provider.SecurityContextHelper
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
@@ -21,9 +26,17 @@ import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
 import org.springframework.validation.ObjectError
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
-import java.util.*
+import java.util.UUID
 
 @Controller
 @RequestMapping("/admin")
