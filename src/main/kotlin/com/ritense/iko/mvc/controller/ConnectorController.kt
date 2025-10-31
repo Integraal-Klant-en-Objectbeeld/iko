@@ -8,6 +8,7 @@ import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
+import com.ritense.iko.mvc.provider.UserInfoValueProvider
 import com.ritense.iko.mvc.model.connector.ConnectorCreateForm
 import com.ritense.iko.mvc.model.connector.ConnectorEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorEndpointConfigForm
@@ -67,7 +68,10 @@ class ConnectorController(
                 true -> ":: connector-list"
                 false -> ""
             },
-            mapOf("connectors" to connectors)
+            mapOf(
+                "connectors" to connectors,
+                "userInfoName" to userInfoValue()
+            )
         )
     }
 
@@ -95,7 +99,8 @@ class ConnectorController(
             mapOf(
                 "connector" to connector,
                 "instances" to instances,
-                "endpoints" to endpoints
+                "endpoints" to endpoints,
+                "userInfoName" to userInfoValue()
             )
         )
     }
@@ -613,5 +618,7 @@ class ConnectorController(
                 false -> ModelAndView(template, properties)
             }
         }
+
+        fun userInfoValue(): String = UserInfoValueProvider.getCurrentUserInfoValue("name")
     }
 }

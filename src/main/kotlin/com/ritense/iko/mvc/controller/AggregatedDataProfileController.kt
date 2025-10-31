@@ -6,6 +6,7 @@ import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileServic
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
+import com.ritense.iko.mvc.provider.UserInfoValueProvider
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_RELATION
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
@@ -67,6 +68,7 @@ class AggregatedDataProfileController(
                 addObject("page", page)
                 addObject("query", query)
                 addObject("menuItems", menuItems)
+                addObject("userInfoName", userInfoValue())
             }
         }
     }
@@ -118,6 +120,7 @@ class AggregatedDataProfileController(
                     addObject("page", page)
                     addObject("query", query)
                     addObject("menuItems", menuItems)
+                    addObject("userInfoName", userInfoValue())
                 }
             )
         }
@@ -188,6 +191,7 @@ class AggregatedDataProfileController(
             addObject("menuItems", menuItems)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
+            addObject("userInfoName", userInfoValue())
         }
     }
 
@@ -374,5 +378,9 @@ class AggregatedDataProfileController(
             }
         )
     }.toMutableList()
+
+    companion object {
+        fun userInfoValue(): String = UserInfoValueProvider.getCurrentUserInfoValue("name")
+    }
 
 }

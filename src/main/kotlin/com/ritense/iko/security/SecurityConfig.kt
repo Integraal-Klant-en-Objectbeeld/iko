@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
 import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
@@ -86,9 +88,20 @@ class SecurityConfig {
         return jwtAuthenticationConverter
     }
 
+    @Bean
+    fun oidcClientInitiatedLogoutSuccessHandler(
+        clientRegistrationRepository: ClientRegistrationRepository
+    ) = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository).apply {
+        setPostLogoutRedirectUri("{baseUrl}/admin")
+    }
+
     @Order(Ordered.LOWEST_PRECEDENCE - 100)
     @Bean
-    fun adminSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun adminSecurityFilterChain(
+        http: HttpSecurity,
+        oidcClientInitiatedLogoutSuccessHandler: OidcClientInitiatedLogoutSuccessHandler
+    ): SecurityFilterChain {
+
         http
             .securityMatcher("/admin/**", "/oauth2/**", "/login/**", "/logout/**")
             .oauth2Login { login ->
@@ -103,7 +116,10 @@ class SecurityConfig {
                 }
             }
             .logout { logout ->
-                logout.invalidateHttpSession(true).clearAuthentication(true).logoutSuccessUrl("/")
+                logout
+                    .logoutSuccessHandler(oidcClientInitiatedLogoutSuccessHandler)
+                    .invalidateHttpSession(true)
+                    .clearAuthentication(true)
             }
             .authorizeHttpRequests { authorize ->
                 authorize.requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
