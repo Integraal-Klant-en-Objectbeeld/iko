@@ -7,6 +7,7 @@ import java.util.UUID
 class ConnectorConfig(val connectorInstanceRepository: ConnectorInstanceRepository) : RouteBuilder() {
     override fun configure() {
         from("direct:iko:config")
+            .routeId("connector-config")
             .process { exchange ->
                 val connectorInstance =
                     (connectorInstanceRepository.findById(exchange.getVariable("connectorInstanceId", UUID::class.java))

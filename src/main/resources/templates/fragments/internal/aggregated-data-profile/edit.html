@@ -83,6 +83,13 @@
                                     value=${form?.transform}
                                   ">
                     </cds-textarea>
+
+                    <cds-text-input id="testId"
+                                    name="testId"
+                                    style="width: 50%"
+                                    label="Id for testing the ADP">
+                    </cds-text-input>
+
                     <div style="max-width: fit-content;">
                         <cds-button
                             kind="primary"
@@ -90,6 +97,13 @@
                             hx-target="#view-panel"
                             hx-include="#form-group *">
                             Save
+                        </cds-button>
+                        <cds-button
+                            kind="secondary"
+                            hx-post="/admin/aggregated-data-profiles/test"
+                            hx-target="#view-panel"
+                            hx-include="#form-group *, [id='testId'], [id='name']">
+                            Test
                         </cds-button>
                     </div>
                 </cds-stack>

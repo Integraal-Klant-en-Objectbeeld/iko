@@ -15,6 +15,7 @@ class EndpointAuth(
 ) : RouteBuilder() {
     override fun configure() {
         from("direct:iko:endpoint:auth")
+            .routeId("endpoint-auth")
             .errorHandler(noErrorHandler())
             .process { ex ->
                 val connectorEndpointId = ex.getVariable("connectorEndpointId", UUID::class.java)

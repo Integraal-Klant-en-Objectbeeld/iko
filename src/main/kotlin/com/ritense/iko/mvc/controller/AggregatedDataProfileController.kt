@@ -46,7 +46,6 @@ class AggregatedDataProfileController(
     private val aggregatedDataProfileService: AggregatedDataProfileService,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val connectorRepository: ConnectorRepository
 ) {
 
     @GetMapping("/aggregated-data-profiles")
@@ -203,7 +202,7 @@ class AggregatedDataProfileController(
         @Valid @ModelAttribute form: AggregatedDataProfileForm,
         bindingResult: BindingResult
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id!!)
 
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
@@ -283,7 +282,7 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val relation = aggregatedDataProfile.relations.find { it.id == relationId }
-        val connector = connectorInstanceRepository.findById(relation?.connectorInstanceId).orElseThrow()
+        val connector = connectorInstanceRepository.findById(relation?.connectorInstanceId!!).orElseThrow()
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
             addObject("sources", sources)
