@@ -2,6 +2,7 @@ package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.mvc.controller.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.model.MenuItem
+import com.ritense.iko.mvc.provider.SecurityContextHelper
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
@@ -15,13 +16,21 @@ import org.springframework.web.servlet.ModelAndView
  */
 @Controller
 @RequestMapping("/admin")
-class HomeController {
+internal class HomeController {
 
     @GetMapping
     fun home(
-        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        return hxRequest(isHxRequest, "layout-internal", "details", mapOf())
+        return hxRequest(
+            isHxRequest,
+            "layout-internal",
+            "details",
+            mapOf(
+                "menuItems" to menuItems,
+                "username" to SecurityContextHelper.getCurrentUserName()
+            )
+        )
     }
 
     companion object {

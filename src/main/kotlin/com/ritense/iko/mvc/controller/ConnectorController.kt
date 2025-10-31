@@ -14,6 +14,7 @@ import com.ritense.iko.mvc.model.connector.ConnectorEndpointConfigForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceConfigEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
+import com.ritense.iko.mvc.provider.SecurityContextHelper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -67,7 +68,10 @@ class ConnectorController(
                 true -> ":: connector-list"
                 false -> ""
             },
-            mapOf("connectors" to connectors)
+            mapOf(
+                "connectors" to connectors,
+                "username" to SecurityContextHelper.getCurrentUserName()
+            )
         )
     }
 
@@ -95,7 +99,8 @@ class ConnectorController(
             mapOf(
                 "connector" to connector,
                 "instances" to instances,
-                "endpoints" to endpoints
+                "endpoints" to endpoints,
+                "username" to SecurityContextHelper.getCurrentUserName()
             )
         )
     }

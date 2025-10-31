@@ -16,6 +16,7 @@ import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.Source
+import com.ritense.iko.mvc.provider.SecurityContextHelper
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
@@ -65,6 +66,7 @@ class AggregatedDataProfileController(
                 addObject("page", page)
                 addObject("query", query)
                 addObject("menuItems", menuItems)
+                addObject("username" to SecurityContextHelper.getCurrentUserName())
             }
         }
     }
@@ -116,6 +118,7 @@ class AggregatedDataProfileController(
                     addObject("page", page)
                     addObject("query", query)
                     addObject("menuItems", menuItems)
+                    addObject("username" to SecurityContextHelper.getCurrentUserName())
                 }
             )
         }
@@ -132,7 +135,8 @@ class AggregatedDataProfileController(
 
     @GetMapping("/aggregated-data-profiles/create/endpoints")
     fun endpoints(@RequestParam connectorInstanceId: UUID): ModelAndView {
-        val connector = connectorInstanceRepository.findById(connectorInstanceId).orElseThrow { NoSuchElementException("Connector not found") }
+        val connector = connectorInstanceRepository.findById(connectorInstanceId)
+            .orElseThrow { NoSuchElementException("Connector not found") }
         val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
 
         return ModelAndView("$BASE_FRAGMENT_ADG/add :: connectorEndpoints").apply {
@@ -186,6 +190,7 @@ class AggregatedDataProfileController(
             addObject("menuItems", menuItems)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
+            addObject("username" to SecurityContextHelper.getCurrentUserName())
         }
     }
 
@@ -283,7 +288,9 @@ class AggregatedDataProfileController(
             addObject("sources", sources)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
-            addObject("form", aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
+            addObject(
+                "form",
+                aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
         return modelAndView
     }
@@ -333,7 +340,9 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/delete").apply {
-            addObject("form", aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
+            addObject(
+                "form",
+                aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
         return modelAndView
     }
@@ -343,7 +352,7 @@ class AggregatedDataProfileController(
         @Valid @ModelAttribute form: DeleteRelationForm
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
-         form.run {
+        form.run {
             aggregatedDataProfile.let {
                 it.removeRelation(form)
                 aggregatedDataProfileService.reloadRoutes(it)
@@ -363,14 +372,14 @@ class AggregatedDataProfileController(
                 { it.sourceId != aggregatedDataProfile.id }  // false (0) comes before true (1)
             ).thenBy { it.sourceId } // second criterion: normal ascending by parentId
         )
-        .map { relation -> Source(
-            id = relation.id.toString(),
-            name = if (relation.sourceId == aggregatedDataProfile.id) {
-                aggregatedDataProfile.name + ">" + relation.id// use profile name if sourceId matches
-            } else {
-                relation.id.toString() // otherwise use relation id
-            }
-        )
-    }.toMutableList()
-
+        .map { relation ->
+            Source(
+                id = relation.id.toString(),
+                name = if (relation.sourceId == aggregatedDataProfile.id) {
+                    aggregatedDataProfile.name + ">" + relation.id// use profile name if sourceId matches
+                } else {
+                    relation.id.toString() // otherwise use relation id
+                }
+            )
+        }.toMutableList()
 }
