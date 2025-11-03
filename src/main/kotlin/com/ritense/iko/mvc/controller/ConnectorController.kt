@@ -70,7 +70,8 @@ class ConnectorController(
             },
             mapOf(
                 "connectors" to connectors,
-                "username" to SecurityContextHelper.getCurrentUserName()
+                "username" to SecurityContextHelper.getUserPropertyByKey("name"),
+                "email" to SecurityContextHelper.getUserPropertyByKey("email")
             )
         )
     }
@@ -100,7 +101,8 @@ class ConnectorController(
                 "connector" to connector,
                 "instances" to instances,
                 "endpoints" to endpoints,
-                "username" to SecurityContextHelper.getCurrentUserName()
+                "username" to SecurityContextHelper.getUserPropertyByKey("name"),
+                "email" to SecurityContextHelper.getUserPropertyByKey("email")
             )
         )
     }

@@ -28,7 +28,8 @@ internal class HomeController {
             "details",
             mapOf(
                 "menuItems" to menuItems,
-                "username" to SecurityContextHelper.getCurrentUserName()
+                "username" to SecurityContextHelper.getUserPropertyByKey("name"),
+                "email" to SecurityContextHelper.getUserPropertyByKey("email")
             )
         )
     }

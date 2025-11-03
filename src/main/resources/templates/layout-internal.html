@@ -68,9 +68,9 @@
     </cds-header-name>
 
     <cds-header-global-bar>
-        <cds-link href="javascript:void(0)" class="header-user-name">
-            <span th:text="${username} ?: ''"></span>
-        </cds-link>
+        <span class="header-user-name">
+            <span th:text="${username == 'null' ? email : username}"></span>
+        </span>
 
         <cds-header-global-action
             panel-id="switcher-panel"

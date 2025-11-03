@@ -66,7 +66,8 @@ class AggregatedDataProfileController(
                 addObject("page", page)
                 addObject("query", query)
                 addObject("menuItems", menuItems)
-                addObject("username" to SecurityContextHelper.getCurrentUserName())
+                addObject("username" to SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email" to SecurityContextHelper.getUserPropertyByKey("email"))
             }
         }
     }
@@ -118,7 +119,8 @@ class AggregatedDataProfileController(
                     addObject("page", page)
                     addObject("query", query)
                     addObject("menuItems", menuItems)
-                    addObject("username" to SecurityContextHelper.getCurrentUserName())
+                    addObject("username" to SecurityContextHelper.getUserPropertyByKey("name"))
+                    addObject("email" to SecurityContextHelper.getUserPropertyByKey("email"))
                 }
             )
         }
@@ -190,7 +192,8 @@ class AggregatedDataProfileController(
             addObject("menuItems", menuItems)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
-            addObject("username" to SecurityContextHelper.getCurrentUserName())
+            addObject("username" to SecurityContextHelper.getUserPropertyByKey("name"))
+            addObject("email" to SecurityContextHelper.getUserPropertyByKey("email"))
         }
     }
 
