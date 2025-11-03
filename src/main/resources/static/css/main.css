@@ -1,9 +1,33 @@
+/*
+ Logical CSS structure
+ 1) Base Layout
+ 2) Typography & Utilities
+ 3) Components & Layout
+ 4) Media Queries
+*/
+
+/* 1) Base Layout */
 body {
     margin-left: 2rem;
     padding: 0;
     padding-top: 3rem;
     transition: margin-left .11s cubic-bezier(.2, 0, 1, .9);
     will-change: margin-left;
+}
+
+main {
+    padding: 48px 32px 48px 32px;
+    height: 100vh;
+    background-color: var(--cds-layer-02);
+}
+
+/* 2) Typography & Utilities */
+.text-secondary {
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
+    font-size: var(--cds-body-compact-01-font-size);
+    font-weight: var(--cds-body-01-font-weight);
+    line-height: var(--cds-body-01-line-height);
+    letter-spacing: var(--cds-body-01-letter-spacing);
 }
 
 .cds--toggle__switch--checked::before {
@@ -16,60 +40,53 @@ body {
     justify-content: flex-end;
 }
 
-cds-header ~ cds-side-nav {
-    block-size: calc(100% - 3rem);
-    margin-block-start: 3rem
-}
-
-@media (min-width: 66rem) {
-    body {
-        margin-inline-start: 16rem
-    }
-}
-
-.text-secondary {
-    font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
-    font-size: var(--cds-body-compact-01-font-size);
-    font-weight: var(--cds-body-01-font-weight);
-    line-height: var(--cds-body-01-line-height);
-    letter-spacing: var(--cds-body-01-letter-spacing);
-}
-
-cds-header {
-    justify-content: space-between;
-
-    .header-panel {
-        background: #ffffff;
-
-        cds-structured-list-cell {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start; /* keep text and tag left-aligned */
-        }
-
-        cds-structured-list-cell cds-tag {
-            display: inline-flex; /* keeps the tag only as wide as its content */
-            margin-top: var(--cds-spacing-03, 0.5rem);
-        }
-
-    }
-
-    cds-header-global-bar {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 0.5rem;
-
-        cds-link span {
-            color: #000000;
-        }
-    }
-}
-
 cds-link {
     cursor: pointer;
 }
 
-.g10 {
-    background-color: #f4f4f4;
+/* 3) Components & Layout */
+/* Header and related elements */
+cds-header {
+    justify-content: space-between;
 }
+
+cds-header .header-panel {
+    background: #ffffff;
+}
+
+cds-header .header-panel cds-structured-list-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* keep text and tag left-aligned */
+}
+
+cds-header .header-panel cds-structured-list-cell cds-tag {
+    display: inline-flex; /* keeps the tag only as wide as its content */
+    margin-top: var(--cds-spacing-03, 0.5rem);
+}
+
+cds-header cds-header-global-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+cds-header cds-header-global-bar cds-link span {
+    color: #000000;
+}
+
+/* Side nav positioned beneath header */
+cds-header ~ cds-side-nav {
+    block-size: calc(100% - 3rem);
+    margin-block-start: 3rem;
+}
+
+/* 4) Media Queries */
+@media (min-width: 66rem) {
+    body {
+        margin-inline-start: 16rem;
+    }
+}
+
+/* Buttons */
