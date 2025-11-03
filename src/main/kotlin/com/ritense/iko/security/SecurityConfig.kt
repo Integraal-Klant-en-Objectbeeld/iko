@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
@@ -106,6 +107,7 @@ class SecurityConfig {
             .securityMatcher("/admin/**", "/oauth2/**", "/login/**", "/logout/**")
             .oauth2Login { login ->
                 login.userInfoEndpoint { user ->
+                    user.oidcUserService(OidcUserService().apply { setRetrieveUserInfo { true } })
                     user.userAuthoritiesMapper { authorities ->
                         authorities.filter { it::class == OidcUserAuthority::class }
                             .map { oidcUserAuthority -> oidcUserAuthority as OidcUserAuthority }
