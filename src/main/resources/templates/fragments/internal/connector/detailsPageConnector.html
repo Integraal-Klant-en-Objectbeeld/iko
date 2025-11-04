@@ -28,14 +28,15 @@
                 >Edit Code
                 </cds-button>
                 </div>
-                <div id="connector-code" style="border: 1px solid black; margin: 0.5em;" th:fragment="connector-code">
-                <pre><code class="language-yaml">[[${connector.connectorCode}]]</code></pre>
+                <div id="connector-code" style="margin: 0.5em;" th:fragment="connector-code">
 
-                    <script type="text/javascript">
-                        document.querySelectorAll('#panel-connector-code pre code').forEach((block) => {
-                            hljs.highlightElement(block);
-                        });
-                    </script>
+                    <div id="connector-editor"
+                         data-monaco
+                         data-language="yaml"
+                         data-readonly=true
+                         th:attr="data-initial=${connector.connectorCode}"
+                         class="monaco-editor">
+                    </div>
                 </div>
             </div>
 

@@ -109,3 +109,10 @@ cds-table-row > .app--table-cell-actions {
     flex-flow: row;
     justify-content: flex-end
 }
+
+/* Monaco Editor */
+
+.monaco-editor {
+    height: 100vh;
+    width: 100%;
+}

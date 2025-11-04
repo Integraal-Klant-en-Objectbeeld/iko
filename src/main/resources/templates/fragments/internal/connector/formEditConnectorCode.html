@@ -1,48 +1,3 @@
-<!--<cds-modal prevent-close-on-click-outside="true" size="md" open="true">-->
-<!--    <cds-modal-header>-->
-<!--        <cds-modal-close-button></cds-modal-close-button>-->
-<!--        <cds-modal-label>Edit connector code</cds-modal-label>-->
-<!--        <cds-modal-heading>Connector Code</cds-modal-heading>-->
-<!--    </cds-modal-header>-->
-<!--    <cds-modal-body>-->
-<!--        <cds-stack gap="8">-->
-<!--            <th:block th:fragment="form">-->
-<!--                <cds-form-group id="form-group" name="form-group">-->
-<!--                    <cds-form-item>-->
-<!--                        <cds-textarea enable-counter="" counter-mode=""-->
-<!--                                      label="Code"-->
-<!--                                      placeholder="" rows="16" cols="0"-->
-<!--                                      name="connectorCode"-->
-<!--                                      th:attr="-->
-<!--                                        value=${connector?.connectorCode},-->
-<!--                                        invalid=${errors?.getFieldError('connectorCode') != null} ? 'true' : null,-->
-<!--                                        invalid-text=${errors?.getFieldError('connectorCode')?.defaultMessage}-->
-<!--                                      "-->
-<!--                        >-->
-<!--                        </cds-textarea>-->
-<!--                    </cds-form-item>-->
-<!--                </cds-form-group>-->
-<!--            </th:block>-->
-<!--        </cds-stack>-->
-<!--    </cds-modal-body>-->
-<!--    <cds-modal-footer>-->
-<!--        <cds-modal-footer-button-->
-<!--            data-modal-close=""-->
-<!--            type="button"-->
-<!--            kind="secondary">-->
-<!--            Cancel-->
-<!--        </cds-modal-footer-button>-->
-<!--        <cds-modal-footer-button-->
-<!--            type="submit"-->
-<!--            th:hx-put="@{|/admin/connectors/${connector.id}|}"-->
-<!--            hx-target="#form-group"-->
-<!--            hx-include="#form-group *"-->
-<!--        >-->
-<!--            Save-->
-<!--        </cds-modal-footer-button>-->
-<!--    </cds-modal-footer>-->
-<!--</cds-modal>-->
-
 <cds-modal prevent-close-on-click-outside="true" size="md" open="true">
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
@@ -56,7 +11,7 @@
                 <cds-form-group id="form-group" name="form-group">
                     <cds-form-item>
 
-                        <!-- Hidden textarea that will be submitted by HTMX -->
+                        <!-- Hidden textarea for the code -->
                         <textarea id="connectorCode"
                                   name="connectorCode"
                                   th:text="${connector?.connectorCode}"
@@ -65,18 +20,11 @@
                         <!-- Monaco container -->
                         <div id="connector-editor"
                              data-monaco
-                             data-language="javascript"
-                        data-textarea="#connectorCode"
-                        th:attr="data-initial=${connector?.connectorCode}"
-                        style="height: 420px; border: 1px solid var(--cds-border-subtle,#e0e0e0);">
+                             data-language="yaml"
+                             data-textarea="#connectorCode"
+                             th:attr="data-initial=${connector?.connectorCode}"
+                             class="monaco-editor">
                         </div>
-
-                        <!-- Optional: surface server-side validation below the editor -->
-                        <cds-inline-notification
-                            kind="error"
-                            th:if="${errors?.getFieldError('connectorCode') != null}"
-                            th:attr="title=${errors?.getFieldError('connectorCode')?.defaultMessage}">
-                        </cds-inline-notification>
 
                     </cds-form-item>
                 </cds-form-group>
