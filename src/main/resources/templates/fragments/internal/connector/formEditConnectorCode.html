@@ -9,7 +9,6 @@
         <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <div class="form-stack">
                         <cds-form-item>
                             <textarea id="connectorCode"
                                       name="connectorCode"
@@ -21,11 +20,11 @@
                                  data-monaco
                                  data-language="yaml"
                                  data-textarea="#connectorCode"
-                                 th:attr="data-initial=${connector?.connectorCode}"
+                                 th:data-initial="${connector.connectorCode}"
                                  class="monaco-editor-style">
                             </div>
                         </cds-form-item>
-                    </div>
+                        <div id="monaco-error" class="monaco-error"></div>
                 </cds-form-group>
             </th:block>
         </cds-stack>
@@ -40,9 +39,10 @@
             type="submit"
             th:hx-put="@{|/admin/connectors/${connector.id}|}"
             hx-include="#form-group *"
-            hx-target="#connector-code"
+            hx-target="this"
             hx-select="#connector-code"
-            hx-swap="outerHTML"
+            hx-swap="none"
+            data-editor-selector="#connector-editor"
         >
             Save
         </cds-modal-footer-button>

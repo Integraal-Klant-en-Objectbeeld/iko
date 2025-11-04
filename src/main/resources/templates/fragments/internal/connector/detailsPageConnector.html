@@ -31,11 +31,11 @@
                 </div>
                 <div id="connector-code" style="margin: 0.5em;" th:fragment="connector-code">
 
-                    <div id="connector-editor"
+                    <div id="connector-code-viewer"
                          data-monaco
                          data-language="yaml"
                          data-readonly=true
-                         th:attr="data-initial=${connector.connectorCode}"
+                         th:data-initial="${connector.connectorCode}"
                          class="monaco-editor-style-full-height">
                     </div>
                 </div>

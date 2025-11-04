@@ -68,6 +68,26 @@ require.config({
         document.querySelectorAll("[data-monaco]").forEach(initMonaco);
     });
 
+    document.addEventListener("htmx:afterRequest", (e) => {
+        const xhr = e.detail.xhr;
+        const trigger = e.detail.elt;
+        const editorSelector = trigger.getAttribute("data-editor-selector");
+        console.log(editorSelector);
+
+        const errorBox = document.getElementById("monaco-error");
+        const editor= document.querySelector(editorSelector);
+
+        if (xhr.status === 422 && xhr.getResponseHeader("Content-Type").includes("text/plain")) {
+            errorBox.style.display = "block";
+            errorBox.textContent = xhr.responseText;
+            editor.classList.add("monaco-editor-error");
+        } else if (xhr.status >= 200 && xhr.status < 300) {
+            errorBox.style.display = "none";
+            editor.classList.remove("monaco-editor-error");
+            errorBox.textContent = "";
+        }
+    });
+
     // Dispose to avoid leaks
     document.addEventListener("htmx:beforeSwap", (e) => {
         const root = e.detail?.target || e.target || document;

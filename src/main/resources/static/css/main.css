@@ -51,7 +51,7 @@ cds-link[aria-disabled="true"]::part(link) {
     cursor: pointer;
 }
 
-cds-breadcrumb-link{
+cds-breadcrumb-link {
     color: #2B79BD;
 }
 
@@ -165,6 +165,18 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 
 .monaco-editor-style-full-height {
     height: 100vh;
+}
+
+.monaco-error {
+    display: none;
+    color: #ffffff;
+    background: var(--cds-button-danger-primary,#da1e28);
+    padding: 6px;
+    width: fit-content;
+}
+
+.monaco-editor-error {
+    border: 2px solid var(--cds-button-danger-primary,#da1e28);
 }
 
 /* Modal */
