@@ -57,6 +57,26 @@ cds-header .app--table-cell-actions {
 
 cds-header ~ cds-side-nav {
     block-size: calc(100% - 3rem);
+    margin-block-start: 3rem
+}
+
+cds-header-menu-button,
+.cds--header__menu-trigger {
+    display: none !important;
+}
+
+@media (min-width: 66rem) {
+    body {
+        margin-inline-start: 16rem
+    }
+}
+
+.text-secondary {
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
+    font-size: var(--cds-body-compact-01-font-size);
+    font-weight: var(--cds-body-01-font-weight);
+    line-height: var(--cds-body-01-line-height);
+    letter-spacing: var(--cds-body-01-letter-spacing);
     margin-block-start: 3rem;
 }
 
