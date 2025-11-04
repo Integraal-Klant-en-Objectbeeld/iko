@@ -21,6 +21,11 @@ cds-header ~ cds-side-nav {
     margin-block-start: 3rem
 }
 
+cds-header-menu-button,
+.cds--header__menu-trigger {
+    display: none !important;
+}
+
 @media (min-width: 66rem) {
     body {
         margin-inline-start: 16rem
