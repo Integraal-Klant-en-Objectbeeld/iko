@@ -8,27 +8,28 @@
         <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <cds-text-input name="role"
-                                    th:value="${role?.role}"
+                    <div class="form-stack">
+                        <cds-text-input name="role"
+                                        th:value="${role?.role}"
+                                        th:attr="
+                                        invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('role')?.defaultMessage}
+                                        "
+                                        label="Role"
+                        >
+                        </cds-text-input>
+                        <cds-select helper-text="Choose which endpoint you want to map to this role."
+                                    th:value="${role?.endpointId}"
                                     th:attr="
-                                    invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('role')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    label="Role"
-                    >
-                    </cds-text-input>
-                    <cds-select helper-text="Choose which endpoint you want to map to this role."
-                                th:value="${role?.endpointId}"
-                                th:attr="
-                                    invalid=${errors?.getFieldError('endpointId') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('endpointId')?.defaultMessage}
-                                    "
-                                label-text="Endpoint" placeholder="" size="md" warn-text="Warning message"
-                                name="endpointId">
-                        <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}"><span
-                            th:text="${endpoint.name}"></span></cds-select-item>
-                    </cds-select>
+                                        invalid=${errors?.getFieldError('endpointId') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('endpointId')?.defaultMessage}
+                                        "
+                                    label-text="Endpoint" placeholder="" size="md" warn-text="Warning message"
+                                    name="endpointId">
+                            <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}"><span
+                                th:text="${endpoint.name}"></span></cds-select-item>
+                        </cds-select>
+                    </div>
                 </cds-form-group>
             </th:block>
         </cds-stack>

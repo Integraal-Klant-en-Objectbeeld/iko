@@ -40,6 +40,8 @@
                     <cds-table-header-cell>
                         Reference
                     </cds-table-header-cell>
+                    <cds-table-header-cell>
+                    </cds-table-header-cell>
                 </cds-table-header-row>
             </cds-table-head>
             <cds-table-body id="search-results">
@@ -48,12 +50,31 @@
                     th:hx-get="@{|/admin/connectors/${connector.id}|}"
                     hx-target="#view-panel"
                     hx-push-url="true"
-                    hx-trigger="click, keyup[key=='Enter']"
+                    hx-trigger="click"
                     role="link"
-                    tabindex="0"
                     class="app--table-row-clickable">
                     <cds-table-cell th:text="${connector.name}"></cds-table-cell>
                     <cds-table-cell th:text="${connector.tag}"></cds-table-cell>
+                    <cds-table-cell class="app--table-cell-actions">
+                        <cds-overflow-menu
+                            enter-delay-ms="3000"
+                            leave-delay-ms="0"
+                            close-on-activation
+                            hx-on:click="event.stopPropagation()"
+                        >
+                            <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" slot="icon" class="cds--overflow-menu__icon" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="8" r="2"></circle><circle cx="16" cy="16" r="2"></circle><circle cx="16" cy="24" r="2"></circle></svg>
+                            <span slot="tooltip-content"> Options </span>
+                            <cds-overflow-menu-body flipped="" >
+                                <cds-overflow-menu-item
+                                    hx-confirm="Are you sure you want to delete this connector?"
+                                    th:hx-delete="@{|/admin/connectors/${connector.id}|}"
+                                    hx-swap="outerHTML"
+                                    hx-target="#search-results"
+                                    danger="true"
+                                > Delete </cds-overflow-menu-item>
+                            </cds-overflow-menu-body>
+                        </cds-overflow-menu>
+                    </cds-table-cell>
                 </cds-table-row>
             </cds-table-body>
         </cds-table>

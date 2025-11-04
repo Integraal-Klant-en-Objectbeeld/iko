@@ -170,6 +170,33 @@ class ConnectorController(
         )
     }
 
+    @DeleteMapping("/{id}")
+    fun deleteConnector(
+        @PathVariable id: UUID,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        httpServletResponse: HttpServletResponse
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+
+        connectorEndpointRepository.findByConnector(connector).forEach { endpoint ->
+            connectorEndpointRepository.delete(endpoint)
+        }
+
+        connectorInstanceRepository.findByConnector(connector).forEach { instance ->
+            connectorEndpointRoleRepository.findAllByConnectorInstance(instance).forEach { role ->
+                connectorEndpointRoleRepository.delete(role)
+            }
+            connectorInstanceRepository.delete(instance)
+        }
+
+        connectorRepository.delete(connector)
+
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors")
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+
+        return list(isHxRequest)
+    }
+
     @PostMapping("")
     fun createConnector(
         @Valid @ModelAttribute form: ConnectorCreateForm,

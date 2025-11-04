@@ -8,31 +8,27 @@
         <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <cds-text-input name="name"
-                                    th:value="${instance?.name}"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    required=""
-                                    label="Name"
-                                    invalid-text="Please enter a valid name"
-                    >
-                    </cds-text-input>
+                    <div class="form-stack">
+                        <cds-text-input name="name"
+                                        th:value="${instance?.name}"
+                                        th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
+                                        required=""
+                                        label="Name"
+                                        invalid-text="Please enter a valid name"
+                        >
+                        </cds-text-input>
 
-                    <cds-text-input name="reference"
-                                    th:value="${instance?.reference}"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('reference')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    required=""
-                                    label="Reference"
-                                    invalid-text="Please enter a valid reference"
-                    >
-                    </cds-text-input>
+                        <cds-text-input name="reference"
+                                        th:value="${instance?.reference}"
+                                        th:attr="invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('reference')?.defaultMessage}"
+                                        required=""
+                                        label="Reference"
+                                        invalid-text="Please enter a valid reference"
+                        >
+                        </cds-text-input>
+                    </div>
                 </cds-form-group>
             </th:block>
         </cds-stack>

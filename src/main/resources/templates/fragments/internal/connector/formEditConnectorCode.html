@@ -9,24 +9,23 @@
         <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <cds-form-item>
+                    <div class="form-stack">
+                        <cds-form-item>
+                            <textarea id="connectorCode"
+                                      name="connectorCode"
+                                      th:text="${connector?.connectorCode}"
+                                      hidden></textarea>
 
-                        <!-- Hidden textarea for the code -->
-                        <textarea id="connectorCode"
-                                  name="connectorCode"
-                                  th:text="${connector?.connectorCode}"
-                                  hidden></textarea>
-
-                        <!-- Monaco container -->
-                        <div id="connector-editor"
-                             data-monaco
-                             data-language="yaml"
-                             data-textarea="#connectorCode"
-                             th:attr="data-initial=${connector?.connectorCode}"
-                             class="monaco-editor">
-                        </div>
-
-                    </cds-form-item>
+                            <!-- Monaco container -->
+                            <div id="connector-editor"
+                                 data-monaco
+                                 data-language="yaml"
+                                 data-textarea="#connectorCode"
+                                 th:attr="data-initial=${connector?.connectorCode}"
+                                 class="monaco-editor-style">
+                            </div>
+                        </cds-form-item>
+                    </div>
                 </cds-form-group>
             </th:block>
         </cds-stack>
@@ -40,8 +39,10 @@
         <cds-modal-footer-button
             type="submit"
             th:hx-put="@{|/admin/connectors/${connector.id}|}"
-            hx-target="#form-group"
             hx-include="#form-group *"
+            hx-target="#connector-code"
+            hx-select="#connector-code"
+            hx-swap="outerHTML"
         >
             Save
         </cds-modal-footer-button>

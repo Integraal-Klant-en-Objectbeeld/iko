@@ -1,29 +1,58 @@
 /* Main layout */
 body {
-    margin-left: 2rem;
     padding: 0;
     padding-top: 3rem;
-    transition: margin-left .11s cubic-bezier(.2, 0, 1, .9);
+    font-size: var(--cds-body-compact-01-font-size);
+    font-weight: var(--cds-body-01-font-weight);
+    line-height: var(--cds-body-01-line-height);
+    letter-spacing: var(--cds-body-01-letter-spacing);
 }
 
-/* Wide screens */
-@media (min-width: 66rem) {
-    body {
-        margin-inline-start: 16rem;
-    }
+/* Helper classes */
+.pointer {
+    cursor: pointer;
 }
 
 /* Links */
 cds-link {
+    color: #2B79BD;
     cursor: pointer;
 }
 
 cds-link::part(link) {
-    color: var(--cds-text-primary);
+    color: #2B79BD;
+    text-decoration: none;
+}
+
+cds-link:hover::part(link),
+cds-link:focus-within::part(link) {
+    color: #286198;
+    text-decoration: underline;
+}
+
+cds-link:visited::part(link) {
+    color: #1f5c8e;
+}
+
+cds-link:active::part(link) {
+    color: #003361;
+}
+
+/* Disabled state if used */
+cds-link[disabled]::part(link),
+cds-link[aria-disabled="true"]::part(link) {
+    color: var(--cds-text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+    text-decoration: none;
 }
 
 .cds--side-nav__link {
     cursor: pointer;
+}
+
+cds-breadcrumb-link{
+    color: #2B79BD;
 }
 
 /* Themes And CDS */
@@ -35,6 +64,7 @@ cds-link::part(link) {
     --cds-button-primary-disabled: #C6C6C6;
     --cds-focus: #2B79BD;
     --cds-skeleton-background: #E8E8E8;
+    --cds--btn--secondary: #ffffff;
 }
 
 .cds-theme-zone-g10 h2.cds--type-heading-03,
@@ -65,21 +95,6 @@ cds-header-menu-button,
     display: none !important;
 }
 
-@media (min-width: 66rem) {
-    body {
-        margin-inline-start: 16rem
-    }
-}
-
-.text-secondary {
-    font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, '.SFNSText-Regular', sans-serif;
-    font-size: var(--cds-body-compact-01-font-size);
-    font-weight: var(--cds-body-01-font-weight);
-    line-height: var(--cds-body-01-line-height);
-    letter-spacing: var(--cds-body-01-letter-spacing);
-    margin-block-start: 3rem;
-}
-
 cds-header .header-panel {
     background: #ffffff;
 }
@@ -104,35 +119,64 @@ cds-header cds-header-global-bar {
 
 /* Content */
 main {
-    padding: var(--cds-spacing-09) var(--cds-spacing-07);
+    padding: var(--cds-spacing-09) var(--cds-spacing-07) var(--cds-spacing-09) var(--cds-spacing-11);
     min-height: calc(100vh - 3rem);
     background-color: var(--cds-layer-02);
 }
 
 main cds-layout .cds--tab-content {
-    padding: 0px !important;
+    padding: 0 !important;
 }
 
 .page-title {
     margin-bottom: var(--cds-spacing-07);
 }
 
-/* Datagrid (clickable row) */
-
+/* Datagrid */
 cds-table-row {
-    cursor: pointer !important;
+    cursor: pointer;
 }
 
-/* if you already use an actions class */
+cds-table-row.not-clickable {
+    cursor: auto;
+}
+
 cds-table-row > .app--table-cell-actions {
     display: flex;
     flex-flow: row;
     justify-content: flex-end
 }
 
-/* Monaco Editor */
+cds-table-row cds-tooltip-content {
+    display: none;
+}
 
-.monaco-editor {
-    height: 100vh;
+/* Buttons */
+cds-modal-footer-button[kind="secondary"]::part(button) {
+    background-color: white;
+    color: #2B79BD;
+}
+
+/* Monaco Editor */
+.monaco-editor-style {
     width: 100%;
+    height: 300px;
+}
+
+.monaco-editor-style-full-height {
+    height: 100vh;
+}
+
+/* Modal */
+cds-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Form layout */
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }

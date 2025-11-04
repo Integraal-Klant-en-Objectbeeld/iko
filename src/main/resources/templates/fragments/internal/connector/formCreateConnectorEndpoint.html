@@ -8,31 +8,27 @@
         <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                    <cds-text-input name="name"
-                                    th:value="${endpoint?.name}"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    required=""
-                                    label="Name"
-                                    invalid-text="Please enter a valid name"
-                    >
-                    </cds-text-input>
+                    <div class="form-stack">
+                        <cds-text-input name="name"
+                                        th:value="${endpoint?.name}"
+                                        th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
+                                        required=""
+                                        label="Name"
+                                        invalid-text="Please enter a valid name"
+                        >
+                        </cds-text-input>
 
-                    <cds-text-input name="operation"
-                                    th:value="${endpoint?.operation}"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('operation') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('operation')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    required=""
-                                    label="Operation"
-                                    invalid-text="Please enter a valid operation"
-                    >
-                    </cds-text-input>
+                        <cds-text-input name="operation"
+                                        th:value="${endpoint?.operation}"
+                                        th:attr="invalid=${errors?.getFieldError('operation') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('operation')?.defaultMessage}"
+                                        required=""
+                                        label="Operation"
+                                        invalid-text="Please enter a valid operation"
+                        >
+                        </cds-text-input>
+                    </div>
                 </cds-form-group>
             </th:block>
         </cds-stack>
