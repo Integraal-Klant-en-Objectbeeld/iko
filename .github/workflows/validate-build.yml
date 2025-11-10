@@ -1,0 +1,33 @@
+name: Validate Build
+
+on:
+    workflow_call:
+    pull_request:
+        branches:
+            - "main"
+
+env:
+    JAVA_VERSION: "21"
+    JAVA_DISTRIBUTION: "corretto"
+
+permissions: read-all
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+    cancel-in-progress: true
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v5
+            -   name: Set up JDK ${{ env.JAVA_VERSION }}
+                uses: actions/setup-java@v5
+                with:
+                    java-version: '${{ env.JAVA_VERSION }}'
+                    distribution: '${{ env.JAVA_DISTRIBUTION }}'
+            -   name: Set up gradle
+                uses: gradle/actions/setup-gradle@v5
+            -   name: Build with Gradle
+                run: ./gradlew build
