@@ -14,9 +14,9 @@
             crossorigin="anonymous"></script>
 
     <!-- Carbon v11 -->
-    <link rel="stylesheet" href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css">
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"/>
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css">
 
     <!-- Highlight.js for code samples -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"/>
@@ -187,47 +187,41 @@
 
 <main class="cds-theme-zone-g10" data-carbon-theme="g10">
     <cds-content>
-        <cds-grid>
-            <cds-row>
-                <cds-col lg="13">
-                    <div id="view-panel" layout:fragment="view-panel-content" th:fragment="details">
-                        <div id="breadcrumb" th:fragment="breadcrumb (entries)">
-                            <cds-breadcrumb no-trailing-slash="" th:if="${entries != null}">
-                                <cds-breadcrumb-item>
-                                    <cds-breadcrumb>
-                                        Home
-                                    </cds-breadcrumb>
-                                </cds-breadcrumb-item>
-                                <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
-                                    <cds-breadcrumb-link
-                                        href="javascript:void(0)"
-                                        th:hx-get="${breadcrumb[1]}"
-                                        hx-push-url="true"
-                                        hx-target="#view-panel"
-                                        th:attrappend="is-currentpage=${iter.last}?'true'"
-                                        th:is-currentpage="${iter.last}"
-                                        th:text="${breadcrumb[0]}">
-                                    </cds-breadcrumb-link>
-                                </cds-breadcrumb-item>
-                            </cds-breadcrumb>
-                        </div>
+        <div id="view-panel" layout:fragment="view-panel-content" th:fragment="details">
+            <div id="breadcrumb" th:fragment="breadcrumb (entries)">
+                <cds-breadcrumb no-trailing-slash="" th:if="${entries != null}">
+                    <cds-breadcrumb-item>
+                        <cds-breadcrumb>
+                            Home
+                        </cds-breadcrumb>
+                    </cds-breadcrumb-item>
+                    <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
+                        <cds-breadcrumb-link
+                            href="javascript:void(0)"
+                            th:hx-get="${breadcrumb[1]}"
+                            hx-push-url="true"
+                            hx-target="#view-panel"
+                            th:attrappend="is-currentpage=${iter.last}?'true'"
+                            th:is-currentpage="${iter.last}"
+                            th:text="${breadcrumb[0]}">
+                        </cds-breadcrumb-link>
+                    </cds-breadcrumb-item>
+                </cds-breadcrumb>
+            </div>
 
-                        <div id="page-header" th:fragment="page-header">
-                            <h2 class="page-title cds--type-heading-03">
-                                <span th:text="${title}"></span>
-                            </h2>
-                        </div>
-                        <h4>Welcome to IKO</h4>
-                        <img
-                            class="page-landing__illo"
-                            th:src="@{assets/tab-illo.png}"
-                            alt="Carbon illustration"
-                            width="640"
-                            height="498"/>
-                    </div>
-                </cds-col>
-            </cds-row>
-        </cds-grid>
+            <div id="page-header" th:fragment="page-header">
+                <h2 class="page-title cds--type-heading-03">
+                    <span th:text="${title}"></span>
+                </h2>
+            </div>
+            <h4>Welcome to IKO</h4>
+            <img
+                class="page-landing__illo"
+                th:src="@{assets/tab-illo.png}"
+                alt="Carbon illustration"
+                width="640"
+                height="498"/>
+        </div>
     </cds-content>
 </main>
 
