@@ -7,8 +7,8 @@
     <cds-modal-body>
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                    <div class="form-stack">
-                        <cds-text-input name="name"
+                    <cds-stack gap="7">
+                    <cds-text-input name="name"
                                         size="lg"
                                         th:value="${endpoint?.name}"
                                         th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
@@ -29,7 +29,7 @@
                                         invalid-text="Please enter a valid operation"
                         >
                         </cds-text-input>
-                    </div>
+                    </cds-stack>
                 </cds-form-group>
             </th:block>
     </cds-modal-body>

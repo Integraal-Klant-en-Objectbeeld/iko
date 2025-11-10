@@ -7,7 +7,7 @@
     <cds-modal-body>
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <div class="form-stack">
+                    <cds-stack gap="7">
                         <cds-text-input name="role"
                                         size="lg"
                                         th:value="${role?.role}"
@@ -29,7 +29,7 @@
                             <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}"><span
                                 th:text="${endpoint.name}"></span></cds-select-item>
                         </cds-select>
-                    </div>
+                    </cds-stack>
                 </cds-form-group>
             </th:block>
     </cds-modal-body>

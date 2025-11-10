@@ -7,7 +7,7 @@
     <cds-modal-body>
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <div class="form-stack">
+                    <cds-stack gap="7">
                         <cds-text-input name="key"
                                         size="lg"
                                         th:value="${config?.key}"
@@ -24,7 +24,7 @@
                                         invalid-text=${errors?.getFieldError('value')?.defaultMessage}"
                                         label="Value">
                         </cds-text-input>
-                    </div>
+                    </cds-stack>
                 </cds-form-group>
             </th:block>
     </cds-modal-body>

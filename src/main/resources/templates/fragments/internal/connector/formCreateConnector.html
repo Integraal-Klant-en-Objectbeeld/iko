@@ -6,7 +6,7 @@
     <cds-modal-body>
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                    <div class="form-stack">
+                    <cds-stack gap="7">
                         <cds-text-input name="name"
                                         size="lg"
                                         th:value="${connector?.name}"
@@ -48,7 +48,7 @@
                             <div class="cds--form-requirement" th:if="${errors?.getFieldError('connectorCode') != null}"
                                  th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"></div>
                         </div>
-                    </div>
+                    </cds-stack>
                 </cds-form-group>
             </th:block>
     </cds-modal-body>

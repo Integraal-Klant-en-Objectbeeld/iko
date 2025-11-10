@@ -6,8 +6,7 @@
     <cds-modal-body>
         <th:block th:fragment="form">
             <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                <div class="form-stack">
-                    <cds-form-group id="form-group" name="form-group" legend-text="Add Aggregated Data Profile">
+                    <cds-form-group id="form-group" name="form-group">
                         <cds-stack gap="7">
                             <cds-text-input name="name"
                                             label="Name"
@@ -18,25 +17,26 @@
                                     value=${form?.name}
                                   ">
                             </cds-text-input>
-
-                            <cds-select label-text="Select an connector instance" size="lg" name="connectorInstanceId"
+                            <cds-select label-text="Select an connector instance"
+                                        size="lg"
+                                        name="connectorInstanceId"
                                         hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
-                                        hx-target="#formEndpoints"
-                            >
-
-                                <cds-select-item th:each="instance: ${connectorInstances}" size="lg" th:value="${instance.id}">
+                                        hx-target="#formEndpoints">
+                                <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
                                     (<span th:text="${instance.connector.name}"></span>)
                                     <span th:text="${instance.name}"></span>
                                 </cds-select-item>
                             </cds-select>
+
                             <div id="formEndpoints" th:fragment="connectorEndpoints">
-                                <cds-select label-text="Select an connector endpoint" size="lg" name="connectorEndpointId">
+                                <cds-select label-text="Select an connector endpoint"
+                                            size="lg"
+                                            name="connectorEndpointId">
                                     <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
                                         <span th:text="${endpoint.name}"></span>
                                     </cds-select-item>
                                 </cds-select>
                             </div>
-
                             <!-- Add Aggregated Data Profile form -->
                             <cds-text-input name="role"
                                             label="Role"
@@ -59,7 +59,6 @@
                             </cds-textarea>
                         </cds-stack>
                     </cds-form-group>
-                </div>
             </cds-form-group>
         </th:block>
     </cds-modal-body>

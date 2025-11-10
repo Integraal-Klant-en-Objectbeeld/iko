@@ -185,10 +185,3 @@ cds-form-group {
     flex-direction: column;
     gap: 2rem;
 }
-
-/* Form layout */
-.form-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
