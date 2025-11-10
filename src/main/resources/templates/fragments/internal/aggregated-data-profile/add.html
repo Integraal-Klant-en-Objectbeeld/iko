@@ -11,6 +11,7 @@
                         <cds-stack gap="7">
                             <cds-text-input name="name"
                                             label="Name"
+                                            size="lg"
                                             th:attr="
                                     invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                     invalid-text=${errors?.getFieldError('name')?.defaultMessage},
@@ -18,18 +19,18 @@
                                   ">
                             </cds-text-input>
 
-                            <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
+                            <cds-select label-text="Select an connector instance" size="lg" name="connectorInstanceId"
                                         hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
                                         hx-target="#formEndpoints"
                             >
 
-                                <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                                <cds-select-item th:each="instance: ${connectorInstances}" size="lg" th:value="${instance.id}">
                                     (<span th:text="${instance.connector.name}"></span>)
                                     <span th:text="${instance.name}"></span>
                                 </cds-select-item>
                             </cds-select>
                             <div id="formEndpoints" th:fragment="connectorEndpoints">
-                                <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId">
+                                <cds-select label-text="Select an connector endpoint" size="lg" name="connectorEndpointId">
                                     <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
                                         <span th:text="${endpoint.name}"></span>
                                     </cds-select-item>
@@ -39,6 +40,7 @@
                             <!-- Add Aggregated Data Profile form -->
                             <cds-text-input name="role"
                                             label="Role"
+                                            size="lg"
                                             th:attr="
                     invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
                     invalid-text=${errors?.getFieldError('role')?.defaultMessage},
@@ -46,7 +48,6 @@
                             </cds-text-input>
                             <cds-textarea id="transform"
                                           name="transform"
-                                          style="width: 50%"
                                           label="Transform"
                                           helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
                                           placeholder="e.g.: { a: .left, b: .right }"

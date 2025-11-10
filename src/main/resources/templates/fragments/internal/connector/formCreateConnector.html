@@ -8,6 +8,7 @@
                 <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
                     <div class="form-stack">
                         <cds-text-input name="name"
+                                        size="lg"
                                         th:value="${connector?.name}"
                                         th:attr="
                                         invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
@@ -19,6 +20,7 @@
                         </cds-text-input>
 
                         <cds-text-input name="reference"
+                                        size="lg"
                                         th:value="${connector?.reference}"
                                         th:attr="
                                         invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,

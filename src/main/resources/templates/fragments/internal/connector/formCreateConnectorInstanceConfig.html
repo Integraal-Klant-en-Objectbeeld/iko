@@ -5,11 +5,11 @@
         <cds-modal-heading>Connector Instance Config</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
                     <div class="form-stack">
                         <cds-text-input name="key"
+                                        size="lg"
                                         th:value="${config?.key}"
                                         th:attr="invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('key')?.defaultMessage}"
@@ -17,6 +17,7 @@
                         </cds-text-input>
                         <cds-text-input name="value"
                                         type="password"
+                                        size="lg"
                                         show-password-visibility-toggle="true"
                                         th:value="${config?.value}"
                                         th:attr="invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
@@ -26,7 +27,6 @@
                     </div>
                 </cds-form-group>
             </th:block>
-        </cds-stack>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
