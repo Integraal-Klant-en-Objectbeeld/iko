@@ -72,7 +72,6 @@ require.config({
         const xhr = e.detail.xhr;
         const trigger = e.detail.elt;
         const editorSelector = trigger.getAttribute("data-editor-selector");
-        console.log(editorSelector);
 
         const errorBox = document.getElementById("monaco-error");
         const editor= document.querySelector(editorSelector);
@@ -82,9 +81,10 @@ require.config({
             errorBox.textContent = xhr.responseText;
             editor.classList.add("monaco-editor-error");
         } else if (xhr.status >= 200 && xhr.status < 300) {
-            errorBox.style.display = "none";
-            editor.classList.remove("monaco-editor-error");
-            errorBox.textContent = "";
+            if (errorBox) {
+                errorBox.style.display = "none";
+                editor.classList.remove("monaco-editor-error");
+                errorBox.textContent = "";            }
         }
     });
 
