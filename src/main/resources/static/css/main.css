@@ -185,3 +185,20 @@ cds-form-group {
     flex-direction: column;
     gap: 2rem;
 }
+
+/* Forms */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.form-col {
+    flex: 1 1 300px;
+    min-width: 250px;
+}
+
+.form-col > * {
+    width: 100%;
+    box-sizing: border-box;
+}
