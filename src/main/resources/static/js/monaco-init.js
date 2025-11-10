@@ -1,5 +1,5 @@
 require.config({
-    paths: { vs: "/assets/js/monaco-editor/min/vs" },
+    paths: { vs: "https://unpkg.com/monaco-editor@0.52.0/min/vs" }
 });
 
 (function () {
