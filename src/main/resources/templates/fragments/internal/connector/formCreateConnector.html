@@ -1,53 +1,54 @@
 <cds-modal prevent-close-on-click-outside="true" size="md" open="true">
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
-        <cds-modal-label>Add new connector</cds-modal-label>
         <cds-modal-heading>Connector</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <cds-stack gap="8">
             <th:block th:fragment="form">
-                <cds-form-group id="form-group" hx-swap-oob="true" name="form-group"
-                                legend-text="Add Connector">
-                    <cds-text-input name="name"
-                                    th:value="${connector?.name}"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    required=""
-                                    label="Name"
-                                    invalid-text="Please enter a valid name">
-                    </cds-text-input>
+                <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
+                    <div class="form-stack">
+                        <cds-text-input name="name"
+                                        th:value="${connector?.name}"
+                                        th:attr="
+                                        invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('name')?.defaultMessage}
+                                        "
+                                        required=""
+                                        label="Name"
+                                        invalid-text="Please enter a valid name">
+                        </cds-text-input>
 
-                    <cds-text-input name="reference"
-                                    th:value="${connector?.reference}"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('reference')?.defaultMessage}
-                                    "
-                                    style="width: 50%"
-                                    required=""
-                                    label="Reference"
-                                    invalid-text="Please enter a valid reference">
-                    </cds-text-input>
-                    <cds-form-item>
-                        <cds-textarea enable-counter="" counter-mode=""
-                                      th:value="${connector?.connectorCode}"
-                                      th:attr="
-                                        invalid=${errors?.getFieldError('connectorCode') != null} ? 'true' : null,
-                                        invalid-text=${errors?.getFieldError('connectorCode')?.defaultMessage}
-                                      "
-                                      label="Code"
-                                      placeholder="" rows="16" cols="0"
+                        <cds-text-input name="reference"
+                                        th:value="${connector?.reference}"
+                                        th:attr="
+                                        invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('reference')?.defaultMessage}
+                                        "
+                                        required=""
+                                        label="Reference"
+                                        invalid-text="Please enter a valid reference">
+                        </cds-text-input>
+
+                        <div class="cds--form-item">
+                            <label class="cds--label" for="connectorCodeEditor">Code</label>
+                            <div id="connectorCodeEditor"
+                                 data-monaco
+                                 data-language="yaml"
+                                 th:attr="data-initial=${connector?.connectorCode}"
+                                 data-textarea="#connectorCodeField"
+                                 data-theme="lightgray-theme"
+                                 class="monaco-editor-style">
+                            </div>
+                            <textarea id="connectorCodeField"
                                       name="connectorCode"
-                                      invalid-text="Please enter a valid connector code">
-                        </cds-textarea>
-                    </cds-form-item>
+                                      hidden
+                                      th:text="${connector?.connectorCode}"></textarea>
+                            <div class="cds--form-requirement" th:if="${errors?.getFieldError('connectorCode') != null}"
+                                 th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"></div>
+                        </div>
+                    </div>
                 </cds-form-group>
             </th:block>
-        </cds-stack>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button

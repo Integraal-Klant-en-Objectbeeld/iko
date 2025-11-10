@@ -31,6 +31,11 @@
     <link rel="stylesheet" href="/assets/css/main.css" />
 
     <script src="/assets/js/jq.js" type="application/javascript"></script>
+
+    <!--  Monaco Editor -->
+    <script src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"></script>
+    <script src="/assets/js/monaco-init.js"></script>
+
     <!-- Dynamically load Carbon Web Components -->
     <script type="module">
         const VERSION = window.CARBON_CDN_VERSION || 'v2.41.1';
@@ -50,7 +55,7 @@
         }
     </script>
 </head>
-<body>
+<body class="cds-theme-zone-white" data-carbon-theme="white">
 <cds-header aria-label="IBM Platform Name">
     <cds-header-menu-button
         button-label-active="Close menu"
@@ -184,53 +189,55 @@
     </cds-side-nav-items>
 </cds-side-nav>
 
-<main class="cds--content cds-ce-demo-devenv--ui-shell-content">
-    <div class="cds--grid">
-        <div class="cds--row">
-            <div class="cds--col-lg-13">
-                <div id="view-panel" layout:fragment="view-panel-content" th:fragment="details">
-                    <div id="breadcrumb" th:fragment="breadcrumb (entries)">
-                        <cds-breadcrumb no-trailing-slash="" th:if="${entries != null}">
-                            <cds-breadcrumb-item>
-                                <cds-breadcrumb>
-                                    Home
-                                </cds-breadcrumb>
-                            </cds-breadcrumb-item>
-                            <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
-                                <cds-breadcrumb-link
-                                    href="javascript:void(0)"
-                                    th:hx-get="${breadcrumb[1]}"
-                                    hx-push-url="true"
-                                    hx-target="#view-panel"
-                                    th:attrappend="is-currentpage=${iter.last}?'true'"
-                                    th:is-currentpage="${iter.last}"
-                                    th:text="${breadcrumb[0]}">
-                                </cds-breadcrumb-link>
-                            </cds-breadcrumb-item>
-                        </cds-breadcrumb>
-                    </div>
+<main class="cds-theme-zone-g10" data-carbon-theme="g10">
+    <cds-content>
+        <cds-grid>
+            <cds-row>
+                <cds-col lg="13">
+                    <div id="view-panel" layout:fragment="view-panel-content" th:fragment="details">
+                        <div id="breadcrumb" th:fragment="breadcrumb (entries)">
+                            <cds-breadcrumb no-trailing-slash="" th:if="${entries != null}">
+                                <cds-breadcrumb-item>
+                                    <cds-breadcrumb>
+                                        Home
+                                    </cds-breadcrumb>
+                                </cds-breadcrumb-item>
+                                <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
+                                    <cds-breadcrumb-link
+                                        href="javascript:void(0)"
+                                        th:hx-get="${breadcrumb[1]}"
+                                        hx-push-url="true"
+                                        hx-target="#view-panel"
+                                        th:attrappend="is-currentpage=${iter.last}?'true'"
+                                        th:is-currentpage="${iter.last}"
+                                        th:text="${breadcrumb[0]}">
+                                    </cds-breadcrumb-link>
+                                </cds-breadcrumb-item>
+                            </cds-breadcrumb>
+                        </div>
 
-                    <div id="page-header" th:fragment="page-header">
-                        <h4><span th:text="${pageName} ?: '&nbsp;'"></span></h4>
-                        <h2><span th:text="${title}"></span></h2>
-                        <small><em><span th:text="${subtext ?: '&nbsp;'}"></span></em></small>
+                        <div id="page-header" th:fragment="page-header">
+                            <h2 class="page-title cds--type-heading-03">
+                                <span th:text="${title}"></span>
+                            </h2>
+                        </div>
+                        <h4>Welcome to IKO</h4>
+                        <img
+                            class="page-landing__illo"
+                            th:src="@{assets/tab-illo.png}"
+                            alt="Carbon illustration"
+                            width="640"
+                            height="498"/>
                     </div>
-                    <h4>Welcome to IKO</h4>
-                    <img
-                        class="page-landing__illo"
-                        th:src="@{assets/tab-illo.png}"
-                        alt="Carbon illustration"
-                        width="640"
-                        height="498"/>
-                </div>
-            </div>
-        </div>
-    </div>
+                </cds-col>
+            </cds-row>
+        </cds-grid>
+    </cds-content>
 </main>
 
 
 <!--Modal container-->
-<div id="modal-container"></div>
+<div id="modal-container" class="cds-theme-zone-g10" data-carbon-theme="g10"></div>
 <script type="text/javascript">
     // htmx.logAll();
     htmx.config.allowNestedOobSwaps = false; // Disable nested out-of-band swaps

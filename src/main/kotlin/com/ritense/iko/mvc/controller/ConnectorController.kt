@@ -21,6 +21,8 @@ import jakarta.validation.Valid
 import org.apache.camel.CamelContext
 import org.apache.camel.support.PluginHelper
 import org.apache.camel.support.ResourceHelper
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
@@ -128,7 +130,7 @@ class ConnectorController(
         @Valid @ModelAttribute form: ConnectorEditForm,
         bindingResult: BindingResult,
         httpServletResponse: HttpServletResponse
-    ): ModelAndView {
+    ): Any {
         if (bindingResult.hasErrors()) {
             return ModelAndView(
                 "fragments/internal/connector/formEditConnectorCode :: form",
@@ -142,18 +144,18 @@ class ConnectorController(
 
         try {
             val resource = ResourceHelper.fromBytes(
-                "${connector.tag}.yaml", form.connectorCode.toByteArray()
+                "${connector.tag}.yaml",
+                form.connectorCode.toByteArray()
             )
             PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
+
         } catch (e: Exception) {
-            logger.error(e) { "Failed to log error code" }
-            bindingResult.addError(FieldError("connectorEditForm", "connectorCode", "Not valid connector code"))
-            return ModelAndView(
-                "fragments/internal/connector/formEditConnectorCode :: form", mapOf(
-                    "connector" to form,
-                    "errors" to bindingResult
-                )
-            )
+            httpServletResponse.setHeader("HX-Reswap", "none")
+
+            return ResponseEntity
+                .status(422)
+                .contentType(MediaType.TEXT_PLAIN)
+                .body("Not valid connector code")
         }
 
         connector.connectorCode = form.connectorCode
@@ -168,6 +170,33 @@ class ConnectorController(
                 "connector" to connector
             )
         )
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteConnector(
+        @PathVariable id: UUID,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        httpServletResponse: HttpServletResponse
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+
+        connectorEndpointRepository.findByConnector(connector).forEach { endpoint ->
+            connectorEndpointRepository.delete(endpoint)
+        }
+
+        connectorInstanceRepository.findByConnector(connector).forEach { instance ->
+            connectorEndpointRoleRepository.findAllByConnectorInstance(instance).forEach { role ->
+                connectorEndpointRoleRepository.delete(role)
+            }
+            connectorInstanceRepository.delete(instance)
+        }
+
+        connectorRepository.delete(connector)
+
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors")
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+
+        return list(isHxRequest)
     }
 
     @PostMapping("")

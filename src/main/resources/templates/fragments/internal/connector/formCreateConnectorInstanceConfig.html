@@ -8,26 +8,22 @@
         <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <cds-text-input name="key"
-                                    th:value="${config?.key}"
-                                    th:attr="
-                            invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
-                            invalid-text=${errors?.getFieldError('key')?.defaultMessage}
-                            "
-                                    style="width: 50%"
-                                    label="Key">
-                    </cds-text-input>
-                    <cds-text-input name="value"
-                                    type="password"
-                                    show-password-visibility-toggle="true"
-                                    th:value="${config?.value}"
-                                    th:attr="
-                            invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
-                            invalid-text=${errors?.getFieldError('value')?.defaultMessage}
-                            "
-                                    style="width: 50%"
-                                    label="Value">
-                    </cds-text-input>
+                    <div class="form-stack">
+                        <cds-text-input name="key"
+                                        th:value="${config?.key}"
+                                        th:attr="invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('key')?.defaultMessage}"
+                                        label="Key">
+                        </cds-text-input>
+                        <cds-text-input name="value"
+                                        type="password"
+                                        show-password-visibility-toggle="true"
+                                        th:value="${config?.value}"
+                                        th:attr="invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('value')?.defaultMessage}"
+                                        label="Value">
+                        </cds-text-input>
+                    </div>
                 </cds-form-group>
             </th:block>
         </cds-stack>
