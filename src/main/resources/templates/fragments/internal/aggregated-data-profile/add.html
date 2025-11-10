@@ -1,88 +1,79 @@
-<cds-content id="add-profile">
-    <cds-tile>
-        <cds-breadcrumb no-trailing-slash="">
-            <cds-breadcrumb-item>
-                <cds-breadcrumb-link
-                    href="/admin"
-                    visited="true">
-                    Home
-                </cds-breadcrumb-link>
-            </cds-breadcrumb-item>
-            <cds-breadcrumb-item>
-                <cds-breadcrumb-link
-                    href="javascript:void(0);"
-                    hx-get="/admin/aggregated-data-profiles"
-                    hx-target="#view-panel"
-                    is-currentpage="false"
-                    visited="true">
-                    Aggregated Data Profiles
-                </cds-breadcrumb-link>
-            </cds-breadcrumb-item>
-        </cds-breadcrumb>
-
-        <h4>Add Aggregated Data Profile:</h4>
-        <cds-form-group id="form-group" name="form-group" legend-text="Add Aggregated Data Profile">
-            <cds-stack gap="7">
-                <cds-text-input name="name"
-                                label="Name"
-                                style="width: 50%"
-                                th:attr="
+<cds-modal prevent-close-on-click-outside="true" size="md" open="true">
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-heading>Add Aggregated Data Profile</cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <th:block th:fragment="form">
+            <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
+                <div class="form-stack">
+                    <cds-form-group id="form-group" name="form-group" legend-text="Add Aggregated Data Profile">
+                        <cds-stack gap="7">
+                            <cds-text-input name="name"
+                                            label="Name"
+                                            th:attr="
                                     invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                     invalid-text=${errors?.getFieldError('name')?.defaultMessage},
                                     value=${form?.name}
                                   ">
-                </cds-text-input>
+                            </cds-text-input>
 
-                <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
-                            hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
-                            hx-target="#formEndpoints"
-                >
+                            <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
+                                        hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
+                                        hx-target="#formEndpoints"
+                            >
 
-                    <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
-                        (<span th:text="${instance.connector.name}"></span>)
-                        <span th:text="${instance.name}"></span>
-                    </cds-select-item>
-                </cds-select>
-                <div id="formEndpoints" th:fragment="connectorEndpoints">
-                    <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId">
-                        <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
-                            <span th:text="${endpoint.name}"></span>
-                        </cds-select-item>
-                    </cds-select>
-                </div>
+                                <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                                    (<span th:text="${instance.connector.name}"></span>)
+                                    <span th:text="${instance.name}"></span>
+                                </cds-select-item>
+                            </cds-select>
+                            <div id="formEndpoints" th:fragment="connectorEndpoints">
+                                <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId">
+                                    <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+                                        <span th:text="${endpoint.name}"></span>
+                                    </cds-select-item>
+                                </cds-select>
+                            </div>
 
-                <!-- Add Aggregated Data Profile form -->
-                <cds-text-input name="role"
-                                label="Role"
-                                style="width: 50%"
-                                th:attr="
+                            <!-- Add Aggregated Data Profile form -->
+                            <cds-text-input name="role"
+                                            label="Role"
+                                            th:attr="
                     invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
                     invalid-text=${errors?.getFieldError('role')?.defaultMessage},
                     value=${form?.role}">
-                </cds-text-input>
-                <cds-textarea id="transform"
-                              name="transform"
-                              style="width: 50%"
-                              label="Transform"
-                              helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                              placeholder="e.g.: { a: .left, b: .right }"
-                              th:attr="
+                            </cds-text-input>
+                            <cds-textarea id="transform"
+                                          name="transform"
+                                          style="width: 50%"
+                                          label="Transform"
+                                          helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
+                                          placeholder="e.g.: { a: .left, b: .right }"
+                                          th:attr="
                                     invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
                                     invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
                                     value=${form?.transform}
                                   ">
-                </cds-textarea>
-                <div style="max-width: fit-content;">
-                    <cds-button
-                        kind="primary"
-                        hx-post="/admin/aggregated-data-profiles"
-                        hx-target="#add-profile"
-                        hx-swap="outerHTML"
-                        hx-include="#form-group *">
-                        Save
-                    </cds-button>
+                            </cds-textarea>
+                        </cds-stack>
+                    </cds-form-group>
                 </div>
-            </cds-stack>
-        </cds-form-group>
-    </cds-tile>
-</cds-content>
+            </cds-form-group>
+        </th:block>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button
+            data-modal-close=""
+            type="button"
+            kind="secondary">
+            Cancel
+        </cds-modal-footer-button>
+        <cds-modal-footer-button
+            type="submit"
+            hx-post="/admin/aggregated-data-profiles" hx-target="#form-group"
+            hx-include="#form-group *">
+            Save
+        </cds-modal-footer-button>
+    </cds-modal-footer>
+</cds-modal>
