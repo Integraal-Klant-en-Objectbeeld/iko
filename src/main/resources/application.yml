@@ -107,33 +107,3 @@ camel:
         backlog-size: 1000
         remove-on-dump: true
         trace-pattern: "*"
-
-iko:
-    connectors:
-        brp:
-            enabled: true
-            host: # ENV
-            specificationUri: "https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml"
-            secret: # ENV
-        openzaak:
-            enabled: true
-            host: # ENV
-            specificationUri: "https://raw.githubusercontent.com/vng-Realisatie/zaken-api/1.5.1/src/openapi.yaml"
-            clientId: # ENV
-            secret: # ENV
-        bag:
-            enabled: true
-            host: # ENV
-            specificationUri: "https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openapi.yaml"
-            apiKey: # ENV
-        objectenapi:
-            enabled: true
-            host: # ENV
-            specificationUri: "https://raw.githubusercontent.com/maykinmedia/objects-api/3.1.2/src/objects/api/v2/openapi.yaml"
-            token: # ENV
-        openklant:
-            enabled: true
-            host: # ENV
-            specificationUri: "https://raw.githubusercontent.com/maykinmedia/open-klant/2.10.0/src/openklant/components/klantinteracties/openapi.yaml"
-            token: # ENV
-
