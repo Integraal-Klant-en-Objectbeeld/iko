@@ -6,6 +6,25 @@
                                  hx-swap='innerHTML',
                                  hx-push-url='true'">
             <cds-table-cell th:text="${aggregatedDataProfile.name}"></cds-table-cell>
+            <cds-table-cell>
+                <cds-overflow-menu
+                    enter-delay-ms="3000"
+                    leave-delay-ms="0"
+                    close-on-activation
+                    hx-on:click="event.stopPropagation()"
+                >
+                    <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" slot="icon" class="cds--overflow-menu__icon" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="8" r="2"></circle><circle cx="16" cy="16" r="2"></circle><circle cx="16" cy="24" r="2"></circle></svg>
+                    <span slot="tooltip-content"> Options </span>
+                    <cds-overflow-menu-body flipped="" >
+                        <cds-overflow-menu-item
+                            hx-confirm="Are you sure you want to delete this connector?"
+                            hx-swap="outerHTML"
+                            hx-target="#search-results"
+                            danger="true"
+                        > Delete </cds-overflow-menu-item>
+                    </cds-overflow-menu-body>
+                </cds-overflow-menu>
+            </cds-table-cell>
         </cds-table-row>
     </cds-table-body>
 </th:block>

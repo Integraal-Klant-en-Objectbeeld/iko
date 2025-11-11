@@ -17,7 +17,6 @@
                                     value=${form?.name}
                                   ">
                             </cds-text-input>
-
                             <div class="form-row">
                                 <div class="form-col">
                                     <cds-select label-text="Select an connector instance"
@@ -43,7 +42,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Add Aggregated Data Profile form -->
                             <cds-text-input name="role"
                                             label="Role"
@@ -78,7 +76,9 @@
         </cds-modal-footer-button>
         <cds-modal-footer-button
             type="submit"
-            hx-post="/admin/aggregated-data-profiles" hx-target="#form-group"
+            hx-post="/admin/aggregated-data-profiles"
+            x-target="#view-panel"
+            hx-swap="outerHTML"
             hx-include="#form-group *">
             Save
         </cds-modal-footer-button>
