@@ -5,13 +5,25 @@
 <div layout:fragment="view-panel-content" th:fragment="view-panel-content">
         <div th:replace="~{layout-internal :: breadcrumb (${ {{'aggregated-data-profiles', '/admin/aggregated-data-profiles'}} })}"></div>
         <div th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfiles.name})}"></div>
+
+<!--    <div class="page-header-container">-->
+<!--        <div th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfiles.name})}"></div>-->
+<!--        <cds-button kind="secondary">Preview</cds-button>-->
+<!--        <cds-button kind="tertiary">Edit profile</cds-button>-->
+<!--    </div>-->
     <cds-grid id="detail-grid" full-width>
             <!-- Left column -->
             <cds-column lg="8">
                 <div class="left-stack">
-                    <cds-tile class="left-top">Transform</cds-tile>
+                    <cds-tile class="left-top">
+                        <span class="tile-header">Transform</span>
+                        <cds-textarea class="cds-theme-zone-white" data-carbon-theme="white"
+                            placeholder="Transform"
+                            rows="4">
+                        </cds-textarea>
+                    </cds-tile>
                     <cds-tile class="left-bottom">
-                        Relations
+                        <span class="tile-header">Relations</span>
                             <div class="no-content-container">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150" fill="none">
                                     <g clip-path="url(#clip0_4554_12419)">

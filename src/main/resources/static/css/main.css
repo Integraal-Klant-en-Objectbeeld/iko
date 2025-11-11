@@ -159,9 +159,49 @@ main cds-layout .cds--tab-content {
 }
 
 cds-tile {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
+    .tile-header {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 24px;
+    }
+}
+
+/* True full-width (bleed) grid*/
+#detail-grid,
+#detail-grid::part(grid) {
+    --cds-grid-padding-inline: 0;
+    padding-inline: 0;
+}
+
+#detail-grid {
+    gap: 3rem;
+
+    cds-column{
+        margin-inline-start: 0;
+        margin-inline-end: 0;
+    }
+
+    .left-stack {
+        display: grid;
+        grid-template-rows: 1fr 2fr;
+        gap: 2rem;
+        height: 100%;
+        margin-inline-end: 2rem;
+    }
+
+    .left-bottom {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .right-fill {
+        height: 100%;
+        display: flex;
+    }
+
+    .right-tile {
+        flex: 1;
+    }
 }
 
 /* Datagrid */
@@ -233,27 +273,4 @@ cds-form-group {
 .form-col > * {
     width: 100%;
     box-sizing: border-box;
-}
-
-/* Grid */
-#detail-grid {
-    .left-stack {
-        display: grid;
-        grid-template-rows: 1fr 2fr;
-        gap: 2rem;
-        height: 100%;
-    }
-
-    .left-bottom {
-
-    }
-
-    .right-fill {
-        height: 100%;
-        display: flex;
-    }
-
-    .right-tile {
-        flex: 1;
-    }
 }
