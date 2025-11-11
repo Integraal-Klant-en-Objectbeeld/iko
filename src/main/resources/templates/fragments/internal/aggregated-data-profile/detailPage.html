@@ -1,3 +1,11 @@
-<div id="detail-page" th:fragment="detail-page">
-    this is the detail page
+<!DOCTYPE html>
+<html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
+<body>
+<!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
+<div layout:fragment="view-panel-content" th:fragment="view-panel-content">
+        <div th:replace="~{layout-internal :: breadcrumb (${ {{'aggregated-data-profiles', '/admin/aggregated-data-profiles'}} })}"></div>
+        <div th:replace="~{layout-internal :: page-header (title='Detail page')}"></div>
+        this is the detail page
 </div>
+</body>
+</html>
