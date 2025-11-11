@@ -4,8 +4,64 @@
 <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
 <div layout:fragment="view-panel-content" th:fragment="view-panel-content">
         <div th:replace="~{layout-internal :: breadcrumb (${ {{'aggregated-data-profiles', '/admin/aggregated-data-profiles'}} })}"></div>
-        <div th:replace="~{layout-internal :: page-header (title='Detail page')}"></div>
-        this is the detail page
+        <div th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfiles.name})}"></div>
+    <cds-grid id="detail-grid" full-width>
+            <!-- Left column -->
+            <cds-column lg="8">
+                <div class="left-stack">
+                    <cds-tile class="left-top">Transform</cds-tile>
+                    <cds-tile class="left-bottom">
+                        Relations
+                            <div class="no-content-container">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150" fill="none">
+                                    <g clip-path="url(#clip0_4554_12419)">
+                                        <path d="M75.0004 146.887L20.8691 115.631L75.0004 84.3936L129.113 115.631L75.0004 146.887Z" fill="url(#paint0_linear_4554_12419)"/>
+                                        <path d="M74.9996 128.156L20.8496 96.8999L20.8684 34.3687L74.9996 65.6062V128.156Z" fill="url(#paint1_linear_4554_12419)"/>
+                                        <path d="M129.15 96.9L75 128.156V65.6063L129.131 34.3688L129.15 96.9Z" fill="url(#paint2_linear_4554_12419)"/>
+                                        <path d="M75.0004 65.6061L20.8691 34.3686L75.0004 3.1123L129.132 34.3686L75.0004 65.6061Z" fill="url(#paint3_linear_4554_12419)"/>
+                                        <path d="M48.693 50.0062L102.449 18.9749L101.662 18.5249L47.8867 49.5749L48.693 50.0062Z" fill="#C6C6C6"/>
+                                        <path d="M75.0004 66.0748L20.8691 34.8186V34.3686L21.2629 34.1436L75.3941 65.3998L75.0004 65.6061V66.0748Z" fill="white"/>
+                                        <path d="M40.293 62.4936L24.918 53.6248L24.9367 42.9561L40.293 51.8436V62.4936Z" fill="white"/>
+                                    </g>
+                                    <defs>
+                                        <linearGradient id="paint0_linear_4554_12419" x1="34.4066" y1="139.069" x2="115.594" y2="92.1935" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#525252" stop-opacity="0.05"/>
+                                            <stop offset="1" stop-opacity="0.1"/>
+                                        </linearGradient>
+                                        <linearGradient id="paint1_linear_4554_12419" x1="28.4246" y1="81.2624" x2="75.5809" y2="81.2624" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#E0E0E0"/>
+                                            <stop offset="1" stop-color="#C6C6C6"/>
+                                        </linearGradient>
+                                        <linearGradient id="paint2_linear_4554_12419" x1="75" y1="81.2625" x2="129.15" y2="81.2625" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#A8A8A8"/>
+                                            <stop offset="1" stop-color="#C6C6C6"/>
+                                        </linearGradient>
+                                        <linearGradient id="paint3_linear_4554_12419" x1="34.4066" y1="57.8061" x2="115.594" y2="10.9311" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#F4F4F4"/>
+                                            <stop offset="1" stop-color="#E0E0E0"/>
+                                        </linearGradient>
+                                        <clipPath id="clip0_4554_12419">
+                                            <rect width="150" height="150" fill="white"/>
+                                        </clipPath>
+                                    </defs>
+                                </svg>
+                                <span class="no-content-text">No relations have been added yet</span>
+                            </div>
+                    </cds-tile>
+                </div>
+            </cds-column>
+
+            <!-- Right column -->
+            <cds-column lg="8">
+                <div class="right-fill">
+                    <cds-tile class="right-tile" >
+                        <span class="sub-text">
+                            Selected relation
+                        </span>
+                    </cds-tile>
+                </div>
+            </cds-column>
+    </cds-grid>
 </div>
 </body>
 </html>

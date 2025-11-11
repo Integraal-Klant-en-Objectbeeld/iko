@@ -1,5 +1,5 @@
 <th:block th:fragment="profile-filter-results">
-    <cds-table-body>
+    <cds-table-body id="search-results">
         <cds-table-row th:each="aggregatedDataProfile : ${aggregatedDataProfiles}"
                        th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id}},
                                  hx-target='#view-panel',
@@ -17,7 +17,8 @@
                     <span slot="tooltip-content"> Options </span>
                     <cds-overflow-menu-body flipped="" >
                         <cds-overflow-menu-item
-                            hx-confirm="Are you sure you want to delete this connector?"
+                            hx-confirm="Are you sure you want to delete this Aggregated data profiles?"
+                            th:hx-delete="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}|}"
                             hx-swap="outerHTML"
                             hx-target="#search-results"
                             danger="true"

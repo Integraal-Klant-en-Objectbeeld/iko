@@ -8,12 +8,39 @@ body {
     letter-spacing: var(--cds-body-01-letter-spacing);
 }
 
-/* Helper classes */
+/* Typography and Helper classes */
 .pointer {
     cursor: pointer;
 }
 
-/* Links */
+.sub-text {
+    color: var(--cds-text-secondary);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+    letter-spacing: 0.32px
+}
+
+.no-content-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+.no-content-text {
+    display: block;
+    width: max-content;
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0.16px;
+}
+
 cds-link {
     color: #2B79BD;
     cursor: pointer;
@@ -38,7 +65,6 @@ cds-link:active::part(link) {
     color: #003361;
 }
 
-/* Disabled state if used */
 cds-link[disabled]::part(link),
 cds-link[aria-disabled="true"]::part(link) {
     color: var(--cds-text-disabled);
@@ -117,7 +143,7 @@ cds-header cds-header-global-bar {
     gap: 0.5rem;
 }
 
-/* Content */
+/* Content and components */
 main {
     padding: var(--cds-spacing-09) var(--cds-spacing-07) var(--cds-spacing-09) var(--cds-spacing-11);
     min-height: calc(100vh - 3rem);
@@ -130,6 +156,12 @@ main cds-layout .cds--tab-content {
 
 .page-title {
     margin-bottom: var(--cds-spacing-07);
+}
+
+cds-tile {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
 }
 
 /* Datagrid */
@@ -170,13 +202,13 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 .monaco-error {
     display: none;
     color: #ffffff;
-    background: var(--cds-button-danger-primary,#da1e28);
+    background: var(--cds-button-danger-primary, #da1e28);
     padding: 6px;
     width: fit-content;
 }
 
 .monaco-editor-error {
-    border: 2px solid var(--cds-button-danger-primary,#da1e28);
+    border: 2px solid var(--cds-button-danger-primary, #da1e28);
 }
 
 /* Modal */
@@ -201,4 +233,27 @@ cds-form-group {
 .form-col > * {
     width: 100%;
     box-sizing: border-box;
+}
+
+/* Grid */
+#detail-grid {
+    .left-stack {
+        display: grid;
+        grid-template-rows: 1fr 2fr;
+        gap: 2rem;
+        height: 100%;
+    }
+
+    .left-bottom {
+
+    }
+
+    .right-fill {
+        height: 100%;
+        display: flex;
+    }
+
+    .right-tile {
+        flex: 1;
+    }
 }

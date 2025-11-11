@@ -53,7 +53,7 @@ class AggregatedDataProfileController(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
-        val connector = aggregatedDataProfileRepository.findById(id).orElseThrow { NoSuchElementException("ADP not found") }
+        val aggregatedDataProfiles = aggregatedDataProfileRepository.findById(id).orElseThrow { NoSuchElementException("ADP not found") }
 
         return ModelAndView(
             "$BASE_FRAGMENT_ADG/detailPage" + when (isHxRequest) {
@@ -61,7 +61,7 @@ class AggregatedDataProfileController(
                 false -> ""
             },
             mapOf(
-                "connector" to connector
+                "aggregatedDataProfiles" to aggregatedDataProfiles
             )
         )
     }
@@ -173,6 +173,7 @@ class AggregatedDataProfileController(
     fun create(
         @Valid @ModelAttribute form: AggregatedDataProfileForm,
         bindingResult: BindingResult,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         httpServletResponse: HttpServletResponse
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
@@ -197,7 +198,6 @@ class AggregatedDataProfileController(
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
         return redirectModelAndView
-
     }
 
     @GetMapping("/aggregated-data-profiles/edit/{id}")
@@ -389,6 +389,23 @@ class AggregatedDataProfileController(
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
         return listOf(list)
+    }
+
+    @DeleteMapping("/aggregated-data-profiles/{id}")
+    @Transactional
+    fun deleteAggregatedDataProfile(
+        @PathVariable id: UUID,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        httpServletResponse: HttpServletResponse
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        aggregatedDataProfileService.removeRoutes(aggregatedDataProfile)
+        aggregatedDataProfileRepository.delete(aggregatedDataProfile)
+
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles")
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+
+        return list(query = "", pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
     }
 
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations
