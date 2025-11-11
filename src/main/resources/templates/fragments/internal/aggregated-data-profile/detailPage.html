@@ -4,13 +4,13 @@
 <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
 <div layout:fragment="view-panel-content" th:fragment="view-panel-content">
         <div th:replace="~{layout-internal :: breadcrumb (${ {{'aggregated-data-profiles', '/admin/aggregated-data-profiles'}} })}"></div>
-        <div th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfiles.name})}"></div>
-
-<!--    <div class="page-header-container">-->
-<!--        <div th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfiles.name})}"></div>-->
-<!--        <cds-button kind="secondary">Preview</cds-button>-->
-<!--        <cds-button kind="tertiary">Edit profile</cds-button>-->
-<!--    </div>-->
+    <div class="page-header-container">
+            <div th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfiles.name})}"></div>
+            <div>
+                <cds-button kind="secondary">Preview</cds-button>
+                <cds-button kind="tertiary">Edit profile</cds-button>
+            </div>
+    </div>
     <cds-grid id="detail-grid" full-width>
             <!-- Left column -->
             <cds-column lg="8">
