@@ -39,6 +39,10 @@
                 <cds-tab id="tab-trace" target="panel-trace" value="trace">
                     Trace
                 </cds-tab>
+                <cds-tab id="tab-error" target="panel-error" value="error"
+                         th:attr="disabled=${#strings.isEmpty(exception.getStacktrace()) ? 'true' : null}">
+                    Error
+                </cds-tab>
             </cds-tabs>
             <div class="cds-ce-demo-devenv--tab-panels">
                 <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" hidden="">
@@ -137,6 +141,16 @@
                             </cds-table-row>
                         </cds-table-body>
                     </cds-table>
+                </div>
+                <div id="panel-error" role="tabpanel" aria-labelledby="tab-error" hidden="">
+                    <h4>Error:</h4>
+                    <div id="kotlin-stacktrace-viewer"
+                         data-monaco
+                         data-language="json"
+                         data-readonly=true
+                         th:data-initial="${exception.getStacktrace()}"
+                         class="monaco-editor-style-full-height">
+                    </div>
                 </div>
             </div>
         </cds-tile>

@@ -1,6 +1,7 @@
 package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
+import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
 import jakarta.validation.Valid
@@ -38,7 +39,8 @@ class TestController(
             "iko_id" to form.testId,
             "iko_profile" to form.name,
         )
-        var result: String
+        var result = ""
+        var exception = ExceptionResponse()
         try {
             result = producerTemplate.requestBodyAndHeaders(
                 adpEndpointUri,
@@ -47,7 +49,8 @@ class TestController(
                 String::class.java
             )
         } catch (ex: Exception) {
-            result = ex.message!!
+            result = ""
+            exception = ExceptionResponse.of(ex)
         }
 
         // Fetch traces
@@ -58,6 +61,7 @@ class TestController(
             addObject("form", form)
             addObject("testResult", result)
             addObject("traces", traces)
+            addObject("exception", exception)
         }
     }
 
