@@ -6,6 +6,7 @@ import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
 import jakarta.validation.Valid
 import org.apache.camel.CamelContext
+import org.apache.camel.CamelExecutionException
 import org.apache.camel.ProducerTemplate
 import org.apache.camel.spi.BacklogTracer
 import org.springframework.http.MediaType
@@ -48,7 +49,7 @@ class TestController(
                 headers,
                 String::class.java
             )
-        } catch (ex: Exception) {
+        } catch (ex: CamelExecutionException) {
             result = ""
             exception = ExceptionResponse.of(ex)
         }
