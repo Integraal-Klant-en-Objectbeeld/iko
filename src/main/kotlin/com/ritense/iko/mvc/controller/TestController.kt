@@ -1,5 +1,6 @@
 package com.ritense.iko.mvc.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
@@ -20,7 +21,8 @@ import org.springframework.web.servlet.ModelAndView
 @RequestMapping("/admin")
 class TestController(
     private val producerTemplate: ProducerTemplate,
-    private val camelContext: CamelContext
+    private val camelContext: CamelContext,
+    private val objectMapper: ObjectMapper,
 ) {
 
     @PostMapping(
@@ -54,17 +56,26 @@ class TestController(
             exception = ExceptionResponse.of(ex)
         }
 
+        // Pretty-print JSON if possible
+        val prettyResult = prettyJsonIfPossible(result)
+
         // Fetch traces
         val traces = tracer.dumpAllTracedMessages()?.map {
             TraceEvent.from(it)
         } ?: emptyList()
         return ModelAndView("$BASE_FRAGMENT_ADG/test").apply {
             addObject("form", form)
-            addObject("testResult", result)
+            addObject("testResult", prettyResult)
             addObject("traces", traces)
             addObject("exception", exception)
         }
     }
 
+    private fun prettyJsonIfPossible(input: String): String = try {
+        if (input.isBlank()) input else objectMapper.writerWithDefaultPrettyPrinter()
+            .writeValueAsString(objectMapper.readTree(input))
+    } catch (_: Exception) {
+        input
+    }
 }
 

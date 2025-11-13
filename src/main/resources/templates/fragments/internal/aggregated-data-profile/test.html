@@ -122,7 +122,8 @@
                             <cds-table-header-row>
                                 <cds-table-header-cell>ID</cds-table-header-cell>
                                 <cds-table-header-cell>Timestamp</cds-table-header-cell>
-                                <cds-table-header-cell>Route / Location</cds-table-header-cell>
+                                <cds-table-header-cell>Route</cds-table-header-cell>
+                                <cds-table-header-cell>Location</cds-table-header-cell>
                                 <cds-table-header-cell>Elapsed</cds-table-header-cell>
                                 <cds-table-header-cell>Status</cds-table-header-cell>
                             </cds-table-header-row>
@@ -131,7 +132,8 @@
                             <cds-table-row th:each="trace : ${traces}">
                                 <cds-table-cell th:text="${trace.id}"></cds-table-cell>
                                 <cds-table-cell th:text="${trace.timestamp}"></cds-table-cell>
-                                <cds-table-cell th:text="${(trace.route) + ' - ' + (trace.location)}"></cds-table-cell>
+                                <cds-table-cell th:text="${trace.route}"></cds-table-cell>
+                                <cds-table-cell th:text="${trace.location}"></cds-table-cell>
                                 <cds-table-cell th:text="${trace.elapsed}"></cds-table-cell>
                                 <cds-table-cell th:text="${trace.status}"
                                                 th:style="${trace.status == 'OK' ? 'color: var(--cds-support-success);' :
