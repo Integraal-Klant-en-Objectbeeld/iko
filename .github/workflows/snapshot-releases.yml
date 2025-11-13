@@ -49,8 +49,8 @@ jobs:
             type=raw,value=main,enable={{is_default_branch}}
             # Short SHA tag, e.g. sha-1a2b3c4
             type=sha,format=short,prefix=sha-
-            # Snapshot date tag, e.g. snapshot-20250916
-            type=raw,value=snapshot-{{date 'YYYYMMDD'}}
+            # Snapshot date tag, e.g. snapshot-202509161054
+            type=raw,value=snapshot-{{date 'YYYYMMDDHHmm'}}
             # Branch tag for non-main branches (PR builds won’t push)
             type=ref,event=branch,prefix=branch-
           labels: |
