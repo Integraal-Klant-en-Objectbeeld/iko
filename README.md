@@ -86,14 +86,20 @@ Notes:
 
 ### CI/CD
 
+#### Validate Build (`.github/workflows/validate-build.yml`)
+- Triggered on `pull_request` targeting the `main` branch.
+- Runs gradle build on the sources to make sure the sources build.
+- Is a requirement for merging a pull request to the `main` branch.
+  - Failing builds will not be allowed to merge.
+
 #### Snapshot workflow (`.github/workflows/snapshot-releases.yml`)
-- Triggered on `push` and `pull_request` to `main`.
+- Triggered on `push` to the `main` branch or a manual `workflow_dispatch` against a chosen branch.
 - Builds the Docker image with Buildx (single-arch `linux/amd64`).
 - On `push` to `main`, pushes to GHCR (`ghcr.io/<owner>/<repo>`) with tags such as:
     - `main` (default branch)
     - `sha-<short>`
-    - `snapshot-YYYYMMDD`
-    - `branch-<name>` for non-main branches (not pushed for PRs)
+    - `snapshot-YYYYMMDDHHmm`
+    - `branch-<name>` for non-main branches
 - Adds OCI labels/annotations (title, description, revision, source, created).
 
 #### Manual release workflow (`.github/workflows/start-manual-release.yml`)
