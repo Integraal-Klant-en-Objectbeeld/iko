@@ -40,7 +40,7 @@
                     Trace
                 </cds-tab>
                 <cds-tab id="tab-error" target="panel-error" value="error"
-                         th:attr="disabled=${#strings.isEmpty(exception.getStacktrace()) ? 'true' : null}">
+                         th:attr="disabled=${exception == null ? 'true' : null}">
                     Error
                 </cds-tab>
             </cds-tabs>
@@ -150,7 +150,7 @@
                          data-monaco
                          data-language="json"
                          data-readonly=true
-                         th:data-initial="${exception.getStacktrace()}"
+                         th:data-initial="${exception != null ? exception.getStacktrace() : ''}"
                          class="monaco-editor-style-full-height">
                     </div>
                 </div>

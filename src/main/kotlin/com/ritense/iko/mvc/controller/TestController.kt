@@ -42,22 +42,20 @@ class TestController(
             "iko_id" to form.testId,
             "iko_profile" to form.name,
         )
-        var result = ""
-        var exception = ExceptionResponse()
+        var result: String? = null
+        var exception: ExceptionResponse? = null
         try {
-            result = producerTemplate.requestBodyAndHeaders(
+            val adpResult = producerTemplate.requestBodyAndHeaders(
                 adpEndpointUri,
                 "{}",
                 headers,
                 String::class.java
             )
+            val jsonResult = objectMapper.readTree(adpResult)
+            result = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonResult)
         } catch (ex: CamelExecutionException) {
-            result = ""
             exception = ExceptionResponse.of(ex)
         }
-
-        // Pretty-print JSON if possible
-        val prettyResult = prettyJsonIfPossible(result)
 
         // Fetch traces
         val traces = tracer.dumpAllTracedMessages()?.map {
@@ -65,17 +63,10 @@ class TestController(
         } ?: emptyList()
         return ModelAndView("$BASE_FRAGMENT_ADG/test").apply {
             addObject("form", form)
-            addObject("testResult", prettyResult)
+            addObject("testResult", result)
             addObject("traces", traces)
             addObject("exception", exception)
         }
-    }
-
-    private fun prettyJsonIfPossible(input: String): String = try {
-        if (input.isBlank()) input else objectMapper.writerWithDefaultPrettyPrinter()
-            .writeValueAsString(objectMapper.readTree(input))
-    } catch (_: Exception) {
-        input
     }
 }
 
