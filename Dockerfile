@@ -18,7 +18,6 @@ LABEL org.opencontainers.image.description="Integraal Klant & Objectbeeld (IKO) 
 COPY --from=build /app/build/libs/iko.jar /app/iko.jar
 
 ENTRYPOINT ["java", \
-    "-agentlib:jdwp=transport=dt_socket,server=y,address=*:8000,suspend=n", \
     "-XX:InitialHeapSize=1024M", \
     "-XX:MinRAMPercentage=70", \
     "-XX:MaxRAMPercentage=80", \
