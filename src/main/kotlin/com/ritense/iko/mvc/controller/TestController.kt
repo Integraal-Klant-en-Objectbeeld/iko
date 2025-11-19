@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
+import java.util.UUID
 
 @Controller
 @RequestMapping("/admin")
@@ -34,6 +35,9 @@ class TestController(
     ): ModelAndView {
         val tracer = camelContext.camelContextExtension.getContextPlugin(BacklogTracer::class.java)
         requireNotNull(tracer) { "BacklogTracer plugin not found in CamelContext" }
+        val ikoTraceId = UUID.randomUUID().toString()
+        tracer.isEnabled = true
+        tracer.traceFilter = "\${header.iko_trace_id} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
         // Run ADP
@@ -41,6 +45,7 @@ class TestController(
         val headers = mapOf(
             "iko_id" to form.testId,
             "iko_profile" to form.name,
+            "iko_trace_id" to ikoTraceId
         )
         var result: String? = null
         var exception: ExceptionResponse? = null
@@ -61,6 +66,10 @@ class TestController(
         val traces = tracer.dumpAllTracedMessages()?.map {
             TraceEvent.from(it)
         } ?: emptyList()
+
+        // Disable tracing
+        tracer.isEnabled = false
+
         return ModelAndView("$BASE_FRAGMENT_ADG/test").apply {
             addObject("form", form)
             addObject("testResult", result)
