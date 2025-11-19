@@ -61,6 +61,19 @@ spring:
                     provider_disables_autocommit: true
         hibernate:
             ddl-auto: none
+    # Redis and Cache configuration (no Redis dependency is added; values can be overridden via env)
+    cache:
+        # Default to 'none' to avoid requiring Redis locally; Docker overrides to 'redis'
+        type: ${SPRING_CACHE_TYPE:none}
+        redis:
+            # Time to live for cache entries (in ms or ISO-8601 duration). Example: 3600000 or PT1H
+            time-to-live: ${SPRING_CACHE_REDIS_TTL:3600000}
+    data:
+        redis:
+            host: ${SPRING_DATA_REDIS_HOST:localhost}
+            port: ${SPRING_DATA_REDIS_PORT:6379}
+            password: ${SPRING_DATA_REDIS_PASSWORD:}
+            database: ${SPRING_DATA_REDIS_DATABASE:0}
     security:
         oauth2:
             client:

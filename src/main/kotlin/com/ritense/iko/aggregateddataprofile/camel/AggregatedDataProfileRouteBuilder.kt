@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
+import com.ritense.iko.cache.RedisCacheService
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -20,6 +21,7 @@ class AggregatedDataProfileRouteBuilder(
     private val aggregatedDataProfile: AggregatedDataProfile,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
+    private val redisCacheService: RedisCacheService
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
@@ -141,6 +143,19 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .to(Iko.connector())
+            .process {
+                // TODO Do cache check with TTL (routeId + headers-scope = hashed)) // make helper class cacheService
+                // Need a adp id to check cache properties enabled . TTL
+                // When a adp gets deleted? evict = delete is disabled
+                // ADP evicts scenarios unclear
+                val cacheEnabled = it.getVariable("cacheEnabled", Boolean::class.java)
+                if (cacheEnabled) {
+                    // Check the transform on the endpoint mapping are a way to make a cache unique?
+                    val cacheTTL = it.getVariable("cacheTTL", Int::class.java)
+                    val result = redisCacheService.put("profile", "id")
+                    it.message.body = result
+                }
+            }
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)

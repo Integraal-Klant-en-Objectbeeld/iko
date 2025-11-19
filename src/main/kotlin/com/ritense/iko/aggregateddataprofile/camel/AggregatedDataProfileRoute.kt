@@ -26,9 +26,12 @@ class AggregatedDataProfileRoute(
                 if (aggregatedDataProfile == null) {
                     throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
                 }
+                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+                exchange.setVariable("cacheEnabled", aggregatedDataProfile.cacheSettings.enabled)
+                exchange.setVariable("cacheTTL", aggregatedDataProfile.cacheSettings.timeToLive)
 
-                exchange.setVariable("aggregatedDataProfile", aggregatedDataProfile)
-                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile!!.id)
+                // TODO change after ADP params are introduced
+                exchange.setVariable("containerParams", emptyList<ContainerParam>())
             }
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }

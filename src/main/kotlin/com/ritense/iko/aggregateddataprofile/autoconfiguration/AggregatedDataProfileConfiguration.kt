@@ -3,6 +3,7 @@ package com.ritense.iko.aggregateddataprofile.autoconfiguration
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.cache.RedisCacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -15,6 +16,7 @@ class AggregatedDataProfileConfiguration(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
+    private val redisCacheService: RedisCacheService,
 ) {
 
     init {
@@ -24,7 +26,8 @@ class AggregatedDataProfileConfiguration(
                     camelContext,
                     aggregatedDataProfile,
                     connectorInstanceRepository,
-                    connectorEndpointRepository
+                    connectorEndpointRepository,
+                    redisCacheService
                 )
             )
         }
