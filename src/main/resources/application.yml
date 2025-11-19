@@ -103,7 +103,8 @@ camel:
             enabled: true
             paths: classpath:camel/*.yaml
     trace:
-        enabled: true
+        enabled: false
+        standby: true
         backlog-size: 1000
         remove-on-dump: true
         trace-pattern: "*"
