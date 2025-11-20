@@ -1,5 +1,10 @@
 package com.ritense.iko.connectors.camel
 
+import com.ritense.authzenk.AccessEvaluationApiRequest
+import com.ritense.authzenk.Action
+import com.ritense.authzenk.Client
+import com.ritense.authzenk.Resource
+import com.ritense.authzenk.Subject
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -11,7 +16,8 @@ import java.util.UUID
 class EndpointAuth(
     val connectorEndpointRepository: ConnectorEndpointRepository,
     val connectorInstanceRepository: ConnectorInstanceRepository,
-    val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository
+    val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
+    val pdpClient: Client
 ) : RouteBuilder() {
     override fun configure() {
         from("direct:iko:endpoint:auth")
@@ -26,20 +32,26 @@ class EndpointAuth(
                     connectorInstanceRepository.getReferenceById(connectorInstanceId),
                 )
 
-                connectorEndpointRoles.map { it.role }.toList().let {
-                    log.debug("Authorizing endpoint with authority: {}", it)
-                    if (it.isEmpty()) {
-                        throw AccessDeniedException("No roles defined for this endpoint.")
-                    }
+                val decision = pdpClient.evaluationApi.evaluation(
+                    AccessEvaluationApiRequest(
+                        subject = Subject(
+                            type = "subject",
+                            id = "A"
+                        ),
+                        action = Action(
+                            name = "can_read"
+                        ),
+                        resource = Resource(
+                            type = "aggregated-data-profile",
+                            id = "A"
+                        ),
+                    )
+                )
 
-                    if (SecurityContextHolder.getContext().authentication != null && SecurityContextHolder.getContext().authentication.authorities.any { x ->
-                            it.contains(x.authority)
-                        }) {
-                        return@process
-                    }
-
-                    throw AccessDeniedException("User is not authorized to perform access this route. Missing authorities: $it")
+                if (!decision.decision) {
+                    throw AccessDeniedException("User is not authorized to perform access this route")
                 }
+
             }
     }
 }

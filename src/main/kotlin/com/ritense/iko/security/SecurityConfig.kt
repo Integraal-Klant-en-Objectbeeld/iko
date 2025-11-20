@@ -1,5 +1,6 @@
 package com.ritense.iko.security
 
+import com.ritense.authzenk.Client
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -135,6 +136,6 @@ class SecurityConfig {
     }
 
     @Bean
-    fun authRoute() = AuthRoute()
+    fun authRoute(pdpClient: Client) = AuthRoute(pdpClient)
 
 }

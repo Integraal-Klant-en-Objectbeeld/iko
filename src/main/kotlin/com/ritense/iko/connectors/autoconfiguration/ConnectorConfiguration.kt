@@ -1,5 +1,6 @@
 package com.ritense.iko.connectors.autoconfiguration
 
+import com.ritense.authzenk.Client
 import com.ritense.iko.connectors.camel.Connector
 import com.ritense.iko.connectors.camel.ConnectorConfig
 import com.ritense.iko.connectors.camel.Endpoint
@@ -29,11 +30,13 @@ class ConnectorConfiguration(val connectorRepository: ConnectorRepository) {
     fun endpointAuth(
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
-        connectorEndpointRoleRepository: ConnectorEndpointRoleRepository
+        connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
+        pdpClient: Client
     ) = EndpointAuth(
         connectorEndpointRepository,
         connectorInstanceRepository,
-        connectorEndpointRoleRepository
+        connectorEndpointRoleRepository,
+        pdpClient
     )
 
     @Bean

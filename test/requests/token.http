@@ -1,0 +1,16 @@
+POST http://keycloak:8082/auth/realms/valtimo/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id = iko &
+client_secret = ThisIsNotASecret &
+grant_type = client_credentials &
+scope = openid
+
+> {%
+    client.global.set("token", response.body.access_token)
+%}
+
+###
+
+GET http://localhost:8080/endpoints/A/A/A
+Authorization: Bearer {{token}}

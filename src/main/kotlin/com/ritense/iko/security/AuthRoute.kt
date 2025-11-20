@@ -1,31 +1,40 @@
 package com.ritense.iko.security
 
+import com.ritense.authzenk.AccessEvaluationApiRequest
+import com.ritense.authzenk.Action
+import com.ritense.authzenk.Client
+import com.ritense.authzenk.Resource
+import com.ritense.authzenk.Subject
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 
-class AuthRoute() : RouteBuilder() {
+class AuthRoute(val pdpClient: Client) : RouteBuilder() {
 
     override fun configure() {
         from("direct:auth")
             .routeId("authenticate")
             .errorHandler(noErrorHandler())
             .process { ex ->
-                val exAuthorities = ex.getVariable("authorities", List::class.java)
-                exAuthorities?.let {
-                    if (it.isEmpty()) {
-                        return@process
-                    }
+                val decision = pdpClient.evaluationApi.evaluation(
+                    AccessEvaluationApiRequest(
+                        subject = Subject(
+                            type = "subject",
+                            id = "A"
+                        ),
+                        action = Action(
+                            name = "can_read"
+                        ),
+                        resource = Resource(
+                            type = "aggregated-data-profile",
+                            id = "A"
+                        ),
+                    )
+                )
 
-                    if (SecurityContextHolder.getContext().authentication != null && SecurityContextHolder.getContext().authentication.authorities.any { x ->
-                            it.contains(x.authority)
-                        }) {
-                        return@process
-                    }
-
-                    throw AccessDeniedException("User is not authorized to perform access this route. Missing authorities: $exAuthorities")
+                if (!decision.decision) {
+                    throw AccessDeniedException("User is not authorized to perform access this route")
                 }
-                throw AccessDeniedException("User is not authorized to perform access this route")
             }
     }
 }
