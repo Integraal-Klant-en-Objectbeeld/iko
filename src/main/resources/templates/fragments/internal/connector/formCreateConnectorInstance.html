@@ -5,11 +5,11 @@
         <cds-modal-heading>Connector Instance</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <div class="form-stack">
-                        <cds-text-input name="name"
+                    <cds-stack gap="7">
+                    <cds-text-input name="name"
+                                        size="lg"
                                         th:value="${instance?.name}"
                                         th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
@@ -20,6 +20,7 @@
                         </cds-text-input>
 
                         <cds-text-input name="reference"
+                                        size="lg"
                                         th:value="${instance?.reference}"
                                         th:attr="invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('reference')?.defaultMessage}"
@@ -28,10 +29,9 @@
                                         invalid-text="Please enter a valid reference"
                         >
                         </cds-text-input>
-                    </div>
+                    </cds-stack>
                 </cds-form-group>
             </th:block>
-        </cds-stack>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button

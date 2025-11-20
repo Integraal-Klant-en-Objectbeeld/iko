@@ -6,75 +6,83 @@
             <cds-modal-heading>Relation</cds-modal-heading>
         </cds-modal-header>
         <cds-modal-body>
-            <cds-form-item>
-                <cds-dropdown name="sourceId"
-                              size="lg"
-                              style="width: 100%"
-                              helper-text=""
-                              title-text="From"
-                              label="Select a from"
-                              th:attr="
-                                invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
-                                value=${form?.sourceId}">
-                    <cds-dropdown-item value="" disabled>
-                        Root source
-                    </cds-dropdown-item>
-                    <cds-dropdown-item th:each="source : ${sources}"
-                                       th:value="${source.id}">
-                        <span th:text="'Relation (' +${source.name} +')'"></span>
-                    </cds-dropdown-item>
-                </cds-dropdown>
-            </cds-form-item>
-            <cds-form-item>
-                <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
-                            hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
-                            hx-target="#formRelationEndpoints"
-                >
+            <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
+                <cds-stack gap="7">
+                    <cds-form-item>
+                        <cds-dropdown name="sourceId"
+                                      size="lg"
+                                      style="width: 100%"
+                                      helper-text=""
+                                      title-text="From"
+                                      label="Select a from"
+                                      th:attr="
+                                        invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
+                                        value=${form?.sourceId}">
+                            <cds-dropdown-item value="" disabled>
+                                Root source
+                            </cds-dropdown-item>
+                            <cds-dropdown-item th:each="source : ${sources}"
+                                               th:value="${source.id}">
+                                <span th:text="'Relation (' +${source.name} +')'"></span>
+                            </cds-dropdown-item>
+                        </cds-dropdown>
+                    </cds-form-item>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <cds-select label-text="Select an connector instance" size="lg" name="connectorInstanceId"
+                                            hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
+                                            hx-target="#formRelationEndpoints"
+                                >
 
-                    <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
-                        (<span th:text="${instance.connector.name}"></span>)
-                        <span th:text="${instance.name}"></span>
-                    </cds-select-item>
-                </cds-select>
-                <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
-                    <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId">
-                        <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
-                            <span th:text="${endpoint.name}"></span>
-                        </cds-select-item>
-                    </cds-select>
-                </div>
-            </cds-form-item>
+                                    <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                                        (<span th:text="${instance.connector.name}"></span>)
+                                        <span th:text="${instance.name}"></span>
+                                    </cds-select-item>
+                                </cds-select>
+                            </div>
+                            <div class="form-col">
+                            <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
+                                    <cds-select label-text="Select an connector endpoint" size="lg" name="connectorEndpointId">
+                                        <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+                                            <span th:text="${endpoint.name}"></span>
+                                        </cds-select-item>
+                                    </cds-select>
+                                </div>
+                            </div>
+                        </div>
 
-            <cds-form-item>
-                <cds-textarea name="sourceToEndpointMapping"
-                              label="Endpoint parameter Mapping"
-                              placeholder="e.g. {'searchParamA': '.myField'}"
-                              th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
-                                value=${form?.sourceToEndpointMapping}">
-                </cds-textarea>
-            </cds-form-item>
-            <cds-form-item>
-                <cds-text-input name="propertyName"
-                                label="Property Name"
-                                placeholder="e.g. relation"
-                                th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('propertyName')?.defaultMessage},
-                                value=${form?.propertyName}">
-                </cds-text-input>
-            </cds-form-item>
-            <cds-form-item>
-                <cds-textarea name="transform"
-                              label="Transform"
-                              helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                              placeholder="e.g. {'fieldA': '.fieldB'}"
-                              th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
-                                value=${form?.transform}">
-                </cds-textarea>
-            </cds-form-item>
-            <input type="hidden" name="aggregatedDataProfileId" th:value="${aggregatedDataProfileId}"/>
+                    <cds-form-item>
+                        <cds-textarea name="sourceToEndpointMapping"
+                                      label="Endpoint parameter Mapping"
+                                      placeholder="e.g. {'searchParamA': '.myField'}"
+                                      th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
+                                        value=${form?.sourceToEndpointMapping}">
+                        </cds-textarea>
+                    </cds-form-item>
+                    <cds-form-item>
+                        <cds-text-input name="propertyName"
+                                        label="Property Name"
+                                        placeholder="e.g. relation"
+                                        th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('propertyName')?.defaultMessage},
+                                        value=${form?.propertyName}">
+                        </cds-text-input>
+                    </cds-form-item>
+                    <cds-form-item>
+                        <cds-textarea name="transform"
+                                      label="Transform"
+                                      helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
+                                      placeholder="e.g. {'fieldA': '.fieldB'}"
+                                      th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
+                                        invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
+                                        value=${form?.transform}">
+                        </cds-textarea>
+                    </cds-form-item>
+                    <input type="hidden" name="aggregatedDataProfileId" th:value="${aggregatedDataProfileId}"/>
+                </cds-stack>
+            </cds-form-group>
         </cds-modal-body>
         <cds-modal-footer>
             <cds-modal-footer-button
@@ -85,8 +93,7 @@
             <cds-modal-footer-button
                 hx-post="/admin/relations"
                 hx-include="#active-modal *"
-                hx-target="#active-modal"
-                hx-swap="outerHTML">
+                hx-swap="none">
                 Save
             </cds-modal-footer-button>
         </cds-modal-footer>
