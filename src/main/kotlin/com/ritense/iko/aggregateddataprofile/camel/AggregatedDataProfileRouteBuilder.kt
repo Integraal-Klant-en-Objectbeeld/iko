@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
-import com.ritense.iko.cache.RedisCacheService
+import com.ritense.iko.cache.CacheService
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -15,17 +15,20 @@ import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
+import java.io.InputStream
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.toJavaDuration
 
 class AggregatedDataProfileRouteBuilder(
     private val camelContext: CamelContext,
     private val aggregatedDataProfile: AggregatedDataProfile,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val redisCacheService: RedisCacheService
+    private val cacheService: CacheService
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
-        camelContext.globalOptions.put(JacksonConstants.ENABLE_TYPE_CONVERTER, "true")
+        camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
 
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == source.id }
 
@@ -131,6 +134,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
+            .streamCache(true)
             .setVariable(
                 "authorities",
                 constant(effectiveRole)
@@ -139,23 +143,25 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
+            .process {
+                val cacheEnabled = it.getVariable("cacheEnabled", Boolean::class.java)
+                if (cacheEnabled) {
+                    val cacheKey = it.getVariable("cacheKey", String::class.java)
+                    val cached = cacheService.get(key = cacheKey)
+
+                    if (cached != null) {
+                        // Put cached value on the body so the rest of the route sees it
+                        it.message.body = cached
+                        it.setVariable("cacheHit", true)
+                    } else {
+                        it.setVariable("cacheHit", false)
+                    }
+                }
+            }
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .to(Iko.connector())
-            .process {
-                // TODO Do cache check with TTL (routeId + headers-scope = hashed)) // make helper class cacheService
-                // Need a adp id to check cache properties enabled . TTL
-                // When a adp gets deleted? evict = delete is disabled
-                // ADP evicts scenarios unclear
-                val cacheEnabled = it.getVariable("cacheEnabled", Boolean::class.java)
-                if (cacheEnabled) {
-                    // Check the transform on the endpoint mapping are a way to make a cache unique?
-                    val cacheTTL = it.getVariable("cacheTTL", Int::class.java)
-                    val result = redisCacheService.put("profile", "id")
-                    it.message.body = result
-                }
-            }
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)
@@ -165,6 +171,21 @@ class AggregatedDataProfileRouteBuilder(
             }
             .transform(jq(aggregatedDataProfile.transform.expression))
             .marshal().json()
+            .process {
+                val cacheEnabled = it.getVariable("cacheEnabled", Boolean::class.java)
+                val cacheHit = it.getVariable("cacheHit", Boolean::class.java)
+                if (cacheEnabled && !cacheHit) {
+                    // Make cache entry
+                    val cacheKey = it.getVariable("cacheKey", String::class.java)
+                    val cacheTTL = it.getVariable("cacheTTL", Int::class.java)
+                    val cacheValue = it.message.getBody(InputStream::class.java).readBytes().toString(Charsets.UTF_8)
+                    cacheService.put(
+                        key = cacheKey,
+                        value = cacheValue,
+                        ttl = cacheTTL.milliseconds.toJavaDuration()
+                    )
+                }
+            }
 
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")

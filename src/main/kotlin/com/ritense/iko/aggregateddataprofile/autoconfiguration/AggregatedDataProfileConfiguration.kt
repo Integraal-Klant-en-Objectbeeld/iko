@@ -1,9 +1,10 @@
 package com.ritense.iko.aggregateddataprofile.autoconfiguration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.cache.RedisCacheService
+import com.ritense.iko.cache.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -16,7 +17,8 @@ class AggregatedDataProfileConfiguration(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val redisCacheService: RedisCacheService,
+    private val cacheService: CacheService,
+    private val objectMapper: ObjectMapper
 ) {
 
     init {
@@ -27,13 +29,17 @@ class AggregatedDataProfileConfiguration(
                     aggregatedDataProfile,
                     connectorInstanceRepository,
                     connectorEndpointRepository,
-                    redisCacheService
+                    cacheService
                 )
             )
         }
     }
 
     @Bean
-    fun aggregatedDataProfileRoute() = AggregatedDataProfileRoute(aggregatedDataProfileRepository)
+    fun aggregatedDataProfileRoute() = AggregatedDataProfileRoute(
+        aggregatedDataProfileRepository,
+        cacheService,
+        objectMapper
+    )
 
 }

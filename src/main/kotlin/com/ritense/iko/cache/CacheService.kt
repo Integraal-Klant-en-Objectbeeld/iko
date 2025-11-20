@@ -2,6 +2,7 @@ package com.ritense.iko.cache
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
+import java.security.MessageDigest
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
  * without changing its public API.
  */
 @Service
-class RedisCacheService {
+class CacheService {
 
     private val log = KotlinLogging.logger {}
 
@@ -74,4 +75,10 @@ class RedisCacheService {
             log.debug { "Cache cleared" }
         }
     }
+
+    fun hashString(input: String): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
+
 }

@@ -1,10 +1,14 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.cache.CacheService
 import org.apache.camel.builder.RouteBuilder
 
 class AggregatedDataProfileRoute(
-    val aggregatedDataProfileRepository: AggregatedDataProfileRepository
+    val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+    val cacheService: CacheService,
+    val objectMapper: ObjectMapper
 ) : RouteBuilder() {
     override fun configure() {
         rest("/aggregated-data-profiles")
@@ -31,7 +35,26 @@ class AggregatedDataProfileRoute(
                 exchange.setVariable("cacheTTL", aggregatedDataProfile.cacheSettings.timeToLive)
 
                 // TODO change after ADP params are introduced
-                exchange.setVariable("containerParams", emptyList<ContainerParam>())
+                // Pass on the objects downstream
+                val containerParams = emptyList<ContainerParam>()
+                val filterParams = emptyMap<String, String>()
+                val adpEndpointParameterMapping = ""
+
+                exchange.setVariable("containerParams", containerParams)
+                exchange.setVariable("filterParams", filterParams)
+                exchange.setVariable("adpEndpointParameterMapping", adpEndpointParameterMapping)
+
+                if (aggregatedDataProfile.cacheSettings.enabled) {
+                    val combined = objectMapper.writeValueAsString(
+                        mapOf(
+                            "containerParams" to containerParams,
+                            "filterParams" to filterParams,
+                            "adpEndpointParameterMapping" to adpEndpointParameterMapping
+                        )
+                    )
+                    val cacheKey = cacheService.hashString(combined)
+                    exchange.setVariable("cacheKey", cacheKey)
+                }
             }
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }
