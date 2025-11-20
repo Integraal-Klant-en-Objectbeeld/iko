@@ -1,164 +1,101 @@
-<th:block th:fragment="profile-edit">
-    <cds-content>
-        <cds-tile>
-            <cds-breadcrumb no-trailing-slash="">
-                <cds-breadcrumb-item>
-                    <cds-breadcrumb-link
-                        href="/admin"
-                        visited="true">
-                        Home
-                    </cds-breadcrumb-link>
-                </cds-breadcrumb-item>
-                <cds-breadcrumb-item>
-                    <cds-breadcrumb-link
-                        href="javascript:void(0);"
-                        hx-get="/admin/aggregated-data-profiles"
-                        hx-target="#view-panel"
-                        is-currentpage="false"
-                        hx-push-url="true"
-                        visited="true">
-                        Aggregated Data Profiles
-                    </cds-breadcrumb-link>
-                </cds-breadcrumb-item>
-                <cds-breadcrumb-item>
-                    <cds-breadcrumb-link
-                        href="javascript:void(0);"
-                        th:attr="hx-get=@{'/admin/aggregated-data-profiles/edit/' + ${form.id}}"
-                        hx-target="#view-panel"
-                        is-currentpage="true"
-                        hx-push-url="true"
-                        visited="true">
-                        Detail
-                    </cds-breadcrumb-link>
-                </cds-breadcrumb-item>
-            </cds-breadcrumb>
-            <h4>Edit Aggregated Data Profile:</h4>
-            <cds-form-group id="form-group" name="form-group" legend-text="Edit existing Aggregated Data Profile">
-                <cds-stack gap="7">
-                    <input type="hidden" name="id" th:value="${form.id}"/>
-                    <cds-text-input name="name"
-                                    style="width: 50%"
-                                    label="Name"
-                                    th:attr="
-                                    invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage},
-                                    value=${form?.name}">
-                    </cds-text-input>
+<cds-modal prevent-close-on-click-outside="true" size="md" open="true">
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-heading>Edit Aggregated Data Profile</cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <th:block th:fragment="profile-edit">
+            <cds-content>
+                    <cds-form-group id="form-group" name="form-group">
+                        <cds-stack gap="7">
+                            <input type="hidden" name="id" th:value="${form.id}"/>
+                            <cds-text-input name="name"
+                                            label="Name"
+                                            th:attr="
+                                            invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                            invalid-text=${errors?.getFieldError('name')?.defaultMessage},
+                                            value=${form?.name}">
+                            </cds-text-input>
 
-                    <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
-                                th:value="${form?.connectorInstanceId}"
-                                hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
-                                hx-target="#formEndpoints">
-                        <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
-                            (<span th:text="${instance.connector.name}"></span>)
-                            <span th:text="${instance.name}"></span>
-                        </cds-select-item>
-                    </cds-select>
-                    <div id="formEndpoints" th:fragment="connectorEndpoints">
-                        <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId" th:value="${form?.connectorEndpointId}">
-                            <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
-                                <span th:text="${endpoint.name}"></span>
-                            </cds-select-item>
-                        </cds-select>
-                    </div>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
+                                                th:value="${form?.connectorInstanceId}"
+                                                hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
+                                                hx-target="#formEndpoints">
+                                        <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                                            (<span th:text="${instance.connector.name}"></span>)
+                                            <span th:text="${instance.name}"></span>
+                                        </cds-select-item>
+                                    </cds-select>
+                                </div>
+                                <div class="form-col">
+                                    <div id="formEndpoints" th:fragment="connectorEndpoints">
+                                        <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId" th:value="${form?.connectorEndpointId}">
+                                            <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+                                                <span th:text="${endpoint.name}"></span>
+                                            </cds-select-item>
+                                        </cds-select>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!-- Add Aggregated Data Profile form -->
-                    <cds-text-input name="role"
-                                    label="Role"
-                                    style="width: 50%"
-                                    th:attr="
-                    invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
-                    invalid-text=${errors?.getFieldError('role')?.defaultMessage},
-                    value=${form?.role}">
-                    </cds-text-input>
-                    <cds-textarea id="transform"
-                                  name="transform"
-                                  style="width: 50%"
-                                  label="Transform"
-                                  helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                                  placeholder="e.g.: { a: .left, b: .right }"
-                                  th:attr="
-                                    invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
-                                    invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
-                                    value=${form?.transform}
-                                  ">
-                    </cds-textarea>
+                            <!-- Add Aggregated Data Profile form -->
+                            <cds-text-input name="role"
+                                            label="Role"
+                                            th:attr="
+                            invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
+                            invalid-text=${errors?.getFieldError('role')?.defaultMessage},
+                            value=${form?.role}">
+                            </cds-text-input>
+                            <cds-textarea id="transform"
+                                          name="transform"
+                                          label="Transform"
+                                          helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
+                                          placeholder="e.g.: { a: .left, b: .right }"
+                                          th:attr="
+                                            invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
+                                            invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
+                                            value=${form?.transform}
+                                          ">
+                            </cds-textarea>
 
-                    <cds-text-input id="testId"
-                                    name="testId"
-                                    style="width: 50%"
-                                    label="Id for testing the ADP">
-                    </cds-text-input>
+                            <cds-text-input id="testId"
+                                            name="testId"
+                                            label="Id for testing the ADP">
+                            </cds-text-input>
 
-                    <div style="max-width: fit-content;">
-                        <cds-button
-                            kind="primary"
-                            hx-put="/admin/aggregated-data-profiles"
-                            hx-target="#view-panel"
-                            hx-include="#form-group *"
-                            hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Saving…'; this.setAttribute('disabled','');"
-                            hx-on::after-request="if(this.dataset.label){ this.textContent=this.dataset.label; this.removeAttribute('disabled'); delete this.dataset.label; }">
-                            Save
-                        </cds-button>
-                        <cds-button
-                            kind="secondary"
-                            hx-post="/admin/aggregated-data-profiles/test"
-                            hx-target="#view-panel"
-                            hx-include="#form-group *, [id='testId'], [id='name']"
-                            hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');">
-                            Test
-                        </cds-button>
-                    </div>
-                </cds-stack>
-            </cds-form-group>
-            <cds-table>
-                <cds-table-header-title slot="title">
-                    Relations
-                </cds-table-header-title>
-                <cds-table-header-description slot="description">
-                    A collection of relation's for this profile.
-                </cds-table-header-description>
-
-                <!-- Toolbar + search -->
-                <cds-table-toolbar slot="toolbar">
-                    <cds-table-toolbar-content>
-                        <cds-button
-                            th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.id} +'/relations/create'}"
-                            hx-target="#modal-container"
-                            hx-swap="innerHTML"
-                            hx-push-url="false"
-                            hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');">
-                            Add new Relation
-                            <svg
-                                focusable="false"
-                                preserveAspectRatio="xMidYMid meet"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                aria-hidden="true"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 32 32"
-                                slot="icon">
-                                <path
-                                    d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                            </svg>
-                        </cds-button>
-                    </cds-table-toolbar-content>
-                </cds-table-toolbar>
-
-                <!-- Table -->
-                <cds-table-head>
-                    <cds-table-header-row>
-                        <cds-table-header-cell>Relation</cds-table-header-cell>
-                        <cds-table-header-cell>Parent</cds-table-header-cell>
-                        <cds-table-header-cell>Endpoint parameter mapping</cds-table-header-cell>
-                        <cds-table-header-cell>Property name</cds-table-header-cell>
-                        <cds-table-header-cell>Transform</cds-table-header-cell>
-                        <cds-table-header-cell></cds-table-header-cell>
-                    </cds-table-header-row>
-                </cds-table-head>
-                <th:block th:insert="~{fragments/internal/relation/list :: relations}"></th:block>
-            </cds-table>
-        </cds-tile>
-    </cds-content>
-</th:block>
+                            <div style="max-width: fit-content;">
+                                <cds-button
+                                    kind="secondary"
+                                    hx-post="/admin/aggregated-data-profiles/test"
+                                    hx-target="#view-panel"
+                                    hx-include="#form-group *, [id='testId'], [id='name']"
+                                    hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');">
+                                    Test
+                                </cds-button>
+                            </div>
+                        </cds-stack>
+                    </cds-form-group>
+            </cds-content>
+        </th:block>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button
+            data-modal-close=""
+            type="button"
+            kind="secondary">
+            Cancel
+        </cds-modal-footer-button>
+        <cds-modal-footer-button
+            type="submit"
+            hx-put="/admin/aggregated-data-profiles"
+            hx-target="#form-group"
+            hx-swap="outerHTML"
+            hx-include="#form-group *"
+            hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Saving…'; this.setAttribute('disabled','');"
+            hx-on::after-request="if(this.dataset.label){ this.textContent=this.dataset.label; this.removeAttribute('disabled'); delete this.dataset.label; }">
+            Save
+        </cds-modal-footer-button>
+    </cds-modal-footer>
+</cds-modal>

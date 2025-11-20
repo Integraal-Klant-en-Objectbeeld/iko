@@ -5,11 +5,11 @@
         <cds-modal-heading>Connector Instance Role</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" name="form-group">
-                    <div class="form-stack">
+                    <cds-stack gap="7">
                         <cds-text-input name="role"
+                                        size="lg"
                                         th:value="${role?.role}"
                                         th:attr="
                                         invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
@@ -24,15 +24,14 @@
                                         invalid=${errors?.getFieldError('endpointId') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('endpointId')?.defaultMessage}
                                         "
-                                    label-text="Endpoint" placeholder="" size="md" warn-text="Warning message"
+                                    label-text="Endpoint" placeholder="" size="lg" warn-text="Warning message"
                                     name="endpointId">
                             <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}"><span
                                 th:text="${endpoint.name}"></span></cds-select-item>
                         </cds-select>
-                    </div>
+                    </cds-stack>
                 </cds-form-group>
             </th:block>
-        </cds-stack>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
