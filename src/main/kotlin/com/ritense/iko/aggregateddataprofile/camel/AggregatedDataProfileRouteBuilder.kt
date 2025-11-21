@@ -89,7 +89,7 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.transform())
             .to(Iko.connector())
             .process {
-                it.message
+               // TODO add route caching put scenario?
             }
             .let {
                 if (relations.isNotEmpty()) {
