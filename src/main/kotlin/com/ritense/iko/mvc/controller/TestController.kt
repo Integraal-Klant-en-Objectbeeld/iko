@@ -70,7 +70,7 @@ class TestController(
         // Disable tracing
         tracer.isEnabled = false
 
-        return ModelAndView("$BASE_FRAGMENT_ADG/test").apply {
+        return ModelAndView("$BASE_FRAGMENT_ADG/test :: profile-debug").apply {
             addObject("form", form)
             addObject("testResult", result)
             addObject("traces", traces)

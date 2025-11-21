@@ -240,14 +240,14 @@ class AggregatedDataProfileController(
     @GetMapping("/aggregated-data-profiles/edit/{id}")
     fun edit(
         @PathVariable id: UUID,
-        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestParam(name = "fragment", defaultValue = "false") fragment: Boolean
     ): ModelAndView {
         val profile = aggregatedDataProfileRepository.getReferenceById(id)
         val form = AggregatedDataProfileForm.from(profile)
-        val viewName = if (isHxRequest) {
-            "$BASE_FRAGMENT_ADG/edit"
-        } else {
-            "$BASE_FRAGMENT_ADG/editPage"
+        val viewName = when {
+            fragment -> "$BASE_FRAGMENT_ADG/edit :: profile-edit"
+            else -> "$BASE_FRAGMENT_ADG/edit"
         }
 
         val instance = connectorInstanceRepository.findById(profile.connectorInstanceId).orElseThrow()
