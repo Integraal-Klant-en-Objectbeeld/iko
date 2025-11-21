@@ -5,11 +5,11 @@
         <cds-modal-heading>Connector Endpoint</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <cds-stack gap="8">
             <th:block th:fragment="form">
                 <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                    <div class="form-stack">
-                        <cds-text-input name="name"
+                    <cds-stack gap="7">
+                    <cds-text-input name="name"
+                                        size="lg"
                                         th:value="${endpoint?.name}"
                                         th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
@@ -20,6 +20,7 @@
                         </cds-text-input>
 
                         <cds-text-input name="operation"
+                                        size="lg"
                                         th:value="${endpoint?.operation}"
                                         th:attr="invalid=${errors?.getFieldError('operation') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('operation')?.defaultMessage}"
@@ -28,10 +29,9 @@
                                         invalid-text="Please enter a valid operation"
                         >
                         </cds-text-input>
-                    </div>
+                    </cds-stack>
                 </cds-form-group>
             </th:block>
-        </cds-stack>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
