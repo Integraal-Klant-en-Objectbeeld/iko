@@ -4,7 +4,7 @@
         <cds-modal-heading>Edit Aggregated Data Profile</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <th:block th:fragment="profile-edit">
+        <div id="profile-edit" th:fragment="profile-edit">
             <cds-content>
                     <cds-form-group id="form-group" name="form-group">
                         <cds-stack gap="7">
@@ -69,7 +69,8 @@
                                 <cds-button
                                     kind="secondary"
                                     hx-post="/admin/aggregated-data-profiles/test"
-                                    hx-target="#view-panel"
+                                    hx-target="#profile-edit"
+                                    hx-swap="outerHTML"
                                     hx-include="#form-group *, [id='testId'], [id='name']"
                                     hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');">
                                     Test
@@ -78,7 +79,7 @@
                         </cds-stack>
                     </cds-form-group>
             </cds-content>
-        </th:block>
+        </div>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
