@@ -13,14 +13,6 @@ import java.time.Duration
  * - Supports an optional time-to-live (TTL) per entry; when omitted the entry will not expire.
  * - Provides a utility to create deterministic SHA-256 hashes for constructing cache keys.
  *
- * Usage
- * val value = "response-json"
- * val key = hashString("GET:/api/v1/profile?bsn=123")
- * // Cache for 5 minutes
- * put(key, value, Duration.ofMinutes(5))
- * // Later
- * val cached: String? = get(key) // null when not present or expired
- *
  * Notes
  * - All values are stored as-is Strings. If you need objects, serialize/deserialize in the caller.
  * - This service is state-less and thread-safe; it delegates concurrency to Redis.
