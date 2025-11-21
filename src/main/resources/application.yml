@@ -1,6 +1,12 @@
 spring:
     application:
         name: IKO
+    data:
+        redis:
+            host: # ENV
+            port: # ENV
+        cache:
+            type: redis
     thymeleaf: # Thymeleaf
         cache: false
         mode: HTML

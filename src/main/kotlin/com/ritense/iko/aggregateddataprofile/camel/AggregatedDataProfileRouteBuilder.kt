@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
+import com.ritense.iko.cache.processor.AdpCacheCheckProcessor
+import com.ritense.iko.cache.processor.AdpCachePutProcessor
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -20,13 +22,14 @@ class AggregatedDataProfileRouteBuilder(
     private val aggregatedDataProfile: AggregatedDataProfile,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
+    private val adpCacheCheckProcessor: AdpCacheCheckProcessor,
+    private val adpCachePutProcessor: AdpCachePutProcessor,
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
-        camelContext.globalOptions.put(JacksonConstants.ENABLE_TYPE_CONVERTER, "true")
+        camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
 
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == source.id }
-
         val connectorInstance = connectorInstanceRepository.findById(source.connectorInstanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connectorEndpoint = connectorEndpointRepository.findById(source.connectorEndpointId)
@@ -57,8 +60,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${source.id}_array")
             .routeId("relation_${source.id}_array")
-            .split(
-                variable("endpointMapping"), FlexibleAggregationStrategy<JsonNode>()
+            .split(variable("endpointMapping"), FlexibleAggregationStrategy<JsonNode>()
                     .pick(body())
                     .castAs(JsonNode::class.java)
                     .accumulateInCollection(ArrayList::class.java)
@@ -86,6 +88,9 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .to(Iko.connector())
+            .process {
+               // TODO add route caching put scenario?
+            }
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${source.id}", PairAggregator)
@@ -102,7 +107,6 @@ class AggregatedDataProfileRouteBuilder(
 
             aggregatedDataProfile.relations.filter { it.sourceId == source.id }.forEach { relation ->
                 createRelationRoute(aggregatedDataProfile, relation)
-
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
 
@@ -129,6 +133,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
+            .streamCache(true)
             .setVariable(
                 "authorities",
                 constant(effectiveRole)
@@ -137,6 +142,7 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
+            .process(adpCacheCheckProcessor)
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
@@ -150,7 +156,7 @@ class AggregatedDataProfileRouteBuilder(
             }
             .transform(jq(aggregatedDataProfile.transform.expression))
             .marshal().json()
-
+            .process(adpCachePutProcessor)
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
