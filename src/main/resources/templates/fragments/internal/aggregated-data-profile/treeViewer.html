@@ -1,0 +1,8 @@
+<th:block th:fragment="treeNode(node)">
+    <cds-tree-node th:label="${node.propertyName}">
+        <th:block th:each="child : ${relations}"
+                  th:if="${child.sourceId == node.id}">
+            <th:block th:replace="fragments/internal/aggregated-data-profile/treeViewer :: treeNode(${child})"/>
+        </th:block>
+    </cds-tree-node>
+</th:block>
