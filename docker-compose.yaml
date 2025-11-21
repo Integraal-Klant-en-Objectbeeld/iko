@@ -227,6 +227,8 @@ services:
     # Redis cache for the IKO application
     iko-redis:
         image: redis:7.4.3
+        ports:
+            - "6379:6379"
         container_name: iko-redis
         healthcheck:
             test: [ "CMD", "redis-cli", "ping" ]
@@ -240,10 +242,6 @@ services:
         container_name: iko
         ports:
             - "8080:8080"
-        environment:
-            - SPRING_CACHE_TYPE=redis
-            - SPRING_DATA_REDIS_HOST=iko-redis
-            - SPRING_DATA_REDIS_PORT=6379
         env_file:
             - .env
             - .env-override.env

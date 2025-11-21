@@ -1,84 +1,87 @@
 package com.ritense.iko.cache.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.stereotype.Service
+import org.springframework.data.redis.core.StringRedisTemplate
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Minimal key/value caching service named RedisCacheService as requested.
+ * Small Redis-backed key/value caching service used by the application routes.
  *
- * Note: This implementation does NOT depend on Spring Redis. It provides an
- * in-memory fallback with optional TTL per entry. If a real Redis integration
- * is added later, this class can be adapted to delegate to Redis operations
- * without changing its public API.
+ * What it does
+ * - Stores and retrieves String values by key using Spring's [StringRedisTemplate].
+ * - Supports an optional time-to-live (TTL) per entry; when omitted the entry will not expire.
+ * - Provides a utility to create deterministic SHA-256 hashes for constructing cache keys.
+ *
+ * Usage
+ * val value = "response-json"
+ * val key = hashString("GET:/api/v1/profile?bsn=123")
+ * // Cache for 5 minutes
+ * put(key, value, Duration.ofMinutes(5))
+ * // Later
+ * val cached: String? = get(key) // null when not present or expired
+ *
+ * Notes
+ * - All values are stored as-is Strings. If you need objects, serialize/deserialize in the caller.
+ * - This service is state-less and thread-safe; it delegates concurrency to Redis.
+ * - Evict removes only the provided key; it does not support patterns/wildcards.
  */
-@Service
-class CacheService {
-
-    private val log = KotlinLogging.logger {}
-
-    private data class Entry(
-        val value: String,
-        val expiresAt: Long? // epoch millis; null means no TTL
-    )
-
-    private val store = ConcurrentHashMap<String, Entry>()
+class CacheService(
+    private val template: StringRedisTemplate
+) {
 
     /**
      * Store a value for the given key.
      *
-     * @param key cache key
-     * @param value cached value (stored as-is string)
-     * @param ttl optional time-to-live; when null, the entry does not expire
+     * @param key Cache key. Callers typically use [hashString] to generate a stable key.
+     * @param value Cached value (stored as-is String).
+     * @param ttl Optional time-to-live; when null, the entry does not expire.
      */
     fun put(key: String, value: String, ttl: Duration? = null) {
-        val expiresAt = ttl?.let { System.currentTimeMillis() + it.toMillis() }
-        store[key] = Entry(value, expiresAt)
-        if (log.isDebugEnabled) {
-            log.debug { "Cached key='$key' ttlMs='${ttl?.toMillis()}'" }
+        val ops = template.opsForValue()
+        if (ttl == null) {
+            ops.set(key, value)
+        } else {
+            ops.set(key, value, ttl)
         }
+        logger.debug { "Cached key='$key' ttlMs='${ttl?.toMillis()}'" }
     }
 
     /**
-     * Retrieve a cached value by key, or null if missing or expired.
+     * Retrieve a cached value by key.
+     *
+     * @param key Cache key.
+     * @return The cached String value, or null when the key is absent or expired.
      */
     fun get(key: String): String? {
-        val now = System.currentTimeMillis()
-        val entry = store[key]
-        if (entry == null) return null
-
-        if (entry.expiresAt != null && entry.expiresAt <= now) {
-            // Expired on access – evict it lazily
-            store.remove(key)
-            if (log.isDebugEnabled) {
-                log.debug { "Cache miss (expired) for key='$key'" }
-            }
-            return null
-        }
-        return entry.value
+        return template.opsForValue().get(key)
     }
 
-    /** Remove a specific key from the cache. */
+    /**
+     * Remove a specific key from the cache.
+     *
+     * @param key Cache key to remove.
+     */
     fun evict(key: String) {
-        store.remove(key)
-        if (log.isDebugEnabled) {
-            log.debug { "Cache evicted key='$key'" }
-        }
+        template.delete(key)
+        logger.debug { "Cache evicted key='$key'" }
     }
 
-    /** Clear all cached entries. */
-    fun clear() {
-        store.clear()
-        if (log.isDebugEnabled) {
-            log.debug { "Cache cleared" }
-        }
-    }
-
+    /**
+     * Create a deterministic, lower-case hex-encoded SHA-256 hash for the given input.
+     *
+     * This is convenient for turning long or sensitive inputs (e.g., URLs with query params)
+     * into compact cache keys without leaking the original data.
+     *
+     * @param input Any String to hash (UTF-8 bytes are used).
+     * @return 64-character hex String of the SHA-256 digest.
+     */
     fun hashString(input: String): String {
         val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray())
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 }
