@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.cache.CacheService
+import com.ritense.iko.cache.processor.AdpCacheCheckProcessor
+import com.ritense.iko.cache.processor.AdpCachePutProcessor
+import com.ritense.iko.cache.service.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -18,7 +20,9 @@ class AggregatedDataProfileConfiguration(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val cacheService: CacheService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val adpCacheCheckProcessor: AdpCacheCheckProcessor,
+    private val adpCachePutProcessor: AdpCachePutProcessor,
 ) {
 
     init {
@@ -29,7 +33,8 @@ class AggregatedDataProfileConfiguration(
                     aggregatedDataProfile,
                     connectorInstanceRepository,
                     connectorEndpointRepository,
-                    cacheService
+                    adpCacheCheckProcessor,
+                    adpCachePutProcessor
                 )
             )
         }

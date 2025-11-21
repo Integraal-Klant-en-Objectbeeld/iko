@@ -2,7 +2,7 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.cache.CacheService
+import com.ritense.iko.cache.service.CacheService
 import org.apache.camel.builder.RouteBuilder
 
 class AggregatedDataProfileRoute(

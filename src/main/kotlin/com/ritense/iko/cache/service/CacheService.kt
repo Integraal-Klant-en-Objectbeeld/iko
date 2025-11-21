@@ -1,4 +1,4 @@
-package com.ritense.iko.cache
+package com.ritense.iko.cache.service
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service

@@ -2,7 +2,8 @@ package com.ritense.iko.aggregateddataprofile.service
 
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.cache.CacheService
+import com.ritense.iko.cache.processor.AdpCacheCheckProcessor
+import com.ritense.iko.cache.processor.AdpCachePutProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -13,7 +14,8 @@ class AggregatedDataProfileService(
     private val camelContext: CamelContext,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
-    private val cacheService: CacheService
+    private val adpCacheCheckProcessor: AdpCacheCheckProcessor,
+    private val adpCachePutProcessor: AdpCachePutProcessor,
 ) {
 
     fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
@@ -33,7 +35,8 @@ class AggregatedDataProfileService(
                 aggregatedDataProfile,
                 connectorEndpointRepository = connectorEndpointRepository,
                 connectorInstanceRepository = connectorInstanceRepository,
-                cacheService = cacheService
+                adpCacheCheckProcessor = adpCacheCheckProcessor,
+                adpCachePutProcessor = adpCachePutProcessor,
             )
         )
     }
