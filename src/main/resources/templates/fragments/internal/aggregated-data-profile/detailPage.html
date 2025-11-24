@@ -90,10 +90,11 @@
                                 th:label="|${parent.propertyName} - ${parent.id}|"
                                 th:attr="
                                 hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${parent.id}},
-                                hx-trigger='click',
+                                hx-trigger='click consume',
                                 hx-target='#selected-relation',
                                 hx-swap='innerHTML',
-                                hx-push-url='false'">
+                                hx-push-url='false'"
+                                class="pointer">
                             <th:block th:insert="~{::treeNode(parent=${parent})}"></th:block>
                         </cds-tree-node>
                     </cds-tree-view>
@@ -106,10 +107,11 @@
                         th:label="|${child.propertyName} - ${child.id}|"
                         th:attr="
                             hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${child.id}},
-                            hx-trigger='click',
+                            hx-trigger='click consume',
                             hx-target='#selected-relation',
                             hx-swap='innerHTML',
-                            hx-push-url='false'">
+                            hx-push-url='false'"
+                            class="pointer">
 
                         <th:block th:insert="~{::treeNode(parent=${child})}"></th:block>
 
