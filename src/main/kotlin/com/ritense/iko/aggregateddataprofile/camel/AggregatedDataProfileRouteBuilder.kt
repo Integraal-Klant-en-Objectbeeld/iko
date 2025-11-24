@@ -133,6 +133,7 @@ class AggregatedDataProfileRouteBuilder(
                 "authorities",
                 constant(effectiveRole)
             )
+            .setVariable("auth_token", header("Authorization"))
             .to("direct:auth")
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))

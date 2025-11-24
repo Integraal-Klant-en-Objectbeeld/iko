@@ -1,0 +1,5 @@
+run token.http
+
+###
+GET http://localhost:8080/aggregated-data-profiles/A/1
+Authorization: Bearer {{token}}

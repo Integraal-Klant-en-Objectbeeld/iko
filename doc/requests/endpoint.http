@@ -1,0 +1,5 @@
+run token.http
+
+###
+GET http://localhost:8080/endpoints/A/A/A
+Authorization: Bearer {{token}}

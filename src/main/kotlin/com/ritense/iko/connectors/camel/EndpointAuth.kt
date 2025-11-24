@@ -2,9 +2,12 @@ package com.ritense.iko.connectors.camel
 
 import com.ritense.authzenk.AccessEvaluationApiRequest
 import com.ritense.authzenk.Action
+import com.ritense.authzenk.ActionSearchApiRequest
 import com.ritense.authzenk.Client
+import com.ritense.authzenk.PartialSubject
 import com.ritense.authzenk.Resource
 import com.ritense.authzenk.Subject
+import com.ritense.authzenk.SubjectSearchApiRequest
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -27,24 +30,33 @@ class EndpointAuth(
                 val connectorEndpointId = ex.getVariable("connectorEndpointId", UUID::class.java)
                 val connectorInstanceId = ex.getVariable("connectorInstanceId", UUID::class.java)
 
-                val connectorEndpointRoles = connectorEndpointRoleRepository.findByConnectorEndpointAndConnectorInstance(
-                    connectorEndpointRepository.getReferenceById(connectorEndpointId),
-                    connectorInstanceRepository.getReferenceById(connectorInstanceId),
-                )
+                val connectorEndpoint = connectorEndpointRepository.findById(connectorEndpointId).orElseThrow {
+                    throw Exception("Could not find connector")
+                }
+
+                val connectorInstance = connectorInstanceRepository.findById(connectorInstanceId).orElseThrow {
+                    throw Exception("Could not find instance")
+                }
 
                 val decision = pdpClient.evaluationApi.evaluation(
                     AccessEvaluationApiRequest(
                         subject = Subject(
-                            type = "subject",
-                            id = "A"
+                            type = "User",
+                            id = ex.getVariable("auth_token", String::class.java),
                         ),
                         action = Action(
-                            name = "can_read"
+                            name = "can_read",
                         ),
                         resource = Resource(
-                            type = "aggregated-data-profile",
-                            id = "A"
+                            type = "Endpoint",
+                            id = connectorEndpoint.id.toString(),
                         ),
+                        context = mapOf(
+                            "headers" to ex.getIn().headers.filter { !it.key.startsWith("Camel")},
+                            "connector" to connectorInstance.connector.tag,
+                            "connectorInstance" to connectorInstance.tag,
+                            "connectorEndpoint" to connectorEndpoint.operation
+                        )
                     )
                 )
 

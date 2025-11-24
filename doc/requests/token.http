@@ -1,0 +1,14 @@
+### Authenticate
+# @no-log
+POST http://keycloak:8082/auth/realms/valtimo/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+
+grant_type = client_credentials &
+client_id = iko &
+client_secret = ThisIsNotASecret &
+audience = iko
+
+> {%
+    client.global.set("token", response.body.access_token)
+%}

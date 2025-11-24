@@ -1,0 +1,4 @@
+POST http://localhost:9004/authzen/v1/search/subject
+Content-Type: application/json
+
+{ "subject": { "type": "test"}, "action": { "name": "A" }, "resource": { "type": "test", "id": "a" } }

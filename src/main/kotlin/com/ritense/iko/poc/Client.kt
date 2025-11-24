@@ -15,8 +15,8 @@ class EvaluationContext(
     val objectMapper: ObjectMapper
 )
 
-typealias Properties = Map<String, Any>
-typealias Context = Map<String, Any>
+typealias Properties = Map<String, Any?>
+typealias Context = Map<String, Any?>
 
 data class Subject(
     val type: String,
@@ -99,6 +99,8 @@ data class MetadataObject(
 class AccessEvaluationApi(val context: EvaluationContext) {
 
     fun evaluation(evaluation: AccessEvaluationApiRequest): AccessEvaluationApiResponse {
+        Logger.getLogger("AccessEvaluationApi").info(context.objectMapper.writeValueAsString(evaluation))
+
         return this.context.httpClient.send(
             HttpRequest.newBuilder(URI.create("${context.host}/evaluation"))
                 .header("Content-Type", "application/json")
@@ -113,6 +115,8 @@ class AccessEvaluationApi(val context: EvaluationContext) {
 class AccessEvaluationsApi(val context: EvaluationContext) {
 
     fun evaluations(evaluations: AccessEvaluationsApiRequest): AccessEvaluationsApiResponse {
+        Logger.getLogger("AccessEvaluationsApi").info(context.objectMapper.writeValueAsString(evaluations))
+
         return this.context.httpClient.send(
             HttpRequest.newBuilder(URI.create("${context.host}/evaluations"))
                 .header("Content-Type", "application/json")
@@ -132,7 +136,7 @@ data class PageRequest(
 
 data class PageResponse(
     @JsonProperty("next_token")
-    val nextToken: String,
+    val nextToken: String? = null,
     val count: Int? = null,
     val total: Int? = null,
     val properties: Properties? = null
@@ -178,6 +182,8 @@ data class SearchResult(
 class SearchApi(val context: EvaluationContext) {
 
     fun searchSubject(search: SubjectSearchApiRequest): SearchResult {
+        Logger.getLogger("SearchApiRequest").info(context.objectMapper.writeValueAsString(search))
+
         return this.context.httpClient.send(
             HttpRequest.newBuilder(URI.create("${context.host}/search/subject"))
                 .header("Content-Type", "application/json")
@@ -188,6 +194,8 @@ class SearchApi(val context: EvaluationContext) {
     }
 
     fun searchAction(search: ActionSearchApiRequest): SearchResult {
+        Logger.getLogger("SearchApiRequest").info(context.objectMapper.writeValueAsString(search))
+
         return this.context.httpClient.send(
             HttpRequest.newBuilder(URI.create("${context.host}/search/action"))
                 .header("Content-Type", "application/json")
@@ -198,6 +206,8 @@ class SearchApi(val context: EvaluationContext) {
     }
 
     fun searchResource(search: ResourceSearchApiRequest): SearchResult {
+        Logger.getLogger("SearchApiRequest").info(context.objectMapper.writeValueAsString(search))
+
         return this.context.httpClient.send(
             HttpRequest.newBuilder(URI.create("${context.host}/search/resource"))
                 .header("Content-Type", "application/json")
@@ -211,9 +221,10 @@ class SearchApi(val context: EvaluationContext) {
 
 inline fun <reified T> ofJson(objectMapper: ObjectMapper): HttpResponse.BodySubscriber<T> {
     return HttpResponse.BodySubscribers.mapping(HttpResponse.BodySubscribers.ofByteArray()) {
-        Logger.getLogger("A").log(java.util.logging.Level.INFO) {
+        Logger.getLogger("ofJson").log(java.util.logging.Level.INFO) {
             String(it)
         }
         objectMapper.readValue(it, T::class.java)
     }
 }
+
