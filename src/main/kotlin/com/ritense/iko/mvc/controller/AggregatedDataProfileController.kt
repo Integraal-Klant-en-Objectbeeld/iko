@@ -317,6 +317,8 @@ class AggregatedDataProfileController(
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
+            // Dead-simple population so the form has everything when inserted
+            addObject("connectorEndpoints", connectorEndpointRepository.findAll())
             addObject("sources", sources)
         }
         return modelAndView
@@ -335,6 +337,8 @@ class AggregatedDataProfileController(
             addObject("sources", sources)
             addObject("errors", bindingResult)
             addObject("form", form)
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorEndpoints", connectorEndpointRepository.findAll())
         }
         if (bindingResult.hasErrors()) {
             return listOf(modelAndView)
@@ -351,8 +355,9 @@ class AggregatedDataProfileController(
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
             addObject("sources", sources)
+            addObject("aggregatedDataProfileId", aggregatedDataProfile.id)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("connectorEndpointId", connectorEndpointRepository.findAll())
+            addObject("connectorEndpoints", connectorEndpointRepository.findAll())
 
         }
 
@@ -454,14 +459,14 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: relations-tree").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#relations-tree")
-        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
         return listOf(modelAndView)

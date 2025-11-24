@@ -164,6 +164,13 @@ main cds-layout .cds--tab-content {
 }
 
 cds-tile {
+    .tile-title {
+        font-size: 20px;
+        font-weight: 400;
+        font-style: normal;
+        line-height: 28px;
+    }
+
     .tile-header {
         font-size: 16px;
         font-weight: 600;
@@ -233,9 +240,30 @@ cds-table-row cds-tooltip-content {
 }
 
 /* Buttons */
+
+cds-button{
+    .btn-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+}
+
 cds-modal-footer-button[kind="secondary"]::part(button) {
     background-color: white;
     color: #2B79BD;
+}
+
+.relation-button-bar{
+    display: flex;
+    gap: 1px;
+    justify-content: end;
+    margin-top: 1rem;
+
+    cds-button {
+        flex: 0 0 25%;
+    }
 }
 
 /* Monaco Editor */

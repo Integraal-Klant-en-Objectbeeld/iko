@@ -70,25 +70,29 @@
         </cds-stack>
     </cds-form-group>
 
-    <div class="button-bar">
+    <div class="relation-button-bar">
         <cds-button
             kind="danger"
             disabled
+            size="xl"
         >
             Delete
         </cds-button>
         <cds-button
             kind="secondary"
             disabled
+            size="xl"
         >
             Add relation
         </cds-button>
         <cds-button
             hx-post="/admin/relations"
             hx-include="#form-group *"
-            hx-swap="none">
+            hx-swap="none"
+            size="xl">
             Save
         </cds-button>
     </div>
 
 </th:block>
+<span id="selected-relation-name" hx-swap-oob="true"></span>
