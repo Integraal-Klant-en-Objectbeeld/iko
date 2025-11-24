@@ -16,6 +16,8 @@ data class AggregatedDataProfileForm(
         message = "Name may only contain letters, digits, underscores, and hyphens."
     )
     val name: String,
+    @field:ValidTransform
+    val endpointTransform: String? = null,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
     val transform: String,
@@ -30,6 +32,7 @@ data class AggregatedDataProfileForm(
                 id = aggregatedDataProfile.id,
                 name = aggregatedDataProfile.name,
                 role = aggregatedDataProfile.role,
+                endpointTransform = aggregatedDataProfile.endpointTransform?.expression,
                 transform = aggregatedDataProfile.transform.expression,
                 connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
                 connectorEndpointId = aggregatedDataProfile.connectorEndpointId,

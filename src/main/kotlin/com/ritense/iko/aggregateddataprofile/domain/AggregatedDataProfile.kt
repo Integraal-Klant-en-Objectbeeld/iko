@@ -4,6 +4,8 @@ import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
+import jakarta.persistence.AttributeOverride
+import jakarta.persistence.AttributeOverrides
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -32,6 +34,12 @@ class AggregatedDataProfile(
 
     @Column(name = "connector_endpoint_id")
     var connectorEndpointId: UUID,
+
+    @Embedded
+    @AttributeOverrides(
+        AttributeOverride(name = "expression", column = Column(name = "endpoint_transform"))
+    )
+    var endpointTransform: Transform? = null,
 
     @OneToMany(
         cascade = [(CascadeType.ALL)],
