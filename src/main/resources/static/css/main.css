@@ -195,6 +195,10 @@ cds-tile {
         flex: 1;
         min-width: 0;
     }
+
+    .left-bottom{
+        height: 100%;
+    }
 }
 
 @media (max-width: 1200px) {

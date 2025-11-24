@@ -347,11 +347,19 @@ class AggregatedDataProfileController(
             }
         }
 
-        httpServletResponse.setHeader("HX-Trigger", "close-modal")
-
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
+        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            addObject("sources", sources)
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorEndpointId", connectorEndpointRepository.findAll())
+
         }
+
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+
         return listOf(relationsModelAndView)
     }
 
@@ -379,10 +387,11 @@ class AggregatedDataProfileController(
     fun editRelation(
         @Valid @ModelAttribute form: EditRelationForm,
         bindingResult: BindingResult,
+        httpServletResponse: HttpServletResponse
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
             addObject("sources", sources)
             addObject("errors", bindingResult)
@@ -404,13 +413,17 @@ class AggregatedDataProfileController(
             bindingResult.addError(ObjectError("name", "This name already exists."))
             return listOf(modelAndView)
         }
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
+        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: relations-tree").apply {
+            addObject("aggregatedDataProfile", updatedProfile!!)
             addObject("relations", updatedProfile.relations.map { Relation.from(it) })
         }
-        return listOf(
-            modelAndView,
-            relationsModelAndView
-        )
+
+        // Instruct htmx on the client to replace only the tree view
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${updatedProfile!!.id}")
+        httpServletResponse.setHeader("HX-Retarget", "#relations-tree")
+        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+
+        return listOf(refreshedTree)
     }
 
     @GetMapping("/aggregated-data-profiles/{id}/relations/edit/{relationId}/delete")
@@ -441,15 +454,17 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val list = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: relations-tree").apply {
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
 
-        httpServletResponse.setHeader("HX-Retarget", "#view-panel-content")
-        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
+        httpServletResponse.setHeader("HX-Retarget", "#relations-tree")
+        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
-        return listOf(list)
+        return listOf(modelAndView)
     }
 
     @DeleteMapping("/aggregated-data-profiles/{id}")
