@@ -55,6 +55,9 @@ class AggregatedDataProfileController(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow { NoSuchElementException("ADP not found") }
+        val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
+        val endpoints = instance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
+        val availableSources = sources(aggregatedDataProfile)
 
         return ModelAndView(
             "$BASE_FRAGMENT_ADG/detailPage" + when (isHxRequest) {
@@ -63,7 +66,11 @@ class AggregatedDataProfileController(
             },
             mapOf(
                 "aggregatedDataProfile" to aggregatedDataProfile,
-                "relations" to aggregatedDataProfile.relations.map { Relation.from(it) }
+                "relations" to aggregatedDataProfile.relations.map { Relation.from(it) },
+                "aggregatedDataProfileId" to aggregatedDataProfile.id,
+                "connectorInstances" to connectorInstanceRepository.findAll(),
+                "connectorEndpoints" to endpoints,
+                "sources" to availableSources
             )
         )
     }
@@ -417,12 +424,14 @@ class AggregatedDataProfileController(
                 "form",
                 aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
         }
+
         return modelAndView
     }
 
     @DeleteMapping("/relations")
     fun deleteRelation(
-        @Valid @ModelAttribute form: DeleteRelationForm
+        @Valid @ModelAttribute form: DeleteRelationForm,
+        httpServletResponse: HttpServletResponse
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         form.run {
@@ -435,6 +444,11 @@ class AggregatedDataProfileController(
         val list = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
+
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel-content")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+        httpServletResponse.setHeader("HX-Trigger", "close-modal")
+
         return listOf(list)
     }
 

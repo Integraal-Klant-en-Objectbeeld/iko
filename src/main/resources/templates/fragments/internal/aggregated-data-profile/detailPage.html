@@ -46,7 +46,7 @@
             </div>
             <cds-tile class="left-bottom">
                 <span class="tile-header">Relations</span>
-                <div class="no-content-container">
+                <div class="no-content-container" th:if="${relations.isEmpty()}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150" fill="none">
                         <g clip-path="url(#clip0_4554_12419)">
                             <path d="M75.0004 146.887L20.8691 115.631L75.0004 84.3936L129.113 115.631L75.0004 146.887Z" fill="url(#paint0_linear_4554_12419)"/>
@@ -81,6 +81,42 @@
                     </svg>
                     <span class="no-content-text">No relations have been added yet</span>
                 </div>
+
+                <cds-tree-view size="">
+                    <cds-tree-node
+                        th:each="parent : ${relations}"
+                        th:if="${parent.sourceId == 'Profile root'}"
+                        th:label="${parent.propertyName}"
+                        th:attr="
+                            hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${parent.id}},
+                            hx-trigger='click',
+                            hx-target='#selected-relation',
+                            hx-swap='innerHTML',
+                            hx-push-url='false'">
+
+                        <th:block th:insert="~{::treeNode(parent=${parent})}"></th:block>
+
+                    </cds-tree-node>
+                </cds-tree-view>
+
+                <th:block th:fragment="treeNode(parent)">
+                    <cds-tree-node
+                        th:each="child : ${relations}"
+                        th:if="${parent != null and child.sourceId == parent.id.toString()}"
+                        th:label="${child.propertyName}"
+                        th:attr="
+                            hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${child.id}},
+                            hx-trigger='click',
+                            hx-target='#selected-relation',
+                            hx-swap='innerHTML',
+                            hx-push-url='false'">
+
+                        <th:block th:insert="~{::treeNode(parent=${child})}"></th:block>
+
+                    </cds-tree-node>
+                </th:block>
+
+
             </cds-tile>
         </div>
 
@@ -88,56 +124,66 @@
         <div class="detail-column">
             <cds-tile class="right-tile" >
                 <span class="sub-text">Selected relation</span>
-                <cds-table>
-                    <cds-table-header-title slot="title">
-                        Relations
-                    </cds-table-header-title>
-                    <cds-table-header-description slot="description">
-                        A collection of relation's for this profile.
-                    </cds-table-header-description>
-
-                    <!-- Toolbar + search -->
-                    <cds-table-toolbar slot="toolbar">
-                        <cds-table-toolbar-content>
-                            <cds-button
-                                th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} +'/relations/create'}"
-                                hx-target="#modal-container"
-                                hx-swap="innerHTML"
-                                hx-push-url="false"
-                                hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');">
-                                Add new Relation
-                                <svg
-                                    focusable="false"
-                                    preserveAspectRatio="xMidYMid meet"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor"
-                                    aria-hidden="true"
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 32 32"
-                                    slot="icon">
-                                    <path
-                                        d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                                </svg>
-                            </cds-button>
-                        </cds-table-toolbar-content>
-                    </cds-table-toolbar>
-
-                    <!-- Table -->
-                    <cds-table-head>
-                        <cds-table-header-row>
-                            <cds-table-header-cell>Relation</cds-table-header-cell>
-                            <cds-table-header-cell>Parent</cds-table-header-cell>
-                            <cds-table-header-cell>Endpoint parameter mapping</cds-table-header-cell>
-                            <cds-table-header-cell>Property name</cds-table-header-cell>
-                            <cds-table-header-cell>Transform</cds-table-header-cell>
-                            <cds-table-header-cell></cds-table-header-cell>
-                        </cds-table-header-row>
-                    </cds-table-head>
-                    <th:block th:insert="~{fragments/internal/relation/list :: relations}"></th:block>
-                </cds-table>
+                <div id="selected-relation">
+                    <th:block th:insert="~{fragments/internal/relation/add :: relation-add}"></th:block>
+                </div>
             </cds-tile>
         </div>
+
+<!--        &lt;!&ndash; Right column &ndash;&gt;-->
+<!--        <div class="detail-column">-->
+<!--            <cds-tile class="right-tile" >-->
+<!--                <span class="sub-text">Selected relation</span>-->
+<!--                <cds-table>-->
+<!--                    <cds-table-header-title slot="title">-->
+<!--                        Relations-->
+<!--                    </cds-table-header-title>-->
+<!--                    <cds-table-header-description slot="description">-->
+<!--                        A collection of relation's for this profile.-->
+<!--                    </cds-table-header-description>-->
+<!--    -->
+<!--                    &lt;!&ndash; Toolbar + search &ndash;&gt;-->
+<!--                    <cds-table-toolbar slot="toolbar">-->
+<!--                        <cds-table-toolbar-content>-->
+<!--                            <cds-button-->
+<!--                                th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} +'/relations/create'}"-->
+<!--                                hx-target="#modal-container"-->
+<!--                                hx-swap="innerHTML"-->
+<!--                                hx-push-url="false"-->
+<!--                                hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');">-->
+<!--                                Add new Relation-->
+<!--                                <svg-->
+<!--                                    focusable="false"-->
+<!--                                    preserveAspectRatio="xMidYMid meet"-->
+<!--                                    xmlns="http://www.w3.org/2000/svg"-->
+<!--                                    fill="currentColor"-->
+<!--                                    aria-hidden="true"-->
+<!--                                    width="16"-->
+<!--                                    height="16"-->
+<!--                                    viewBox="0 0 32 32"-->
+<!--                                    slot="icon">-->
+<!--                                    <path-->
+<!--                                        d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>-->
+<!--                                </svg>-->
+<!--                            </cds-button>-->
+<!--                        </cds-table-toolbar-content>-->
+<!--                    </cds-table-toolbar>-->
+<!--    -->
+<!--                    &lt;!&ndash; Table &ndash;&gt;-->
+<!--                    <cds-table-head>-->
+<!--                        <cds-table-header-row>-->
+<!--                            <cds-table-header-cell>Relation</cds-table-header-cell>-->
+<!--                            <cds-table-header-cell>Parent</cds-table-header-cell>-->
+<!--                            <cds-table-header-cell>Endpoint parameter mapping</cds-table-header-cell>-->
+<!--                            <cds-table-header-cell>Property name</cds-table-header-cell>-->
+<!--                            <cds-table-header-cell>Transform</cds-table-header-cell>-->
+<!--                            <cds-table-header-cell></cds-table-header-cell>-->
+<!--                        </cds-table-header-row>-->
+<!--                    </cds-table-head>-->
+<!--                    <th:block th:insert="~{fragments/internal/relation/list :: relations}"></th:block>-->
+<!--                </cds-table>-->
+<!--            </cds-tile>-->
+<!--        </div>-->
 
     </div>
 

@@ -1,11 +1,6 @@
 <th:block th:fragment="relation-edit">
-    <cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" th:attr="open=${errors?.hasErrors()}">
-        <cds-modal-header>
-            <cds-modal-close-button></cds-modal-close-button>
-            <cds-modal-label>Edit Relation</cds-modal-label>
-            <cds-modal-heading>Relation</cds-modal-heading>
-        </cds-modal-header>
-        <cds-modal-body>
+    <cds-form-group id="form-group" name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
+        <cds-stack gap="7">
             <cds-form-item>
                 <cds-dropdown name="sourceId"
                               size="lg"
@@ -26,25 +21,37 @@
                     </cds-dropdown-item>
                 </cds-dropdown>
             </cds-form-item>
-           <cds-form-item>
-                <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
-                            hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
-                            hx-target="#formRelationEndpoints" th:value="${form?.connectorInstanceId}"
-                >
+            <cds-form-item>
+                <cds-select
+                    label-text="Select an connector instance"
+                    size="lg"
+                    name="connectorInstanceId"
+                    hx-get="/admin/aggregated-data-profiles/create/endpoints"
+                    hx-trigger="cds-select-selected"
+                    hx-target="#formRelationEndpoints"
+                    th:value="${form?.connectorInstanceId}">
 
-                    <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                    <cds-select-item th:each="instance: ${connectorInstances}"
+                                     th:value="${instance.id}">
                         (<span th:text="${instance.connector.name}"></span>)
                         <span th:text="${instance.name}"></span>
                     </cds-select-item>
                 </cds-select>
-                <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
-                    <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId" th:value="${form?.connectorEndpointId}">
-                        <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+            </cds-form-item>
+
+            <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
+                <cds-form-item>
+                    <cds-select label-text="Select an connector endpoint"
+                                size="lg"
+                                name="connectorEndpointId"
+                                th:value="${form?.connectorEndpointId}">
+                        <cds-select-item th:each="endpoint: ${connectorEndpoints}"
+                                         th:value="${endpoint.id}">
                             <span th:text="${endpoint.name}"></span>
                         </cds-select-item>
                     </cds-select>
-                </div>
-            </cds-form-item>
+                </cds-form-item>
+            </div>
 
             <cds-form-item>
                 <cds-textarea name="sourceToEndpointMapping"
@@ -76,20 +83,34 @@
             </cds-form-item>
             <input type="hidden" name="aggregatedDataProfileId" th:value="${form.aggregatedDataProfileId}"/>
             <input type="hidden" name="id" th:value="${form.id}"/>
-        </cds-modal-body>
-        <cds-modal-footer>
-            <cds-modal-footer-button
-                kind="secondary"
-                hx-on:click="document.querySelector('cds-modal')?.toggleAttribute('open');">
-                Cancel
-            </cds-modal-footer-button>
-            <cds-modal-footer-button
-                hx-put="/admin/relations"
-                hx-include="#active-modal *"
-                hx-target="#active-modal"
-                hx-swap="outerHTML">
-                Save
-            </cds-modal-footer-button>
-        </cds-modal-footer>
-    </cds-modal>
+        </cds-stack>
+    </cds-form-group>
+
+    <div class="button-bar">
+        <cds-button kind="danger"
+                    th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/edit/' + ${form.id} + '/delete'} "
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML"
+                    hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
+                    hx-push-url="false">
+            Delete
+        </cds-button>
+        <cds-button
+            kind="secondary"
+            th:attr="
+                        hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/create'},
+                        hx-target='#selected-relation',
+                        hx-swap='innerHTML',
+                        hx-push-url='false'"
+        >
+            Add relation
+        </cds-button>
+        <cds-button
+            hx-put="/admin/relations"
+            hx-include="#form-group *"
+            hx-swap="outerHTML">
+            Save
+        </cds-button>
+    </div>
+
 </th:block>
