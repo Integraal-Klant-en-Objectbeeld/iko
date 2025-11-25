@@ -1,6 +1,12 @@
 spring:
     application:
         name: IKO
+    data:
+        redis:
+            host: # ENV
+            port: # ENV
+        cache:
+            type: redis
     thymeleaf: # Thymeleaf
         cache: false
         mode: HTML
@@ -102,6 +108,8 @@ camel:
         routes:
             enabled: true
             paths: classpath:camel/*.yaml
+    main:
+        tracing: false # for debugging
     trace:
         enabled: false
         standby: true

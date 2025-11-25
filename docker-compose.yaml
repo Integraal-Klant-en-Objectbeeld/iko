@@ -224,6 +224,19 @@ services:
         labels:
             org.springframework.boot.ignore: true
 
+    # Redis cache for the IKO application
+    iko-redis:
+        image: redis:8.4.0-alpine
+        ports:
+            - "6379:6379"
+        container_name: iko-redis
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
     iko:
         build: .
         container_name: iko
@@ -232,3 +245,5 @@ services:
         env_file:
             - .env
             - .env-override.env
+        depends_on:
+            - iko-redis
