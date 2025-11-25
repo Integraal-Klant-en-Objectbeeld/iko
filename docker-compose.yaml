@@ -226,7 +226,7 @@ services:
 
     # Redis cache for the IKO application
     iko-redis:
-        image: redis:8
+        image: redis:8.4.0-alpine
         ports:
             - "6379:6379"
         container_name: iko-redis
