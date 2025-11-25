@@ -47,6 +47,7 @@ class AggregatedDataProfileRoute(
                 if (aggregatedDataProfile.cacheSettings.enabled) {
                     val combined = objectMapper.writeValueAsString(
                         mapOf(
+                            "aggregatedDataProfileId" to aggregatedDataProfile.id,
                             "containerParams" to containerParams,
                             "filterParams" to filterParams,
                             "adpEndpointParameterMapping" to adpEndpointParameterMapping
