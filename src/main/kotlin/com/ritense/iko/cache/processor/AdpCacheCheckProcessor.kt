@@ -21,6 +21,7 @@ class AdpCacheCheckProcessor(
                 exchange.message.body = cached
                 exchange.setVariable("cacheHit", true)
                 logger.debug { "ADP cache check: cache HIT for key='$cacheKey' (size=${cached.length})" }
+                exchange.isRouteStop = true
             } else {
                 exchange.setVariable("cacheHit", false)
                 logger.debug { "ADP cache check: cache MISS for key='$cacheKey'" }
