@@ -1,10 +1,14 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.cache.service.CacheService
 import org.apache.camel.builder.RouteBuilder
 
 class AggregatedDataProfileRoute(
-    val aggregatedDataProfileRepository: AggregatedDataProfileRepository
+    val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+    val cacheService: CacheService,
+    val objectMapper: ObjectMapper
 ) : RouteBuilder() {
     override fun configure() {
         rest("/aggregated-data-profiles")
@@ -26,9 +30,32 @@ class AggregatedDataProfileRoute(
                 if (aggregatedDataProfile == null) {
                     throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
                 }
+                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+                exchange.setVariable("cacheEnabled", aggregatedDataProfile.cacheSettings.enabled)
+                exchange.setVariable("cacheTTL", aggregatedDataProfile.cacheSettings.timeToLive)
 
-                exchange.setVariable("aggregatedDataProfile", aggregatedDataProfile)
-                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile!!.id)
+                // TODO change after ADP params are introduced
+                // Pass on the objects downstream
+                val containerParams = emptyList<ContainerParam>()
+                val filterParams = emptyMap<String, String>()
+                val adpEndpointParameterMapping = ""
+
+                exchange.setVariable("containerParams", containerParams)
+                exchange.setVariable("filterParams", filterParams)
+                exchange.setVariable("adpEndpointParameterMapping", adpEndpointParameterMapping)
+
+                if (aggregatedDataProfile.cacheSettings.enabled) {
+                    val combined = objectMapper.writeValueAsString(
+                        mapOf(
+                            "aggregatedDataProfileId" to aggregatedDataProfile.id,
+                            "containerParams" to containerParams,
+                            "filterParams" to filterParams,
+                            "adpEndpointParameterMapping" to adpEndpointParameterMapping
+                        )
+                    )
+                    val cacheKey = cacheService.hashString(combined)
+                    exchange.setVariable("cacheKey", cacheKey)
+                }
             }
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }
