@@ -231,10 +231,13 @@
 <div id="modal-container" class="cds-theme-zone-g10" data-carbon-theme="g10"></div>
 <script type="text/javascript">
     // htmx.logAll();
-    htmx.config.allowNestedOobSwaps = false; // Disable nested out-of-band swaps
+    htmx.config.allowNestedOobSwaps = false;
 
-    document.body.addEventListener("close-modal", function (evt) {
-        document.querySelector("#modal-container cds-modal").toggleAttribute("open");
+    document.body.addEventListener("close-modal", () => {
+        const modalContainer = document.querySelector("#modal-container");
+        if (modalContainer) {
+            modalContainer.innerHTML = "";
+        }
     });
 </script>
 </body>

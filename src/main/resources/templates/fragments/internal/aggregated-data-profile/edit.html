@@ -76,6 +76,7 @@
                                     Test
                                 </cds-button>
                             </div>
+                            <!-- Removed duplicate hidden id to avoid multiple values being submitted -->
                         </cds-stack>
                     </cds-form-group>
             </cds-content>
@@ -88,12 +89,13 @@
             kind="secondary">
             Cancel
         </cds-modal-footer-button>
+        <!-- Narrow the include scope to only fields inside the profile edit fragment -->
         <cds-modal-footer-button
             type="submit"
             hx-put="/admin/aggregated-data-profiles"
-            hx-target="#form-group"
+            hx-target="closest cds-modal"
             hx-swap="outerHTML"
-            hx-include="#form-group *"
+            hx-include="#profile-edit [name]"
             hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Saving…'; this.setAttribute('disabled','');"
             hx-on::after-request="if(this.dataset.label){ this.textContent=this.dataset.label; this.removeAttribute('disabled'); delete this.dataset.label; }">
             Save

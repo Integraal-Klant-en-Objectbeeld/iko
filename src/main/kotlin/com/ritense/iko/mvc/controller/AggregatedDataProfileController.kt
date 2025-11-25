@@ -281,6 +281,7 @@ class AggregatedDataProfileController(
 
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
+            println("validation errors:")
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", form)
@@ -332,7 +333,7 @@ class AggregatedDataProfileController(
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile)
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add :: relation-add").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
             addObject("sources", sources)
             addObject("errors", bindingResult)

@@ -88,9 +88,16 @@ cds-breadcrumb-link {
     --cds-button-primary-hover: #286198;
     --cds-button-primary-active: #003361;
     --cds-button-primary-disabled: #C6C6C6;
+    --cds-button-tertiary-hover: #286198;
+    --cds-button-tertiary-active: #003361;
+    --cds-button-tertiary-disabled: #C6C6C6;
     --cds-focus: #2B79BD;
     --cds-skeleton-background: #E8E8E8;
     --cds--btn--secondary: #ffffff;
+}
+
+cds-button[kind="ghost"]::part(button) {
+    border-color: #2B79BD;
 }
 
 .cds-theme-zone-g10 h2.cds--type-heading-03,
@@ -164,6 +171,13 @@ main cds-layout .cds--tab-content {
 }
 
 cds-tile {
+    .tile-title {
+        font-size: 20px;
+        font-weight: 400;
+        font-style: normal;
+        line-height: 28px;
+    }
+
     .tile-header {
         font-size: 16px;
         font-weight: 600;
@@ -188,12 +202,27 @@ cds-tile {
     display: flex;
     gap: 2rem;
 
-    .detail-column{
+    .detail-column {
         display: flex;
         flex-direction: column;
         gap: 2rem;
         flex: 1;
         min-width: 0;
+    }
+
+    .left-bottom {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+
+        cds-button {
+            margin-top: auto;
+            align-self: flex-end;
+        }
+    }
+
+    .right-tile {
+        height: 100%;
     }
 }
 
@@ -229,9 +258,30 @@ cds-table-row cds-tooltip-content {
 }
 
 /* Buttons */
+
+cds-button {
+    .btn-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+}
+
 cds-modal-footer-button[kind="secondary"]::part(button) {
     background-color: white;
     color: #2B79BD;
+}
+
+.relation-button-bar {
+    display: flex;
+    gap: 1px;
+    justify-content: end;
+    margin-top: 1rem;
+
+    cds-button {
+        flex: 0 0 25%;
+    }
 }
 
 /* Monaco Editor */
