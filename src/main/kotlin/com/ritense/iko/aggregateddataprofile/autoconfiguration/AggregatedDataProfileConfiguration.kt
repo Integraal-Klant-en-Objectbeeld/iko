@@ -6,6 +6,8 @@ import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBui
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.processor.AdpCacheCheckProcessor
 import com.ritense.iko.cache.processor.AdpCachePutProcessor
+import com.ritense.iko.cache.processor.RelationCacheCheckProcessor
+import com.ritense.iko.cache.processor.RelationCachePutProcessor
 import com.ritense.iko.cache.service.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -23,6 +25,8 @@ class AggregatedDataProfileConfiguration(
     private val objectMapper: ObjectMapper,
     private val adpCacheCheckProcessor: AdpCacheCheckProcessor,
     private val adpCachePutProcessor: AdpCachePutProcessor,
+    private val relationCacheCheckProcessor: RelationCacheCheckProcessor,
+    private val relationCachePutProcessor: RelationCachePutProcessor,
 ) {
 
     init {
@@ -34,7 +38,9 @@ class AggregatedDataProfileConfiguration(
                     connectorInstanceRepository,
                     connectorEndpointRepository,
                     adpCacheCheckProcessor,
-                    adpCachePutProcessor
+                    adpCachePutProcessor,
+                    relationCacheCheckProcessor,
+                    relationCachePutProcessor
                 )
             )
         }

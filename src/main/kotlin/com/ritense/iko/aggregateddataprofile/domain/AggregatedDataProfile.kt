@@ -48,7 +48,7 @@ class AggregatedDataProfile(
     var role: String? = null,
 
     @Embedded
-    var cacheSettings: CacheSettings
+    var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting
 ) {
 
     fun handle(request: AggregatedDataProfileForm) {
@@ -78,7 +78,8 @@ class AggregatedDataProfile(
                 sourceToEndpointMapping = request.sourceToEndpointMapping,
                 connectorEndpointId = request.connectorEndpointId,
                 connectorInstanceId = request.connectorInstanceId,
-                propertyName = request.propertyName
+                propertyName = request.propertyName,
+                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
             )
         )
     }
@@ -98,7 +99,8 @@ class AggregatedDataProfile(
                 sourceToEndpointMapping = request.sourceToEndpointMapping,
                 connectorInstanceId = request.connectorInstanceId,
                 connectorEndpointId = request.connectorEndpointId,
-                propertyName = request.propertyName
+                propertyName = request.propertyName,
+                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
             )
         )
     }
@@ -119,10 +121,7 @@ class AggregatedDataProfile(
                 transform = Transform(form.transform),
                 connectorEndpointId = form.connectorEndpointId,
                 connectorInstanceId = form.connectorInstanceId,
-                cacheSettings = CacheSettings(
-                    enabled = false,
-                    timeToLive = 0
-                )
+                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
             )
         }
     }

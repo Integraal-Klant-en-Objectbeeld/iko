@@ -31,8 +31,8 @@ class AggregatedDataProfileRoute(
                     throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
                 }
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
-                exchange.setVariable("cacheEnabled", aggregatedDataProfile.cacheSettings.enabled)
-                exchange.setVariable("cacheTTL", aggregatedDataProfile.cacheSettings.timeToLive)
+                exchange.setVariable("cacheEnabled", aggregatedDataProfile.aggregatedDataProfileCacheSetting.enabled)
+                exchange.setVariable("cacheTTL", aggregatedDataProfile.aggregatedDataProfileCacheSetting.timeToLive)
 
                 // TODO change after ADP params are introduced
                 // Pass on the objects downstream
@@ -44,7 +44,7 @@ class AggregatedDataProfileRoute(
                 exchange.setVariable("filterParams", filterParams)
                 exchange.setVariable("adpEndpointParameterMapping", adpEndpointParameterMapping)
 
-                if (aggregatedDataProfile.cacheSettings.enabled) {
+                if (aggregatedDataProfile.aggregatedDataProfileCacheSetting.enabled) {
                     val combined = objectMapper.writeValueAsString(
                         mapOf(
                             "aggregatedDataProfileId" to aggregatedDataProfile.id,

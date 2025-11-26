@@ -35,7 +35,10 @@ class Relation(
     var connectorEndpointId: UUID,
 
     @Embedded
-    var transform: Transform
+    var transform: Transform,
+
+    @Embedded
+    var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting
 ) {
 
     fun sourceToEndpointMappingAsMap(): Map<String, String> {

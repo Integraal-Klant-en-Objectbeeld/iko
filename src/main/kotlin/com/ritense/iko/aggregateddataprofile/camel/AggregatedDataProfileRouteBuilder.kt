@@ -6,6 +6,8 @@ import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.cache.processor.AdpCacheCheckProcessor
 import com.ritense.iko.cache.processor.AdpCachePutProcessor
+import com.ritense.iko.cache.processor.RelationCacheCheckProcessor
+import com.ritense.iko.cache.processor.RelationCachePutProcessor
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -24,6 +26,8 @@ class AggregatedDataProfileRouteBuilder(
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val adpCacheCheckProcessor: AdpCacheCheckProcessor,
     private val adpCachePutProcessor: AdpCachePutProcessor,
+    private val relationCacheCheckProcessor: RelationCacheCheckProcessor,
+    private val relationCachePutProcessor: RelationCachePutProcessor,
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
@@ -37,8 +41,10 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
+            .streamCache(true)
             .removeHeaders("*")
             .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
+            .setVariable("relationId", constant(source.id))
             .marshal().json()
             .choice()
             .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isArray }
@@ -66,17 +72,18 @@ class AggregatedDataProfileRouteBuilder(
                     .accumulateInCollection(ArrayList::class.java)
             )
             .parallelProcessing()
-            .process { ex ->
-                ex.getIn().getBody(ObjectNode::class.java).forEachEntry { key, value ->
-                    ex.getIn().setHeader(key, value.asText())
+                .process { ex ->
+                    ex.getIn().getBody(ObjectNode::class.java).forEachEntry { key, value ->
+                        ex.getIn().setHeader(key, value.asText())
+                    }
                 }
-            }
-            .removeVariable("endpointMapping")
-            .to("direct:relation_${source.id}_loop")
+                .removeVariable("endpointMapping")
+                .to("direct:relation_${source.id}_loop") // Executes the relation route
             .end()
             .transform(jq(source.transform.expression))
             .unmarshal().json()
 
+        // Executes each relation route
         from("direct:relation_${source.id}_loop")
             .routeId("relation_${source.id}_loop")
             .unmarshal().json()
@@ -84,13 +91,18 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
             .setVariable("relationPropertyName", constant(source.propertyName))
+            .setVariable("relationId", constant(source.id))
+            .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
-            .to(Iko.connector())
-            .process {
-               // TODO add route caching put scenario?
-            }
+            .streamCache(true)
+            .process(relationCacheCheckProcessor)
+            .choice()
+                .`when` { ex -> !ex.getVariable("cacheHit_${source.id}", Boolean::class.java) } // cacheHit false
+                    .to(Iko.connector())
+                    .process(relationCachePutProcessor)
+                .end()
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${source.id}", PairAggregator)
@@ -142,7 +154,7 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
-            .process(adpCacheCheckProcessor)
+            .process(adpCacheCheckProcessor) // When cache hits it stops route
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
