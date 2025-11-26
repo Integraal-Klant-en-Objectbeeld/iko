@@ -46,6 +46,9 @@ class AggregatedDataProfile(
 
     @Column(name = "role")
     var role: String? = null,
+
+    @Embedded
+    var cacheSettings: CacheSettings
 ) {
 
     fun handle(request: AggregatedDataProfileForm) {
@@ -116,6 +119,10 @@ class AggregatedDataProfile(
                 transform = Transform(form.transform),
                 connectorEndpointId = form.connectorEndpointId,
                 connectorInstanceId = form.connectorInstanceId,
+                cacheSettings = CacheSettings(
+                    enabled = false,
+                    timeToLive = 0
+                )
             )
         }
     }
