@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.cache.processor.AdpCacheCheckProcessor
-import com.ritense.iko.cache.processor.AdpCachePutProcessor
-import com.ritense.iko.cache.processor.RelationCacheCheckProcessor
-import com.ritense.iko.cache.processor.RelationCachePutProcessor
+import com.ritense.iko.cache.processor.IkoCacheProcessor
 import com.ritense.iko.cache.service.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -23,10 +20,7 @@ class AggregatedDataProfileConfiguration(
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val cacheService: CacheService,
     private val objectMapper: ObjectMapper,
-    private val adpCacheCheckProcessor: AdpCacheCheckProcessor,
-    private val adpCachePutProcessor: AdpCachePutProcessor,
-    private val relationCacheCheckProcessor: RelationCacheCheckProcessor,
-    private val relationCachePutProcessor: RelationCachePutProcessor,
+    private val ikoCacheProcessor: IkoCacheProcessor
 ) {
 
     init {
@@ -37,10 +31,7 @@ class AggregatedDataProfileConfiguration(
                     aggregatedDataProfile,
                     connectorInstanceRepository,
                     connectorEndpointRepository,
-                    adpCacheCheckProcessor,
-                    adpCachePutProcessor,
-                    relationCacheCheckProcessor,
-                    relationCachePutProcessor
+                    ikoCacheProcessor
                 )
             )
         }

@@ -1,6 +1,5 @@
 package com.ritense.iko.aggregateddataprofile.domain
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -39,10 +38,4 @@ class Relation(
 
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting
-) {
-
-    fun sourceToEndpointMappingAsMap(): Map<String, String> {
-        return ObjectMapper().readValue(this.sourceToEndpointMapping, Map::class.java) as Map<String, String>
-    }
-
-}
+)
