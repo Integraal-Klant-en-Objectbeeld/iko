@@ -49,10 +49,10 @@ jobs:
             type=raw,value=main,enable={{is_default_branch}}
             # Short SHA tag, e.g. sha-1a2b3c4
             type=sha,format=short,prefix=sha-
-            # Snapshot date tag, e.g. snapshot-202509161054
-            type=raw,value=snapshot-{{date 'YYYYMMDDHHmm'}}
-            # Branch tag for non-main branches (PR builds won’t push)
-            type=ref,event=branch,prefix=branch-
+            # Snapshot tag for default branch, e.g. snapshot-202509161054
+            type=raw,value=snapshot-{{date 'YYYYMMDDHHmm'}},enable={{is_default_branch}}
+            # Snapshot tag for non-default branches, e.g. feat-my-branch-202511270711
+            type=ref,event=branch,suffix=-{{date 'YYYYMMDDHHmm'}},enable={{is_not_default_branch}}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
