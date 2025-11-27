@@ -52,7 +52,7 @@ jobs:
             # Snapshot tag for default branch, e.g. snapshot-202509161054
             type=raw,value=snapshot-{{date 'YYYYMMDDHHmm'}},enable={{is_default_branch}}
             # Snapshot tag for non-default branches, e.g. feat-my-branch-202511270711
-            type=ref,event=branch,suffix=-{{date 'YYYYMMDDHHmm'}},enable={{is_not_default_branch}}
+            type=ref,event=branch,prefix=snapshot-,suffix=-{{date 'YYYYMMDDHHmm'}},enable={{is_not_default_branch}}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
