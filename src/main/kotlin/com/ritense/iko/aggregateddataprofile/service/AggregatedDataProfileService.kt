@@ -2,7 +2,7 @@ package com.ritense.iko.aggregateddataprofile.service
 
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.cache.processor.IkoCacheProcessor
+import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -13,7 +13,7 @@ class AggregatedDataProfileService(
     private val camelContext: CamelContext,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
-    private val ikoCacheProcessor: IkoCacheProcessor,
+    private val ikoCacheProcessor: CacheProcessor,
 
     ) {
 
@@ -34,7 +34,7 @@ class AggregatedDataProfileService(
                 aggregatedDataProfile,
                 connectorEndpointRepository = connectorEndpointRepository,
                 connectorInstanceRepository = connectorInstanceRepository,
-                ikoCacheProcessor = ikoCacheProcessor
+                cacheProcessor = ikoCacheProcessor
             )
         )
     }

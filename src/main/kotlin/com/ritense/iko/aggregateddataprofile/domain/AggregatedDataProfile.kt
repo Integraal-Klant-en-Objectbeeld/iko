@@ -79,7 +79,7 @@ class AggregatedDataProfile(
                 connectorEndpointId = request.connectorEndpointId,
                 connectorInstanceId = request.connectorInstanceId,
                 propertyName = request.propertyName,
-                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
+                relationCacheSettings = RelationCacheSettings()
             )
         )
     }
@@ -100,7 +100,7 @@ class AggregatedDataProfile(
                 connectorInstanceId = request.connectorInstanceId,
                 connectorEndpointId = request.connectorEndpointId,
                 propertyName = request.propertyName,
-                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
+                relationCacheSettings = RelationCacheSettings()
             )
         )
     }

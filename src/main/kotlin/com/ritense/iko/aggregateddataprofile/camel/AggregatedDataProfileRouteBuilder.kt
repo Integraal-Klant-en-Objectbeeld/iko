@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
-import com.ritense.iko.cache.processor.IkoCacheProcessor
+import com.ritense.iko.cache.domain.toCacheable
+import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -21,7 +22,7 @@ class AggregatedDataProfileRouteBuilder(
     private val aggregatedDataProfile: AggregatedDataProfile,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val ikoCacheProcessor: IkoCacheProcessor
+    private val cacheProcessor: CacheProcessor
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
@@ -35,7 +36,6 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
-            .streamCache(true) // TODO: don't think this is needed here
             .removeHeaders("*")
             .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
             .setVariable("relationId", constant(source.id))
@@ -89,24 +89,15 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
-            .streamCache(true) // TODO: this is only necessary if the body of a relation exchange can be a stream
             .process {
-                ikoCacheProcessor.checkCache(
-                    exchange = it,
-                    entity = source,
-//                    variance = some variance like a user id or session id
-                )
+                cacheProcessor.putCache(exchange = it, cacheable = source.toCacheable())
             }
             .choice()
-                .`when` { ex -> !ex.getVariable("cacheHit_${source.id}", Boolean::class.java) } // cacheHit false
-                    .to(Iko.connector())
-                    .process {
-                        ikoCacheProcessor.putCache(
-                            exchange = it,
-                            entity = source,
-        //                    variance = some variance like a user id or session id
-                        )
-                    }
+            .`when` { ex -> !ex.getVariable("cacheHit_${source.id}", Boolean::class.java) } // cacheHit false
+            .to(Iko.connector())
+            .process {
+                cacheProcessor.putCache(exchange = it, cacheable = source.toCacheable())
+            }
             .end()
             .let {
                 if (relations.isNotEmpty()) {
@@ -150,7 +141,6 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
-            .streamCache(true) // TODO: this is only necessary if the body of an adp exchange can be a stream
             .setVariable(
                 "authorities",
                 constant(effectiveRole)
@@ -163,11 +153,7 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .process {
-                ikoCacheProcessor.checkCache(
-                    exchange = it,
-                    entity = aggregatedDataProfile
-//                    variance = some variance like a user id or session id
-                )
+                cacheProcessor.checkCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
             }
             .to(Iko.connector())
             .let {
@@ -179,20 +165,12 @@ class AggregatedDataProfileRouteBuilder(
             }
 //            TODO: do we cache before the final transform? that way the user can play around with the transform without rewriting the cache every time
 //            .process {
-//                ikoCacheProcessor.putCache(
-//                    exchange = it,
-//                    entity = aggregatedDataProfile,
-//                    variance = some variance like a user id or session id
-//                )
+//                cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
 //            }
             .transform(jq(aggregatedDataProfile.transform.expression))
 //            TODO: do we cache after the final transform? if so we need the expression to be part of the key hash
             .process {
-                ikoCacheProcessor.putCache(
-                    exchange = it,
-                    entity = aggregatedDataProfile,
-//                    variance = some variance like a user id or session id
-                )
+                cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
             }
             .marshal().json()
         if (relations.isNotEmpty()) {

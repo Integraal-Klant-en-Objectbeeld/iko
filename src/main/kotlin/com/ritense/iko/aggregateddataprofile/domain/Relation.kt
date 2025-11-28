@@ -37,5 +37,5 @@ class Relation(
     var transform: Transform,
 
     @Embedded
-    var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting
+    var relationCacheSettings: RelationCacheSettings = RelationCacheSettings(),
 )
