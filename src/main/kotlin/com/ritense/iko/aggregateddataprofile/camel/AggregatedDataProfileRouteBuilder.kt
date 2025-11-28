@@ -90,7 +90,7 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .process {
-                cacheProcessor.putCache(exchange = it, cacheable = source.toCacheable())
+                cacheProcessor.checkCache(exchange = it, cacheable = source.toCacheable())
             }
             .choice()
             .`when` { ex -> !ex.getVariable("cacheHit_${source.id}", Boolean::class.java) } // cacheHit false
