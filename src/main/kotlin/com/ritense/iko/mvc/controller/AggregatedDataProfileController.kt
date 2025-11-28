@@ -311,7 +311,6 @@ class AggregatedDataProfileController(
             addObject("form", form)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findAll())
-            // Keep the dropdown preselection value on validation errors
             addObject("preselectedSourceId", form.sourceId)
         }
         if (bindingResult.hasErrors()) {

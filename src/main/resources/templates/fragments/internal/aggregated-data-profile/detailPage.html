@@ -149,7 +149,7 @@
             </div>
 
         </div>
-        <div id="panel-relations" role="tabpanel" aria-labelledby="tab-relations" hidden="">
+        <div th:fragment="panel-relations" id="panel-relations" role="tabpanel" aria-labelledby="tab-relations" hidden="">
 
             <div class="detail-grid">
                 <!-- Left column -->
@@ -233,7 +233,6 @@
 
                         <cds-button
                             kind="secondary"
-                            th:if="${relations.isEmpty()}"
                             th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/create'},
                                      hx-target='#selected-relation',
                                      hx-swap='innerHTML',
@@ -250,8 +249,6 @@
                 <!-- Right column -->
                 <div class="detail-column">
                     <cds-tile class="right-tile" >
-                        <span class="sub-text">Selected relation</span>
-                        <br>
                         <span id="selected-relation-name"></span>
                         <div id="selected-relation"></div>
                     </cds-tile>
