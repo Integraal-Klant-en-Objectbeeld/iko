@@ -231,6 +231,7 @@ cds-tile {
         font-size: 16px;
         font-weight: 600;
         line-height: 24px;
+        margin-bottom: 1rem;
     }
 
     .tile-header-container {

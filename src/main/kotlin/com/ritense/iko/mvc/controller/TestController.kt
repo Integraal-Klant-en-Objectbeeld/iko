@@ -63,8 +63,8 @@ class TestController(
         }
 
         // Fetch traces
-        val traces = tracer.dumpAllTracedMessages()?.map {
-            TraceEvent.from(it)
+        val traces = tracer.dumpAllTracedMessages()?.mapNotNull {
+            it?.let { TraceEvent.from(it) }
         } ?: emptyList()
 
         // Disable tracing
@@ -72,6 +72,7 @@ class TestController(
 
         return ModelAndView("$BASE_FRAGMENT_ADG/test :: profile-debug").apply {
             addObject("form", form)
+            addObject("testId", form.testId)
             addObject("testResult", result)
             addObject("traces", traces)
             addObject("exception", exception)

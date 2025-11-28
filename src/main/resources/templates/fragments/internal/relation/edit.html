@@ -14,7 +14,7 @@
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
                     <cds-dropdown-item value="">
-                         Root source
+                         Profile root
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
                                        th:value="${source.id}">
@@ -99,16 +99,6 @@
         >
             Delete
             <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 12H14V24H12zM18 12H20V24H18z"></path><path d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path><title>Trash can</title></svg>
-        </cds-button>
-        <cds-button kind="secondary"
-                    th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/create'(sourceId=${form.id})},
-                             hx-target='#selected-relation',
-                             hx-swap='innerHTML',
-                             hx-push-url='false'"
-                    size="xl"
-        >
-            Add relation
-            <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path><title>Add</title></svg>
         </cds-button>
         <cds-button
             type="submit"

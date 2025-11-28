@@ -196,16 +196,24 @@ class AggregatedDataProfileController(
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
 
+        val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
+        val endpoints = instance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
+        val availableSources = sources(aggregatedDataProfile)
+
         val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            addObject("aggregatedDataProfileId", aggregatedDataProfile.id)
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorEndpoints", endpoints)
+            addObject("sources", availableSources)
         }
 
+        httpServletResponse.setHeader("HX-Trigger", "close-modal")
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
-        httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
         return redirectModelAndView
     }
@@ -311,8 +319,6 @@ class AggregatedDataProfileController(
             addObject("form", form)
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findAll())
-            // Keep the dropdown preselection value on validation errors
-            addObject("preselectedSourceId", form.sourceId)
         }
         if (bindingResult.hasErrors()) {
             return listOf(modelAndView)
@@ -325,7 +331,7 @@ class AggregatedDataProfileController(
             }
         }
 
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -337,7 +343,7 @@ class AggregatedDataProfileController(
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
         return listOf(relationsModelAndView)
@@ -424,7 +430,7 @@ class AggregatedDataProfileController(
     fun deleteRelation(
         @Valid @ModelAttribute form: DeleteRelationForm,
         httpServletResponse: HttpServletResponse
-    ): List<ModelAndView> {
+    ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         form.run {
             aggregatedDataProfile.let {
@@ -433,18 +439,18 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
-        return listOf(modelAndView)
+        return modelAndView
     }
 
     @DeleteMapping("/aggregated-data-profiles/{id}")
