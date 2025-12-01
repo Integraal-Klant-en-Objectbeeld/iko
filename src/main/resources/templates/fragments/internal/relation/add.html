@@ -10,8 +10,8 @@
                               label="Select a from"
                               th:attr="
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
-                                value=${parentId}">
+                                invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage}"
+                              th:value="${parentId}">
                     <cds-dropdown-item value="" disabled>
                         Root source
                     </cds-dropdown-item>
