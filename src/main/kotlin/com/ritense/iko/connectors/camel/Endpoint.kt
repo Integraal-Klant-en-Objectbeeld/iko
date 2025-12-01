@@ -4,6 +4,7 @@ import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.context.SecurityContextHolder
 
 class Endpoint() : RouteBuilder() {
     override fun configure() {
@@ -23,7 +24,10 @@ class Endpoint() : RouteBuilder() {
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
-            .setVariable("auth_token", header("Authorization"))
+            .process { ex ->
+                ex.setVariable("auth_token", SecurityContextHolder.getContext().authentication.name)
+                return@process
+            }
             .removeHeaders("iko_*")
             .to(Iko.endpoint("validate"))
             .to(Iko.endpoint("auth"))

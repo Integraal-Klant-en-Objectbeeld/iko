@@ -1,5 +1,5 @@
 run token.http
 
 ###
-GET http://localhost:8080/aggregated-data-profiles/A/1
+GET {{host}}/aggregated-data-profiles/persoon/100000001
 Authorization: Bearer {{token}}

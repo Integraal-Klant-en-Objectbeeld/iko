@@ -14,6 +14,7 @@ import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.context.SecurityContextHolder
 
 class AggregatedDataProfileRouteBuilder(
     private val camelContext: CamelContext,
@@ -133,7 +134,10 @@ class AggregatedDataProfileRouteBuilder(
                 "authorities",
                 constant(effectiveRole)
             )
-            .setVariable("auth_token", header("Authorization"))
+            .process { ex ->
+                ex.setVariable("auth_token", SecurityContextHolder.getContext().authentication.name)
+                return@process
+            }
             .to("direct:auth")
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))

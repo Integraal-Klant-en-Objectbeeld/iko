@@ -33,7 +33,6 @@ class AuthRoute(val pdpClient: Client) : RouteBuilder() {
                             id = aggregatedDataProfile.id.toString(),
                         ),
                         context = mapOf(
-                            "headers" to ex.getIn().headers.filter { !it.key.startsWith("Camel")},
                             "aggregatedDataProfile" to aggregatedDataProfile.name,
                             "aggregatedDataProfileRole" to aggregatedDataProfile.role
                         )

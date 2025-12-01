@@ -4,11 +4,10 @@ POST {{keycloak_host}}/realms/{{realm}}/protocol/openid-connect/token
 Content-Type: application/x-www-form-urlencoded
 
 
-grant_type = client_credentials &
+grant_type = password &
 client_id = iko &
 client_secret = ThisIsNotASecret &
+username = admin &
+password = admin &
+scope = openid &
 audience = iko
-
-> {%
-    client.global.set("token", response.body.access_token)
-%}

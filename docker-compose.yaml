@@ -29,7 +29,7 @@ services:
             - CACHE_DEFAULT=openzaak-redis:6379/0
             - CACHE_AXES=openzaak-redis:6379/0
             - DEBUG=true
-            - ALLOWED_HOSTS=localhost,host.docker.internal,172.17.0.1,openzaak
+            - ALLOWED_HOSTS=localhost,host.docker.internal,172.17.0.1,openzaak,example.com
             - OPENZAAK_SUPERUSER_USERNAME=admin
             - OPENZAAK_SUPERUSER_EMAIL=admin@admin.org
             - DJANGO_SUPERUSER_PASSWORD=admin

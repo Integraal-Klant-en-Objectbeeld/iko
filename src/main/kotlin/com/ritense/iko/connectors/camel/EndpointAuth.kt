@@ -52,10 +52,12 @@ class EndpointAuth(
                             id = connectorEndpoint.id.toString(),
                         ),
                         context = mapOf(
-                            "headers" to ex.getIn().headers.filter { !it.key.startsWith("Camel")},
                             "connector" to connectorInstance.connector.tag,
                             "connectorInstance" to connectorInstance.tag,
-                            "connectorEndpoint" to connectorEndpoint.operation
+                            "connectorEndpoint" to connectorEndpoint.operation,
+                            "connectorEndpointRoles" to connectorEndpointRoleRepository.findByConnectorEndpointAndConnectorInstance(
+                                connectorEndpoint, connectorInstance
+                            )
                         )
                     )
                 )
