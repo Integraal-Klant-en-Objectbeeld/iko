@@ -210,10 +210,10 @@ class AggregatedDataProfileController(
             addObject("sources", availableSources)
         }
 
-        httpServletResponse.setHeader("HX-Trigger", "close-modal")
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+        httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
         return redirectModelAndView
     }
@@ -331,7 +331,7 @@ class AggregatedDataProfileController(
             }
         }
 
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
+        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -343,7 +343,7 @@ class AggregatedDataProfileController(
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
         return listOf(relationsModelAndView)
@@ -439,7 +439,7 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: panel-relations").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -447,7 +447,7 @@ class AggregatedDataProfileController(
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
-        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
         return modelAndView

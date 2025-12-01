@@ -76,6 +76,10 @@ require.config({
         const errorBox = document.getElementById("monaco-error");
         const editor= document.querySelector(editorSelector);
 
+        if (!editor) {
+            return;
+        }
+
         if (xhr.status === 422 && xhr.getResponseHeader("Content-Type").includes("text/plain")) {
             errorBox.style.display = "block";
             errorBox.textContent = xhr.responseText;
