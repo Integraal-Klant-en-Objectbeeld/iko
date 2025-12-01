@@ -439,14 +439,14 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: inner-relations-panel").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: panel-relations").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#inner-relations-panel")
+        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
         httpServletResponse.setHeader("HX-Reswap", "outerHTML")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 

@@ -235,10 +235,9 @@
     htmx.config.allowNestedOobSwaps = false;
 
     document.body.addEventListener("close-modal", () => {
-        const modalContainer = document.querySelector("#modal-container");
-        if (modalContainer) {
-            modalContainer.innerHTML = "";
-        }
+       document
+           .querySelector("#modal-container #active-modal")
+           .removeAttribute("open");
     });
 </script>
 </body>
