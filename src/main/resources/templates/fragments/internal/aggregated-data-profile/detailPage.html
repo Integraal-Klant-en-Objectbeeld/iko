@@ -96,24 +96,24 @@
                                             </cds-stack>
                                         </div>
                                         <div class="form-column">
-<!--                                            <cds-form-item>-->
-<!--                                                <label for="transformCode">Transform</label>-->
-<!--                                                <textarea id="transformCode"-->
-<!--                                                          name="transform"-->
-<!--                                                          th:text="${form?.transform}"-->
-<!--                                                          hidden>-->
-<!--                                                </textarea>-->
+                                            <cds-form-item>
+                                                <label for="transformCode">Transform</label>
+                                                <textarea id="transformCode"
+                                                          name="transform"
+                                                          th:text="${form?.transform}"
+                                                          hidden>
+                                                </textarea>
 
-<!--                                                &lt;!&ndash; Monaco container &ndash;&gt;-->
-<!--                                                <div id="transform-editor"-->
-<!--                                                     data-monaco-->
-<!--                                                     data-language="yaml"-->
-<!--                                                     data-textarea="#transformCode"-->
-<!--                                                     th:data-initial="${form?.transform}"-->
-<!--                                                     data-theme="lightgray-theme"-->
-<!--                                                     class="monaco-editor-style">-->
-<!--                                                </div>-->
-<!--                                            </cds-form-item>-->
+                                                <!-- Monaco container -->
+                                                <div id="transform-editor"
+                                                     data-monaco
+                                                     data-language="yaml"
+                                                     data-textarea="#transformCode"
+                                                     th:data-initial="${form?.transform}"
+                                                     data-theme="lightgray-theme"
+                                                     class="monaco-editor-style">
+                                                </div>
+                                            </cds-form-item>
                                             <div id="monaco-error" class="monaco-error"></div>
                                             <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
 
