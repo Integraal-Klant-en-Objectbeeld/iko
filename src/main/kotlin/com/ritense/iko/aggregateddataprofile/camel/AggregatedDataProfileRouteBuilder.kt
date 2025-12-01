@@ -163,12 +163,7 @@ class AggregatedDataProfileRouteBuilder(
                     it
                 }
             }
-//            TODO: do we cache before the final transform? that way the user can play around with the transform without rewriting the cache every time
-//            .process {
-//                cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
-//            }
             .transform(jq(aggregatedDataProfile.transform.expression))
-//            TODO: do we cache after the final transform? if so we need the expression to be part of the key hash
             .process {
                 cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
             }
