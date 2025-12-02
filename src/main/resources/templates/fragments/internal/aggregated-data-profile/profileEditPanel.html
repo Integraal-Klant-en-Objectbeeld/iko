@@ -53,22 +53,6 @@
                                                                          invalid-text=${errors?.getFieldError('role')?.defaultMessage},
                                                                          value=${form?.role}">
                                             </cds-text-input>
-                                            <cds-text-input id="testId"
-                                                            name="testId"
-                                                            label="Id for testing the ADP">
-                                            </cds-text-input>
-
-                                            <div style="max-width: fit-content;">
-                                                <cds-button
-                                                    kind="secondary"
-                                                    hx-post="/admin/aggregated-data-profiles/test"
-                                                    hx-target="#profile-edit"
-                                                    hx-swap="outerHTML"
-                                                    hx-include="#form-group *, [id='testId'], [id='name']"
-                                                    hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');">
-                                                    Test
-                                                </cds-button>
-                                            </div>
                                         </cds-stack>
                                     </div>
                                     <div class="form-column">

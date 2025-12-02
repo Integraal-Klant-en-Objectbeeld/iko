@@ -64,8 +64,8 @@ class TestController(
 
         // Fetch traces
         val traces = tracer.dumpAllTracedMessages()?.map {
-            TraceEvent.from(it)
-        } ?: emptyList()
+            it?.let{TraceEvent.from(it)}
+        }?.filterNotNull() ?: emptyList()
 
         // Disable tracing
         tracer.isEnabled = false

@@ -210,10 +210,10 @@ class AggregatedDataProfileController(
             addObject("sources", availableSources)
         }
 
+        httpServletResponse.setHeader("HX-Trigger", "close-modal")
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
-        httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
         return redirectModelAndView
     }
