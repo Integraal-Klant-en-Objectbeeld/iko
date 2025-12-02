@@ -7,7 +7,6 @@ import org.apache.camel.builder.RouteBuilder
 
 class AggregatedDataProfileRoute(
     val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-    val cacheService: CacheService,
     val objectMapper: ObjectMapper
 ) : RouteBuilder() {
     override fun configure() {
