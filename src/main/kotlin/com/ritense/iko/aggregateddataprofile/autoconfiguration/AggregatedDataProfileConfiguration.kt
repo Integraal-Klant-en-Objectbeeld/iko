@@ -18,7 +18,7 @@ class AggregatedDataProfileConfiguration(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val objectMapper: ObjectMapper,
-    private val ikoCacheProcessor: CacheProcessor
+    private val cacheProcessor: CacheProcessor
 ) {
 
     init {
@@ -29,7 +29,7 @@ class AggregatedDataProfileConfiguration(
                     aggregatedDataProfile,
                     connectorInstanceRepository,
                     connectorEndpointRepository,
-                    ikoCacheProcessor
+                    cacheProcessor
                 )
             )
         }

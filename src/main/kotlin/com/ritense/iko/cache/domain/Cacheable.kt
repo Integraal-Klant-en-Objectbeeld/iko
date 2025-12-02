@@ -6,22 +6,21 @@ import com.ritense.iko.cache.domain.CacheEntry.CacheEventType.HIT
 import com.ritense.iko.cache.domain.CacheEntry.CacheEventType.MISS
 import org.apache.camel.Exchange
 
-
 interface Cacheable {
     val id: String
     val cacheKey: String
     val cacheSettings: CacheSettings
-    fun handleCacheEvent(exchange: Exchange, cacheEvent: CacheEntry)
+    fun handleCacheEntry(exchange: Exchange, cacheEvent: CacheEntry)
 }
 
 fun AggregatedDataProfile.toCacheable(): Cacheable {
     val id = this.id
     val cacheSettings = this.aggregatedDataProfileCacheSetting
+//    TODO: Add filters and sort params to the key parts so cacheable entries are unique per transform
     val cacheKey =
         listOf(
             id.toString(),
             transform.expression,
-//            TODO: Add filters and sort params
         ).joinToString(separator = "")
 
     return object : Cacheable {
@@ -32,7 +31,7 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
             override val timeToLive = cacheSettings.timeToLive
         }
 
-        override fun handleCacheEvent(exchange: Exchange, cacheEvent: CacheEntry) {
+        override fun handleCacheEntry(exchange: Exchange, cacheEvent: CacheEntry) {
             if (cacheEvent.type == HIT) {
                 with(exchange) {
                     message.body = cacheEvent.value
@@ -46,12 +45,12 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
 fun Relation.toCacheable(): Cacheable {
     val id = this.id.toString()
     val cacheSettings = this.relationCacheSettings
+//    TODO: Add filters and sort params to the key parts so cacheable entries are unique per transform
     val cacheKey =
         listOf(
             id,
             sourceToEndpointMapping,
             transform.expression,
-//            TODO: Add filters and sort params
         ).joinToString(separator = "")
 
     return object : Cacheable {
@@ -62,7 +61,7 @@ fun Relation.toCacheable(): Cacheable {
             override val timeToLive = cacheSettings.timeToLive
         }
 
-        override fun handleCacheEvent(exchange: Exchange, cacheEvent: CacheEntry) =
+        override fun handleCacheEntry(exchange: Exchange, cacheEvent: CacheEntry) =
             with(exchange) {
                 if (cacheEvent.type == HIT) {
                     message.body = cacheEvent.value

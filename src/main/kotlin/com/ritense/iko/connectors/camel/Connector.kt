@@ -8,6 +8,5 @@ class Connector : RouteBuilder() {
             .routeId("connector")
             .errorHandler(noErrorHandler())
             .toD(Iko.connector("\${variable.connector}"))
-            .process { it }
     }
 }

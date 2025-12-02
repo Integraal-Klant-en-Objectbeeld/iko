@@ -23,17 +23,18 @@ class CacheProcessor(private val cacheService: CacheService, private val objectM
         val cacheKey = cacheService.hashString(cacheKey)
         val cacheEvent = checkCache(cacheKey)
 
-        this.handleCacheEvent(
+        handleCacheEntry(
             exchange = exchange,
             cacheEvent = cacheEvent,
         )
     }
 
-    fun putCache(exchange: Exchange, cacheable: Cacheable) = with(cacheable) {
+    fun putCache(exchange: Exchange, cacheable: Cacheable): CacheEntry? = with(cacheable) {
         if (!cacheSettings.enabled) {
             logger.debug { "Cache is disabled for Cacheable with Id: $id" }
-            return
+            return null
         }
+
         putCache(
             key = cacheService.hashString(cacheKey),
             value = objectMapper.writeValueAsString(exchange.message.body),
@@ -57,17 +58,21 @@ class CacheProcessor(private val cacheService: CacheService, private val objectM
         }
     }
 
-    private fun putCache(key: String, value: String, timeToLive: Duration? = null) {
+    private fun putCache(key: String, value: String, timeToLive: Duration? = null): CacheEntry {
         cacheService
             .put(
                 key = key,
                 value = value,
                 ttl = timeToLive
             )
-        logCacheEntry(
-            event = CacheEntry(type = PUT, key = key, value = value),
-            extraMessage = "Cache value size: '${value.length}'. TTL value: '${timeToLive ?: "0"}'. "
-        )
+
+        return CacheEntry(type = PUT, key = key, value = value)
+            .also {
+                logCacheEntry(
+                    event = it,
+                    extraMessage = "Cache value size: '${it.value?.length ?: "0"}'. TTL value: '${it.timeToLive ?: "0"}'. "
+                )
+            }
     }
 
     private fun logCacheEntry(event: CacheEntry, extraMessage: String? = null) {
