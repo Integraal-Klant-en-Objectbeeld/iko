@@ -30,7 +30,7 @@ data class TraceEvent(
             return TraceEvent(
                 id = backlogTracerEventMessage.uid.toString(),
                 timestamp = timestamp,
-                route = backlogTracerEventMessage.routeId,
+                route = backlogTracerEventMessage.routeId ?: "",
                 processingThreadName = backlogTracerEventMessage.processingThreadName,
                 toNode = backlogTracerEventMessage.toNode ?: "",
                 elapsed = backlogTracerEventMessage.elapsed.toString() + "ms",
