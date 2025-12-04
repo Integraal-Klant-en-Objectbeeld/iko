@@ -73,6 +73,19 @@ class CacheService(
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
+    /**
+     * Generates a unique cache key by concatenating and hashing the provided key parts.
+     *
+     * @param keyParts A variable number of string parts to compose the cache key.
+     * @return A hashed string representing the unique cache key.
+     */
+    fun createKey(vararg keyParts: String): String {
+        require(keyParts.isNotEmpty())
+        val uniqueKey = keyParts.joinToString("") { it }
+        val cacheKey = hashString(uniqueKey)
+        return cacheKey
+    }
+
     companion object {
         private val logger = KotlinLogging.logger {}
     }

@@ -7,7 +7,6 @@ import org.apache.camel.builder.RouteBuilder
 
 class AggregatedDataProfileRoute(
     val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-    val cacheService: CacheService,
     val objectMapper: ObjectMapper
 ) : RouteBuilder() {
     override fun configure() {
@@ -31,31 +30,6 @@ class AggregatedDataProfileRoute(
                     throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
                 }
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
-                exchange.setVariable("cacheEnabled", aggregatedDataProfile.cacheSettings.enabled)
-                exchange.setVariable("cacheTTL", aggregatedDataProfile.cacheSettings.timeToLive)
-
-                // TODO change after ADP params are introduced
-                // Pass on the objects downstream
-                val containerParams = emptyList<ContainerParam>()
-                val filterParams = emptyMap<String, String>()
-                val adpEndpointParameterMapping = ""
-
-                exchange.setVariable("containerParams", containerParams)
-                exchange.setVariable("filterParams", filterParams)
-                exchange.setVariable("adpEndpointParameterMapping", adpEndpointParameterMapping)
-
-                if (aggregatedDataProfile.cacheSettings.enabled) {
-                    val combined = objectMapper.writeValueAsString(
-                        mapOf(
-                            "aggregatedDataProfileId" to aggregatedDataProfile.id,
-                            "containerParams" to containerParams,
-                            "filterParams" to filterParams,
-                            "adpEndpointParameterMapping" to adpEndpointParameterMapping
-                        )
-                    )
-                    val cacheKey = cacheService.hashString(combined)
-                    exchange.setVariable("cacheKey", cacheKey)
-                }
             }
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }

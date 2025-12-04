@@ -89,7 +89,7 @@ dependencies {
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
 
     // developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
