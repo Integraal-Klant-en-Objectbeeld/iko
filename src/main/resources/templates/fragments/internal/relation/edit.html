@@ -1,11 +1,7 @@
 <th:block th:fragment="relation-edit">
-    <cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" th:attr="open=${errors?.hasErrors()}">
-        <cds-modal-header>
-            <cds-modal-close-button></cds-modal-close-button>
-            <cds-modal-label>Edit Relation</cds-modal-label>
-            <cds-modal-heading>Relation</cds-modal-heading>
-        </cds-modal-header>
-        <cds-modal-body>
+    <form id="relation-edit-form" hx-put="/admin/relations" hx-swap="none" hx-include="#relation-edit-form *">
+    <cds-form-group name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
+        <cds-stack gap="7">
             <cds-form-item>
                 <cds-dropdown name="sourceId"
                               size="lg"
@@ -18,7 +14,7 @@
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
                     <cds-dropdown-item value="">
-                         Root source
+                         Profile root
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
                                        th:value="${source.id}">
@@ -26,25 +22,37 @@
                     </cds-dropdown-item>
                 </cds-dropdown>
             </cds-form-item>
-           <cds-form-item>
-                <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
-                            hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
-                            hx-target="#formRelationEndpoints" th:value="${form?.connectorInstanceId}"
-                >
+            <cds-form-item>
+                <cds-select
+                    label-text="Select an connector instance"
+                    size="lg"
+                    name="connectorInstanceId"
+                    hx-get="/admin/aggregated-data-profiles/create/endpoints"
+                    hx-trigger="cds-select-selected"
+                    hx-target="#formRelationEndpoints"
+                    th:value="${form?.connectorInstanceId}">
 
-                    <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                    <cds-select-item th:each="instance: ${connectorInstances}"
+                                     th:value="${instance.id}">
                         (<span th:text="${instance.connector.name}"></span>)
                         <span th:text="${instance.name}"></span>
                     </cds-select-item>
                 </cds-select>
-                <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
-                    <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId" th:value="${form?.connectorEndpointId}">
-                        <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+            </cds-form-item>
+
+            <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
+                <cds-form-item>
+                    <cds-select label-text="Select an connector endpoint"
+                                size="lg"
+                                name="connectorEndpointId"
+                                th:value="${form?.connectorEndpointId}">
+                        <cds-select-item th:each="endpoint: ${connectorEndpoints}"
+                                         th:value="${endpoint.id}">
                             <span th:text="${endpoint.name}"></span>
                         </cds-select-item>
                     </cds-select>
-                </div>
-            </cds-form-item>
+                </cds-form-item>
+            </div>
 
             <cds-form-item>
                 <cds-textarea name="sourceToEndpointMapping"
@@ -76,20 +84,32 @@
             </cds-form-item>
             <input type="hidden" name="aggregatedDataProfileId" th:value="${form.aggregatedDataProfileId}"/>
             <input type="hidden" name="id" th:value="${form.id}"/>
-        </cds-modal-body>
-        <cds-modal-footer>
-            <cds-modal-footer-button
-                kind="secondary"
-                hx-on:click="document.querySelector('cds-modal')?.toggleAttribute('open');">
-                Cancel
-            </cds-modal-footer-button>
-            <cds-modal-footer-button
-                hx-put="/admin/relations"
-                hx-include="#active-modal *"
-                hx-target="#active-modal"
-                hx-swap="outerHTML">
-                Save
-            </cds-modal-footer-button>
-        </cds-modal-footer>
-    </cds-modal>
+        </cds-stack>
+    </cds-form-group>
+
+    <div class="relation-button-bar">
+        <cds-button kind="danger"
+                    th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/edit/' + ${form.id} + '/delete'} "
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML"
+                    hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
+                    hx-push-url="false"
+                    size="xl"
+                    type="button"
+        >
+            Delete
+            <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 12H14V24H12zM18 12H20V24H18z"></path><path d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path><title>Trash can</title></svg>
+        </cds-button>
+        <cds-button
+            type="submit"
+            hx-on:click="document.getElementById('relation-edit-form')?.requestSubmit()"
+            size="xl"
+        >
+            Save
+            <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M27.71,9.29l-5-5A1,1,0,0,0,22,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V10A1,1,0,0,0,27.71,9.29ZM12,6h8v4H12Zm8,20H12V18h8Zm2,0V18a2,2,0,0,0-2-2H12a2,2,0,0,0-2,2v8H6V6h4v4a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V6.41l4,4V26Z"></path><title>Save</title></svg>
+        </cds-button>
+    </div>
+    </form>
+
 </th:block>
+<span id="selected-relation-name" hx-swap-oob="true" class="tile-title" th:text="${form?.propertyName}"></span>
