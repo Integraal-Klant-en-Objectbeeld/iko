@@ -4,9 +4,9 @@
         <div class="detail-column">
             <cds-tile class="left-column">
                 <span class="tile-header">Relations</span>
-                <div id="relations-tree" th:fragment="relations-tree">
+                <div id="relations-tree" style="margin-bottom: 1rem;" th:fragment="relations-tree">
                     <cds-tree-view size="">
-                        <cds-tree-node label="Profile root" class="pointer"
+                        <cds-tree-node label="Profile root" class="pointer" active
                                         hx-on:mousedown="document.querySelector('#selectedSourceId').value = ''">
                             <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" slot="icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
                                 <rect width="16" height="16" fill="white" style="mix-blend-mode:multiply"/>

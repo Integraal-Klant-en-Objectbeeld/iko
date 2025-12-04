@@ -343,8 +343,8 @@ class AggregatedDataProfileController(
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#relations-panel")
-        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
         return listOf(relationsModelAndView)
     }
