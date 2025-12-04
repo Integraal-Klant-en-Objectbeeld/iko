@@ -255,7 +255,6 @@ class AggregatedDataProfileController(
 
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
-            println("validation errors:")
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", form)

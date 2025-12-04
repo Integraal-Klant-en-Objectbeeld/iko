@@ -16,12 +16,13 @@
                                 th:each="parent : ${relations}"
                                 th:if="${parent.sourceId == 'Profile root'}"
                                 th:label="|${parent.propertyName} - ${parent.id}|"
-                                hx-on:mousedown="document.querySelector('#selectedSourceId').value = this.getAttribute('data-source-id')"                                th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${parent.id}},
-                                         hx-trigger='mousedown consume',
-                                         hx-target='#selected-relation',
-                                         hx-swap='innerHTML',
-                                         hx-push-url='false',
-                                         data-source-id=${parent.id}"
+                                hx-on:mousedown="document.querySelector('#selectedSourceId').value = this.getAttribute('data-source-id')"
+                                th:hx-get="@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${parent.id}}"
+                                hx-trigger='mousedown consume'
+                                hx-target='#selected-relation'
+                                hx-swap='innerHTML'
+                                hx-push-url='false'
+                                th:data-source-id="${parent.id}"
                                 class="pointer">
                                 <th:block th:insert="~{::treeNode(parent=${parent})}"></th:block>
                             </cds-tree-node>
