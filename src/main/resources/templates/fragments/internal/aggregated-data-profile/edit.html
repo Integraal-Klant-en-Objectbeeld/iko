@@ -44,36 +44,9 @@
                                 invalid-text=${errors?.getFieldError('role')?.defaultMessage},
                                 value=${form?.role}">
                                 </cds-text-input>
-                                <cds-text-input id="testId"
-                                                name="testId"
-                                                label="Id for testing the ADP">
-                                </cds-text-input>
-
-                                <div style="max-width: fit-content;">
-                                    <cds-button
-                                        kind="secondary"
-                                        hx-post="/admin/aggregated-data-profiles/test"
-                                        hx-target="#profile-edit"
-                                        hx-swap="outerHTML"
-                                        hx-include="#form-group *, [id='testId'], [id='name']"
-                                        hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');">
-                                        Test
-                                    </cds-button>
-                                </div>
                             </cds-stack>
                         </div>
                         <div class="form-column">
-<!--                            <cds-textarea id="transform"-->
-<!--                                          name="transform"-->
-<!--                                          label="Transform"-->
-<!--                                          helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"-->
-<!--                                          placeholder="e.g.: { a: .left, b: .right }"-->
-<!--                                          th:attr="-->
-<!--                                            invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,-->
-<!--                                            invalid-text=${errors?.getFieldError('transform')?.defaultMessage},-->
-<!--                                            value=${form?.transform}-->
-<!--                                          ">-->
-<!--                            </cds-textarea>-->
 
                             <cds-form-item>
                                 <label for="transformCode">Transform</label>
