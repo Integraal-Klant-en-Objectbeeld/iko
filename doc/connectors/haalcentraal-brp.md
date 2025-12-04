@@ -30,7 +30,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                     jq: |
                         {
                           type: header("type"),
-                           fields: header("fields") | split(","),
+                           fields: header("fields") // empty | split(","),
                            gemeenteVanInschrijving: header("gemeenteVanInschrijving"),
                            inclusiefOverledenPersonen: header("inclusiefOverledenPersonen"),
                            geboortedatum: header("geboortedatum"),
@@ -38,7 +38,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                            geslacht: header("geslacht"),
                            voorvoegsel: header("voorvoegsel"),
                            voornamen: header("voornamen"),
-                           burgerservicenummer: header("burgerservicenummer") | split(","),
+                           burgerservicenummer: header("burgerservicenummer") // empty | split(","),
                            huisletter: header("huisletter"),
                            huisnummer: header("huisnummer"),
                            huisnummertoevoeging: header("huisnummertoevoeging"),
