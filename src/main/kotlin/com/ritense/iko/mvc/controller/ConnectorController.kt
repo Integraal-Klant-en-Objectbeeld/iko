@@ -306,22 +306,14 @@ class ConnectorController(
     fun connectorInstanceConfigPage(
         @PathVariable id: UUID,
         @PathVariable instanceId: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-    ): ModelAndView {
-        val connectorInstance =
-            connectorInstanceRepository
-                .findById(instanceId)
-                .orElseThrow { NoSuchElementException("Connector instance not found") }
-        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
-
-        return ModelAndView(
-            "fragments/internal/connector/formCreateConnectorInstanceConfig",
-            mapOf(
-                "connectorId" to id,
-                "instanceId" to instanceId,
-            ),
-        )
-    }
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView = ModelAndView(
+        "fragments/internal/connector/formCreateConnectorInstanceConfig",
+        mapOf(
+            "connectorId" to id,
+            "instanceId" to instanceId,
+        ),
+    )
 
     @PostMapping("/{id}/instances/{instanceId}/config")
     fun createConnectorInstanceConfigPage(
