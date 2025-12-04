@@ -42,6 +42,20 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <cds-textarea name="endpointTransform"
+                                          label="Endpoint transform"
+                                          helper-text="Runs before the connector call; can reference .adpSort /.adpFilter."
+                                          placeholder="e.g.: { pageSize: .adpSort.page.size }"
+                                          th:attr="
+                                            invalid=${errors?.getFieldError('endpointTransform') != null} ? 'true' : null,
+                                            invalid-text=${errors?.getFieldError('endpointTransform')?.defaultMessage},
+                                            value=${form?.endpointTransform}
+                                          ">
+                            </cds-textarea>
+                        </div>
+                    </div>
                     <!-- Add Aggregated Data Profile form -->
                     <cds-text-input name="role"
                                     label="Role"

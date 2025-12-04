@@ -48,9 +48,24 @@
                             invalid-text=${errors?.getFieldError('role')?.defaultMessage},
                             value=${form?.role}">
                             </cds-text-input>
+                            <div class="form-row">
+                                <div class="form-col">
+                                    <cds-textarea name="endpointTransform"
+                                                  label="Endpoint transform"
+                                                  helper-text="Runs before the connector call; can reference .adpSort /.adpFilter."
+                                                  placeholder="e.g.: { pageSize: .adpSort.page.size }"
+                                                  th:attr="
+                                            invalid=${errors?.getFieldError('endpointTransform') != null} ? 'true' : null,
+                                            invalid-text=${errors?.getFieldError('endpointTransform')?.defaultMessage},
+                                            value=${form?.endpointTransform}
+                                          ">
+                                    </cds-textarea>
+                                </div>
+                            </div>
                             <cds-textarea id="transform"
                                           name="transform"
                                           label="Transform"
+                                          required="true"
                                           helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
                                           placeholder="e.g.: { a: .left, b: .right }"
                                           th:attr="

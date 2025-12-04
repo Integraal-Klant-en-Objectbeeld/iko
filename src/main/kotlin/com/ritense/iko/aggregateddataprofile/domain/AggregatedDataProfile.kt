@@ -39,7 +39,7 @@ class AggregatedDataProfile(
     @AttributeOverrides(
         AttributeOverride(name = "expression", column = Column(name = "endpoint_transform"))
     )
-    var endpointTransform: Transform? = null,
+    var endpointTransform: Transform,
 
     @OneToMany(
         cascade = [(CascadeType.ALL)],
@@ -70,6 +70,7 @@ class AggregatedDataProfile(
         }
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
+        this.endpointTransform = Transform(request.endpointTransform ?: ".")
         this.transform = Transform(request.transform)
     }
 
@@ -84,8 +85,8 @@ class AggregatedDataProfile(
                 },
                 transform = Transform(request.transform),
                 sourceToEndpointMapping = request.sourceToEndpointMapping,
-                connectorEndpointId = request.connectorEndpointId,
                 connectorInstanceId = request.connectorInstanceId,
+                connectorEndpointId = request.connectorEndpointId,
                 propertyName = request.propertyName,
                 relationCacheSettings = RelationCacheSettings()
             )
@@ -128,6 +129,7 @@ class AggregatedDataProfile(
                 role = role,
                 transform = Transform(form.transform),
                 connectorEndpointId = form.connectorEndpointId,
+                endpointTransform = Transform(form.endpointTransform) ,
                 connectorInstanceId = form.connectorInstanceId,
                 aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
             )
