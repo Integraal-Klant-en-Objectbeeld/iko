@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
-import com.ritense.iko.cache.processor.AdpCacheCheckProcessor
-import com.ritense.iko.cache.processor.AdpCachePutProcessor
+import com.ritense.iko.cache.domain.toCacheable
+import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -22,8 +22,7 @@ class AggregatedDataProfileRouteBuilder(
     private val aggregatedDataProfile: AggregatedDataProfile,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val adpCacheCheckProcessor: AdpCacheCheckProcessor,
-    private val adpCachePutProcessor: AdpCachePutProcessor,
+    private val cacheProcessor: CacheProcessor
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
@@ -39,6 +38,7 @@ class AggregatedDataProfileRouteBuilder(
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
             .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
+            .setVariable("relationId", constant(source.id))
             .marshal().json()
             .choice()
             .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isArray }
@@ -60,7 +60,8 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${source.id}_array")
             .routeId("relation_${source.id}_array")
-            .split(variable("endpointMapping"), FlexibleAggregationStrategy<JsonNode>()
+            .split(
+                variable("endpointMapping"), FlexibleAggregationStrategy<JsonNode>()
                     .pick(body())
                     .castAs(JsonNode::class.java)
                     .accumulateInCollection(ArrayList::class.java)
@@ -72,11 +73,12 @@ class AggregatedDataProfileRouteBuilder(
                 }
             }
             .removeVariable("endpointMapping")
-            .to("direct:relation_${source.id}_loop")
+            .to("direct:relation_${source.id}_loop") // Executes the relation route
             .end()
             .transform(jq(source.transform.expression))
             .unmarshal().json()
 
+        // Executes each relation route
         from("direct:relation_${source.id}_loop")
             .routeId("relation_${source.id}_loop")
             .unmarshal().json()
@@ -87,10 +89,16 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
+            .process {
+                cacheProcessor.checkCache(exchange = it, cacheable = source.toCacheable())
+            }
+            .choice()
+            .`when` { ex -> !ex.getVariable("cacheHit_${source.id}", Boolean::class.java) } // cacheHit false
             .to(Iko.connector())
             .process {
-               // TODO add route caching put scenario?
+                cacheProcessor.putCache(exchange = it, cacheable = source.toCacheable())
             }
+            .end()
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${source.id}", PairAggregator)
@@ -133,7 +141,6 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
-            .streamCache(true)
             .setVariable(
                 "authorities",
                 constant(effectiveRole)
@@ -142,10 +149,12 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
-            .process(adpCacheCheckProcessor)
             .to(Iko.endpoint("validate"))
             .to(Iko.iko("config"))
             .to(Iko.transform())
+            .process {
+                cacheProcessor.checkCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
+            }
             .to(Iko.connector())
             .let {
                 if (relations.isNotEmpty()) {
@@ -155,8 +164,10 @@ class AggregatedDataProfileRouteBuilder(
                 }
             }
             .transform(jq(aggregatedDataProfile.transform.expression))
+            .process {
+                cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
+            }
             .marshal().json()
-            .process(adpCachePutProcessor)
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
