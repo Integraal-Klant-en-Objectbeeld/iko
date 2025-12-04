@@ -7,5 +7,9 @@ import java.util.UUID
 
 interface ConnectorInstanceRepository : JpaRepository<ConnectorInstance, UUID> {
     fun findByConnector(connector: Connector): List<ConnectorInstance>
-    fun findByConnectorTagAndTag(tag: String, config: String): ConnectorInstance?
+
+    fun findByConnectorTagAndTag(
+        tag: String,
+        config: String,
+    ): ConnectorInstance?
 }

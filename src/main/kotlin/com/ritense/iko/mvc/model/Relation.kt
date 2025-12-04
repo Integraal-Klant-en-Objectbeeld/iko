@@ -11,20 +11,18 @@ data class Relation(
     val connectorEndpointId: UUID,
     val propertyName: String,
     val sourceToEndpointMapping: String,
-    val transform: String
+    val transform: String,
 ) {
     companion object {
-        fun from(it: RelationEntity): Relation {
-            return Relation(
-                aggregatedDataProfileId = it.aggregatedDataProfile.id,
-                id = it.id,
-                sourceId = it.sourceId?.toString() ?: "Profile root",
-                sourceToEndpointMapping = it.sourceToEndpointMapping,
-                transform = it.transform.expression,
-                connectorInstanceId = it.connectorInstanceId,
-                connectorEndpointId = it.connectorEndpointId,
-                propertyName = it.propertyName,
-            )
-        }
+        fun from(it: RelationEntity): Relation = Relation(
+            aggregatedDataProfileId = it.aggregatedDataProfile.id,
+            id = it.id,
+            sourceId = it.sourceId?.toString() ?: "Profile root",
+            sourceToEndpointMapping = it.sourceToEndpointMapping,
+            transform = it.transform.expression,
+            connectorInstanceId = it.connectorInstanceId,
+            connectorEndpointId = it.connectorEndpointId,
+            propertyName = it.propertyName,
+        )
     }
 }

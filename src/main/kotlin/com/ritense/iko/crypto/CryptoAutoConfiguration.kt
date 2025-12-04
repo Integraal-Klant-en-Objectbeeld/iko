@@ -8,13 +8,11 @@ import javax.crypto.spec.SecretKeySpec
 
 @Configuration
 class CryptoAutoConfiguration {
-
     @Bean
     fun aesSecretKeySpec(
-        @Value("\${iko.crypto.key}") secretKeyString: String
+        @Value("\${iko.crypto.key}") secretKeyString: String,
     ): SecretKeySpec {
         val decoded = Base64.getDecoder().decode(secretKeyString)
         return SecretKeySpec(decoded, "AES")
     }
-
 }

@@ -9,10 +9,10 @@ plugins {
     kotlin("plugin.allopen") version "2.2.0"
     id("org.springframework.boot") version "3.5.8"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
 }
 
 group = "com.ritense"
-version = "0.0.2-SNAPSHOT"
 
 tasks.bootJar {
     archiveBaseName.set("iko")

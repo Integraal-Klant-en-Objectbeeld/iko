@@ -4,8 +4,7 @@ import org.apache.camel.builder.RouteBuilder
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 
-class AuthRoute() : RouteBuilder() {
-
+class AuthRoute : RouteBuilder() {
     override fun configure() {
         from("direct:auth")
             .routeId("authenticate")
@@ -17,9 +16,11 @@ class AuthRoute() : RouteBuilder() {
                         return@process
                     }
 
-                    if (SecurityContextHolder.getContext().authentication != null && SecurityContextHolder.getContext().authentication.authorities.any { x ->
+                    if (SecurityContextHolder.getContext().authentication != null &&
+                        SecurityContextHolder.getContext().authentication.authorities.any { x ->
                             it.contains(x.authority)
-                        }) {
+                        }
+                    ) {
                         return@process
                     }
 

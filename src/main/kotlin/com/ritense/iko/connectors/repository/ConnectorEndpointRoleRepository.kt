@@ -8,5 +8,9 @@ import java.util.UUID
 
 interface ConnectorEndpointRoleRepository : JpaRepository<ConnectorEndpointRole, UUID> {
     fun findAllByConnectorInstance(connectorInstance: ConnectorInstance): List<ConnectorEndpointRole>
-    fun findByConnectorEndpointAndConnectorInstance(connectorEndpoint: ConnectorEndpoint, connectorInstance: ConnectorInstance): List<ConnectorEndpointRole>
+
+    fun findByConnectorEndpointAndConnectorInstance(
+        connectorEndpoint: ConnectorEndpoint,
+        connectorInstance: ConnectorInstance,
+    ): List<ConnectorEndpointRole>
 }

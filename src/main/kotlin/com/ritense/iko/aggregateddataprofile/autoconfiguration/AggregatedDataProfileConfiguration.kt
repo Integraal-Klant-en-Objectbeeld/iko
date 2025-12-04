@@ -18,9 +18,8 @@ class AggregatedDataProfileConfiguration(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val objectMapper: ObjectMapper,
-    private val cacheProcessor: CacheProcessor
+    private val cacheProcessor: CacheProcessor,
 ) {
-
     init {
         this.aggregatedDataProfileRepository.findAll().forEach { aggregatedDataProfile ->
             camelContext.addRoutes(
@@ -29,8 +28,8 @@ class AggregatedDataProfileConfiguration(
                     aggregatedDataProfile,
                     connectorInstanceRepository,
                     connectorEndpointRepository,
-                    cacheProcessor
-                )
+                    cacheProcessor,
+                ),
             )
         }
     }
@@ -38,7 +37,6 @@ class AggregatedDataProfileConfiguration(
     @Bean
     fun aggregatedDataProfileRoute() = AggregatedDataProfileRoute(
         aggregatedDataProfileRepository,
-        objectMapper
+        objectMapper,
     )
-
 }

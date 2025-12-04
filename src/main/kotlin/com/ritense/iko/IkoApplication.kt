@@ -8,7 +8,7 @@ import org.springframework.boot.runApplication
 @ConfigurationPropertiesScan
 @EnableConfigurationProperties
 @SpringBootApplication
-class IkoApplication()
+class IkoApplication
 
 fun main(args: Array<String>) {
     runApplication<IkoApplication>(*args)

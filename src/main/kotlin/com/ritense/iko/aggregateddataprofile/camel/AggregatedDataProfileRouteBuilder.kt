@@ -22,7 +22,7 @@ class AggregatedDataProfileRouteBuilder(
     private val aggregatedDataProfile: AggregatedDataProfile,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val cacheProcessor: CacheProcessor
+    private val cacheProcessor: CacheProcessor,
 ) : RouteBuilder(camelContext) {
 
     fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
@@ -61,10 +61,11 @@ class AggregatedDataProfileRouteBuilder(
         from("direct:relation_${source.id}_array")
             .routeId("relation_${source.id}_array")
             .split(
-                variable("endpointMapping"), FlexibleAggregationStrategy<JsonNode>()
+                variable("endpointMapping"),
+                FlexibleAggregationStrategy<JsonNode>()
                     .pick(body())
                     .castAs(JsonNode::class.java)
-                    .accumulateInCollection(ArrayList::class.java)
+                    .accumulateInCollection(ArrayList::class.java),
             )
             .parallelProcessing()
             .process { ex ->
@@ -143,7 +144,7 @@ class AggregatedDataProfileRouteBuilder(
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
             .setVariable(
                 "authorities",
-                constant(effectiveRole)
+                constant(effectiveRole),
             )
             .to("direct:auth")
             .setVariable("connector", constant(connectorInstance.connector.tag))
@@ -181,5 +182,4 @@ class AggregatedDataProfileRouteBuilder(
             multicast.end()
         }
     }
-
 }

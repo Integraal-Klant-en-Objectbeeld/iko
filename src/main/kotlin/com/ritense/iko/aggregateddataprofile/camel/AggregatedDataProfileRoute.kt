@@ -2,12 +2,11 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.cache.service.CacheService
 import org.apache.camel.builder.RouteBuilder
 
 class AggregatedDataProfileRoute(
     val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-    val objectMapper: ObjectMapper
+    val objectMapper: ObjectMapper,
 ) : RouteBuilder() {
     override fun configure() {
         rest("/aggregated-data-profiles")
@@ -30,7 +29,6 @@ class AggregatedDataProfileRoute(
                     throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
                 }
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
-            }
-            .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
+            }.toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }
 }

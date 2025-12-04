@@ -9,12 +9,12 @@ import org.springframework.data.redis.core.StringRedisTemplate
 
 @Configuration
 class CacheConfiguration {
+    @Bean
+    fun cacheService(stringRedisTemplate: StringRedisTemplate) = CacheService(stringRedisTemplate)
 
     @Bean
-    fun cacheService(stringRedisTemplate: StringRedisTemplate) =
-        CacheService(stringRedisTemplate)
-
-    @Bean
-    fun cacheProcessor(cacheService: CacheService, objectMapper: ObjectMapper): CacheProcessor =
-        CacheProcessor(cacheService, objectMapper)
+    fun cacheProcessor(
+        cacheService: CacheService,
+        objectMapper: ObjectMapper,
+    ): CacheProcessor = CacheProcessor(cacheService, objectMapper)
 }

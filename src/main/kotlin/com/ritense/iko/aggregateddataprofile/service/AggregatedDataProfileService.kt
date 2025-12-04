@@ -14,9 +14,7 @@ class AggregatedDataProfileService(
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val ikoCacheProcessor: CacheProcessor,
-
-    ) {
-
+) {
     fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
         removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
         removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
@@ -34,8 +32,8 @@ class AggregatedDataProfileService(
                 aggregatedDataProfile,
                 connectorEndpointRepository = connectorEndpointRepository,
                 connectorInstanceRepository = connectorInstanceRepository,
-                cacheProcessor = ikoCacheProcessor
-            )
+                cacheProcessor = ikoCacheProcessor,
+            ),
         )
     }
 

@@ -13,14 +13,11 @@ import java.util.UUID
 class ConnectorEndpoint(
     @Id
     var id: UUID,
-
     @Column(name = "name")
     var name: String,
-
     @ManyToOne
     @JoinColumn(name = "connector_id")
     var connector: Connector,
-
     @Column(name = "operation")
     var operation: String,
 )

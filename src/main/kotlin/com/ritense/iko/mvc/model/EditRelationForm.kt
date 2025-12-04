@@ -20,17 +20,15 @@ data class EditRelationForm(
     val connectorEndpointId: UUID,
 ) {
     companion object {
-        fun from(it: RelationEntity): EditRelationForm {
-            return EditRelationForm(
-                aggregatedDataProfileId = it.aggregatedDataProfile.id,
-                id = it.id,
-                sourceId = it.sourceId?.toString(),
-                sourceToEndpointMapping = it.sourceToEndpointMapping,
-                transform = it.transform.expression,
-                connectorInstanceId = it.connectorInstanceId,
-                connectorEndpointId = it.connectorEndpointId,
-                propertyName = it.propertyName,
-            )
-        }
+        fun from(it: RelationEntity): EditRelationForm = EditRelationForm(
+            aggregatedDataProfileId = it.aggregatedDataProfile.id,
+            id = it.id,
+            sourceId = it.sourceId?.toString(),
+            sourceToEndpointMapping = it.sourceToEndpointMapping,
+            transform = it.transform.expression,
+            connectorInstanceId = it.connectorInstanceId,
+            connectorEndpointId = it.connectorEndpointId,
+            propertyName = it.propertyName,
+        )
     }
 }

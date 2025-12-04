@@ -8,6 +8,6 @@ internal object SecurityContextHelper {
     fun getUserPropertyByKey(key: String): String {
         val authentication = SecurityContextHolder.getContext().authentication
         val principal = authentication?.principal as OidcUser
-        return principal.userInfo?.claims[key].toString()
+        return principal.userInfo?.claims?.get(key).toString()
     }
 }

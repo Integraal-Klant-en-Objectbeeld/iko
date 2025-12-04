@@ -9,7 +9,7 @@ import net.thisptr.jackson.jq.exception.JsonQueryException
 @Embeddable
 class Transform(
     @Column(name = "transform")
-    val expression: String
+    val expression: String,
 ) {
     init {
         validate(expression)

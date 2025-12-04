@@ -13,7 +13,6 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.assertFails
 
 class JQTest {
-
     private val mapper = ObjectMapper()
 
     @Test
@@ -45,5 +44,4 @@ class JQTest {
             JsonQuery.compile(invalidJqExpr, Versions.JQ_1_6)
         }
     }
-
 }

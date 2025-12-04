@@ -10,5 +10,5 @@ import kotlin.reflect.KClass
 annotation class UniqueName(
     val message: String = "Name already exists.",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<out Payload>> = []
+    val payload: Array<KClass<out Payload>> = [],
 )

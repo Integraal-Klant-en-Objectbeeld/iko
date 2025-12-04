@@ -10,7 +10,11 @@ interface Cacheable {
     val id: String
     val cacheKey: String
     val cacheSettings: CacheSettings
-    fun handleCacheEntry(exchange: Exchange, cacheEvent: CacheEntry)
+
+    fun handleCacheEntry(
+        exchange: Exchange,
+        cacheEvent: CacheEntry,
+    )
 }
 
 fun AggregatedDataProfile.toCacheable(): Cacheable {
@@ -26,12 +30,16 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
     return object : Cacheable {
         override val id = id.toString()
         override val cacheKey: String = cacheKey
-        override val cacheSettings = object : CacheSettings {
-            override val enabled = cacheSettings.enabled
-            override val timeToLive = cacheSettings.timeToLive
-        }
+        override val cacheSettings =
+            object : CacheSettings {
+                override val enabled = cacheSettings.enabled
+                override val timeToLive = cacheSettings.timeToLive
+            }
 
-        override fun handleCacheEntry(exchange: Exchange, cacheEvent: CacheEntry) {
+        override fun handleCacheEntry(
+            exchange: Exchange,
+            cacheEvent: CacheEntry,
+        ) {
             if (cacheEvent.type == HIT) {
                 with(exchange) {
                     message.body = cacheEvent.value
@@ -56,20 +64,22 @@ fun Relation.toCacheable(): Cacheable {
     return object : Cacheable {
         override val id = id
         override val cacheKey: String = cacheKey
-        override val cacheSettings = object : CacheSettings {
-            override val enabled = cacheSettings.enabled
-            override val timeToLive = cacheSettings.timeToLive
-        }
-
-        override fun handleCacheEntry(exchange: Exchange, cacheEvent: CacheEntry) =
-            with(exchange) {
-                if (cacheEvent.type == HIT) {
-                    message.body = cacheEvent.value
-                    exchange.setVariable("cacheHit_$id", true)
-                } else if (cacheEvent.type == MISS) {
-                    exchange.setVariable("cacheHit_$id", false)
-                }
+        override val cacheSettings =
+            object : CacheSettings {
+                override val enabled = cacheSettings.enabled
+                override val timeToLive = cacheSettings.timeToLive
             }
 
+        override fun handleCacheEntry(
+            exchange: Exchange,
+            cacheEvent: CacheEntry,
+        ) = with(exchange) {
+            if (cacheEvent.type == HIT) {
+                message.body = cacheEvent.value
+                exchange.setVariable("cacheHit_$id", true)
+            } else if (cacheEvent.type == MISS) {
+                exchange.setVariable("cacheHit_$id", false)
+            }
+        }
     }
 }

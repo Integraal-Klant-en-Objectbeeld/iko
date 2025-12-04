@@ -19,24 +19,20 @@ import java.util.UUID
 class ConnectorInstance(
     @Id
     var id: UUID,
-
     @Column(name = "name")
     var name: String,
-
     @ManyToOne
     @JoinColumn(name = "connector_id")
     var connector: Connector,
-
     @Column(name = "tag")
     var tag: String,
-
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "key")
     @Column(name = "value")
     @Convert(attributeName = "value", converter = AesGcmStringAttributeConverter::class)
     @CollectionTable(
         name = "connector_instance_config",
-        joinColumns = [JoinColumn(name = "connector_instance_id")]
+        joinColumns = [JoinColumn(name = "connector_instance_id")],
     )
-    var config: Map<String, String>
+    var config: Map<String, String>,
 )

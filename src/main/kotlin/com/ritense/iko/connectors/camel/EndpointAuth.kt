@@ -11,7 +11,7 @@ import java.util.UUID
 class EndpointAuth(
     val connectorEndpointRepository: ConnectorEndpointRepository,
     val connectorInstanceRepository: ConnectorInstanceRepository,
-    val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository
+    val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
 ) : RouteBuilder() {
     override fun configure() {
         from("direct:iko:endpoint:auth")
@@ -21,10 +21,11 @@ class EndpointAuth(
                 val connectorEndpointId = ex.getVariable("connectorEndpointId", UUID::class.java)
                 val connectorInstanceId = ex.getVariable("connectorInstanceId", UUID::class.java)
 
-                val connectorEndpointRoles = connectorEndpointRoleRepository.findByConnectorEndpointAndConnectorInstance(
-                    connectorEndpointRepository.getReferenceById(connectorEndpointId),
-                    connectorInstanceRepository.getReferenceById(connectorInstanceId),
-                )
+                val connectorEndpointRoles =
+                    connectorEndpointRoleRepository.findByConnectorEndpointAndConnectorInstance(
+                        connectorEndpointRepository.getReferenceById(connectorEndpointId),
+                        connectorInstanceRepository.getReferenceById(connectorInstanceId),
+                    )
 
                 connectorEndpointRoles.map { it.role }.toList().let {
                     log.debug("Authorizing endpoint with authority: {}", it)
@@ -32,9 +33,11 @@ class EndpointAuth(
                         throw AccessDeniedException("No roles defined for this endpoint.")
                     }
 
-                    if (SecurityContextHolder.getContext().authentication != null && SecurityContextHolder.getContext().authentication.authorities.any { x ->
+                    if (SecurityContextHolder.getContext().authentication != null &&
+                        SecurityContextHolder.getContext().authentication.authorities.any { x ->
                             it.contains(x.authority)
-                        }) {
+                        }
+                    ) {
                         return@process
                     }
 

@@ -5,9 +5,8 @@ import jakarta.persistence.Converter
 
 @Converter(autoApply = false)
 class AesGcmStringAttributeConverter(
-    private val aesGcmEncryptionService: AesGcmEncryptionService
+    private val aesGcmEncryptionService: AesGcmEncryptionService,
 ) : AttributeConverter<String, String> {
-
     override fun convertToDatabaseColumn(attribute: String?): String? {
         if (attribute == null) return null
         return aesGcmEncryptionService.encrypt(plainText = attribute)

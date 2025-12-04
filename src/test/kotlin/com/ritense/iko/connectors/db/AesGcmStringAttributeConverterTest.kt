@@ -10,8 +10,7 @@ import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 
 class AesGcmStringAttributeConverterTest {
-
-    private lateinit var converter : AesGcmStringAttributeConverter
+    private lateinit var converter: AesGcmStringAttributeConverter
 
     @BeforeEach
     fun setupKey() {
@@ -21,9 +20,10 @@ class AesGcmStringAttributeConverterTest {
 
         val decoded = Base64.getDecoder().decode(keyB64)
         val key = SecretKeySpec(decoded, "AES")
-        converter = AesGcmStringAttributeConverter(
-            AesGcmEncryptionService(key)
-        )
+        converter =
+            AesGcmStringAttributeConverter(
+                AesGcmEncryptionService(key),
+            )
     }
 
     @Test

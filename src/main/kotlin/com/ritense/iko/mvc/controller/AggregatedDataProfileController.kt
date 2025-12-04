@@ -30,10 +30,10 @@ import org.springframework.validation.ObjectError
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -48,23 +48,23 @@ class AggregatedDataProfileController(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
 ) {
-
     @GetMapping("/aggregated-data-profiles/{id}")
     fun details(
         @PathVariable id: UUID,
-        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow { NoSuchElementException("ADP not found") }
 
         return ModelAndView(
-            "$BASE_FRAGMENT_ADG/detailPage" + when (isHxRequest) {
-                true -> ":: view-panel-content"
-                false -> ""
-            },
+            "$BASE_FRAGMENT_ADG/detailPage" +
+                when (isHxRequest) {
+                    true -> ":: view-panel-content"
+                    false -> ""
+                },
             mapOf(
                 "aggregatedDataProfile" to aggregatedDataProfile,
-                "relations" to aggregatedDataProfile.relations.map { Relation.from(it) }
-            )
+                "relations" to aggregatedDataProfile.relations.map { Relation.from(it) },
+            ),
         )
     }
 
@@ -72,7 +72,7 @@ class AggregatedDataProfileController(
     fun list(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
-        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val page = aggregatedDataProfileRepository.findAllBy(pageable)
         return if (isHxRequest) {
@@ -96,14 +96,15 @@ class AggregatedDataProfileController(
     @GetMapping("/aggregated-data-profiles/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable
+        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
     ): ModelAndView {
         val page = aggregatedDataProfileRepository.findAll(pageable)
-        val list = ModelAndView("$BASE_FRAGMENT_ADG/pagination").apply {
-            addObject("aggregatedDataProfiles", page.content)
-            addObject("page", page)
-            addObject("query", query)
-        }
+        val list =
+            ModelAndView("$BASE_FRAGMENT_ADG/pagination").apply {
+                addObject("aggregatedDataProfiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+            }
         return list
     }
 
@@ -111,27 +112,31 @@ class AggregatedDataProfileController(
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
-        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
-        val page = if (query.isBlank())
-            aggregatedDataProfileRepository.findAllBy(pageable)
-        else
-            aggregatedDataProfileRepository.findAllByName(query.trim(), pageable)
+        val page =
+            if (query.isBlank()) {
+                aggregatedDataProfileRepository.findAllBy(pageable)
+            } else {
+                aggregatedDataProfileRepository.findAllByName(query.trim(), pageable)
+            }
 
         if (isHxRequest) {
-            val searchResults = ModelAndView("$BASE_FRAGMENT_ADG/filterResults").apply {
-                addObject("aggregatedDataProfiles", page.content)
-                addObject("page", page)
-                addObject("query", query)
-            }
-            val pagination = ModelAndView("$BASE_FRAGMENT_ADG/pagination").apply {
-                addObject("aggregatedDataProfiles", page.content)
-                addObject("page", page)
-                addObject("query", query)
-            }
+            val searchResults =
+                ModelAndView("$BASE_FRAGMENT_ADG/filterResults").apply {
+                    addObject("aggregatedDataProfiles", page.content)
+                    addObject("page", page)
+                    addObject("query", query)
+                }
+            val pagination =
+                ModelAndView("$BASE_FRAGMENT_ADG/pagination").apply {
+                    addObject("aggregatedDataProfiles", page.content)
+                    addObject("page", page)
+                    addObject("query", query)
+                }
             return listOf(
                 searchResults,
-                pagination
+                pagination,
             )
         } else {
             return listOf(
@@ -142,24 +147,29 @@ class AggregatedDataProfileController(
                     addObject("menuItems", menuItems)
                     addObject("username" to SecurityContextHelper.getUserPropertyByKey("name"))
                     addObject("email" to SecurityContextHelper.getUserPropertyByKey("email"))
-                }
+                },
             )
         }
     }
 
     @GetMapping("/aggregated-data-profiles/create")
     fun create(): ModelAndView {
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("connectorEndpoints", emptyList<Any>())
-        }
+        val modelAndView =
+            ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
+                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorEndpoints", emptyList<Any>())
+            }
         return modelAndView
     }
 
     @GetMapping("/aggregated-data-profiles/create/endpoints")
-    fun endpoints(@RequestParam connectorInstanceId: UUID): ModelAndView {
-        val connector = connectorInstanceRepository.findById(connectorInstanceId)
-            .orElseThrow { NoSuchElementException("Connector not found") }
+    fun endpoints(
+        @RequestParam connectorInstanceId: UUID,
+    ): ModelAndView {
+        val connector =
+            connectorInstanceRepository
+                .findById(connectorInstanceId)
+                .orElseThrow { NoSuchElementException("Connector not found") }
         val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
 
         return ModelAndView("$BASE_FRAGMENT_ADG/add :: connectorEndpoints").apply {
@@ -169,19 +179,20 @@ class AggregatedDataProfileController(
 
     @PostMapping(
         path = ["/aggregated-data-profiles"],
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     @Transactional
     fun create(
         @Valid @ModelAttribute form: AggregatedDataProfileForm,
         bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
-            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add :: form").apply {
-                addObject("form", form)
-                addObject("errors", bindingResult)
-            }
+            val modelAndView =
+                ModelAndView("$BASE_FRAGMENT_ADG/add :: form").apply {
+                    addObject("form", form)
+                    addObject("errors", bindingResult)
+                }
             return modelAndView
         }
 
@@ -189,11 +200,12 @@ class AggregatedDataProfileController(
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
 
-        val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
-            addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-        }
+        val redirectModelAndView =
+            ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
+                addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
@@ -205,29 +217,31 @@ class AggregatedDataProfileController(
 
     @PatchMapping(
         path = ["/aggregated-data-profiles/{id}"],
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     fun patchAggregatedDataProfile(
         @PathVariable id: UUID,
         @RequestParam(required = false) transform: String?,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
 
         if (!transform.isNullOrBlank()) {
-            val updatedForm = AggregatedDataProfileForm.from(aggregatedDataProfile).copy(
-                transform = transform
-            )
+            val updatedForm =
+                AggregatedDataProfileForm.from(aggregatedDataProfile).copy(
+                    transform = transform,
+                )
             aggregatedDataProfile.handle(updatedForm)
         }
 
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
 
-        val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-        }
+        val redirectModelAndView =
+            ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
@@ -241,14 +255,15 @@ class AggregatedDataProfileController(
     fun edit(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-        @RequestParam(name = "fragment", defaultValue = "false") fragment: Boolean
+        @RequestParam(name = "fragment", defaultValue = "false") fragment: Boolean,
     ): ModelAndView {
         val profile = aggregatedDataProfileRepository.getReferenceById(id)
         val form = AggregatedDataProfileForm.from(profile)
-        val viewName = when {
-            fragment -> "$BASE_FRAGMENT_ADG/edit :: profile-edit"
-            else -> "$BASE_FRAGMENT_ADG/edit"
-        }
+        val viewName =
+            when {
+                fragment -> "$BASE_FRAGMENT_ADG/edit :: profile-edit"
+                else -> "$BASE_FRAGMENT_ADG/edit"
+            }
 
         val instance = connectorInstanceRepository.findById(profile.connectorInstanceId).orElseThrow()
         return ModelAndView(viewName).apply {
@@ -263,24 +278,25 @@ class AggregatedDataProfileController(
 
     @PutMapping(
         path = ["/aggregated-data-profiles"],
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     fun edit(
         @Valid @ModelAttribute form: AggregatedDataProfileForm,
         bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id!!)
 
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
-            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
-                addObject("errors", bindingResult)
-                addObject("form", form)
-                addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
-                addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
-            }
+            val modelAndView =
+                ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
+                    addObject("errors", bindingResult)
+                    addObject("form", form)
+                    addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+                    addObject("connectorInstances", connectorInstanceRepository.findAll())
+                    addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
+                }
             return modelAndView
         }
 
@@ -290,10 +306,11 @@ class AggregatedDataProfileController(
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
 
         // On success, return the detail view fragment and instruct HTMX to update the main panel and close the modal
-        val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-        }
+        val redirectModelAndView =
+            ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
@@ -304,14 +321,17 @@ class AggregatedDataProfileController(
     }
 
     @GetMapping("/aggregated-data-profiles/{id}/relations/create")
-    fun relationCreate(@PathVariable id: UUID): ModelAndView {
+    fun relationCreate(
+        @PathVariable id: UUID,
+    ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val sources = sources(aggregatedDataProfile)
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
-            addObject("aggregatedDataProfileId", id)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("sources", sources)
-        }
+        val modelAndView =
+            ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
+                addObject("aggregatedDataProfileId", id)
+                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("sources", sources)
+            }
         return modelAndView
     }
 
@@ -319,16 +339,17 @@ class AggregatedDataProfileController(
     fun createRelation(
         @Valid @ModelAttribute form: AddRelationForm,
         bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile)
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
-            addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
-            addObject("sources", sources)
-            addObject("errors", bindingResult)
-            addObject("form", form)
-        }
+        val modelAndView =
+            ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
+                addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
+                addObject("sources", sources)
+                addObject("errors", bindingResult)
+                addObject("form", form)
+            }
         if (bindingResult.hasErrors()) {
             return listOf(modelAndView)
         }
@@ -342,9 +363,10 @@ class AggregatedDataProfileController(
 
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-        }
+        val relationsModelAndView =
+            ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
+                addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            }
         return listOf(relationsModelAndView)
     }
 
@@ -357,14 +379,16 @@ class AggregatedDataProfileController(
         val relation = aggregatedDataProfile.relations.find { it.id == relationId }
         val connector = connectorInstanceRepository.findById(relation?.connectorInstanceId!!).orElseThrow()
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
-            addObject("sources", sources)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
-            addObject(
-                "form",
-                aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
-        }
+        val modelAndView =
+            ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
+                addObject("sources", sources)
+                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
+                addObject(
+                    "form",
+                    aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) },
+                )
+            }
         return modelAndView
     }
 
@@ -375,34 +399,37 @@ class AggregatedDataProfileController(
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
-            addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
-            addObject("sources", sources)
-            addObject("errors", bindingResult)
-            addObject("form", form)
-        }
+        val modelAndView =
+            ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
+                addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
+                addObject("sources", sources)
+                addObject("errors", bindingResult)
+                addObject("form", form)
+            }
         if (bindingResult.hasErrors()) {
             return listOf(modelAndView)
         }
         var updatedProfile: AggregatedDataProfile? = null
         try {
-            updatedProfile = form.run {
-                aggregatedDataProfile.let {
-                    it.changeRelation(form)
-                    aggregatedDataProfileService.reloadRoutes(it)
-                    aggregatedDataProfileRepository.save(it)
+            updatedProfile =
+                form.run {
+                    aggregatedDataProfile.let {
+                        it.changeRelation(form)
+                        aggregatedDataProfileService.reloadRoutes(it)
+                        aggregatedDataProfileRepository.save(it)
+                    }
                 }
-            }
         } catch (ex: DataIntegrityViolationException) {
             bindingResult.addError(ObjectError("name", "This name already exists."))
             return listOf(modelAndView)
         }
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
-            addObject("relations", updatedProfile.relations.map { Relation.from(it) })
-        }
+        val relationsModelAndView =
+            ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
+                addObject("relations", updatedProfile.relations.map { Relation.from(it) })
+            }
         return listOf(
             modelAndView,
-            relationsModelAndView
+            relationsModelAndView,
         )
     }
 
@@ -412,17 +439,19 @@ class AggregatedDataProfileController(
         @PathVariable relationId: UUID,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/delete").apply {
-            addObject(
-                "form",
-                aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) })
-        }
+        val modelAndView =
+            ModelAndView("$BASE_FRAGMENT_RELATION/delete").apply {
+                addObject(
+                    "form",
+                    aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) },
+                )
+            }
         return modelAndView
     }
 
     @DeleteMapping("/relations")
     fun deleteRelation(
-        @Valid @ModelAttribute form: DeleteRelationForm
+        @Valid @ModelAttribute form: DeleteRelationForm,
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         form.run {
@@ -432,9 +461,10 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val list = ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-        }
+        val list =
+            ModelAndView("$BASE_FRAGMENT_RELATION/list").apply {
+                addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+            }
         return listOf(list)
     }
 
@@ -443,7 +473,7 @@ class AggregatedDataProfileController(
     fun deleteAggregatedDataProfile(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         aggregatedDataProfileService.removeRoutes(aggregatedDataProfile)
@@ -460,17 +490,17 @@ class AggregatedDataProfileController(
         .sortedWith(
             compareBy<com.ritense.iko.aggregateddataprofile.domain.Relation>(
                 // first criterion: is this relation's sourceId equal to aggregatedDataProfile.id?
-                { it.sourceId != aggregatedDataProfile.id }  // false (0) comes before true (1)
-            ).thenBy { it.sourceId } // second criterion: normal ascending by parentId
-        )
-        .map { relation ->
+                { it.sourceId != aggregatedDataProfile.id }, // false (0) comes before true (1)
+            ).thenBy { it.sourceId }, // second criterion: normal ascending by parentId
+        ).map { relation ->
             Source(
                 id = relation.id.toString(),
-                name = if (relation.sourceId == aggregatedDataProfile.id) {
-                    aggregatedDataProfile.name + ">" + relation.id// use profile name if sourceId matches
+                name =
+                if (relation.sourceId == aggregatedDataProfile.id) {
+                    aggregatedDataProfile.name + ">" + relation.id // use profile name if sourceId matches
                 } else {
                     relation.id.toString() // otherwise use relation id
-                }
+                },
             )
         }.toMutableList()
 }
