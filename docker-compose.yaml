@@ -238,6 +238,15 @@ services:
             retries: 3
             start_period: 5s
 
+    otel-collector:
+        image: otel/opentelemetry-collector-contrib:0.141.0
+        profiles:
+            - "otel"
+        ports:
+            - "4317:4317"
+            - "4318:4318"
+            - "55679:55679"
+
     iko:
         build: .
         container_name: iko
