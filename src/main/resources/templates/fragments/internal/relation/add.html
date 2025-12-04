@@ -1,5 +1,5 @@
 <div th:fragment="relation-add" id="relation-add">
-    <cds-form-group id="form-group" name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
+    <cds-form-group id="form-group-relation" name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
         <cds-stack gap="7">
             <cds-form-item>
                 <cds-dropdown name="sourceId"
@@ -73,8 +73,8 @@
     <div class="relation-button-bar">
         <cds-button
             hx-post="/admin/relations"
-            hx-include="#form-group *"
-            hx-target="#view-panel"
+            hx-include="#form-group-relation *"
+            hx-target="#panel-relations"
             hx-swap="outerHTML"
             size="xl">
             Save

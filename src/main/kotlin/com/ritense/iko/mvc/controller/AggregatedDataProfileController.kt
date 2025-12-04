@@ -331,7 +331,7 @@ class AggregatedDataProfileController(
             }
         }
 
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -343,8 +343,8 @@ class AggregatedDataProfileController(
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
-        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+        httpServletResponse.setHeader("HX-Retarget", "#relations-panel")
+        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
 
         return listOf(relationsModelAndView)
     }
@@ -439,15 +439,15 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: panel-relations").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
-        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+        httpServletResponse.setHeader("HX-Retarget", "#relations-panel")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
         return modelAndView

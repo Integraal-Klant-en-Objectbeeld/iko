@@ -231,12 +231,12 @@
 <!--Modal container-->
 <div id="modal-container" class="cds-theme-zone-g10" data-carbon-theme="g10"></div>
 <script type="text/javascript">
-    // htmx.logAll();
+    htmx.logAll();
     htmx.config.allowNestedOobSwaps = false;
 
     document.body.addEventListener("close-modal", () => {
        document
-           .querySelector("#modal-container > cdsmodal")
+           .querySelector("#modal-container #active-modal")
            .removeAttribute("open");
     });
 </script>
