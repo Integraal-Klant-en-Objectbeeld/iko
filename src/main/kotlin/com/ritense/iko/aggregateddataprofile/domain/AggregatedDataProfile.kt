@@ -115,7 +115,16 @@ class AggregatedDataProfile(
     }
 
     fun removeRelation(request: DeleteRelationForm) {
-        this.relations.removeIf { it.id == request.id }
+        // Remove the selected relation and all its descendants
+        val toRemove: MutableSet<UUID> = linkedSetOf()
+
+        fun collectDescendants(parentId: UUID) {
+            toRemove += parentId
+            val children = this.relations.filter { it.sourceId == parentId }
+            children.forEach { collectDescendants(it.id) }
+        }
+        collectDescendants(request.id)
+        this.relations.removeIf { it.id in toRemove }
     }
 
     companion object {

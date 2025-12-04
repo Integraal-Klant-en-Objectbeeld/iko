@@ -1,6 +1,5 @@
 package com.ritense.iko.mvc.model
 
-import org.apache.camel.CamelContext
 import org.apache.camel.spi.BacklogTracerEventMessage
 import java.time.Instant
 import java.time.ZoneId
@@ -10,7 +9,6 @@ data class TraceEvent(
     val id: String,
     val timestamp: String,
     val route: String,
-    val routeDescription: String? = null,
     val processingThreadName: String,
     val toNode: String,
     val elapsed: String,
@@ -24,7 +22,7 @@ data class TraceEvent(
                 .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
                 .withZone(ZoneId.systemDefault())
 
-        fun from(backlogTracerEventMessage: BacklogTracerEventMessage, description: String? = null): TraceEvent {
+        fun from(backlogTracerEventMessage: BacklogTracerEventMessage): TraceEvent {
             val status =
                 when {
                     backlogTracerEventMessage.isFailed -> "FAILED"
@@ -35,8 +33,7 @@ data class TraceEvent(
             return TraceEvent(
                 id = backlogTracerEventMessage.uid.toString(),
                 timestamp = timestamp,
-                route = backlogTracerEventMessage.routeId,
-                routeDescription = description,
+                route = backlogTracerEventMessage.routeId ?: "",
                 processingThreadName = backlogTracerEventMessage.processingThreadName,
                 toNode = backlogTracerEventMessage.toNode ?: "",
                 elapsed = backlogTracerEventMessage.elapsed.toString() + "ms",

@@ -64,19 +64,16 @@ class TestController(
         }
 
         // Fetch traces
-        val traces =
-            tracer.dumpAllTracedMessages()?.map { eventMessage ->
-                TraceEvent.from(
-                    backlogTracerEventMessage = eventMessage,
-                    description = camelContext.getRoute(eventMessage.routeId).routeDescription,
-                    )
-            } ?: emptyList()
+        val traces = tracer.dumpAllTracedMessages()?.mapNotNull {
+            it?.let { TraceEvent.from(it) }
+        } ?: emptyList()
 
         // Disable tracing
         tracer.isEnabled = false
 
         return ModelAndView("$BASE_FRAGMENT_ADG/test :: profile-debug").apply {
             addObject("form", form)
+            addObject("testId", form.testId)
             addObject("testResult", result)
             addObject("traces", traces)
             addObject("exception", exception)

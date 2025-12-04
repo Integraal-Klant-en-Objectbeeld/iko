@@ -1,4 +1,4 @@
-<cds-modal prevent-close-on-click-outside="true" size="md" open="true">
+<cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" open="true">
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
         <cds-modal-heading>Add Aggregated Data Profile</cds-modal-heading>
@@ -90,8 +90,8 @@
         <cds-modal-footer-button
             type="submit"
             hx-post="/admin/aggregated-data-profiles"
-            hx-target="#form-group"
-            hx-swap="outerHTML"
+            hx-target="#view-panel"
+            hx-swap="innerHTML"
             hx-include="#form-group *">
             Save
         </cds-modal-footer-button>
