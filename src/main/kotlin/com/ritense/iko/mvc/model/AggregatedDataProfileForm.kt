@@ -13,7 +13,7 @@ data class AggregatedDataProfileForm(
     @field:NotBlank(message = "Please provide a name.")
     @field:Pattern(
         regexp = "[0-9a-zA-Z_\\-]+",
-        message = "Name may only contain letters, digits, underscores, and hyphens."
+        message = "Name may only contain letters, digits, underscores, and hyphens.",
     )
     val name: String,
     @field:ValidTransform
@@ -27,16 +27,14 @@ data class AggregatedDataProfileForm(
 ) {
 
     companion object {
-        fun from(aggregatedDataProfile: AggregatedDataProfile): AggregatedDataProfileForm {
-            return AggregatedDataProfileForm(
-                id = aggregatedDataProfile.id,
-                name = aggregatedDataProfile.name,
-                role = aggregatedDataProfile.role,
-                endpointTransform = aggregatedDataProfile.endpointTransform.expression,
-                transform = aggregatedDataProfile.transform.expression,
-                connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
-                connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
-            )
-        }
+        fun from(aggregatedDataProfile: AggregatedDataProfile): AggregatedDataProfileForm = AggregatedDataProfileForm(
+            id = aggregatedDataProfile.id,
+            name = aggregatedDataProfile.name,
+            role = aggregatedDataProfile.role,
+            endpointTransform = aggregatedDataProfile.endpointTransform.expression,
+            transform = aggregatedDataProfile.transform.expression,
+            connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
+            connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
+        )
     }
 }

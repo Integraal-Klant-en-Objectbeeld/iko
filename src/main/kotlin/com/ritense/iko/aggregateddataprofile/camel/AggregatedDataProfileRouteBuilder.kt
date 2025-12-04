@@ -14,6 +14,7 @@ import org.apache.camel.Exchange
 import org.apache.camel.builder.FlexibleAggregationStrategy
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 
@@ -25,111 +26,16 @@ class AggregatedDataProfileRouteBuilder(
     private val cacheProcessor: CacheProcessor,
 ) : RouteBuilder(camelContext) {
 
-    fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
-        camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
-
-        val relations = aggregatedDataProfile.relations.filter { it.sourceId == source.id }
-        val connectorInstance = connectorInstanceRepository.findById(source.connectorInstanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
-        val connectorEndpoint = connectorEndpointRepository.findById(source.connectorEndpointId)
-            .orElseThrow { NoSuchElementException("Connector endpoint not found") }
-
-        from("direct:relation_${source.id}")
-            .routeId("relation_${source.id}_direct")
-            .removeHeaders("*")
-            .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
-            .setVariable("relationId", constant(source.id))
-            .marshal().json()
-            .choice()
-            .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isArray }
-            .to("direct:relation_${source.id}_array")
-            .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isObject }
-            .to("direct:relation_${source.id}_map")
-
-        from("direct:relation_${source.id}_map")
-            .routeId("relation_${source.id}_map")
-            .process {
-                it.getVariable("endpointMapping", ObjectNode::class.java).forEachEntry { key, value ->
-                    it.getIn().setHeader(key, value.asText())
-                }
-            }
-            .removeVariable("endpointMapping")
-            .to("direct:relation_${source.id}_loop")
-            .transform(jq(source.transform.expression))
-            .unmarshal().json()
-
-        from("direct:relation_${source.id}_array")
-            .routeId("relation_${source.id}_array")
-            .split(
-                variable("endpointMapping"),
-                FlexibleAggregationStrategy<JsonNode>()
-                    .pick(body())
-                    .castAs(JsonNode::class.java)
-                    .accumulateInCollection(ArrayList::class.java),
-            )
-            .parallelProcessing()
-            .process { ex ->
-                ex.getIn().getBody(ObjectNode::class.java).forEachEntry { key, value ->
-                    ex.getIn().setHeader(key, value.asText())
-                }
-            }
-            .removeVariable("endpointMapping")
-            .to("direct:relation_${source.id}_loop") // Executes the relation route
-            .end()
-            .transform(jq(source.transform.expression))
-            .unmarshal().json()
-
-        // Executes each relation route
-        from("direct:relation_${source.id}_loop")
-            .routeId("relation_${source.id}_loop")
-            .unmarshal().json()
-            .setVariable("connector", constant(connectorInstance.connector.tag))
-            .setVariable("config", constant(connectorInstance.tag))
-            .setVariable("operation", constant(connectorEndpoint.operation))
-            .setVariable("relationPropertyName", constant(source.propertyName))
-            .to(Iko.endpoint("validate"))
-            .to(Iko.iko("config"))
-            .to(Iko.transform())
-            .process {
-                cacheProcessor.checkCache(exchange = it, cacheable = source.toCacheable())
-            }
-            .choice()
-            .`when` { ex -> !ex.getVariable("cacheHit_${source.id}", Boolean::class.java) } // cacheHit false
-            .to(Iko.connector())
-            .process {
-                cacheProcessor.putCache(exchange = it, cacheable = source.toCacheable())
-            }
-            .end()
-            .let {
-                if (relations.isNotEmpty()) {
-                    it.enrich("direct:multicast_${source.id}", PairAggregator)
-                } else {
-                    it
-                }
-            }
-
-        if (relations.isNotEmpty()) {
-            var multicast = from("direct:multicast_${source.id}")
-                .routeId("relation_${source.id}_multicast")
-                .multicast(MapAggregator)
-                .parallelProcessing()
-
-            aggregatedDataProfile.relations.filter { it.sourceId == source.id }.forEach { relation ->
-                createRelationRoute(aggregatedDataProfile, relation)
-                multicast = multicast.to("direct:relation_${relation.id}")
-            }
-
-            multicast.end()
-        }
-    }
-
     override fun configure() {
+        // prepare relation variables
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == null }
 
-        val connectorInstance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
-        val connectorEndpoint = connectorEndpointRepository.findById(aggregatedDataProfile.connectorEndpointId)
-            .orElseThrow { NoSuchElementException("Connector endpoint not found") }
+        val connectorInstance = requireNotNull(
+            connectorInstanceRepository.findByIdOrNull(aggregatedDataProfile.connectorInstanceId)
+        ) { NoSuchElementException("Connector instance not found") }
+        val connectorEndpoint = requireNotNull(
+            connectorEndpointRepository.findByIdOrNull(aggregatedDataProfile.connectorEndpointId)
+        ) { NoSuchElementException("Connector endpoint not found") }
 
         val effectiveRole = aggregatedDataProfile.role?.takeIf { it.isNotBlank() } ?: run {
             val sanitizedName = aggregatedDataProfile.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
@@ -140,8 +46,10 @@ class AggregatedDataProfileRouteBuilder(
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
 
+        // profile root route entrypoint
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
-            .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
+            .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
+            .routeDescription("[${aggregatedDataProfile.name}:${aggregatedDataProfile.id}]: ADP root route")
             .setVariable(
                 "authorities",
                 constant(effectiveRole),
@@ -159,26 +67,138 @@ class AggregatedDataProfileRouteBuilder(
             .to(Iko.connector())
             .let {
                 if (relations.isNotEmpty()) {
+                    // enrich root exchange with multicast routes from relations
                     it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)
                 } else {
                     it
                 }
             }
+            // transform adp result
             .transform(jq(aggregatedDataProfile.transform.expression))
             .process {
+                // put final value into cache if relevant
                 cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
             }
             .marshal().json()
+
+        // create multicast and build routes for relations
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
-            aggregatedDataProfile.relations.filter { it.sourceId == null }.forEach { relation ->
-                createRelationRoute(aggregatedDataProfile, relation)
+            relations.forEach { relation ->
+                // build route for child relation
+                buildRelationRoute(aggregatedDataProfile, relation)
+                // invoke relation route as multicast
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
+
+            multicast.end()
+        }
+    }
+
+    private fun buildRelationRoute(rootProfile: AggregatedDataProfile, currentRelation: Relation) {
+        camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
+
+        val relations = rootProfile.relations.filter { it.sourceId == currentRelation.id }
+        val connectorInstance = connectorInstanceRepository.findById(currentRelation.connectorInstanceId)
+            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorEndpoint = connectorEndpointRepository.findById(currentRelation.connectorEndpointId)
+            .orElseThrow { NoSuchElementException("Connector endpoint not found") }
+
+        from("direct:relation_${currentRelation.id}")
+            .routeId("relation_${currentRelation.id}_root")
+            .routeDescription("[${aggregatedDataProfile.name}:${aggregatedDataProfile.id}] <- [${currentRelation.propertyName}:${currentRelation.id}]: Relation root")
+            .removeHeaders("*")
+            .setVariable("endpointMapping").jq(currentRelation.sourceToEndpointMapping)
+            .setVariable("relationId", constant(currentRelation.id))
+            .marshal().json()
+            .choice()
+            .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isArray }
+            .to("direct:relation_${currentRelation.id}_array")
+            .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isObject }
+            .to("direct:relation_${currentRelation.id}_map")
+
+        from("direct:relation_${currentRelation.id}_map")
+            .routeId("relation_${currentRelation.id}_map")
+            .routeDescription(" Relation [${currentRelation.propertyName}:${currentRelation.id}]: Handle endpoint mapping as map.")
+            .process {
+                it.getVariable("endpointMapping", ObjectNode::class.java).forEachEntry { key, value ->
+                    it.getIn().setHeader(key, value.asText())
+                }
+            }
+            .removeVariable("endpointMapping")
+            .to("direct:relation_${currentRelation.id}_loop")
+            .transform(jq(currentRelation.transform.expression))
+            .unmarshal().json()
+
+        from("direct:relation_${currentRelation.id}_array")
+            .routeId("relation_${currentRelation.id}_array")
+            .routeDescription(" Relation [${currentRelation.propertyName}:${currentRelation.id}]: Handle endpoint mapping as array.")
+            .split(
+                variable("endpointMapping"),
+                FlexibleAggregationStrategy<JsonNode>()
+                    .pick(body())
+                    .castAs(JsonNode::class.java)
+                    .accumulateInCollection(ArrayList::class.java),
+            )
+            .parallelProcessing()
+            .process { ex ->
+                ex.getIn().getBody(ObjectNode::class.java).forEachEntry { key, value ->
+                    ex.getIn().setHeader(key, value.asText())
+                }
+            }
+            .removeVariable("endpointMapping")
+            .to("direct:relation_${currentRelation.id}_loop") // Executes the relation route
+            .end()
+            .transform(jq(currentRelation.transform.expression))
+            .unmarshal().json()
+
+        // Executes each relation route
+        from("direct:relation_${currentRelation.id}_loop")
+            .routeId("relation_${currentRelation.id}_loop")
+            .unmarshal().json()
+            .setVariable("connector", constant(connectorInstance.connector.tag))
+            .setVariable("config", constant(connectorInstance.tag))
+            .setVariable("operation", constant(connectorEndpoint.operation))
+            .setVariable("relationPropertyName", constant(currentRelation.propertyName))
+            .to(Iko.endpoint("validate"))
+            .to(Iko.iko("config"))
+            .to(Iko.transform())
+            .process {
+                cacheProcessor.checkCache(exchange = it, cacheable = currentRelation.toCacheable())
+            }
+            .choice()
+            .`when` { ex -> !ex.getVariable("cacheHit_${currentRelation.id}", Boolean::class.java) } // cacheHit false
+            .to(Iko.connector())
+            .process {
+                cacheProcessor.putCache(exchange = it, cacheable = currentRelation.toCacheable())
+            }
+            .end()
+            .let {
+                if (relations.isNotEmpty()) {
+                    it.enrich("direct:multicast_${currentRelation.id}", PairAggregator)
+                } else {
+                    it
+                }
+            }
+
+        if (relations.isNotEmpty()) {
+            // create new multicast processor
+            var multicast = from("direct:multicast_${currentRelation.id}")
+                .routeId("relation_${currentRelation.id}_multicast")
+                .multicast(MapAggregator)
+                .parallelProcessing()
+
+            relations.forEach { relation ->
+                // build route for child relation
+                buildRelationRoute(rootProfile, relation)
+                // invoke relation route as multicast
+                multicast = multicast.to("direct:relation_${relation.id}")
+            }
+
             multicast.end()
         }
     }

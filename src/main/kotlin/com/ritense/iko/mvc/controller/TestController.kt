@@ -65,8 +65,11 @@ class TestController(
 
         // Fetch traces
         val traces =
-            tracer.dumpAllTracedMessages()?.map {
-                TraceEvent.from(it)
+            tracer.dumpAllTracedMessages()?.map { eventMessage ->
+                TraceEvent.from(
+                    backlogTracerEventMessage = eventMessage,
+                    description = camelContext.getRoute(eventMessage.routeId).routeDescription,
+                    )
             } ?: emptyList()
 
         // Disable tracing

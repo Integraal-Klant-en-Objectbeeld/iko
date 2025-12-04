@@ -20,7 +20,7 @@ import java.util.UUID
 @Entity
 @Table(
     name = "aggregated_data_profile",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])],
 )
 class AggregatedDataProfile(
     @Id
@@ -37,7 +37,7 @@ class AggregatedDataProfile(
 
     @Embedded
     @AttributeOverrides(
-        AttributeOverride(name = "expression", column = Column(name = "endpoint_transform"))
+        AttributeOverride(name = "expression", column = Column(name = "endpoint_transform")),
     )
     var endpointTransform: Transform,
 
@@ -45,7 +45,7 @@ class AggregatedDataProfile(
         cascade = [(CascadeType.ALL)],
         fetch = FetchType.EAGER,
         orphanRemoval = true,
-        mappedBy = "aggregatedDataProfile"
+        mappedBy = "aggregatedDataProfile",
     )
     var relations: MutableList<Relation> = mutableListOf(),
 
@@ -56,7 +56,7 @@ class AggregatedDataProfile(
     var role: String? = null,
 
     @Embedded
-    var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting
+    var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
 
     fun handle(request: AggregatedDataProfileForm) {
@@ -88,8 +88,8 @@ class AggregatedDataProfile(
                 connectorInstanceId = request.connectorInstanceId,
                 connectorEndpointId = request.connectorEndpointId,
                 propertyName = request.propertyName,
-                relationCacheSettings = RelationCacheSettings()
-            )
+                relationCacheSettings = RelationCacheSettings(),
+            ),
         )
     }
 
@@ -109,8 +109,8 @@ class AggregatedDataProfile(
                 connectorInstanceId = request.connectorInstanceId,
                 connectorEndpointId = request.connectorEndpointId,
                 propertyName = request.propertyName,
-                relationCacheSettings = RelationCacheSettings()
-            )
+                relationCacheSettings = RelationCacheSettings(),
+            ),
         )
     }
 
@@ -129,11 +129,10 @@ class AggregatedDataProfile(
                 role = role,
                 transform = Transform(form.transform),
                 connectorEndpointId = form.connectorEndpointId,
-                endpointTransform = Transform(form.endpointTransform) ,
+                endpointTransform = Transform(form.endpointTransform),
                 connectorInstanceId = form.connectorInstanceId,
-                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
+                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             )
         }
     }
-
 }

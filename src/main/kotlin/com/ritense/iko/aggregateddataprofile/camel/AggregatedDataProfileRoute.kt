@@ -29,6 +29,7 @@ class AggregatedDataProfileRoute(
                     throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
                 }
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
-            }.toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
+            }
+            .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }
 }
