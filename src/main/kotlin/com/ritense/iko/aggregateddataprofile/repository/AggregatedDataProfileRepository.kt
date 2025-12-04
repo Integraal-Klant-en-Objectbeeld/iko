@@ -11,13 +11,12 @@ import java.util.UUID
 
 @Repository
 interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile, UUID> {
-
     fun findByName(name: String): AggregatedDataProfile?
 
     /** Case‑insensitive “contains” search, paged */
     fun findByNameContainingIgnoreCase(
         name: String,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<AggregatedDataProfile>
 
     fun existsByName(name: String): Boolean
@@ -32,7 +31,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         SELECT  count(*)
         FROM    aggregated_data_profile adp
         """,
-        nativeQuery = true
+        nativeQuery = true,
     )
     fun findAllBy(pageable: Pageable): Page<AggregatedDataProfileListItem>
 
@@ -48,9 +47,12 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         FROM    aggregated_data_profile adp
         WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
         """,
-        nativeQuery = true
+        nativeQuery = true,
     )
-    fun findAllByName(@Param("name") name: String, pageable: Pageable): Page<AggregatedDataProfileListItem>
+    fun findAllByName(
+        @Param("name") name: String,
+        pageable: Pageable,
+    ): Page<AggregatedDataProfileListItem>
 
     interface AggregatedDataProfileListItem {
         val id: String

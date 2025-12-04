@@ -19,9 +19,8 @@ import java.time.Duration
  * - Evict removes only the provided key; it does not support patterns/wildcards.
  */
 class CacheService(
-    private val template: StringRedisTemplate
+    private val template: StringRedisTemplate,
 ) {
-
     /**
      * Store a value for the given key.
      *
@@ -29,7 +28,11 @@ class CacheService(
      * @param value Cached value (stored as-is String).
      * @param ttl Optional time-to-live; when null, the entry does not expire.
      */
-    fun put(key: String, value: String, ttl: Duration? = null) {
+    fun put(
+        key: String,
+        value: String,
+        ttl: Duration? = null,
+    ) {
         val ops = template.opsForValue()
         if (ttl == null) {
             ops.set(key, value)
@@ -45,9 +48,7 @@ class CacheService(
      * @param key Cache key.
      * @return The cached String value, or null when the key is absent or expired.
      */
-    fun get(key: String): String? {
-        return template.opsForValue().get(key)
-    }
+    fun get(key: String): String? = template.opsForValue().get(key)
 
     /**
      * Remove a specific key from the cache.

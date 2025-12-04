@@ -52,7 +52,6 @@ class ConnectorController(
     val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
     val camelContext: CamelContext,
 ) {
-
     /**
      * Displays an overview of all connectors.  The list is rendered in a
      * dedicated template which can use HTMX to load connector details
@@ -61,20 +60,21 @@ class ConnectorController(
      */
     @GetMapping()
     fun list(
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connectors = connectorRepository.findAll()
 
         return ModelAndView(
-            "fragments/internal/connector/listPageConnectors" + when (isHxRequest) {
-                true -> ":: connector-list"
-                false -> ""
-            },
+            "fragments/internal/connector/listPageConnectors" +
+                when (isHxRequest) {
+                    true -> ":: connector-list"
+                    false -> ""
+                },
             mapOf(
                 "connectors" to connectors,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
-                "email" to SecurityContextHelper.getUserPropertyByKey("email")
-            )
+                "email" to SecurityContextHelper.getUserPropertyByKey("email"),
+            ),
         )
     }
 
@@ -88,31 +88,32 @@ class ConnectorController(
     @GetMapping("/{id}")
     fun details(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
         val instances = connectorInstanceRepository.findByConnector(connector)
         val endpoints = connectorEndpointRepository.findByConnector(connector)
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnector" + when (isHxRequest) {
-                true -> ":: details"
-                false -> ""
-            },
+            "fragments/internal/connector/detailsPageConnector" +
+                when (isHxRequest) {
+                    true -> ":: details"
+                    false -> ""
+                },
             mapOf(
                 "connector" to connector,
                 "instances" to instances,
                 "endpoints" to endpoints,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
-                "email" to SecurityContextHelper.getUserPropertyByKey("email")
-            )
+                "email" to SecurityContextHelper.getUserPropertyByKey("email"),
+            ),
         )
     }
 
     @GetMapping("/{id}/edit")
     fun getEditConnectorPage(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
@@ -120,7 +121,7 @@ class ConnectorController(
             "fragments/internal/connector/formEditConnectorCode",
             mapOf(
                 "connector" to connector,
-            )
+            ),
         )
     }
 
@@ -129,26 +130,26 @@ class ConnectorController(
         @PathVariable id: UUID,
         @Valid @ModelAttribute form: ConnectorEditForm,
         bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): Any {
         if (bindingResult.hasErrors()) {
             return ModelAndView(
                 "fragments/internal/connector/formEditConnectorCode :: form",
                 mapOf(
                     "connector" to form,
-                    "errors" to bindingResult
-                )
+                    "errors" to bindingResult,
+                ),
             )
         }
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
         try {
-            val resource = ResourceHelper.fromBytes(
-                "${connector.tag}.yaml",
-                form.connectorCode.toByteArray()
-            )
+            val resource =
+                ResourceHelper.fromBytes(
+                    "${connector.tag}.yaml",
+                    form.connectorCode.toByteArray(),
+                )
             PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
-
         } catch (e: Exception) {
             httpServletResponse.setHeader("HX-Reswap", "none")
 
@@ -166,9 +167,10 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Reswap", "outerHTML")
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnector :: connector-code", mapOf(
-                "connector" to connector
-            )
+            "fragments/internal/connector/detailsPageConnector :: connector-code",
+            mapOf(
+                "connector" to connector,
+            ),
         )
     }
 
@@ -176,7 +178,7 @@ class ConnectorController(
     fun deleteConnector(
         @PathVariable id: UUID,
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
@@ -204,37 +206,42 @@ class ConnectorController(
         @Valid @ModelAttribute form: ConnectorCreateForm,
         bindingResult: BindingResult,
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
             return ModelAndView(
-                "fragments/internal/connector/formCreateConnector :: form", mapOf(
+                "fragments/internal/connector/formCreateConnector :: form",
+                mapOf(
                     "connector" to form,
-                    "errors" to bindingResult
-                )
+                    "errors" to bindingResult,
+                ),
             )
         }
 
-        val connector = Connector(
-            id = UUID.randomUUID(),
-            name = form.name,
-            tag = form.reference,
-            connectorCode = form.connectorCode
-        )
+        val connector =
+            Connector(
+                id = UUID.randomUUID(),
+                name = form.name,
+                tag = form.reference,
+                connectorCode = form.connectorCode,
+            )
 
         try {
-            val resource = ResourceHelper.fromBytes(
-                "${connector.tag}.yaml", connector.connectorCode.toByteArray()
-            )
+            val resource =
+                ResourceHelper.fromBytes(
+                    "${connector.tag}.yaml",
+                    connector.connectorCode.toByteArray(),
+                )
             PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
         } catch (e: Exception) {
             logger.error(e) { "failed to load connector code" }
             bindingResult.addError(FieldError("connectorEditForm", "connectorCode", "Not valid connector code"))
             return ModelAndView(
-                "fragments/internal/connector/formCreateConnector :: form", mapOf(
+                "fragments/internal/connector/formCreateConnector :: form",
+                mapOf(
                     "connector" to form,
-                    "errors" to bindingResult
-                )
+                    "errors" to bindingResult,
+                ),
             )
         }
 
@@ -248,49 +255,50 @@ class ConnectorController(
     }
 
     @GetMapping("/create")
-    fun createConnector(): ModelAndView {
-        return ModelAndView(
-            "fragments/internal/connector/formCreateConnector",
-            mapOf<String, Any?>()
-        )
-    }
-
+    fun createConnector(): ModelAndView = ModelAndView(
+        "fragments/internal/connector/formCreateConnector",
+        mapOf<String, Any?>(),
+    )
 
     @GetMapping("/{id}/instances/create")
     fun createConnectorInstancePage(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false
-    ): ModelAndView {
-        return ModelAndView(
-            "fragments/internal/connector/formCreateConnectorInstance",
-            mapOf<String, Any?>(
-                "connectorId" to id
-            )
-        )
-    }
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView = ModelAndView(
+        "fragments/internal/connector/formCreateConnectorInstance",
+        mapOf<String, Any?>(
+            "connectorId" to id,
+        ),
+    )
 
     @GetMapping("/{id}/instances/{instanceId}")
     fun editConnectorInstancePage(
         @PathVariable id: UUID,
         @PathVariable instanceId: UUID,
-        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val connectorInstance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorInstance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
-        val connectorRoles = connectorEndpointRoleRepository.findAllByConnectorInstance(
-            connectorInstance
-        )
+        val connectorRoles =
+            connectorEndpointRoleRepository.findAllByConnectorInstance(
+                connectorInstance,
+            )
 
         return hxRequest(
-            isHxRequest, "fragments/internal/connector/detailsPageConnectorInstance", "details", mapOf(
+            isHxRequest,
+            "fragments/internal/connector/detailsPageConnectorInstance",
+            "details",
+            mapOf(
                 "connectorId" to connector.id,
                 "instanceId" to connectorInstance.id,
                 "connector" to connector,
                 "instance" to connectorInstance,
                 "connectorRoles" to connectorRoles,
-                "connectorInstance" to connectorInstance
-            )
+                "connectorInstance" to connectorInstance,
+            ),
         )
     }
 
@@ -298,18 +306,20 @@ class ConnectorController(
     fun connectorInstanceConfigPage(
         @PathVariable id: UUID,
         @PathVariable instanceId: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val connectorInstance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorInstance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
         return ModelAndView(
             "fragments/internal/connector/formCreateConnectorInstanceConfig",
             mapOf(
                 "connectorId" to id,
-                "instanceId" to instanceId
-            )
+                "instanceId" to instanceId,
+            ),
         )
     }
 
@@ -319,24 +329,28 @@ class ConnectorController(
         @PathVariable instanceId: UUID,
         @Valid @ModelAttribute form: ConnectorInstanceConfigEditForm,
         bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
             return ModelAndView(
-                "fragments/internal/connector/formCreateConnectorInstanceConfig :: form", mapOf(
+                "fragments/internal/connector/formCreateConnectorInstanceConfig :: form",
+                mapOf(
                     "connectorId" to id,
                     "instanceId" to instanceId,
-                    "errors" to bindingResult
-                )
+                    "errors" to bindingResult,
+                ),
             )
         }
 
-        var connectorInstance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        var connectorInstance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
 
-        connectorInstance.config = connectorInstance.config.toMutableMap().apply {
-            put(form.key, form.value)
-        }
+        connectorInstance.config =
+            connectorInstance.config.toMutableMap().apply {
+                put(form.key, form.value)
+            }
 
         connectorInstance = connectorInstanceRepository.save(connectorInstance)
 
@@ -345,22 +359,25 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Reswap", "outerHTML")
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnectorInstance :: config-table", mapOf(
+            "fragments/internal/connector/detailsPageConnectorInstance :: config-table",
+            mapOf(
                 "connector" to connectorInstance.connector,
                 "connectorInstance" to connectorInstance,
                 "instanceId" to instanceId,
-            )
+            ),
         )
     }
 
     @GetMapping("/{id}/instances/{instanceId}/roles")
-    fun ConnectorInstanceRolesPage(
+    fun connectorInstanceRolesPage(
         @PathVariable id: UUID,
         @PathVariable instanceId: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val connectorInstance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorInstance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
         return ModelAndView(
@@ -368,13 +385,13 @@ class ConnectorController(
             mapOf(
                 "connector" to connector,
                 "connectorInstance" to connectorInstance,
-                "connectorEndpoints" to connectorEndpointRepository.findByConnector(
-                    connector
-                )
-            )
+                "connectorEndpoints" to
+                    connectorEndpointRepository.findByConnector(
+                        connector,
+                    ),
+            ),
         )
     }
-
 
     @PostMapping("/{id}/instances/{instanceId}/roles")
     fun createConnectorInstanceRolesPage(
@@ -382,32 +399,38 @@ class ConnectorController(
         @PathVariable instanceId: UUID,
         @Valid @ModelAttribute form: ConnectorInstanceRolesEditForm,
         bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
             val connector =
                 connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
             return ModelAndView(
-                "fragments/internal/connector/formCreateConnectorInstanceRole :: form", mapOf(
+                "fragments/internal/connector/formCreateConnectorInstanceRole :: form",
+                mapOf(
                     "role" to form,
                     "errors" to bindingResult,
-                    "connectorEndpoints" to connectorEndpointRepository.findByConnector(connector)
-                )
+                    "connectorEndpoints" to connectorEndpointRepository.findByConnector(connector),
+                ),
             )
         }
 
-        val connectorInstance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
-        val connectorEndpoint = connectorEndpointRepository.findById(UUID.fromString(form.endpointId))
-            .orElseThrow { NoSuchElementException("Connector endpoint not found") }
+        val connectorInstance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorEndpoint =
+            connectorEndpointRepository
+                .findById(UUID.fromString(form.endpointId))
+                .orElseThrow { NoSuchElementException("Connector endpoint not found") }
 
-        val role = ConnectorEndpointRole(
-            id = UUID.randomUUID(),
-            connectorInstance = connectorInstance,
-            role = form.role,
-            connectorEndpoint = connectorEndpoint
-        )
+        val role =
+            ConnectorEndpointRole(
+                id = UUID.randomUUID(),
+                connectorInstance = connectorInstance,
+                role = form.role,
+                connectorEndpoint = connectorEndpoint,
+            )
 
         connectorEndpointRoleRepository.save(role)
 
@@ -416,14 +439,16 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Reswap", "outerHTML")
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnectorInstance :: roles-table", mapOf(
+            "fragments/internal/connector/detailsPageConnectorInstance :: roles-table",
+            mapOf(
                 "connector" to connectorInstance.connector,
                 "connectorInstance" to connectorInstance,
                 "instanceId" to instanceId,
-                "connectorRoles" to connectorEndpointRoleRepository.findAllByConnectorInstance(
-                    connectorInstance
-                )
-            )
+                "connectorRoles" to
+                    connectorEndpointRoleRepository.findAllByConnectorInstance(
+                        connectorInstance,
+                    ),
+            ),
         )
     }
 
@@ -433,24 +458,26 @@ class ConnectorController(
         @Valid @ModelAttribute form: ConnectorInstanceEditForm,
         bindingResult: BindingResult,
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-        response: HttpServletResponse
+        response: HttpServletResponse,
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
             return ModelAndView(
-                "fragments/internal/connector/formCreateConnectorInstance :: form", mapOf(
+                "fragments/internal/connector/formCreateConnectorInstance :: form",
+                mapOf(
                     "connectorId" to id,
-                    "errors" to bindingResult
-                )
+                    "errors" to bindingResult,
+                ),
             )
         }
 
-        val connectorInstance = ConnectorInstance(
-            id = UUID.randomUUID(),
-            name = form.name,
-            tag = form.reference,
-            connector = connectorRepository.findById(id).orElseThrow(),
-            config = mapOf()
-        )
+        val connectorInstance =
+            ConnectorInstance(
+                id = UUID.randomUUID(),
+                name = form.name,
+                tag = form.reference,
+                connector = connectorRepository.findById(id).orElseThrow(),
+                config = mapOf(),
+            )
 
         connectorInstanceRepository.save(connectorInstance)
 
@@ -465,13 +492,12 @@ class ConnectorController(
     fun createEndpointPage(
         @PathVariable id: UUID,
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-    ): ModelAndView {
-        return ModelAndView(
-            "fragments/internal/connector/formCreateConnectorEndpoint", mapOf(
-                "connectorId" to id
-            )
-        )
-    }
+    ): ModelAndView = ModelAndView(
+        "fragments/internal/connector/formCreateConnectorEndpoint",
+        mapOf(
+            "connectorId" to id,
+        ),
+    )
 
     @GetMapping("/{id}/endpoints/{endpointId}")
     fun editEndpointPage(
@@ -480,20 +506,26 @@ class ConnectorController(
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
-        val endpoint = connectorEndpointRepository.findById(endpointId)
-            .orElseThrow { NoSuchElementException("Endpoint not found") }
+        val endpoint =
+            connectorEndpointRepository
+                .findById(endpointId)
+                .orElseThrow { NoSuchElementException("Endpoint not found") }
 
         return hxRequest(
-            isHxRequest, "fragments/internal/connector/editEndpointPage", "edit", mapOf(
+            isHxRequest,
+            "fragments/internal/connector/editEndpointPage",
+            "edit",
+            mapOf(
                 "connector" to connector,
                 "endpoint" to endpoint,
-                "form" to ConnectorEndpointConfigForm(
-                    name = endpoint.name,
-                    operation = endpoint.operation,
-                ),
+                "form" to
+                    ConnectorEndpointConfigForm(
+                        name = endpoint.name,
+                        operation = endpoint.operation,
+                    ),
                 "menuItems" to HomeController.menuItems,
-                "saved" to false
-            )
+                "saved" to false,
+            ),
         )
     }
 
@@ -507,22 +539,24 @@ class ConnectorController(
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
             return ModelAndView(
-                "fragments/internal/connector/formCreateConnectorEndpoint :: form", mapOf(
+                "fragments/internal/connector/formCreateConnectorEndpoint :: form",
+                mapOf(
                     "connectorId" to id,
                     "endpoint" to form,
-                    "errors" to bindingResult
-                )
+                    "errors" to bindingResult,
+                ),
             )
         }
 
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
-        var connectorEndpoint = ConnectorEndpoint(
-            id = UUID.randomUUID(),
-            name = form.name,
-            connector = connector,
-            operation = form.operation,
-        )
+        var connectorEndpoint =
+            ConnectorEndpoint(
+                id = UUID.randomUUID(),
+                name = form.name,
+                connector = connector,
+                operation = form.operation,
+            )
 
         connectorEndpointRepository.save(connectorEndpoint)
 
@@ -533,10 +567,11 @@ class ConnectorController(
         val endpoints = connectorEndpointRepository.findByConnector(connector)
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnector :: endpoints-table", mapOf(
+            "fragments/internal/connector/detailsPageConnector :: endpoints-table",
+            mapOf(
                 "connector" to connector,
                 "endpoints" to endpoints,
-            )
+            ),
         )
     }
 
@@ -550,12 +585,14 @@ class ConnectorController(
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnector :: endpoints-table", mapOf(
+            "fragments/internal/connector/detailsPageConnector :: endpoints-table",
+            mapOf(
                 "connector" to connector,
-                "endpoints" to connectorEndpointRepository.findByConnector(
-                    connector
-                )
-            )
+                "endpoints" to
+                    connectorEndpointRepository.findByConnector(
+                        connector,
+                    ),
+            ),
         )
     }
 
@@ -570,10 +607,11 @@ class ConnectorController(
         val instances = connectorInstanceRepository.findByConnector(connector)
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnector :: instance-table", mapOf(
+            "fragments/internal/connector/detailsPageConnector :: instance-table",
+            mapOf(
                 "connector" to connector,
-                "instances" to instances
-            )
+                "instances" to instances,
+            ),
         )
     }
 
@@ -584,15 +622,18 @@ class ConnectorController(
         @PathVariable roleId: UUID,
     ): ModelAndView {
         connectorEndpointRoleRepository.deleteById(roleId)
-        val connectorInstance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val connectorInstance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnectorInstance :: roles-table", mapOf(
+            "fragments/internal/connector/detailsPageConnectorInstance :: roles-table",
+            mapOf(
                 "connector" to connectorInstance.connector,
                 "connectorInstance" to connectorInstance,
-                "connectorRoles" to connectorEndpointRoleRepository.findAllByConnectorInstance(connectorInstance)
-            )
+                "connectorRoles" to connectorEndpointRoleRepository.findAllByConnectorInstance(connectorInstance),
+            ),
         )
     }
 
@@ -602,20 +643,24 @@ class ConnectorController(
         @PathVariable instanceId: UUID,
         @PathVariable configKey: String,
     ): ModelAndView {
-        val instance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val instance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
 
-        instance.config = instance.config.toMutableMap().apply {
-            remove(configKey)
-        }
+        instance.config =
+            instance.config.toMutableMap().apply {
+                remove(configKey)
+            }
 
         connectorInstanceRepository.save(instance)
 
         return ModelAndView(
-            "fragments/internal/connector/detailsPageConnectorInstance :: config-table", mapOf(
+            "fragments/internal/connector/detailsPageConnectorInstance :: config-table",
+            mapOf(
                 "connector" to instance.connector,
                 "connectorInstance" to instance,
-            )
+            ),
         )
     }
 
@@ -623,15 +668,18 @@ class ConnectorController(
     fun getConfigValue(
         @PathVariable id: UUID,
         @PathVariable instanceId: UUID,
-        @PathVariable configKey: String
+        @PathVariable configKey: String,
     ): ModelAndView {
-        val instance = connectorInstanceRepository.findById(instanceId)
-            .orElseThrow { NoSuchElementException("Connector instance not found") }
+        val instance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
         val value = instance.config[configKey]
         return ModelAndView(
-            "fragments/internal/connector/configValue", mapOf(
-                "configValue" to value
-            )
+            "fragments/internal/connector/configValue",
+            mapOf(
+                "configValue" to value,
+            ),
         )
     }
 
@@ -642,12 +690,10 @@ class ConnectorController(
             isHxRequest: Boolean,
             template: String,
             target: String,
-            properties: Map<String, Any>
-        ): ModelAndView {
-            return when (isHxRequest) {
-                true -> ModelAndView("$template :: $target", properties)
-                false -> ModelAndView(template, properties)
-            }
+            properties: Map<String, Any>,
+        ): ModelAndView = when (isHxRequest) {
+            true -> ModelAndView("$template :: $target", properties)
+            false -> ModelAndView(template, properties)
         }
     }
 }

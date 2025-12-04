@@ -1,3 +1,5 @@
 package com.ritense.iko.connectors.exception
 
-class EndpointValidationFailed(message: String) : Exception(message)
+class EndpointValidationFailed(
+    message: String,
+) : Exception(message)

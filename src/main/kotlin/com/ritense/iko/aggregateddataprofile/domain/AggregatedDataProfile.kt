@@ -18,39 +18,31 @@ import java.util.UUID
 @Entity
 @Table(
     name = "aggregated_data_profile",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])],
 )
 class AggregatedDataProfile(
     @Id
     val id: UUID,
-
     @Column(name = "name", unique = true)
     var name: String,
-
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
-
     @Column(name = "connector_endpoint_id")
     var connectorEndpointId: UUID,
-
     @OneToMany(
         cascade = [(CascadeType.ALL)],
         fetch = FetchType.EAGER,
         orphanRemoval = true,
-        mappedBy = "aggregatedDataProfile"
+        mappedBy = "aggregatedDataProfile",
     )
     var relations: MutableList<Relation> = mutableListOf(),
-
     @Embedded
     var transform: Transform,
-
     @Column(name = "role")
     var role: String? = null,
-
     @Embedded
-    var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting
+    var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
-
     fun handle(request: AggregatedDataProfileForm) {
         this.name = request.name
         if (!request.role.isNullOrBlank()) {
@@ -69,7 +61,8 @@ class AggregatedDataProfile(
         this.relations.add(
             Relation(
                 aggregatedDataProfile = this,
-                sourceId = if (request.sourceId?.isNotBlank() == true) {
+                sourceId =
+                if (request.sourceId?.isNotBlank() == true) {
                     UUID.fromString(request.sourceId)
                 } else {
                     null
@@ -79,8 +72,8 @@ class AggregatedDataProfile(
                 connectorEndpointId = request.connectorEndpointId,
                 connectorInstanceId = request.connectorInstanceId,
                 propertyName = request.propertyName,
-                relationCacheSettings = RelationCacheSettings()
-            )
+                relationCacheSettings = RelationCacheSettings(),
+            ),
         )
     }
 
@@ -90,7 +83,8 @@ class AggregatedDataProfile(
             Relation(
                 id = request.id,
                 aggregatedDataProfile = this,
-                sourceId = if (request.sourceId?.isNotBlank() == true) {
+                sourceId =
+                if (request.sourceId?.isNotBlank() == true) {
                     UUID.fromString(request.sourceId)
                 } else {
                     null
@@ -100,8 +94,8 @@ class AggregatedDataProfile(
                 connectorInstanceId = request.connectorInstanceId,
                 connectorEndpointId = request.connectorEndpointId,
                 propertyName = request.propertyName,
-                relationCacheSettings = RelationCacheSettings()
-            )
+                relationCacheSettings = RelationCacheSettings(),
+            ),
         )
     }
 
@@ -121,9 +115,8 @@ class AggregatedDataProfile(
                 transform = Transform(form.transform),
                 connectorEndpointId = form.connectorEndpointId,
                 connectorInstanceId = form.connectorInstanceId,
-                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting()
+                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             )
         }
     }
-
 }

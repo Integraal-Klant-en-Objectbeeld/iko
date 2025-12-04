@@ -18,6 +18,6 @@ data class CacheEntry(
     enum class CacheEventType {
         PUT,
         HIT,
-        MISS
+        MISS,
     }
 }

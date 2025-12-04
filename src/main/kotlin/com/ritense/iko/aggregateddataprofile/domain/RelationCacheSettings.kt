@@ -10,5 +10,5 @@ class RelationCacheSettings(
     override val enabled: Boolean = false,
     @Column(name = "cache_ttl")
     // Time to live for cache entries (in ms)
-    override val timeToLive: Int = 0
+    override val timeToLive: Int = 0,
 ) : CacheSettings

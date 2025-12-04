@@ -8,11 +8,9 @@ data class DeleteRelationForm(
     val id: UUID,
 ) {
     companion object {
-        fun from(it: RelationEntity): DeleteRelationForm {
-            return DeleteRelationForm(
-                aggregatedDataProfileId = it.aggregatedDataProfile.id,
-                id = it.id,
-            )
-        }
+        fun from(it: RelationEntity): DeleteRelationForm = DeleteRelationForm(
+            aggregatedDataProfileId = it.aggregatedDataProfile.id,
+            id = it.id,
+        )
     }
 }

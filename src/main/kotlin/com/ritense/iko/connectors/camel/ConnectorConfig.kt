@@ -4,14 +4,23 @@ import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.builder.RouteBuilder
 import java.util.UUID
 
-class ConnectorConfig(val connectorInstanceRepository: ConnectorInstanceRepository) : RouteBuilder() {
+class ConnectorConfig(
+    val connectorInstanceRepository: ConnectorInstanceRepository,
+) : RouteBuilder() {
     override fun configure() {
         from("direct:iko:config")
             .routeId("connector-config")
             .process { exchange ->
                 val connectorInstance =
-                    (connectorInstanceRepository.findById(exchange.getVariable("connectorInstanceId", UUID::class.java))
-                        ?: throw NoSuchElementException("Connector instance not found")).get()
+                    (
+                        connectorInstanceRepository.findById(
+                            exchange.getVariable(
+                                "connectorInstanceId",
+                                UUID::class.java,
+                            ),
+                        )
+                            ?: throw NoSuchElementException("Connector instance not found")
+                        ).get()
 
                 exchange.setVariable("configProperties", connectorInstance.config)
             }

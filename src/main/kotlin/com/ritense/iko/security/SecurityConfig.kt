@@ -21,12 +21,11 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 @Configuration
 class SecurityConfig {
-
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @Bean
     fun actuatorSecurityFilterChain(
         http: HttpSecurity,
-        jwtAuthenticationConverter: JwtAuthenticationConverter
+        jwtAuthenticationConverter: JwtAuthenticationConverter,
     ): SecurityFilterChain {
         http
             .securityMatcher("/actuator/**")
@@ -35,14 +34,14 @@ class SecurityConfig {
                 oauth2.jwt { jwt ->
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
                 }
-            }
-            .sessionManagement { session ->
+            }.sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
-            .authorizeHttpRequests { authorize ->
+            }.authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
-                    .anyRequest().hasAnyAuthority("ROLE_ADMIN")
+                    .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info")
+                    .permitAll()
+                    .anyRequest()
+                    .hasAnyAuthority("ROLE_ADMIN")
             }
 
         return http.build()
@@ -52,24 +51,21 @@ class SecurityConfig {
     @Bean
     fun apiSecurityFilterChain(
         http: HttpSecurity,
-        jwtAuthenticationConverter: JwtAuthenticationConverter
+        jwtAuthenticationConverter: JwtAuthenticationConverter,
     ): SecurityFilterChain {
         http
             .securityMatcher(
                 "/endpoints/**",
-                "/aggregated-data-profiles/**"
-            )
-            .oauth2Login { oauth2 -> oauth2.disable() }
+                "/aggregated-data-profiles/**",
+            ).oauth2Login { oauth2 -> oauth2.disable() }
             .oauth2ResourceServer { oauth2 ->
                 oauth2.jwt { jwt ->
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
                 }
-            }
-            .sessionManagement { session ->
+            }.sessionManagement { session ->
                 session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
-            .authorizeHttpRequests { authorize ->
+            }.authorizeHttpRequests { authorize ->
                 authorize.anyRequest().authenticated()
             }
 
@@ -79,7 +75,7 @@ class SecurityConfig {
     @Bean
     fun jwtAuthenticationConverter(
         @Value("\${spring.security.oauth2.resourceserver.jwt.authority-prefix}") prefix: String,
-        @Value("\${spring.security.oauth2.resourceserver.jwt.authorities-claim-name}") claimName: String
+        @Value("\${spring.security.oauth2.resourceserver.jwt.authorities-claim-name}") claimName: String,
     ): JwtAuthenticationConverter {
         val grantedAuthoritiesConverter =
             ExpressionJwtGrantedAuthoritiesConverter(SpelExpressionParser().parseRaw(claimName))
@@ -90,9 +86,7 @@ class SecurityConfig {
     }
 
     @Bean
-    fun oidcClientInitiatedLogoutSuccessHandler(
-        clientRegistrationRepository: ClientRegistrationRepository
-    ) = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository).apply {
+    fun oidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository: ClientRegistrationRepository) = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository).apply {
         setPostLogoutRedirectUri("{baseUrl}/admin")
     }
 
@@ -100,34 +94,34 @@ class SecurityConfig {
     @Bean
     fun adminSecurityFilterChain(
         http: HttpSecurity,
-        oidcClientInitiatedLogoutSuccessHandler: OidcClientInitiatedLogoutSuccessHandler
+        oidcClientInitiatedLogoutSuccessHandler: OidcClientInitiatedLogoutSuccessHandler,
     ): SecurityFilterChain {
-
         http
             .securityMatcher("/admin/**", "/oauth2/**", "/login/**", "/logout/**")
             .oauth2Login { login ->
                 login.userInfoEndpoint { user ->
                     user.oidcUserService(OidcUserService().apply { setRetrieveUserInfo { true } })
                     user.userAuthoritiesMapper { authorities ->
-                        authorities.filter { it::class == OidcUserAuthority::class }
+                        authorities
+                            .filter { it::class == OidcUserAuthority::class }
                             .map { oidcUserAuthority -> oidcUserAuthority as OidcUserAuthority }
                             .map { oidcUserAuthority -> oidcUserAuthority.idToken }
                             .flatMap { oidcIdToken -> oidcIdToken.getClaimAsStringList("roles") }
                             .map { SimpleGrantedAuthority(it) }
                     }
                 }
-            }
-            .logout { logout ->
+            }.logout { logout ->
                 logout
                     .logoutSuccessHandler(oidcClientInitiatedLogoutSuccessHandler)
                     .invalidateHttpSession(true)
                     .clearAuthentication(true)
-            }
-            .authorizeHttpRequests { authorize ->
-                authorize.requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
-                    .requestMatchers("/oauth2/**", "/login/**", "/logout").permitAll()
-            }
-            .csrf {
+            }.authorizeHttpRequests { authorize ->
+                authorize
+                    .requestMatchers("/admin/**")
+                    .hasAnyAuthority("ROLE_ADMIN")
+                    .requestMatchers("/oauth2/**", "/login/**", "/logout")
+                    .permitAll()
+            }.csrf {
                 it.disable()
             }
 
@@ -136,5 +130,4 @@ class SecurityConfig {
 
     @Bean
     fun authRoute() = AuthRoute()
-
 }

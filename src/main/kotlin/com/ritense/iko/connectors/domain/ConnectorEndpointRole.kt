@@ -13,15 +13,12 @@ import java.util.UUID
 class ConnectorEndpointRole(
     @Id
     var id: UUID,
-
     @ManyToOne
     @JoinColumn(name = "connector_endpoint_id")
     var connectorEndpoint: ConnectorEndpoint,
-
     @ManyToOne
     @JoinColumn(name = "connector_instance_id")
     var connectorInstance: ConnectorInstance,
-
     @Column(name = "role")
     var role: String,
 )

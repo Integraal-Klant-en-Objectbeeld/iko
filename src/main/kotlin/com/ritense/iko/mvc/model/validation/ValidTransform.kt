@@ -10,5 +10,5 @@ import kotlin.reflect.KClass
 annotation class ValidTransform(
     val message: String = "Invalid jq expression",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<out Payload>> = []
+    val payload: Array<KClass<out Payload>> = [],
 )
