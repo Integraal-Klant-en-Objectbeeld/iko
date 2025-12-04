@@ -1,9 +1,5 @@
-<div id="profile-edit" th:fragment="profile-debug">
-    <cds-content>
-        <style>
-            .cds-ce-demo-devenv--tab-panels{flex:1;align-self:stretch;padding:1rem}
-        </style>
-        <br>
+<div id="profile-debug" th:fragment="profile-debug">
+    <cds-tile>
         <cds-tabs value="result" type="contained">
             <cds-tab id="tab-result" target="panel-result" value="result">
                 Result
@@ -16,41 +12,60 @@
                 Error
             </cds-tab>
         </cds-tabs>
-        <div class="cds-ce-demo-devenv--tab-panels">
+        <div style="margin-top: 1rem;">
             <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" hidden="">
-                <h4>Result:</h4>
-                <cds-form-group id="form-group" name="form-group" legend-text="API result">
+                <cds-form-group id="form-group-test" name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
                     <cds-stack gap="7">
-                        <cds-textarea id="testResult"
-                                      name="Test result"
-                                      style="width: 100%;"
-                                      label="Result"
-                                      rows="auto"
-                                      th:attr="value=${testResult}">
-                        </cds-textarea>
-                        <cds-textarea id="query"
-                                      name="query"
-                                      style="width: 100%;"
-                                      label="Transform"
-                                      rows="auto"
-                                      th:attr="value=${form.transform}">
-                        </cds-textarea>
+
+                        <input type="hidden" id="name" name="name" th:value="${form.name}">
+                        <input type="hidden" id="transform" name="transform" value=".">
+
+                        <cds-text-input id="testId"
+                                        name="testId"
+                                        label="Id for testing the ADP"
+                                        th:value="${testId}"
+                        >
+                        </cds-text-input>
+
+                        <cds-form-item>
+                            <cds-textarea id="testResult"
+                                          name="Test result"
+                                          style="width: 100%;"
+                                          label="Result"
+                                          rows="8"
+                                          th:value="${testResult}">
+                            </cds-textarea>
+
+                            <cds-button
+                                kind="primary"
+                                hx-post="/admin/aggregated-data-profiles/test"
+                                hx-target="#profile-debug"
+                                hx-swap="outerHTML"
+                                hx-include="[id='testId'], [id='transform'], [id='name']"
+                                hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');">
+                                Get results
+                            </cds-button>
+                        </cds-form-item>
+
+                        <cds-form-item>
+                            <cds-textarea id="query"
+                                          name="query"
+                                          style="width: 100%;"
+                                          label="Transform"
+                                          rows="5"
+                                          th:attr="value=${form.transform}">
+                            </cds-textarea>
+
+                            <cds-button id="run" kind="primary">Apply transform</cds-button>
+                        </cds-form-item>
+
                         <cds-textarea id="output"
                                       name="output"
                                       style="width: 100%;"
                                       label="Output"
-                                      rows="auto">
+                                      rows="8">
                         </cds-textarea>
                         <div id="error" style="color:#c00;"></div>
-                        <div style="max-width: fit-content;">
-                            <cds-button id="run" kind="primary">Apply transform</cds-button>
-                            <cds-button id="back" kind="secondary"
-                                        th:hx-get="@{'/admin/aggregated-data-profiles/edit/' + ${form.id} + '?fragment=true'}"
-                                        hx-target="#profile-edit"
-                                        hx-swap="outerHTML">
-                                Back
-                            </cds-button>
-                        </div>
 
                         <script type="application/javascript">
                             // Helper: pretty-print anything
@@ -123,10 +138,11 @@
                      data-monaco
                      data-language="json"
                      data-readonly=true
+                     data-theme="lightgray-theme"
                      th:data-initial="${exception != null ? exception.getStacktrace() : ''}"
                      class="monaco-editor-style-full-height">
                 </div>
             </div>
         </div>
-    </cds-content>
+    </cds-tile>
 </div>
