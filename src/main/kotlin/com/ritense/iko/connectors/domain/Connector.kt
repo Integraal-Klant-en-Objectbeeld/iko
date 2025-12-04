@@ -11,14 +11,10 @@ import java.util.UUID
 class Connector(
     @Id
     var id: UUID,
-
     @Column(name = "name")
     var name: String,
-
     @Column(name = "tag")
     var tag: String,
-
     @Column(name = "connector_code")
     var connectorCode: String,
-
 )

@@ -5,7 +5,7 @@ import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 
-class Endpoint() : RouteBuilder() {
+class Endpoint : RouteBuilder() {
     override fun configure() {
         onException(AccessDeniedException::class.java)
             .handled(true)
@@ -29,7 +29,8 @@ class Endpoint() : RouteBuilder() {
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .to(Iko.connector())
-            .marshal().json()
+            .marshal()
+            .json()
 
         from(Iko.iko("rest:endpoint.id"))
             .routeId("rest-endpoint-id")
@@ -44,7 +45,7 @@ class Endpoint() : RouteBuilder() {
             .to(Iko.iko("config"))
             .to(Iko.transform())
             .toD(Iko.connector())
-            .marshal().json()
-
+            .marshal()
+            .json()
     }
 }

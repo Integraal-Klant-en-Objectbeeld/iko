@@ -17,22 +17,19 @@ import org.springframework.web.servlet.ModelAndView
 @Controller
 @RequestMapping("/admin")
 internal class HomeController {
-
     @GetMapping
     fun home(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-    ): ModelAndView {
-        return hxRequest(
-            isHxRequest,
-            "layout-internal",
-            "details",
-            mapOf(
-                "menuItems" to menuItems,
-                "username" to SecurityContextHelper.getUserPropertyByKey("name"),
-                "email" to SecurityContextHelper.getUserPropertyByKey("email")
-            )
-        )
-    }
+    ): ModelAndView = hxRequest(
+        isHxRequest,
+        "layout-internal",
+        "details",
+        mapOf(
+            "menuItems" to menuItems,
+            "username" to SecurityContextHelper.getUserPropertyByKey("name"),
+            "email" to SecurityContextHelper.getUserPropertyByKey("email"),
+        ),
+    )
 
     companion object {
         const val HX_REQUEST_HEADER = "Hx-Request"
@@ -44,10 +41,10 @@ internal class HomeController {
          * Entries used to populate the sidebar navigation.  A new “Connectors” item
          * has been added which links to the connectors overview page.
          */
-        val menuItems: List<MenuItem> = listOf(
-            MenuItem("Aggregated Data Profiles", "/admin/aggregated-data-profiles"),
-            MenuItem("Connectors", "/admin/connectors"),
-        )
+        val menuItems: List<MenuItem> =
+            listOf(
+                MenuItem("Aggregated Data Profiles", "/admin/aggregated-data-profiles"),
+                MenuItem("Connectors", "/admin/connectors"),
+            )
     }
-
 }

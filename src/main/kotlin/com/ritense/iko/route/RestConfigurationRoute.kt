@@ -13,5 +13,4 @@ class RestConfigurationRoute : RouteBuilder() {
             .apiProperty("api.description", "Integraal Klant & Objectbeeld")
             .apiProperty("cors", "true")
     }
-
 }

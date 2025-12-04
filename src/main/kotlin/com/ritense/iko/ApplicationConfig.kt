@@ -11,25 +11,22 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor
 
 @Configuration
-class ApplicationConfig() {
-
+class ApplicationConfig {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     fun restConfigurationRoute() = RestConfigurationRoute()
 
     @Bean
-    fun producerTemplate(camelContext: CamelContext): ProducerTemplate {
-        return camelContext.createProducerTemplate()
-    }
+    fun producerTemplate(camelContext: CamelContext): ProducerTemplate = camelContext.createProducerTemplate()
 
     @Bean
     fun taskExecutor(): DelegatingSecurityContextAsyncTaskExecutor {
-        val executor = ThreadPoolTaskExecutor().apply {
-            maxPoolSize = 50
-            threadNamePrefix = "security-task-executor-"
-            initialize()
-        }
+        val executor =
+            ThreadPoolTaskExecutor().apply {
+                maxPoolSize = 50
+                threadNamePrefix = "security-task-executor-"
+                initialize()
+            }
         return DelegatingSecurityContextAsyncTaskExecutor(executor)
     }
-
 }

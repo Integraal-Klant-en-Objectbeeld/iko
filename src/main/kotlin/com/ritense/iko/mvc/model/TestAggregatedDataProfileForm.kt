@@ -12,4 +12,3 @@ data class TestAggregatedDataProfileForm(
     val testId: String,
     val name: String,
 )
-

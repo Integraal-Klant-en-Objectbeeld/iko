@@ -5,7 +5,4 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(classes = [ApplicationConfig::class])
 @CamelSpringBootTest
-class MainRouteTest {
-
-
-}
+class MainRouteTest

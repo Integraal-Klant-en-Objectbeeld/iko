@@ -17,9 +17,8 @@ import javax.crypto.spec.SecretKeySpec
  */
 @Service
 class AesGcmEncryptionService(
-    private val aesSecretKeySpec: SecretKeySpec
+    private val aesSecretKeySpec: SecretKeySpec,
 ) {
-
     fun encrypt(plainText: String): String {
         // Generate a random IV
         val iv = ByteArray(IV_LENGTH_ENCRYPT)
@@ -43,11 +42,12 @@ class AesGcmEncryptionService(
 
     fun decrypt(cipherText: String): String {
         // Decode Base64
-        val combined = try {
-            BASE64_DECODER.decode(cipherText)
-        } catch (e: IllegalArgumentException) {
-            throw IllegalStateException("Invalid Base64 for ciphertext", e)
-        }
+        val combined =
+            try {
+                BASE64_DECODER.decode(cipherText)
+            } catch (e: IllegalArgumentException) {
+                throw IllegalStateException("Invalid Base64 for ciphertext", e)
+            }
         require(combined.size > IV_LENGTH_ENCRYPT) { "Ciphertext too short" }
 
         // Extract IV and encrypted bytes (includes tag)
@@ -70,13 +70,13 @@ class AesGcmEncryptionService(
         private val SECURE_RANDOM: SecureRandom = SecureRandom()
 
         // Use per-thread Cipher to avoid repeated getInstance cost; Cipher is not thread-safe
-        private val CIPHER_THREAD_LOCAL: ThreadLocal<Cipher> = ThreadLocal.withInitial {
-            Cipher.getInstance(AES_ALGORITHM_GCM)
-        }
+        private val CIPHER_THREAD_LOCAL: ThreadLocal<Cipher> =
+            ThreadLocal.withInitial {
+                Cipher.getInstance(AES_ALGORITHM_GCM)
+            }
 
         const val AES_ALGORITHM_GCM: String = "AES/GCM/NoPadding"
         const val IV_LENGTH_ENCRYPT: Int = 12
         const val TAG_LENGTH_ENCRYPT: Int = 16
     }
-
 }

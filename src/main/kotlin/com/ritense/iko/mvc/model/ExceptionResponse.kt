@@ -7,12 +7,9 @@ data class ExceptionResponse(
     val stacktrace: String? = null,
 ) {
     companion object {
-
-        fun of(exception: CamelExecutionException): ExceptionResponse {
-            return ExceptionResponse(
-                message = exception.message,
-                stacktrace = exception.stackTraceToString()
-            )
-        }
+        fun of(exception: CamelExecutionException): ExceptionResponse = ExceptionResponse(
+            message = exception.message,
+            stacktrace = exception.stackTraceToString(),
+        )
     }
 }

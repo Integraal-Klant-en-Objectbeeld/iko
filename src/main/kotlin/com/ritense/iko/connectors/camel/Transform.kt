@@ -12,10 +12,11 @@ class Transform : RouteBuilder() {
             .toD(Iko.transform("\${variable.connector}"))
             .end()
             .choice()
-            .`when` { ex -> ex.context.hasEndpoint(
-                Iko.transform("${ex.getVariable("connector")}.${ex.getVariable("operation")}")
-            ) != null }
-            .toD(Iko.transform("\${variable.connector}.\${variable.operation}"))
+            .`when` { ex ->
+                ex.context.hasEndpoint(
+                    Iko.transform("${ex.getVariable("connector")}.${ex.getVariable("operation")}"),
+                ) != null
+            }.toD(Iko.transform("\${variable.connector}.\${variable.operation}"))
             .end()
     }
 }

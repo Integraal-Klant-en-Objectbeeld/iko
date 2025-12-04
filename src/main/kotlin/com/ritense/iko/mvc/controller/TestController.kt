@@ -25,10 +25,9 @@ class TestController(
     private val camelContext: CamelContext,
     private val objectMapper: ObjectMapper,
 ) {
-
     @PostMapping(
         path = ["/aggregated-data-profiles/test"],
-        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE]
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     fun test(
         @Valid @ModelAttribute form: TestAggregatedDataProfileForm,
@@ -42,20 +41,22 @@ class TestController(
 
         // Run ADP
         val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
-        val headers = mapOf(
-            "iko_id" to form.testId,
-            "iko_profile" to form.name,
-            "iko_trace_id" to ikoTraceId
-        )
+        val headers =
+            mapOf(
+                "iko_id" to form.testId,
+                "iko_profile" to form.name,
+                "iko_trace_id" to ikoTraceId,
+            )
         var result: String? = null
         var exception: ExceptionResponse? = null
         try {
-            val adpResult = producerTemplate.requestBodyAndHeaders(
-                adpEndpointUri,
-                "{}",
-                headers,
-                String::class.java
-            )
+            val adpResult =
+                producerTemplate.requestBodyAndHeaders(
+                    adpEndpointUri,
+                    "{}",
+                    headers,
+                    String::class.java,
+                )
             val jsonResult = objectMapper.readTree(adpResult)
             result = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonResult)
         } catch (ex: CamelExecutionException) {
@@ -63,9 +64,10 @@ class TestController(
         }
 
         // Fetch traces
-        val traces = tracer.dumpAllTracedMessages()?.map {
-            TraceEvent.from(it)
-        } ?: emptyList()
+        val traces =
+            tracer.dumpAllTracedMessages()?.map {
+                TraceEvent.from(it)
+            } ?: emptyList()
 
         // Disable tracing
         tracer.isEnabled = false
@@ -78,4 +80,3 @@ class TestController(
         }
     }
 }
-

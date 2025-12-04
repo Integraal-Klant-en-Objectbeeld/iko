@@ -6,5 +6,5 @@ data class ConnectorEndpointConfigForm(
     @field:NotBlank(message = "Please provide a name.")
     val name: String,
     @field:NotBlank(message = "Please provide an operation.")
-    val operation: String
+    val operation: String,
 )

@@ -20,8 +20,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
 
 @Configuration
-class ConnectorConfiguration(val connectorRepository: ConnectorRepository) {
-
+class ConnectorConfiguration(
+    val connectorRepository: ConnectorRepository,
+) {
     @Bean
     fun endpoint() = Endpoint()
 
@@ -29,41 +30,43 @@ class ConnectorConfiguration(val connectorRepository: ConnectorRepository) {
     fun endpointAuth(
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
-        connectorEndpointRoleRepository: ConnectorEndpointRoleRepository
+        connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
     ) = EndpointAuth(
         connectorEndpointRepository,
         connectorInstanceRepository,
-        connectorEndpointRoleRepository
+        connectorEndpointRoleRepository,
     )
 
     @Bean
     fun endpointValidation(
         connectorEndpointRepository: ConnectorEndpointRepository,
-        connectorInstanceRepository: ConnectorInstanceRepository
+        connectorInstanceRepository: ConnectorInstanceRepository,
     ) = EndpointValidation(connectorEndpointRepository, connectorInstanceRepository)
 
     @Bean
     fun ikoConnector() = Connector()
 
     @Bean
-    fun ikoConnectorConfig(connectorInstanceRepository: ConnectorInstanceRepository) =
-        ConnectorConfig(connectorInstanceRepository)
+    fun ikoConnectorConfig(connectorInstanceRepository: ConnectorInstanceRepository) = ConnectorConfig(connectorInstanceRepository)
 
     @Bean
     fun ikoTransform() = Transform()
 
     @EventListener(
-        ApplicationReadyEvent::class
+        ApplicationReadyEvent::class,
     )
     fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
         val camelContext = event.applicationContext.getBean("camelContext") as CamelContext
 
-        connectorRepository.findAll()
+        connectorRepository
+            .findAll()
             .forEach {
                 try {
-                    val resource = ResourceHelper.fromBytes(
-                        "${it.tag}.yaml", it.connectorCode.toByteArray()
-                    )
+                    val resource =
+                        ResourceHelper.fromBytes(
+                            "${it.tag}.yaml",
+                            it.connectorCode.toByteArray(),
+                        )
                     PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
                 } catch (e: Exception) {
                     logger.error(e) { "Failed to load connector ${it.tag}" }
