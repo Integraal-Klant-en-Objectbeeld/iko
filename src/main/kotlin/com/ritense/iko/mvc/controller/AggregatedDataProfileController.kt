@@ -446,7 +446,7 @@ class AggregatedDataProfileController(
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#relations-panel")
+        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
 
