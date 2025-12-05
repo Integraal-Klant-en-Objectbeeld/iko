@@ -5,7 +5,7 @@ import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRep
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
-import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
+import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_RELATION
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
@@ -58,7 +58,7 @@ class AggregatedDataProfileController(
         val availableSources = sources(aggregatedDataProfile)
 
         return ModelAndView(
-            "$BASE_FRAGMENT_ADG/detailPage" +
+            "$BASE_FRAGMENT_ADP/detail-page" +
                 when (isHxRequest) {
                     true -> ":: view-panel-content"
                     false -> ""
@@ -83,13 +83,13 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         val page = aggregatedDataProfileRepository.findAllBy(pageable)
         return if (isHxRequest) {
-            ModelAndView("$BASE_FRAGMENT_ADG/list").apply {
+            ModelAndView("$BASE_FRAGMENT_ADP/list").apply {
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
         } else {
-            ModelAndView("$BASE_FRAGMENT_ADG/listPage").apply {
+            ModelAndView("$BASE_FRAGMENT_ADP/listPage").apply {
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -107,7 +107,7 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         val page = aggregatedDataProfileRepository.findAll(pageable)
         val list =
-            ModelAndView("$BASE_FRAGMENT_ADG/pagination").apply {
+            ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -130,13 +130,13 @@ class AggregatedDataProfileController(
 
         if (isHxRequest) {
             val searchResults =
-                ModelAndView("$BASE_FRAGMENT_ADG/filterResults").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/filterResults").apply {
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
                 }
             val pagination =
-                ModelAndView("$BASE_FRAGMENT_ADG/pagination").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
@@ -147,7 +147,7 @@ class AggregatedDataProfileController(
             )
         } else {
             return listOf(
-                ModelAndView("$BASE_FRAGMENT_ADG/filterResultsPage").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/filterResultsPage").apply {
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
@@ -162,7 +162,7 @@ class AggregatedDataProfileController(
     @GetMapping("/aggregated-data-profiles/create")
     fun create(): ModelAndView {
         val modelAndView =
-            ModelAndView("$BASE_FRAGMENT_ADG/add").apply {
+            ModelAndView("$BASE_FRAGMENT_ADP/add").apply {
                 addObject("connectorInstances", connectorInstanceRepository.findAll())
                 addObject("connectorEndpoints", emptyList<Any>())
             }
@@ -179,7 +179,7 @@ class AggregatedDataProfileController(
                 .orElseThrow { NoSuchElementException("Connector not found") }
         val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
 
-        return ModelAndView("$BASE_FRAGMENT_ADG/add :: connectorEndpoints").apply {
+        return ModelAndView("$BASE_FRAGMENT_ADP/add :: connectorEndpoints").apply {
             addObject("connectorEndpoints", endpoints)
         }
     }
@@ -196,7 +196,7 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
             val modelAndView =
-                ModelAndView("$BASE_FRAGMENT_ADG/add :: form").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/add :: form").apply {
                     addObject("form", form)
                     addObject("errors", bindingResult)
                 }
@@ -211,7 +211,7 @@ class AggregatedDataProfileController(
         val endpoints = instance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
         val availableSources = sources(aggregatedDataProfile)
 
-        val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+        val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/detail-page :: view-panel-content").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -239,8 +239,8 @@ class AggregatedDataProfileController(
         val form = AggregatedDataProfileForm.from(profile)
         val viewName =
             when {
-                fragment -> "$BASE_FRAGMENT_ADG/edit :: profile-edit"
-                else -> "$BASE_FRAGMENT_ADG/edit"
+                fragment -> "$BASE_FRAGMENT_ADP/edit :: profile-edit"
+                else -> "$BASE_FRAGMENT_ADP/edit"
             }
 
         val instance = connectorInstanceRepository.findById(profile.connectorInstanceId).orElseThrow()
@@ -268,7 +268,7 @@ class AggregatedDataProfileController(
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView =
-                ModelAndView("$BASE_FRAGMENT_ADG/edit").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/edit").apply {
                     addObject("errors", bindingResult)
                     addObject("form", form)
                     addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -283,7 +283,7 @@ class AggregatedDataProfileController(
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
 
-        val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+        val redirectModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/detail-page :: view-panel-content").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -342,7 +342,7 @@ class AggregatedDataProfileController(
             }
         }
 
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
+        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relationsPanel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -389,7 +389,7 @@ class AggregatedDataProfileController(
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: view-panel-content").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/detail-page :: view-panel-content").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
             addObject("sources", sources)
             addObject("errors", bindingResult)
@@ -412,7 +412,7 @@ class AggregatedDataProfileController(
             bindingResult.addError(ObjectError("name", "This name already exists."))
             return listOf(modelAndView)
         }
-        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADG/detailPage :: relations-tree").apply {
+        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/detail-page :: relations-tree").apply {
             addObject("aggregatedDataProfile", updatedProfile!!)
             addObject("relations", updatedProfile.relations.map { Relation.from(it) })
         }
@@ -453,7 +453,7 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relationsPanel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })

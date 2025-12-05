@@ -1,7 +1,7 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
+import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
@@ -26,7 +26,7 @@ class TestController(
     private val objectMapper: ObjectMapper,
 ) {
     @PostMapping(
-        path = ["/aggregated-data-profiles/test"],
+        path = ["/aggregated-data-profiles/debug"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     fun test(
@@ -71,7 +71,7 @@ class TestController(
         // Disable tracing
         tracer.isEnabled = false
 
-        return ModelAndView("$BASE_FRAGMENT_ADG/test :: profile-debug").apply {
+        return ModelAndView("$BASE_FRAGMENT_ADP/debug :: profile-debug").apply {
             addObject("form", form)
             addObject("testId", form.testId)
             addObject("testResult", result)

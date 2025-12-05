@@ -49,7 +49,7 @@ class AggregatedDataProfileRouteBuilder(
         // profile root route entrypoint
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
-            .routeDescription("[${aggregatedDataProfile.name}:${aggregatedDataProfile.id}]: ADP root route")
+            .routeDescription("ADP root route")
             .setVariable(
                 "authorities",
                 constant(effectiveRole),
@@ -110,7 +110,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}")
             .routeId("relation_${currentRelation.id}_root")
-            .routeDescription("[${aggregatedDataProfile.name}:${aggregatedDataProfile.id}] <- [${currentRelation.propertyName}:${currentRelation.id}]: Relation root")
+            .routeDescription("[${aggregatedDataProfile.name}] <-- [${currentRelation.propertyName}]")
             .removeHeaders("*")
             .setVariable("endpointMapping").jq(currentRelation.sourceToEndpointMapping)
             .setVariable("relationId", constant(currentRelation.id))
@@ -123,7 +123,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_map")
             .routeId("relation_${currentRelation.id}_map")
-            .routeDescription(" Relation [${currentRelation.propertyName}:${currentRelation.id}]: Handle endpoint mapping as map.")
+            .routeDescription("Endpoint mapping (Map): [${currentRelation.propertyName}]")
             .process {
                 it.getVariable("endpointMapping", ObjectNode::class.java).forEachEntry { key, value ->
                     it.getIn().setHeader(key, value.asText())
@@ -136,7 +136,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_array")
             .routeId("relation_${currentRelation.id}_array")
-            .routeDescription(" Relation [${currentRelation.propertyName}:${currentRelation.id}]: Handle endpoint mapping as array.")
+            .routeDescription("Endpoint mapping (List): [${currentRelation.propertyName}]")
             .split(
                 variable("endpointMapping"),
                 FlexibleAggregationStrategy<JsonNode>()
@@ -159,6 +159,7 @@ class AggregatedDataProfileRouteBuilder(
         // Executes each relation route
         from("direct:relation_${currentRelation.id}_loop")
             .routeId("relation_${currentRelation.id}_loop")
+            .routeDescription("[${currentRelation.propertyName}] --> Endpoint")
             .unmarshal().json()
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))

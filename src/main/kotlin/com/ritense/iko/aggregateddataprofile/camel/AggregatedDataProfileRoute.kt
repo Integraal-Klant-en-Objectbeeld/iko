@@ -30,6 +30,7 @@ class AggregatedDataProfileRoute(
                 }
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
             }
+            .routeDescription("REST consumer --> ADP entrypoint")
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }
 }
