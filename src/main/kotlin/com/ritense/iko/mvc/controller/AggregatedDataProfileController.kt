@@ -499,7 +499,9 @@ class AggregatedDataProfileController(
         val cacheKey = aggregatedDataProfile.toCacheable().cacheKey
         val key = cacheService.hashString(cacheKey)
         cacheService.evict(key)
-        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        // TODO for some reason the loading of details is not workting nice. InnerHtml stuff. Goal is to relad the details
+        // Also when running the test general tab needs refreshing because of the cache button ideally.
+        httpServletResponse.setHeader("HX-Retarget", "#adp-detail-page") // Does nothing why? Ask Niels on new setup
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         return details(id)
     }
