@@ -1,4 +1,4 @@
-<div th:fragment="profile-edit-panel">
+<div th:fragment="profile-edit">
     <div class="detail-grid">
         <!-- Left column -->
         <div class="detail-column">
@@ -15,28 +15,21 @@
                                 <div class="form-grid">
                                     <div class="form-column">
                                         <cds-stack gap="7">
-                                            <input type="hidden" name="id" th:value="${form.id}"/>
+                                            <input type="hidden" name="id" th:value="${form?.id}"/>
                                             <cds-text-input name="name"
                                                             label="Name"
                                                             th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                                                          invalid-text=${errors?.getFieldError('name')?.defaultMessage},
-                                                                         value=${form.name}">
+                                                                         value=${form?.name}">
                                             </cds-text-input>
 
                                             <div class="form-row">
                                                 <div class="form-col">
-                                                    <cds-select name="connectorInstanceId"
-                                                                label-text="Select an connector instance"
-                                                                hx-get="/admin/aggregated-data-profiles/create/endpoints"
-                                                                hx-trigger="cds-select-selected"
-                                                                hx-target="#connector-endpoints"
-                                                                th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
-                                                                 invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
-                                                                 value=${form.connectorInstanceId}
-                                                                ">
-                                                        <cds-select-item
-                                                            th:each="instance : ${connectorInstances}"
-                                                            th:value="${instance.id}">
+                                                    <cds-select label-text="Select an connector instance" size="md" name="connectorInstanceId"
+                                                                th:value="${form?.connectorInstanceId}"
+                                                                hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
+                                                                hx-target="#formEndpoints">
+                                                        <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
                                                             (<span th:text="${instance.connector.name}"></span>)
                                                             <span th:text="${instance.name}"></span>
                                                         </cds-select-item>
@@ -44,14 +37,8 @@
                                                 </div>
                                                 <div class="form-col">
                                                     <div id="formEndpoints" th:fragment="connectorEndpoints">
-                                                        <cds-select label-text="Select an connector endpoint"
-                                                                    name="connectorEndpointId"
-                                                                    th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
-                                                                     invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
-                                                                     value=${form.connectorEndpointId}">
-                                                            <cds-select-item
-                                                                th:each="endpoint : ${connectorEndpoints}"
-                                                                th:value="${endpoint.id}">
+                                                        <cds-select label-text="Select an connector endpoint" size="md" name="connectorEndpointId" th:value="${form?.connectorEndpointId}">
+                                                            <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
                                                                 <span th:text="${endpoint.name}"></span>
                                                             </cds-select-item>
                                                         </cds-select>
@@ -61,49 +48,47 @@
 
                                             <!-- Add Aggregated Data Profile form -->
                                             <cds-text-input name="role"
-                                                            label="Role"
+                                                              label="Role"
                                                           th:attr="invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
                                                                          invalid-text=${errors?.getFieldError('role')?.defaultMessage},
                                                                          value=${form?.role}">
                                             </cds-text-input>
 
-                                            <div class="form-row" style="flex-direction: row; align-items: center; justify-content: space-between;">
-                                                <cds-toggle id="cacheEnabledToggle"
-                                                            name="cacheEnabledToggle"
-                                                            label-text="Cache enabled"
-                                                            aria-labelledby="cacheEnabled-label"
-                                                            hx-on:cds-toggle-changed="document.querySelector('#cacheEnabled-hidden').value = this.checked;"
-                                                            th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
-                                                                     invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
-                                                                     checked=${form?.cacheEnabled}">
-                                                </cds-toggle>
-                                                <input type="hidden" name="cacheEnabled" id="cacheEnabled-hidden" th:value="${form?.cacheEnabled}">
-                                                <cds-number-input id="cacheTimeToLive"
-                                                                  name="cacheTimeToLive"
-                                                                  required="true"
-                                                                  value="5000"
-                                                                  min="1000"
-                                                                  step="1000"
-                                                                  max="31536000000"
-                                                                  label="Time to live"
-                                                                  helper-text="Milliseconds"
-                                                                  style="width: 300px;"
-                                                                  th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
-                                                                     invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
-                                                                     value=${form?.cacheTimeToLive}">
-                                                </cds-number-input>
-                                                <cds-button kind="danger-tertiary"
-                                                            size="sm"
-                                                            hx-confirm="Are you sure?"
-                                                            th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
-                                                                disabled=${!isCached}">
-                                                    Clear cache
-                                                </cds-button>
+                                            <div class="form-row">
+                                                <div class="form-col">
+                                                    <label id="cacheEnabled-label" for="cacheEnabled">
+                                                        Cache enabled
+                                                    </label>
+                                                    <cds-toggle id="cacheEnabledToggle"
+                                                                name="cacheEnabledToggle"
+                                                                aria-labelledby="cacheEnabled-label"
+                                                                hx-on:cds-toggle-changed="document.querySelector('#cacheEnabled-hidden').value = this.checked;"
+                                                                th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
+                                                                         invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
+                                                                         checked=${form?.cacheEnabled}">
+                                                    </cds-toggle>
+                                                    <input type="hidden" name="cacheEnabled" id="cacheEnabled-hidden" th:value="${form?.cacheEnabled}">
+                                                </div>
+                                                <div class="form-col">
+                                                    <cds-number-input id="cacheTimeToLive"
+                                                                      name="cacheTimeToLive"
+                                                                      required="true"
+                                                                      value="5000"
+                                                                      min="1000"
+                                                                      step="1000"
+                                                                      max="31536000000"
+                                                                      label="Time to live"
+                                                                      helper-text="Milliseconds"
+                                                                      th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
+                                                                         invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
+                                                                         value=${form?.cacheTimeToLive}">
+                                                    </cds-number-input>
+                                                </div>
                                             </div>
                                         </cds-stack>
                                     </div>
                                     <div class="form-column">
-                                        <cds-form-item th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null">
+                                        <cds-form-item>
                                             <label for="transformCode">Transform</label>
                                             <textarea id="transformCode"
                                                   name="transform"
@@ -114,18 +99,14 @@
                                             <!-- Monaco container -->
                                             <div id="transform-editor"
                                                  data-monaco
-                                                 data-language="jq"
+                                                 data-language="yaml"
                                                  data-textarea="#transformCode"
                                                  th:data-initial="${form?.transform}"
                                                  data-theme="lightgray-theme"
-                                                 th:class="${errors?.getFieldError('transform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
+                                                 class="monaco-editor-style">
                                             </div>
                                         </cds-form-item>
-                                        <div id="monaco-error"
-                                             th:class="${errors?.getFieldError('transform') != null} ? 'monaco-error show' : 'monaco-error'">
-                                            <span th:if="${errors?.getFieldError('transform') != null}"
-                                                  th:text="${errors?.getFieldError('transform')?.defaultMessage}"></span>
-                                        </div>
+                                        <div id="monaco-error" class="monaco-error"></div>
                                         <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
                                         <cds-form-item class="form-actions">
                                             <cds-button
