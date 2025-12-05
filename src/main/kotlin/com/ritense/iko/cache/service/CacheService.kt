@@ -56,8 +56,8 @@ class CacheService(
      * @param key Cache key to remove.
      */
     fun evict(key: String) {
-        template.delete(key)
-        logger.debug { "Cache evicted key='$key'" }
+        val result = template.delete(key)
+        logger.debug { "Cache evicted key='$key' result=$result" }
     }
 
     /**
@@ -85,6 +85,11 @@ class CacheService(
         val uniqueKey = keyParts.joinToString("") { it }
         val cacheKey = hashString(uniqueKey)
         return cacheKey
+    }
+
+    fun isCached(cacheKey: String): Boolean {
+        val key = hashString(cacheKey)
+        return template.hasKey(key)
     }
 
     companion object {

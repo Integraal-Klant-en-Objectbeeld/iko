@@ -84,6 +84,16 @@
                                                                          value=${form?.cacheTimeToLive}">
                                                     </cds-number-input>
                                                 </div>
+                                                <div class="form-col">
+                                                    <cds-form-item class="form-actions">
+                                                        <cds-button kind="danger-tertiary"
+                                                                    hx-confirm="Are you sure?"
+                                                                    th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
+                                                                        disabled=${!isCached}">
+                                                            Clear cache
+                                                        </cds-button>
+                                                    </cds-form-item>
+                                                </div>
                                             </div>
                                         </cds-stack>
                                     </div>

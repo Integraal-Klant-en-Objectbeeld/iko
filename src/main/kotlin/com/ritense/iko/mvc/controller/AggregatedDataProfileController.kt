@@ -3,6 +3,8 @@ package com.ritense.iko.mvc.controller
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
+import com.ritense.iko.cache.domain.toCacheable
+import com.ritense.iko.cache.service.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
@@ -46,6 +48,7 @@ class AggregatedDataProfileController(
     private val aggregatedDataProfileService: AggregatedDataProfileService,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
+    private val cacheService: CacheService,
 ) {
     @GetMapping("/aggregated-data-profiles/{id}")
     fun details(
@@ -56,6 +59,7 @@ class AggregatedDataProfileController(
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
         val endpoints = instance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
         val availableSources = sources(aggregatedDataProfile)
+        val isCached = cacheService.isCached(aggregatedDataProfile.toCacheable().cacheKey)
 
         return ModelAndView(
             "$BASE_FRAGMENT_ADG/detailPage" +
@@ -71,6 +75,7 @@ class AggregatedDataProfileController(
                 "connectorInstances" to connectorInstanceRepository.findAll(),
                 "connectorEndpoints" to endpoints,
                 "sources" to availableSources,
+                "isCached" to isCached,
             ),
         )
     }
@@ -229,6 +234,7 @@ class AggregatedDataProfileController(
         return redirectModelAndView
     }
 
+    // TODO ask Randell if this can be delete? Don't think this is still used.
     @GetMapping("/aggregated-data-profiles/edit/{id}")
     fun edit(
         @PathVariable id: UUID,
@@ -436,7 +442,6 @@ class AggregatedDataProfileController(
                 aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) },
             )
         }
-
         return modelAndView
     }
 
@@ -485,6 +490,21 @@ class AggregatedDataProfileController(
         return list(query = "", pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
     }
 
+    @DeleteMapping("/aggregated-data-profiles/{id}/cache")
+    fun clearAdpCache(
+        @PathVariable id: UUID,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val cacheKey = aggregatedDataProfile.toCacheable().cacheKey
+        val key = cacheService.hashString(cacheKey)
+        cacheService.evict(key)
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+        return details(id)
+    }
+
+    // TODO Ask Randell if this can go since sorting is know changed with the introduction of the tree component.
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations
         .sortedWith(
             compareBy<com.ritense.iko.aggregateddataprofile.domain.Relation>(
