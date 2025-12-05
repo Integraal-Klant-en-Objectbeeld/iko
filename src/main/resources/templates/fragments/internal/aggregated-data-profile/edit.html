@@ -48,21 +48,53 @@
 
                                             <!-- Add Aggregated Data Profile form -->
                                             <cds-text-input name="role"
-                                                            label="Role"
-                                                            th:attr="invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
+                                                              label="Role"
+                                                          th:attr="invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
                                                                          invalid-text=${errors?.getFieldError('role')?.defaultMessage},
                                                                          value=${form?.role}">
                                             </cds-text-input>
+
+                                            <div class="form-row">
+                                                <div class="form-col">
+                                                    <label id="cacheEnabled-label" for="cacheEnabled">
+                                                        Cache enabled
+                                                    </label>
+                                                    <cds-toggle id="cacheEnabledToggle"
+                                                                name="cacheEnabledToggle"
+                                                                aria-labelledby="cacheEnabled-label"
+                                                                hx-on:cds-toggle-changed="document.querySelector('#cacheEnabled-hidden').value = this.checked;"
+                                                                th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
+                                                                         invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
+                                                                         checked=${form?.cacheEnabled}">
+                                                    </cds-toggle>
+                                                    <input type="hidden" name="cacheEnabled" id="cacheEnabled-hidden" th:value="${form?.cacheEnabled}">
+                                                </div>
+                                                <div class="form-col">
+                                                    <cds-number-input id="cacheTimeToLive"
+                                                                      name="cacheTimeToLive"
+                                                                      required="true"
+                                                                      value="5000"
+                                                                      min="1000"
+                                                                      step="1000"
+                                                                      max="31536000000"
+                                                                      label="Time to live"
+                                                                      helper-text="Milliseconds"
+                                                                      th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
+                                                                         invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
+                                                                         value=${form?.cacheTimeToLive}">
+                                                    </cds-number-input>
+                                                </div>
+                                            </div>
                                         </cds-stack>
                                     </div>
                                     <div class="form-column">
                                         <cds-form-item>
                                             <label for="transformCode">Transform</label>
                                             <textarea id="transformCode"
-                                                      name="transform"
-                                                      th:text="${form?.transform}"
-                                                      hidden>
-                                                </textarea>
+                                                  name="transform"
+                                                  th:text="${form?.transform}"
+                                                  hidden>
+                                            </textarea>
 
                                             <!-- Monaco container -->
                                             <div id="transform-editor"
@@ -76,16 +108,13 @@
                                         </cds-form-item>
                                         <div id="monaco-error" class="monaco-error"></div>
                                         <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
-
-
                                         <cds-form-item class="form-actions">
                                             <cds-button
                                                 type="submit"
                                                 data-save-btn
                                                 hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
                                                 hx-on::before-request="const btn = this.querySelector('[data-save-btn]'); if(btn){ btn.dataset.label = btn.textContent; btn.textContent='Saving…'; btn.setAttribute('disabled',''); }"
-                                                hx-on::after-request="const btn = this.querySelector('[data-save-btn]'); if(btn && btn.dataset.label){ btn.textContent = btn.dataset.label; btn.removeAttribute('disabled'); delete btn.dataset.label; }"
-                                            >
+                                                hx-on::after-request="const btn = this.querySelector('[data-save-btn]'); if(btn && btn.dataset.label){ btn.textContent = btn.dataset.label; btn.removeAttribute('disabled'); delete btn.dataset.label; }">
                                                 Save
                                             </cds-button>
                                         </cds-form-item>

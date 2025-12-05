@@ -55,6 +55,10 @@ class AggregatedDataProfile(
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
         this.transform = Transform(request.transform)
+        this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
+            enabled = request.cacheEnabled,
+            timeToLive = request.cacheTimeToLive
+        )
     }
 
     fun addRelation(request: AddRelationForm) {

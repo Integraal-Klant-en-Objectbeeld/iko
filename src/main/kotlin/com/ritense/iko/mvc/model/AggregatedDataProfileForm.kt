@@ -22,15 +22,21 @@ data class AggregatedDataProfileForm(
     val role: String? = null,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
+    val cacheEnabled: Boolean,
+    val cacheTimeToLive: Int
 ) {
+
     companion object {
-        fun from(aggregatedDataProfile: AggregatedDataProfile): AggregatedDataProfileForm = AggregatedDataProfileForm(
+        fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileForm(
             id = aggregatedDataProfile.id,
             name = aggregatedDataProfile.name,
             role = aggregatedDataProfile.role,
             transform = aggregatedDataProfile.transform.expression,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
             connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
+            cacheEnabled = aggregatedDataProfile.aggregatedDataProfileCacheSetting.enabled,
+            cacheTimeToLive = aggregatedDataProfile.aggregatedDataProfileCacheSetting.timeToLive,
         )
     }
+
 }
