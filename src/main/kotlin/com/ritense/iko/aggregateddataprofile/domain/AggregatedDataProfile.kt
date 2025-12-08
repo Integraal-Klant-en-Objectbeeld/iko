@@ -44,7 +44,7 @@ class AggregatedDataProfile(
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
     fun handle(request: AggregatedDataProfileForm) {
-        this.name = request.name
+        this.name = request.name!!
         if (!request.role.isNullOrBlank()) {
             this.role = request.role
         } else {
@@ -52,9 +52,9 @@ class AggregatedDataProfile(
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             this.role = defaultRole
         }
-        this.connectorEndpointId = request.connectorEndpointId
-        this.connectorInstanceId = request.connectorInstanceId
-        this.transform = Transform(request.transform)
+        this.connectorEndpointId = request.connectorEndpointId!!
+        this.connectorInstanceId = request.connectorInstanceId!!
+        this.transform = Transform(request.transform!!)
     }
 
     fun addRelation(request: AddRelationForm) {
@@ -67,11 +67,11 @@ class AggregatedDataProfile(
                 } else {
                     null
                 },
-                transform = Transform(request.transform),
-                sourceToEndpointMapping = request.sourceToEndpointMapping,
-                connectorEndpointId = request.connectorEndpointId,
-                connectorInstanceId = request.connectorInstanceId,
-                propertyName = request.propertyName,
+                transform = Transform(request.transform!!),
+                sourceToEndpointMapping = request.sourceToEndpointMapping!!,
+                connectorEndpointId = request.connectorEndpointId!!,
+                connectorInstanceId = request.connectorInstanceId!!,
+                propertyName = request.propertyName!!,
                 relationCacheSettings = RelationCacheSettings(),
             ),
         )
@@ -114,16 +114,16 @@ class AggregatedDataProfile(
 
     companion object {
         fun create(form: AggregatedDataProfileForm): AggregatedDataProfile {
-            val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+            val sanitizedName = form.name!!.replace(Regex("[^0-9a-zA-Z_-]+"), "")
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             val role = if (form.role.isNullOrBlank()) defaultRole else form.role
             return AggregatedDataProfile(
                 id = UUID.randomUUID(),
                 name = form.name,
                 role = role,
-                transform = Transform(form.transform),
-                connectorEndpointId = form.connectorEndpointId,
-                connectorInstanceId = form.connectorInstanceId,
+                transform = Transform(form.transform!!),
+                connectorEndpointId = form.connectorEndpointId!!,
+                connectorInstanceId = form.connectorInstanceId!!,
                 aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             )
         }

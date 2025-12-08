@@ -1,5 +1,5 @@
-<th:block th:fragment="relation-edit">
-    <form id="relation-edit-form" hx-put="/admin/relations" hx-swap="none" hx-include="#relation-edit-form *">
+<div th:fragment="relation-edit" id="relation-edit">
+    <form id="relation-edit-form" hx-put="/admin/relations" hx-target="#relation-edit" hx-swap="outerHTML" hx-include="#relation-edit-form *">
     <cds-form-group name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
         <cds-stack gap="7">
             <cds-form-item>
@@ -72,16 +72,30 @@
                                 value=${form?.propertyName}">
                 </cds-text-input>
             </cds-form-item>
-            <cds-form-item>
-                <cds-textarea name="transform"
-                              label="Transform"
-                              helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                              placeholder="e.g. {'fieldA': '.fieldB'}"
-                              th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
-                                value=${form?.transform}">
-                </cds-textarea>
+            <cds-form-item th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null">
+                <label for="transformCodeEdit">Transform</label>
+                <textarea id="transformCodeEdit"
+                          name="transform"
+                          th:text="${form?.transform}"
+                          hidden>
+                </textarea>
+
+                <!-- Monaco container -->
+                <div id="transform-editor-edit"
+                     data-monaco
+                     data-language="jq"
+                     data-textarea="#transformCodeEdit"
+                     th:data-initial="${form?.transform}"
+                     data-theme="lightgray-theme"
+                     th:class="${errors?.getFieldError('transform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
+                </div>
             </cds-form-item>
+            <div id="monaco-error-edit"
+                 th:class="${errors?.getFieldError('transform') != null} ? 'monaco-error show' : 'monaco-error'">
+                <span th:if="${errors?.getFieldError('transform') != null}"
+                      th:text="${errors?.getFieldError('transform')?.defaultMessage}"></span>
+            </div>
+            <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
             <input type="hidden" name="aggregatedDataProfileId" th:value="${form.aggregatedDataProfileId}"/>
             <input type="hidden" name="id" th:value="${form.id}"/>
         </cds-stack>
@@ -110,6 +124,5 @@
         </cds-button>
     </div>
     </form>
-
-</th:block>
+</div>
 <span id="selected-relation-name" hx-swap-oob="true" class="tile-title" th:text="${form?.propertyName}"></span>
