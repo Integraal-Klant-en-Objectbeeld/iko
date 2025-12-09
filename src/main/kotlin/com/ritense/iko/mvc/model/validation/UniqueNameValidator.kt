@@ -14,7 +14,7 @@ class UniqueNameValidator(
         form: AggregatedDataProfileForm,
         context: ConstraintValidatorContext,
     ): Boolean {
-        if (form.name.isBlank()) return true // Let @NotBlank handle this
+        if (form.name!!.isBlank()) return true // Let @NotBlank handle this
 
         val existing = aggregatedDataProfileRepository.findByName(form.name)
         val isValid = existing == null || existing.id == form.id

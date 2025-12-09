@@ -44,7 +44,7 @@ class AggregatedDataProfile(
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
     fun handle(request: AggregatedDataProfileForm) {
-        this.name = request.name
+        checkNotNull(request.name) { " Name is required. " }
         if (!request.role.isNullOrBlank()) {
             this.role = request.role
         } else {
@@ -52,9 +52,9 @@ class AggregatedDataProfile(
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             this.role = defaultRole
         }
-        this.connectorEndpointId = request.connectorEndpointId
-        this.connectorInstanceId = request.connectorInstanceId
-        this.transform = Transform(request.transform)
+        this.connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " }
+        this.connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " }
+        this.transform = Transform(checkNotNull(request.transform) { " Transform is required. " })
     }
 
     fun addRelation(request: AddRelationForm) {
@@ -67,11 +67,11 @@ class AggregatedDataProfile(
                 } else {
                     null
                 },
-                transform = Transform(request.transform),
-                sourceToEndpointMapping = request.sourceToEndpointMapping,
-                connectorEndpointId = request.connectorEndpointId,
-                connectorInstanceId = request.connectorInstanceId,
-                propertyName = request.propertyName,
+                transform = Transform(checkNotNull(request.transform) { " Transform is required. " }),
+                sourceToEndpointMapping = checkNotNull(request.sourceToEndpointMapping) { " Source to endpoint mapping is required. " },
+                connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " },
+                connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " },
+                propertyName = checkNotNull(request.propertyName) { " Property name is required. " },
                 relationCacheSettings = RelationCacheSettings(),
             ),
         )
@@ -114,16 +114,16 @@ class AggregatedDataProfile(
 
     companion object {
         fun create(form: AggregatedDataProfileForm): AggregatedDataProfile {
-            val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+            val sanitizedName = form.name!!.replace(Regex("[^0-9a-zA-Z_-]+"), "")
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             val role = if (form.role.isNullOrBlank()) defaultRole else form.role
             return AggregatedDataProfile(
                 id = UUID.randomUUID(),
                 name = form.name,
                 role = role,
-                transform = Transform(form.transform),
-                connectorEndpointId = form.connectorEndpointId,
-                connectorInstanceId = form.connectorInstanceId,
+                transform = Transform(checkNotNull(form.transform) { " Transform is required. " }),
+                connectorEndpointId = checkNotNull(form.connectorEndpointId) { " Connector endpoint is required. " },
+                connectorInstanceId = checkNotNull(form.connectorInstanceId) { " Connector instance is required. " },
                 aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             )
         }
