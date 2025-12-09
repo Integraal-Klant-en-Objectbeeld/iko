@@ -18,7 +18,7 @@ import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.Source
-import com.ritense.iko.mvc.provider.SecurityContextHelper
+import com.ritense.iko.security.SecurityContextHelper
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
@@ -234,32 +234,6 @@ class AggregatedDataProfileController(
         return redirectModelAndView
     }
 
-    // TODO ask Randell if this can be delete? Don't think this is still used.
-    @GetMapping("/aggregated-data-profiles/edit/{id}")
-    fun edit(
-        @PathVariable id: UUID,
-        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-        @RequestParam(name = "fragment", defaultValue = "false") fragment: Boolean,
-    ): ModelAndView {
-        val profile = aggregatedDataProfileRepository.getReferenceById(id)
-        val form = AggregatedDataProfileForm.from(profile)
-        val viewName =
-            when {
-                fragment -> "$BASE_FRAGMENT_ADG/edit :: profile-edit"
-                else -> "$BASE_FRAGMENT_ADG/edit"
-            }
-
-        val instance = connectorInstanceRepository.findById(profile.connectorInstanceId).orElseThrow()
-        return ModelAndView(viewName).apply {
-            addObject("form", form)
-            addObject("menuItems", menuItems)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
-            addObject("username" to SecurityContextHelper.getUserPropertyByKey("name"))
-            addObject("email" to SecurityContextHelper.getUserPropertyByKey("email"))
-        }
-    }
-
     @PutMapping(
         path = ["/aggregated-data-profiles"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
@@ -270,7 +244,7 @@ class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id!!)
-
+        val isCached = cacheService.isCached(aggregatedDataProfile.toCacheable().cacheKey)
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView =
@@ -280,6 +254,7 @@ class AggregatedDataProfileController(
                     addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
                     addObject("connectorInstances", connectorInstanceRepository.findAll())
                     addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
+                    addObject("isCached", isCached)
                 }
             return modelAndView
         }
@@ -295,6 +270,7 @@ class AggregatedDataProfileController(
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
             addObject("connectorInstances", connectorInstanceRepository.findAll())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
+            addObject("isCached", isCached)
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
@@ -500,13 +476,11 @@ class AggregatedDataProfileController(
         val key = cacheService.hashString(cacheKey)
         cacheService.evict(key)
         // TODO for some reason the loading of details is not workting nice. InnerHtml stuff. Goal is to relad the details
-        // Also when running the test general tab needs refreshing because of the cache button ideally.
-        httpServletResponse.setHeader("HX-Retarget", "#adp-detail-page") // Does nothing why? Ask Niels on new setup
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
-        return details(id)
+        return details(id, true)
     }
 
-    // TODO Ask Randell if this can go since sorting is know changed with the introduction of the tree component.
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations
         .sortedWith(
             compareBy<com.ritense.iko.aggregateddataprofile.domain.Relation>(

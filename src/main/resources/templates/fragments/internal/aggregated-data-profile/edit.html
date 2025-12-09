@@ -7,10 +7,7 @@
                 <!--PROFILE EDIT FORM-->
                 <div id="profile-edit" th:fragment="profile-edit">
                     <cds-content>
-                        <form id="profile-edit-form"
-                              hx-put="/admin/aggregated-data-profiles"
-                              hx-target="#profile-edit"
-                              hx-swap="outerHTML">
+                        <form id="profile-edit-form" hx-put="/admin/aggregated-data-profiles" hx-target="#profile-edit" hx-swap="outerHTML">
                             <cds-form-group id="form-group" name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
                                 <div class="form-grid">
                                     <div class="form-column">
@@ -54,46 +51,42 @@
                                                                          value=${form?.role}">
                                             </cds-text-input>
 
-                                            <div class="form-row">
-                                                <div class="form-col">
-                                                    <label id="cacheEnabled-label" for="cacheEnabled">
-                                                        Cache enabled
-                                                    </label>
-                                                    <cds-toggle id="cacheEnabledToggle"
-                                                                name="cacheEnabledToggle"
-                                                                aria-labelledby="cacheEnabled-label"
-                                                                hx-on:cds-toggle-changed="document.querySelector('#cacheEnabled-hidden').value = this.checked;"
-                                                                th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
-                                                                         invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
-                                                                         checked=${form?.cacheEnabled}">
-                                                    </cds-toggle>
-                                                    <input type="hidden" name="cacheEnabled" id="cacheEnabled-hidden" th:value="${form?.cacheEnabled}">
-                                                </div>
-                                                <div class="form-col">
-                                                    <cds-number-input id="cacheTimeToLive"
-                                                                      name="cacheTimeToLive"
-                                                                      required="true"
-                                                                      value="5000"
-                                                                      min="1000"
-                                                                      step="1000"
-                                                                      max="31536000000"
-                                                                      label="Time to live"
-                                                                      helper-text="Milliseconds"
-                                                                      th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
-                                                                         invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
-                                                                         value=${form?.cacheTimeToLive}">
-                                                    </cds-number-input>
-                                                </div>
-                                                <div class="form-col">
-                                                    <cds-form-item class="form-actions">
-                                                        <cds-button kind="danger-tertiary"
-                                                                    hx-confirm="Are you sure?"
-                                                                    th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
-                                                                        disabled=${!isCached}">
-                                                            Clear cache
-                                                        </cds-button>
-                                                    </cds-form-item>
-                                                </div>
+                                            <div class="form-row" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                                                <label id="cacheEnabled-label" for="cacheEnabled">
+                                                    Cache enabled
+                                                </label>
+                                                <cds-toggle id="cacheEnabledToggle"
+                                                            name="cacheEnabledToggle"
+                                                            aria-labelledby="cacheEnabled-label"
+                                                            hx-on:cds-toggle-changed="document.querySelector('#cacheEnabled-hidden').value = this.checked;"
+                                                            th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
+                                                                     invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
+                                                                     checked=${form?.cacheEnabled}">
+                                                </cds-toggle>
+                                                <input type="hidden" name="cacheEnabled" id="cacheEnabled-hidden" th:value="${form?.cacheEnabled}">
+                                                <cds-number-input id="cacheTimeToLive"
+                                                                  name="cacheTimeToLive"
+                                                                  required="true"
+                                                                  value="5000"
+                                                                  min="1000"
+                                                                  step="1000"
+                                                                  max="31536000000"
+                                                                  label="Time to live"
+                                                                  helper-text="Milliseconds"
+                                                                  style="width: 300px"
+                                                                  th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
+                                                                     invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
+                                                                     value=${form?.cacheTimeToLive}">
+                                                </cds-number-input>
+                                                <cds-form-item class="form-actions">
+                                                    <cds-button kind="danger-tertiary"
+                                                                size="sm"
+                                                                hx-confirm="Are you sure?"
+                                                                th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
+                                                                    disabled=${!isCached}">
+                                                        Clear cache
+                                                    </cds-button>
+                                                </cds-form-item>
                                             </div>
                                         </cds-stack>
                                     </div>

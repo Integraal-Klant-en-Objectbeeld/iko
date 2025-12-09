@@ -1,4 +1,4 @@
-package com.ritense.iko.mvc.provider
+package com.ritense.iko.security
 
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.core.oidc.user.OidcUser
