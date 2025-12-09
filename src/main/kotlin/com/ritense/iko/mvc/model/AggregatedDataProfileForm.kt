@@ -4,6 +4,7 @@ import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueName
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import java.util.UUID
 
@@ -15,13 +16,16 @@ data class AggregatedDataProfileForm(
         regexp = "[0-9a-zA-Z_\\-]+",
         message = "Name may only contain letters, digits, underscores, and hyphens.",
     )
-    val name: String,
-    @field:NotBlank(message = "Please provide a transform expression.")
+    val name: String? = null,
     @field:ValidTransform
-    val transform: String,
+    @field:NotBlank(message = "Please provide a transform expression.")
+    val transform: String? = null,
+    @field:NotBlank(message = "Please provide a role.")
     val role: String? = null,
-    val connectorInstanceId: UUID,
-    val connectorEndpointId: UUID,
+    @field:NotNull(message = "Please provide a connector instance.")
+    var connectorInstanceId: UUID? = null,
+    @field:NotNull(message = "Please provide a connector endpoint.")
+    var connectorEndpointId: UUID? = null,
     val cacheEnabled: Boolean,
     val cacheTimeToLive: Int
 ) {
