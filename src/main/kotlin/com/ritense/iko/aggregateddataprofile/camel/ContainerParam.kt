@@ -1,6 +1,10 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
+import org.springframework.data.domain.Pageable
+
+
 data class ContainerParam(
-    val name: String,
-    val map: Map<String, String>,
+    val containerId: String,
+    val pageable: Pageable = Pageable.unpaged(),
+    val filters: Map<String, String> = emptyMap(),
 )

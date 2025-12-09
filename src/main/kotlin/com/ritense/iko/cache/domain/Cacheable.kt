@@ -24,6 +24,7 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
     val cacheKey =
         listOf(
             id.toString(),
+            endpointTransform.expression,
             transform.expression,
         ).joinToString(separator = "")
 
@@ -43,6 +44,7 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
             if (cacheEvent.type == HIT) {
                 with(exchange) {
                     message.body = cacheEvent.value
+                    message.setHeader("Content-Type", "application/json")
                     isRouteStop = true
                 }
             }

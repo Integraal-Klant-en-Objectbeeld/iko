@@ -360,7 +360,7 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 
 /* Forms */
 
-form.cds-form {
+form[grid] {
     display: flex;
 
     div[form-row] {

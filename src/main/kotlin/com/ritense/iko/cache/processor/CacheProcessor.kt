@@ -25,7 +25,8 @@ class CacheProcessor(
             logger.debug { "Cache is disabled for Cacheable with Id: $id" }
             return
         }
-        val cacheKey = cacheService.hashString(cacheKey)
+        val endpointTransformResult = exchange.getVariable("endpointTransformResult", "", String::class.java)
+        val cacheKey = cacheService.hashString(cacheKey + endpointTransformResult)
         val cacheEvent = checkCache(cacheKey)
 
         handleCacheEntry(
@@ -42,9 +43,9 @@ class CacheProcessor(
             logger.debug { "Cache is disabled for Cacheable with Id: $id" }
             return null
         }
-
+        val endpointTransformResult = exchange.getVariable("endpointTransformResult", "", String::class.java)
         putCache(
-            key = cacheService.hashString(cacheKey),
+            key = cacheService.hashString(cacheKey + endpointTransformResult),
             value = objectMapper.writeValueAsString(exchange.message.body),
             timeToLive = cacheSettings.timeToLive.milliseconds.toJavaDuration(),
         )

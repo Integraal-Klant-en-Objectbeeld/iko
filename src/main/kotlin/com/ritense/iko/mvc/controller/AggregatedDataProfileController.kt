@@ -268,7 +268,7 @@ class AggregatedDataProfileController(
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView =
-                ModelAndView("$BASE_FRAGMENT_ADP/edit").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/detail-page :: view-panel-content").apply {
                     addObject("errors", bindingResult)
                     addObject("form", form)
                     addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })

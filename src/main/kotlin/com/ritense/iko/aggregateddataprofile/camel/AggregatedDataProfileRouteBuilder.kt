@@ -2,6 +2,8 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute.Companion.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute.Companion.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.cache.domain.toCacheable
@@ -46,15 +48,22 @@ class AggregatedDataProfileRouteBuilder(
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
 
+        val endpointTransformExpression = expression()
+            .jq(aggregatedDataProfile.endpointTransform.expression)
+            .variableName(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE)
+            .resultType(ObjectNode::class.java)
+            .end()
+
         // profile root route entrypoint
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
-            .routeDescription("ADP root route")
+            .routeDescription("[ADP Root]")
             .setVariable(
                 "authorities",
                 constant(effectiveRole),
             )
             .to("direct:auth")
+            .to("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
@@ -81,12 +90,25 @@ class AggregatedDataProfileRouteBuilder(
             }
             .marshal().json()
 
+        from("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+            .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+            .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, endpointTransformExpression)
+            .routeDescription("[ADP Endpoint Transform]")
+            .process {
+                val result = it.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java)
+
+                result?.forEachEntry { key, value ->
+                    it.getIn().setHeader(key, value.asText())
+                }
+            }
+
         // create multicast and build routes for relations
         if (relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
                 .multicast(MapAggregator)
                 .parallelProcessing()
+                .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
 
             relations.forEach { relation ->
                 // build route for child relation

@@ -13,15 +13,15 @@
         </cds-tabs>
 
         <div id="panel-general" role="tabpanel" aria-labelledby="tab-general">
-            <div th:replace="fragments/internal/aggregated-data-profile/general :: profile-general"></div>
+            <div th:replace="~{fragments/internal/aggregated-data-profile/general :: profile-general}"></div>
         </div>
 
         <div id="panel-relations" role="tabpanel" aria-labelledby="tab-relations">
-            <div th:replace="fragments/internal/aggregated-data-profile/relations :: profile-relations"></div>
+            <div th:replace="~{fragments/internal/aggregated-data-profile/relations :: profile-relations}"></div>
         </div>
 
         <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview">
-            <div th:replace="fragments/internal/aggregated-data-profile/debug :: profile-debug"></div>
+            <div th:replace="~{fragments/internal/aggregated-data-profile/debug :: profile-debug}"></div>
         </div>
     </th:block>
 </div>
