@@ -33,7 +33,7 @@ require.config({
 
                 // Clear any existing content in the element
                 el.innerHTML = '';
-                
+
                 const editor = monaco.editor.create(el, {
                     value: initialValue,
                     language,
@@ -43,6 +43,9 @@ require.config({
                     readOnly: isReadOnly,
                     scrollBeyondLastLine: false,
                 });
+
+                initialized.set(el, editor);
+                el._monacoEditor = editor; // Store reference on element for external access
 
                 // Sync editor content to textarea
                 if (textAreaSelector) {
