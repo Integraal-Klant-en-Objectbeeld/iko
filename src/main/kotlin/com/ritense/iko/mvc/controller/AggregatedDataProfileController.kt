@@ -67,7 +67,7 @@ class AggregatedDataProfileController(
                     true -> ":: view-panel-content"
                     false -> ""
                 },
-    mapOf(
+            mapOf(
                 "aggregatedDataProfile" to aggregatedDataProfile,
                 "form" to AggregatedDataProfileEditForm.from(aggregatedDataProfile),
                 "relations" to aggregatedDataProfile.relations.map { Relation.from(it) },
@@ -76,7 +76,7 @@ class AggregatedDataProfileController(
                 "connectorEndpoints" to endpoints,
                 "sources" to availableSources,
                 "isCached" to isCached,
-            )
+            ),
         )
     }
 
@@ -203,8 +203,10 @@ class AggregatedDataProfileController(
                 addObject("form", form)
                 addObject("errors", bindingResult)
                 addObject("connectorInstances", connectorInstanceRepository.findAll())
-                addObject("connectorEndpoints", connectorInstanceRepository.findById(form.connectorInstanceId)
-                    .map { connectorEndpointRepository.findByConnector(it.connector) }.orElseThrow()
+                addObject(
+                    "connectorEndpoints",
+                    connectorInstanceRepository.findById(form.connectorInstanceId)
+                        .map { connectorEndpointRepository.findByConnector(it.connector) }.orElseThrow(),
                 )
             }
             return modelAndView

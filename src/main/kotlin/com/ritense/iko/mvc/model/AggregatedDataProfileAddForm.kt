@@ -23,7 +23,7 @@ data class AggregatedDataProfileAddForm(
     @field:NotBlank(message = "Please provide a role.")
     val role: String,
     var connectorInstanceId: UUID,
-    var connectorEndpointId: UUID
+    var connectorEndpointId: UUID,
 ) : UniqueAggregatedDataProfile {
 
     companion object {
@@ -32,8 +32,7 @@ data class AggregatedDataProfileAddForm(
             role = aggregatedDataProfile.role!!,
             transform = aggregatedDataProfile.transform.expression,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
-            connectorEndpointId = aggregatedDataProfile.connectorEndpointId
+            connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
         )
     }
-
 }

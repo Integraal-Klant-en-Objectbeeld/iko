@@ -25,7 +25,7 @@ data class AggregatedDataProfileEditForm(
     var connectorInstanceId: UUID,
     var connectorEndpointId: UUID,
     val cacheEnabled: Boolean,
-    val cacheTimeToLive: Int
+    val cacheTimeToLive: Int,
 ) : UniqueAggregatedDataProfile {
 
     companion object {
@@ -40,5 +40,4 @@ data class AggregatedDataProfileEditForm(
             cacheTimeToLive = aggregatedDataProfile.aggregatedDataProfileCacheSetting.timeToLive,
         )
     }
-
 }

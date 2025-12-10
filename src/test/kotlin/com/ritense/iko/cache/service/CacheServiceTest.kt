@@ -9,7 +9,7 @@ class CacheServiceTest {
 
     @Test
     fun hashString() {
-        val stringTemplate : StringRedisTemplate = mock()
+        val stringTemplate: StringRedisTemplate = mock()
         val cacheService = CacheService(stringTemplate)
 
         val input = "b-c"
@@ -17,5 +17,4 @@ class CacheServiceTest {
 
         assertThat(resultA).startsWith("a-")
     }
-
 }

@@ -56,7 +56,7 @@ class CacheService(
      * @param key Cache key to remove.
      */
     fun evictByPrefix(id: String) {
-        template.keys("${id}*").forEach {
+        template.keys("$id*").forEach {
             template.delete(it)
         }
         logger.debug { "Cache evicted by prefix='$id'" }
@@ -76,9 +76,7 @@ class CacheService(
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    fun isCached(id: String): Boolean {
-        return template.keys("${id}*").count() > 0
-    }
+    fun isCached(id: String) = template.keys("id*").count() > 0
 
     companion object {
         private val logger = KotlinLogging.logger {}
