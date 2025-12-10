@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+df<!DOCTYPE html>
 <html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <body>
 <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
@@ -21,23 +21,71 @@
             <div id="panel-connector-code" role="tabpanel" aria-labelledby="tab-connector-code"
                  class="cds--tab-content cds--tab-content--interactive">
                 <div style="display: flex; flex-flow: row; justify-content: flex-end; align-items: center;">
-                <cds-button style=""
-                            th:hx-get="@{|/admin/connectors/${connector.id}/edit|}"
-                            hx-target="#modal-container"
-                            kind="primary"
-                >Edit Code
-                </cds-button>
+                    <cds-button
+                        id="save-button"
+                        type="submit"
+                        th:hx-put="@{|/admin/connectors/${connector.id}|}"
+                        hx-include="#connectorCode"
+                        hx-target="this"
+                        hx-select="#connector-code"
+                        hx-swap="none"
+                        data-editor-selector="#connector-editor"
+                        style="display: none"
+                        onclick="toggleEditorMode(false);"
+                    >
+                        Save
+                    </cds-button>
+
+                    <cds-button
+                        id="edit-code-button"
+                        onclick="toggleEditorMode(true);"
+                    >
+                        Edit code
+                    </cds-button>
 
                 </div>
+
+                <script>
+                    function toggleEditorMode(editMode) {
+                        const saveBtn = document.getElementById('save-button');
+                        const editBtn = document.getElementById('edit-code-button');
+                        const editorEl = document.getElementById('connector-editor');
+
+                        if (editMode) {
+                            editBtn.style.display = 'none';
+                            saveBtn.style.display = 'block';
+                            editorEl.setAttribute('data-readonly', 'false');
+                        } else {
+                            saveBtn.style.display = 'none';
+                            editBtn.style.display = 'block';
+                            editorEl.setAttribute('data-readonly', 'true');
+                        }
+
+                        const editor = editorEl._monacoEditor;
+                        if (editor) {
+                            editor.updateOptions({ readOnly: !editMode });
+                        }
+                    }
+                </script>
                 <div id="connector-code" style="margin: 0.5em;" th:fragment="connector-code">
 
-                    <div id="connector-code-viewer"
+                    <textarea id="connectorCode"
+                              name="connectorCode"
+                              th:text="${connector?.connectorCode}"
+                              hidden></textarea>
+
+                    <!-- Monaco container -->
+                    <div id="connector-editor"
                          data-monaco
                          data-language="yaml"
+                         data-textarea="#connectorCode"
                          data-readonly=true
                          th:data-initial="${connector.connectorCode}"
                          class="monaco-editor-style-full-height">
                     </div>
+
+                    <div id="monaco-error" class="monaco-error"></div>
+
                 </div>
             </div>
 
@@ -71,10 +119,10 @@
                     <!-- Header -->
                     <cds-table-head>
                         <cds-table-header-row>
-                            <cds-table-header-cell>
+                            <cds-table-header-cell style="width:30%">
                                 Name
                             </cds-table-header-cell>
-                            <cds-table-header-cell>
+                            <cds-table-header-cell style="width:30%">
                                 Reference
                             </cds-table-header-cell>
                             <cds-table-header-cell>
@@ -141,10 +189,10 @@
                     <!-- Header -->
                     <cds-table-head>
                         <cds-table-header-row>
-                            <cds-table-header-cell>
+                            <cds-table-header-cell style="width:30%">
                                 Name
                             </cds-table-header-cell>
-                            <cds-table-header-cell>
+                            <cds-table-header-cell style="width:30%">
                                 Reference
                             </cds-table-header-cell>
                             <cds-table-header-cell>
