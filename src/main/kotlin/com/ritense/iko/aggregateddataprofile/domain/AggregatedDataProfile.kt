@@ -58,7 +58,7 @@ class AggregatedDataProfile(
         this.transform = Transform(request.transform)
         this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
             enabled = request.cacheEnabled,
-            timeToLive = request.cacheTimeToLive
+            timeToLive = request.cacheTimeToLive,
         )
     }
 
