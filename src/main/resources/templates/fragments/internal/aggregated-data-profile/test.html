@@ -1,9 +1,5 @@
-<div id="profile-edit" th:fragment="profile-debug">
-    <cds-content>
-        <style>
-            .cds-ce-demo-devenv--tab-panels{flex:1;align-self:stretch;padding:1rem}
-        </style>
-        <br>
+<div id="profile-debug" th:fragment="profile-debug">
+    <cds-tile>
         <cds-tabs value="result" type="contained">
             <cds-tab id="tab-result" target="panel-result" value="result">
                 Result
@@ -16,41 +12,90 @@
                 Error
             </cds-tab>
         </cds-tabs>
-        <div class="cds-ce-demo-devenv--tab-panels">
+        <div style="margin-top: 1rem;">
             <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" hidden="">
-                <h4>Result:</h4>
-                <cds-form-group id="form-group" name="form-group" legend-text="API result">
+                <cds-form-group id="form-group-test" name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
                     <cds-stack gap="7">
-                        <cds-textarea id="testResult"
+
+                        <input type="hidden" id="name" name="name" th:value="${form.name}">
+                        <input type="hidden" id="transform" name="transform" value=".">
+
+                        <cds-text-input id="testId"
+                                        name="testId"
+                                        label="Id for testing the ADP"
+                                        th:value="${testId}"
+                        >
+                        </cds-text-input>
+
+                        <cds-form-item>
+                            <label for="testResult">Result</label>
+                            <textarea id="testResult"
                                       name="Test result"
-                                      style="width: 100%;"
-                                      label="Result"
-                                      rows="auto"
-                                      th:attr="value=${testResult}">
-                        </cds-textarea>
-                        <cds-textarea id="query"
-                                      name="query"
-                                      style="width: 100%;"
-                                      label="Transform"
-                                      rows="auto"
-                                      th:attr="value=${form.transform}">
-                        </cds-textarea>
-                        <cds-textarea id="output"
-                                      name="output"
-                                      style="width: 100%;"
-                                      label="Output"
-                                      rows="auto">
-                        </cds-textarea>
-                        <div id="error" style="color:#c00;"></div>
-                        <div style="max-width: fit-content;">
-                            <cds-button id="run" kind="primary">Apply transform</cds-button>
-                            <cds-button id="back" kind="secondary"
-                                        th:hx-get="@{'/admin/aggregated-data-profiles/edit/' + ${form.id} + '?fragment=true'}"
-                                        hx-target="#profile-edit"
-                                        hx-swap="outerHTML">
-                                Back
+                                      hidden
+                                      th:value="${testResult}">
+                            </textarea>
+
+                            <!-- Monaco container for test result -->
+                            <div id="testResult-editor"
+                                 data-readonly=true
+                                 data-monaco
+                                 data-language="json"
+                                 data-textarea="#testResult"
+                                 th:data-initial="${testResult}"
+                                 data-theme="lightgray-theme"
+                                 class="monaco-editor-style">
+                            </div>
+
+                            <cds-button
+                                kind="primary"
+                                hx-post="/admin/aggregated-data-profiles/test"
+                                hx-target="#profile-debug"
+                                hx-swap="outerHTML"
+                                hx-include="[id='testId'], [id='transform'], [id='name']"
+                                hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
+                                style="margin-top: 1rem;">
+                                Get results
                             </cds-button>
-                        </div>
+                        </cds-form-item>
+
+                        <cds-form-item>
+                            <label for="query">Transform</label>
+                            <textarea id="query"
+                                      name="query"
+                                      hidden
+                                      th:attr="value=${form.transform}">
+                            </textarea>
+
+                            <div id="query-editor"
+                                 data-monaco
+                                 data-language="jq"
+                                 data-textarea="#query"
+                                 th:data-initial="${form.transform}"
+                                 data-theme="lightgray-theme"
+                                 class="monaco-editor-style">
+                            </div>
+
+                            <div id="error" class="monaco-error show" style="margin-bottom: 1rem"></div>
+                            <cds-button id="run" kind="primary">Apply transform</cds-button>
+                        </cds-form-item>
+
+                        <cds-form-item>
+                            <label for="output">Output</label>
+                            <textarea id="output"
+                                      name="output"
+                                      hidden>
+                                </textarea>
+
+                            <!-- Monaco container -->
+                            <div id="output-editor"
+                                 data-readonly=true
+                                 data-monaco
+                                 data-language="json"
+                                 data-textarea="#output"
+                                 data-theme="lightgray-theme"
+                                 class="monaco-editor-style">
+                            </div>
+                        </cds-form-item>
 
                         <script type="application/javascript">
                             // Helper: pretty-print anything
@@ -58,6 +103,13 @@
                                 try { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); }
                                 catch { return String(v); }
                             }
+
+                            function getMonacoEditor(selector) {
+                                const el = document.querySelector(selector);
+                                if (!el) return null;
+                                return monaco?.editor?.getEditors()?.find(e => e.getContainerDomNode() === el);
+                            }
+
                             document.getElementById('run').addEventListener('click', async () => {
                                 let outEl = document.getElementById('output');
                                 let errEl = document.getElementById('error');
@@ -66,23 +118,40 @@
 
                                 let data;
                                 let jsonEl;
+
                                 try {
-                                    jsonEl = document.getElementById('testResult').value;
+                                    const testResultEditor = getMonacoEditor('#testResult-editor');
+                                    jsonEl = testResultEditor ? testResultEditor.getValue() : document.getElementById('testResult').value;
                                     data = JSON.parse(jsonEl);
                                 } catch (e) {
                                     errEl.textContent = 'Invalid JSON: ' + e.message;
                                     outEl.value = '';
+                                    const editor = getMonacoEditor('#output-editor');
+                                    if (editor) editor.setValue('');
                                     return;
                                 }
+
                                 try {
-                                    let program = document.getElementById('query').value;
+                                    const queryEditor = getMonacoEditor('#query-editor');
+                                    let program = queryEditor ? queryEditor.getValue() : document.getElementById('query').value;
+
                                     let result = (await jq).json(data, program);
-                                    outEl.value = Array.isArray(result) && result.length > 1
+                                    const output = Array.isArray(result) && result.length > 1
                                         ? pretty(result)
                                         : pretty(Array.isArray(result) ? result[0] : result);
+                                    outEl.value = output;
+
+
+                                    // Update Monaco editor
+                                    const editor = getMonacoEditor('#output-editor');
+                                    if (editor) editor.setValue(output);
                                 } catch (e) {
+                                    const queryEditorElement = document.getElementById('query-editor');
+                                    queryEditorElement.classList.add('monaco-editor-error');
                                     errEl.textContent = 'jq error: ' + (e?.message || e);
                                     outEl.textContent = '';
+                                    const editor = getMonacoEditor('#output-editor');
+                                    if (editor) editor.setValue('');
                                 }
                             });
                         </script>
@@ -123,10 +192,11 @@
                      data-monaco
                      data-language="json"
                      data-readonly=true
+                     data-theme="lightgray-theme"
                      th:data-initial="${exception != null ? exception.getStacktrace() : ''}"
                      class="monaco-editor-style-full-height">
                 </div>
             </div>
         </div>
-    </cds-content>
+    </cds-tile>
 </div>

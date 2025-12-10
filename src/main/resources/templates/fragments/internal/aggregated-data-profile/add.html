@@ -1,70 +1,88 @@
-<cds-modal prevent-close-on-click-outside="true" size="md" open="true">
+<cds-modal id="active-modal" prevent-close-on-click-outside="true" size="lg" open="true">
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
         <cds-modal-heading>Add Aggregated Data Profile</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <th:block th:fragment="form">
-            <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                <cds-stack gap="7">
-                    <cds-text-input name="name"
-                                    label="Name"
+        <cds-form-group id="form-group" th:fragment="adp-add-form" name="form-group">
+            <cds-stack gap="7">
+                <cds-text-input name="name"
+                                label="Name"
+                                size="lg"
+                                th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage},
+                                         value=${form?.name}">
+                </cds-text-input>
+                <div class="form-row">
+                    <div class="form-col">
+                        <cds-select label-text="Select an connector instance"
                                     size="lg"
-                                    th:attr="
-                            invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                            invalid-text=${errors?.getFieldError('name')?.defaultMessage},
-                            value=${form?.name}
-                          ">
-                    </cds-text-input>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <cds-select label-text="Select an connector instance"
+                                    name="connectorInstanceId"
+                                    th:value="${form?.connectorInstanceId}"
+                                    hx-get="/admin/aggregated-data-profiles/create/endpoints"
+                                    hx-trigger="cds-select-selected"
+                                    hx-target="#formEndpoints"
+                                    th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
+                                         invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
+                                         value=${form?.name}">
+                        <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
+                            (<span th:text="${instance.connector.name}"></span>)
+                            <span th:text="${instance.name}"></span>
+                        </cds-select-item>
+                    </cds-select>
+                    </div>
+                    <div class="form-col">
+                        <div id="formEndpoints" th:fragment="connectorEndpoints">
+                            <cds-select label-text="Select an connector endpoint"
                                         size="lg"
-                                        name="connectorInstanceId"
-                                        hx-get="/admin/aggregated-data-profiles/create/endpoints"
-                                        hx-trigger="cds-select-selected"
-                                        hx-target="#formEndpoints">
-                            <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
-                                (<span th:text="${instance.connector.name}"></span>)
-                                <span th:text="${instance.name}"></span>
-                            </cds-select-item>
-                        </cds-select>
-                        </div>
-                        <div class="form-col">
-                            <div id="formEndpoints" th:fragment="connectorEndpoints">
-                                <cds-select label-text="Select an connector endpoint"
-                                            size="lg"
-                                            name="connectorEndpointId">
-                                    <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
-                                        <span th:text="${endpoint.name}"></span>
-                                    </cds-select-item>
-                                </cds-select>
-                            </div>
+                                        name="connectorEndpointId"
+                                        th:value="${form?.connectorEndpointId}"
+                                        th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
+                                         invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
+                                         value=${form?.name}">
+                                <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+                                    <span th:text="${endpoint.name}"></span>
+                                </cds-select-item>
+                            </cds-select>
                         </div>
                     </div>
-                    <!-- Add Aggregated Data Profile form -->
-                    <cds-text-input name="role"
-                                    label="Role"
-                                    size="lg"
-                                    th:attr="
-            invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
-            invalid-text=${errors?.getFieldError('role')?.defaultMessage},
-            value=${form?.role}">
-                    </cds-text-input>
-                    <cds-textarea id="transform"
-                                  name="transform"
-                                  label="Transform"
-                                  helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                                  placeholder="e.g.: { a: .left, b: .right }"
-                                  th:attr="
-                            invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
-                            invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
-                            value=${form?.transform}
-                          ">
-                    </cds-textarea>
-                </cds-stack>
-            </cds-form-group>
-        </th:block>
+                </div>
+                <!-- Add Aggregated Data Profile form -->
+                <cds-text-input name="role"
+                                label="Role"
+                                size="lg"
+                                th:attr="invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
+                                         invalid-text=${errors?.getFieldError('role')?.defaultMessage},
+                                         value=${form?.role}">
+                </cds-text-input>
+
+                <cds-form-item th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null">
+                    <label for="transformCodeAdd">Transform</label>
+                    <textarea id="transformCodeAdd"
+                              name="transform"
+                              th:text="${form?.transform}"
+                              hidden>
+                    </textarea>
+
+                    <!-- Monaco container -->
+                    <div id="transform-editor-add"
+                         data-monaco
+                         data-language="jq"
+                         data-textarea="#transformCodeAdd"
+                         th:data-initial="${form?.transform}"
+                         data-theme="lightgray-theme"
+                         th:class="${errors?.getFieldError('transform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
+                    </div>
+                </cds-form-item>
+            </cds-stack>
+
+            <div id="monaco-error-add"
+                 th:class="${errors?.getFieldError('transform') != null} ? 'monaco-error show' : 'monaco-error'">
+                <span th:if="${errors?.getFieldError('transform') != null}"
+                      th:text="${errors?.getFieldError('transform')?.defaultMessage}"></span>
+            </div>
+            <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
+        </cds-form-group>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
@@ -78,7 +96,7 @@
             hx-post="/admin/aggregated-data-profiles"
             hx-target="#form-group"
             hx-swap="outerHTML"
-            hx-include="#form-group *">
+            hx-include="#form-group [name]">
             Save
         </cds-modal-footer-button>
     </cds-modal-footer>
