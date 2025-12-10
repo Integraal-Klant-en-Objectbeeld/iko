@@ -55,9 +55,11 @@ class CacheService(
      *
      * @param key Cache key to remove.
      */
-    fun evict(key: String) {
-        val result = template.delete(key)
-        logger.debug { "Cache evicted key='$key' result=$result" }
+    fun evictByPrefix(id: String) {
+        template.keys("${id}*").forEach {
+            template.delete(it)
+        }
+        logger.debug { "Cache evicted by prefix='$id'" }
     }
 
     /**
@@ -74,22 +76,8 @@ class CacheService(
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    /**
-     * Generates a unique cache key by concatenating and hashing the provided key parts.
-     *
-     * @param keyParts A variable number of string parts to compose the cache key.
-     * @return A hashed string representing the unique cache key.
-     */
-    fun createKey(vararg keyParts: String): String {
-        require(keyParts.isNotEmpty())
-        val uniqueKey = keyParts.joinToString("") { it }
-        val cacheKey = hashString(uniqueKey)
-        return cacheKey
-    }
-
-    fun isCached(cacheKey: String): Boolean {
-        val key = hashString(cacheKey)
-        return template.hasKey(key)
+    fun isCached(id: String): Boolean {
+        return template.keys("${id}*").count() > 0
     }
 
     companion object {

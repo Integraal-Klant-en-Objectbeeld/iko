@@ -3,7 +3,6 @@ package com.ritense.iko.mvc.controller
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
-import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.service.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -60,7 +59,7 @@ class AggregatedDataProfileController(
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
         val endpoints = instance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
         val availableSources = sources(aggregatedDataProfile)
-        val isCached = cacheService.isCached(aggregatedDataProfile.toCacheable().cacheKey)
+        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
 
         return ModelAndView(
             "$BASE_FRAGMENT_ADG/detailPage" +
@@ -232,7 +231,7 @@ class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
-        val isCached = cacheService.isCached(aggregatedDataProfile.toCacheable().cacheKey)
+        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/edit :: profile-edit").apply {
@@ -457,9 +456,7 @@ class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
-        val cacheKey = aggregatedDataProfile.toCacheable().cacheKey
-        val key = cacheService.hashString(cacheKey)
-        cacheService.evict(key)
+        cacheService.evictByPrefix(aggregatedDataProfile.id.toString())
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         return details(id, true)

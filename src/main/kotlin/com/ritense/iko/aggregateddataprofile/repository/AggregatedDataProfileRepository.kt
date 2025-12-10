@@ -13,11 +13,6 @@ import java.util.UUID
 interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile, UUID> {
     fun findByName(name: String): AggregatedDataProfile?
 
-    /** Case‑insensitive “contains” search, paged */
-    fun existsByNameLikeIgnoreCase(name: String): Boolean
-
-    fun existsByName(name: String): Boolean
-
     @Query(
         """
         SELECT  adp.id

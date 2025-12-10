@@ -1,16 +1,16 @@
 package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.mvc.model.validation.UniqueName
-import com.ritense.iko.mvc.model.validation.UniqueNameForm
+import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfile
+import com.ritense.iko.mvc.model.validation.UniqueCollectionCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import java.util.UUID
 
-@UniqueName
+@UniqueCollectionCheck
 data class AggregatedDataProfileEditForm(
-    val id: UUID,
+    override val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
     @field:Pattern(
         regexp = "[0-9a-zA-Z_\\-]+",
@@ -26,7 +26,7 @@ data class AggregatedDataProfileEditForm(
     var connectorEndpointId: UUID,
     val cacheEnabled: Boolean,
     val cacheTimeToLive: Int
-) : UniqueNameForm {
+) : UniqueAggregatedDataProfile {
 
     companion object {
         fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileEditForm(

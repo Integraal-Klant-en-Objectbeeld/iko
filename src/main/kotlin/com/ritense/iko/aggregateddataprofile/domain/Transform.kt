@@ -23,13 +23,5 @@ class Transform(
                 throw IllegalArgumentException("Invalid expression: $expression", e)
             }
         }
-
-        fun validateC(expression: String) {
-            try {
-                JsonQuery.compile(expression, Versions.JQ_1_6)
-            } catch (e: JsonQueryException) {
-                throw IllegalArgumentException("Invalid expression: $expression", e)
-            }
-        }
     }
 }
