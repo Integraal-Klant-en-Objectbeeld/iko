@@ -1,7 +1,8 @@
 package com.ritense.iko.aggregateddataprofile.domain
 
 import com.ritense.iko.mvc.model.AddRelationForm
-import com.ritense.iko.mvc.model.AggregatedDataProfileForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileAddForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import jakarta.persistence.CascadeType
@@ -43,8 +44,8 @@ class AggregatedDataProfile(
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
-    fun handle(request: AggregatedDataProfileForm) {
-        checkNotNull(request.name) { " Name is required. " }
+
+    fun handle(request: AggregatedDataProfileEditForm) {
         if (!request.role.isNullOrBlank()) {
             this.role = request.role
         } else {
@@ -52,9 +53,9 @@ class AggregatedDataProfile(
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             this.role = defaultRole
         }
-        this.connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " }
-        this.connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " }
-        this.transform = Transform(checkNotNull(request.transform) { " Transform is required. " })
+        this.connectorEndpointId = request.connectorEndpointId
+        this.connectorInstanceId = request.connectorInstanceId
+        this.transform = Transform(request.transform)
         this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
             enabled = request.cacheEnabled,
             timeToLive = request.cacheTimeToLive
@@ -117,8 +118,8 @@ class AggregatedDataProfile(
     }
 
     companion object {
-        fun create(form: AggregatedDataProfileForm): AggregatedDataProfile {
-            val sanitizedName = form.name!!.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+        fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile {
+            val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             val role = if (form.role.isNullOrBlank()) defaultRole else form.role
             return AggregatedDataProfile(

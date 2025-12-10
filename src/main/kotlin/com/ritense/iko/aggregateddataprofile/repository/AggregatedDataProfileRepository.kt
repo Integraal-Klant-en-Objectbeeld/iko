@@ -14,10 +14,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
     fun findByName(name: String): AggregatedDataProfile?
 
     /** Case‑insensitive “contains” search, paged */
-    fun findByNameContainingIgnoreCase(
-        name: String,
-        pageable: Pageable,
-    ): Page<AggregatedDataProfile>
+    fun existsByNameLikeIgnoreCase(name: String): Boolean
 
     fun existsByName(name: String): Boolean
 
