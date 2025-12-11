@@ -27,7 +27,7 @@ data class AggregatedDataProfileForm(
     val endpointTransform: String,
     @field:ValidTransform
     @field:NotBlank(message = "Please provide a transform expression.")
-    val transform: String? = null,
+    val resultTransform: String? = null,
 ) {
 
     companion object {

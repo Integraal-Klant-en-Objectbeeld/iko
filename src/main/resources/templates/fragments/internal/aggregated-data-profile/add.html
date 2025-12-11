@@ -60,7 +60,7 @@
                     <label for="transformCodeAdd">Transform</label>
                     <textarea id="transformCodeAdd"
                               name="transform"
-                              th:text="${form?.transform}"
+                              th:text="${form?.resultTransform}"
                               hidden>
                     </textarea>
 
@@ -69,7 +69,7 @@
                          data-monaco
                          data-language="jq"
                          data-textarea="#transformCodeAdd"
-                         th:data-initial="${form?.transform}"
+                         th:data-initial="${form?.resultTransform}"
                          data-theme="lightgray-theme"
                          th:class="${errors?.getFieldError('transform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
                     </div>

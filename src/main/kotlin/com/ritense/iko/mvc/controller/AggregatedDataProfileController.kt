@@ -215,7 +215,7 @@ class AggregatedDataProfileController(
         val endpoints = instance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
 
         if (bindingResult.hasErrors()) {
-            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADG/add :: adp-add-form").apply {
+            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/add :: adp-add-form").apply {
                 addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
                 addObject("errors", bindingResult)
                 addObject("connectorInstances", connectorInstanceRepository.findAll())
@@ -362,7 +362,7 @@ class AggregatedDataProfileController(
             }
         }
 
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relationsPanel :: relations-panel").apply {
+        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
@@ -436,7 +436,7 @@ class AggregatedDataProfileController(
             bindingResult.addError(ObjectError("name", "This name already exists."))
             return listOf(modelAndView)
         }
-        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relationsPanel :: relations-panel").apply {
+        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", updatedProfile!!)
             addObject("relations", updatedProfile.relations.map { Relation.from(it) })
         }
@@ -477,7 +477,7 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relationsPanel :: relations-panel").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })

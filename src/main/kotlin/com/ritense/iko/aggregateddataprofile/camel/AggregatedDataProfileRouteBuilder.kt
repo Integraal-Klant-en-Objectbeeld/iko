@@ -153,7 +153,7 @@ class AggregatedDataProfileRouteBuilder(
             }
             .removeVariable("endpointMapping")
             .to("direct:relation_${currentRelation.id}_loop")
-            .transform(jq(currentRelation.transform.expression))
+            .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
 
         from("direct:relation_${currentRelation.id}_array")
@@ -175,7 +175,7 @@ class AggregatedDataProfileRouteBuilder(
             .removeVariable("endpointMapping")
             .to("direct:relation_${currentRelation.id}_loop") // Executes the relation route
             .end()
-            .transform(jq(currentRelation.transform.expression))
+            .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
 
         // Executes each relation route

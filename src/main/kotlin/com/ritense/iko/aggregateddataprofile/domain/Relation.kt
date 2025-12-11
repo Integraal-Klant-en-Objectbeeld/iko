@@ -26,7 +26,7 @@ class Relation(
     @Column(name = "connector_endpoint_id")
     var connectorEndpointId: UUID,
     @Embedded
-    var transform: Transform,
+    var resultTransform: Transform,
     @Embedded
     var relationCacheSettings: RelationCacheSettings,
 )

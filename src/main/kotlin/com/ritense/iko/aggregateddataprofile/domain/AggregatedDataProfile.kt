@@ -70,7 +70,7 @@ class AggregatedDataProfile(
         }
         this.connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " }
         this.connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " }
-        this.transform = Transform(checkNotNull(request.transform) { " Transform is required. " })
+        this.resultTransform = Transform(checkNotNull(request.resultTransform) { " Transform is required. " })
     }
 
     fun addRelation(request: AddRelationForm) {
@@ -83,7 +83,7 @@ class AggregatedDataProfile(
                 } else {
                     null
                 },
-                transform = Transform(checkNotNull(request.transform) { " Transform is required. " }),
+                resultTransform = Transform(checkNotNull(request.resultTransform) { " Transform is required. " }),
                 sourceToEndpointMapping = checkNotNull(request.sourceToEndpointMapping) { " Source to endpoint mapping is required. " },
                 connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " },
                 connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " },
@@ -105,7 +105,7 @@ class AggregatedDataProfile(
                 } else {
                     null
                 },
-                transform = Transform(request.transform),
+                resultTransform = Transform(request.resultTransform),
                 sourceToEndpointMapping = request.sourceToEndpointMapping,
                 connectorInstanceId = request.connectorInstanceId,
                 connectorEndpointId = request.connectorEndpointId,

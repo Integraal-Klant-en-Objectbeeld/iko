@@ -16,7 +16,7 @@ data class AddRelationForm(
     val sourceToEndpointMapping: String? = null,
     @field:NotBlank(message = "Please define a transform expression.")
     @field:ValidTransform
-    var transform: String? = null,
+    var resultTransform: String? = null,
     @field:NotBlank(message = "Please provide a property name.")
     var propertyName: String? = null,
 )

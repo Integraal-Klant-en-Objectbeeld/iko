@@ -11,7 +11,7 @@ data class Relation(
     val connectorEndpointId: UUID,
     val propertyName: String,
     val sourceToEndpointMapping: String,
-    val transform: String,
+    val resultTransform: String,
 ) {
     companion object {
         fun from(it: RelationEntity): Relation = Relation(
@@ -19,7 +19,7 @@ data class Relation(
             id = it.id,
             sourceId = it.sourceId?.toString() ?: "Profile root",
             sourceToEndpointMapping = it.sourceToEndpointMapping,
-            transform = it.transform.expression,
+            resultTransform = it.resultTransform.expression,
             connectorInstanceId = it.connectorInstanceId,
             connectorEndpointId = it.connectorEndpointId,
             propertyName = it.propertyName,

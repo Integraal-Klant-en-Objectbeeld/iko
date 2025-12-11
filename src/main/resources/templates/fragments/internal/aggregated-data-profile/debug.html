@@ -48,7 +48,7 @@
 
                             <cds-button
                                 kind="primary"
-                                hx-post="/admin/aggregated-data-profiles/debug"
+                                hx-post="/admin/aggregated-data-profiles/test"
                                 hx-target="#profile-debug"
                                 hx-swap="outerHTML"
                                 hx-include="[id='testId'], [id='transform'], [id='name']"
@@ -63,14 +63,14 @@
                             <textarea id="query"
                                       name="query"
                                       hidden
-                                      th:attr="value=${form.transform}">
+                                      th:attr="value=${form.resultTransform}">
                             </textarea>
 
                             <div id="query-editor"
                                  data-monaco
                                  data-language="jq"
                                  data-textarea="#query"
-                                 th:data-initial="${form.transform}"
+                                 th:data-initial="${form.resultTransform}"
                                  data-theme="lightgray-theme"
                                  class="monaco-editor-style">
                             </div>
