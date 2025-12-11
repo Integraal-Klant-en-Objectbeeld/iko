@@ -1,20 +1,19 @@
 package com.ritense.iko.mvc.model.validation
 
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.mvc.model.AggregatedDataProfileForm
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.springframework.stereotype.Component
 
 @Component
-class UniqueNameValidator(
+class UniqueCollectionCheckValidator(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-) : ConstraintValidator<UniqueName, AggregatedDataProfileForm> {
+) : ConstraintValidator<UniqueCollectionCheck, UniqueAggregatedDataProfile> {
     override fun isValid(
-        form: AggregatedDataProfileForm,
+        form: UniqueAggregatedDataProfile,
         context: ConstraintValidatorContext,
     ): Boolean {
-        if (form.name!!.isBlank()) return true // Let @NotBlank handle this
+        if (form.name.isBlank()) return false
 
         val existing = aggregatedDataProfileRepository.findByName(form.name)
         val isValid = existing == null || existing.id == form.id
