@@ -1,4 +1,4 @@
-df<!DOCTYPE html>
+<!DOCTYPE html>
 <html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <body>
 <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
@@ -31,42 +31,19 @@ df<!DOCTYPE html>
                         hx-swap="none"
                         data-editor-selector="#connector-editor"
                         style="display: none"
-                        onclick="toggleEditorMode(false);"
+                        onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
                     >
                         Save
                     </cds-button>
 
                     <cds-button
                         id="edit-code-button"
-                        onclick="toggleEditorMode(true);"
+                        onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
                     >
                         Edit code
                     </cds-button>
 
                 </div>
-
-                <script>
-                    function toggleEditorMode(editMode) {
-                        const saveBtn = document.getElementById('save-button');
-                        const editBtn = document.getElementById('edit-code-button');
-                        const editorEl = document.getElementById('connector-editor');
-
-                        if (editMode) {
-                            editBtn.style.display = 'none';
-                            saveBtn.style.display = 'block';
-                            editorEl.setAttribute('data-readonly', 'false');
-                        } else {
-                            saveBtn.style.display = 'none';
-                            editBtn.style.display = 'block';
-                            editorEl.setAttribute('data-readonly', 'true');
-                        }
-
-                        const editor = editorEl._monacoEditor;
-                        if (editor) {
-                            editor.updateOptions({ readOnly: !editMode });
-                        }
-                    }
-                </script>
                 <div id="connector-code" style="margin: 0.5em;" th:fragment="connector-code">
 
                     <textarea id="connectorCode"
@@ -119,10 +96,10 @@ df<!DOCTYPE html>
                     <!-- Header -->
                     <cds-table-head>
                         <cds-table-header-row>
-                            <cds-table-header-cell style="width:30%">
+                            <cds-table-header-cell class="col-width-30">
                                 Name
                             </cds-table-header-cell>
-                            <cds-table-header-cell style="width:30%">
+                            <cds-table-header-cell class="col-width-30">
                                 Reference
                             </cds-table-header-cell>
                             <cds-table-header-cell>
@@ -189,10 +166,10 @@ df<!DOCTYPE html>
                     <!-- Header -->
                     <cds-table-head>
                         <cds-table-header-row>
-                            <cds-table-header-cell style="width:30%">
+                            <cds-table-header-cell class="col-width-30">
                                 Name
                             </cds-table-header-cell>
-                            <cds-table-header-cell style="width:30%">
+                            <cds-table-header-cell class="col-width-30">
                                 Reference
                             </cds-table-header-cell>
                             <cds-table-header-cell>
