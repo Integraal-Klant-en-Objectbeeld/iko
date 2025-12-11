@@ -293,6 +293,10 @@ cds-tile {
 }
 
 /* Datagrid */
+cds-table-header-cell.col-width-30 {
+    width: 30%;
+}
+
 cds-table-row {
     cursor: pointer;
 }
