@@ -25,7 +25,7 @@ data class AggregatedDataProfileEditForm(
     val endpointTransform: String,
     @field:ValidTransform
     @field:NotBlank(message = "Please provide a transform expression.")
-    val transform: String,
+    val resultTransform: String,
     val cacheEnabled: Boolean,
     val cacheTimeToLive: Int,
 ) : UniqueAggregatedDataProfile {

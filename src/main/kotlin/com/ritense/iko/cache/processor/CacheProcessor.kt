@@ -25,7 +25,7 @@ class CacheProcessor(
             logger.debug { "Cache is disabled for Cacheable with Id: $id" }
             return
         }
-        val cacheKey = "$id:" + cacheService.hashString(cacheKey)
+        val cacheKey = "$id:" + cacheService.hashString(cacheKey(exchange))
         val cacheEvent = checkCache(cacheKey)
 
         handleCacheEntry(
@@ -43,7 +43,7 @@ class CacheProcessor(
             return null
         }
         putCache(
-            key = "$id:" + cacheService.hashString(cacheKey),
+            key = "$id:" + cacheService.hashString(cacheKey(exchange)),
             value = objectMapper.writeValueAsString(exchange.message.body),
             timeToLive = cacheSettings.timeToLive.milliseconds.toJavaDuration(),
         )

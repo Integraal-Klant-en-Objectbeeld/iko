@@ -87,7 +87,7 @@ class AggregatedDataProfile(
                 } else {
                     null
                 },
-                resultTransform = Transform(request.resultTransform),
+                resultTransform = Transform(checkNotNull(request.resultTransform)),
                 sourceToEndpointMapping = checkNotNull(request.sourceToEndpointMapping) { " Source to endpoint mapping is required. " },
                 connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " },
                 connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " },
