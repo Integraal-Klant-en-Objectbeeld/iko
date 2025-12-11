@@ -32,7 +32,7 @@ data class AggregatedDataProfileForm(
             name = aggregatedDataProfile.name,
             role = aggregatedDataProfile.role,
             endpointTransform = aggregatedDataProfile.endpointTransform.expression,
-            transform = aggregatedDataProfile.transform.expression,
+            transform = aggregatedDataProfile.resultTransform.expression,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
             connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
         )

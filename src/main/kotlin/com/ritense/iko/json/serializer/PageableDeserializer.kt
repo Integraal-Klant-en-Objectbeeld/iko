@@ -136,19 +136,15 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
         return if (orders.isEmpty()) Sort.unsorted() else Sort.by(orders)
     }
 
-    private fun parseDirection(value: String?): Sort.Direction {
-        return try {
-            Sort.Direction.valueOf(value?.trim()?.uppercase() ?: Sort.Direction.ASC.name)
-        } catch (ex: IllegalArgumentException) {
-            Sort.Direction.ASC
-        }
+    private fun parseDirection(value: String?): Sort.Direction = try {
+        Sort.Direction.valueOf(value?.trim()?.uppercase() ?: Sort.Direction.ASC.name)
+    } catch (ex: IllegalArgumentException) {
+        Sort.Direction.ASC
     }
 
-    private fun parseNullHandling(value: String?): Sort.NullHandling {
-        return try {
-            Sort.NullHandling.valueOf(value?.trim()?.uppercase() ?: Sort.NullHandling.NATIVE.name)
-        } catch (ex: IllegalArgumentException) {
-            Sort.NullHandling.NATIVE
-        }
+    private fun parseNullHandling(value: String?): Sort.NullHandling = try {
+        Sort.NullHandling.valueOf(value?.trim()?.uppercase() ?: Sort.NullHandling.NATIVE.name)
+    } catch (ex: IllegalArgumentException) {
+        Sort.NullHandling.NATIVE
     }
 }

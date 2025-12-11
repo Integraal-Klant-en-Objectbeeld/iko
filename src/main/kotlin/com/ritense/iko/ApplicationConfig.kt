@@ -17,11 +17,10 @@ import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecu
 @Configuration
 class ApplicationConfig {
     @Bean
-    fun jsonCustomizer(): Jackson2ObjectMapperBuilderCustomizer =
-        Jackson2ObjectMapperBuilderCustomizer { builder ->
-            builder.serializerByType(Pageable::class.java, PageableSerializer())
-            builder.deserializerByType(Pageable::class.java, PageableDeserializer())
-        }
+    fun jsonCustomizer(): Jackson2ObjectMapperBuilderCustomizer = Jackson2ObjectMapperBuilderCustomizer { builder ->
+        builder.serializerByType(Pageable::class.java, PageableSerializer())
+        builder.deserializerByType(Pageable::class.java, PageableDeserializer())
+    }
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)

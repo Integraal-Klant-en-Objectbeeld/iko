@@ -8,8 +8,8 @@ import org.apache.camel.Exchange
 
 interface Cacheable {
     val id: String
-    val cacheKey: String
     val cacheSettings: CacheSettings
+    val cacheKey: (Exchange) -> String
 
     fun handleCacheEntry(
         exchange: Exchange,
@@ -20,17 +20,17 @@ interface Cacheable {
 fun AggregatedDataProfile.toCacheable(): Cacheable {
     val id = this.id
     val cacheSettings = this.aggregatedDataProfileCacheSetting
-//    TODO: Add filters and sort params to the key parts so cacheable entries are unique per transform
-    val cacheKey =
-        listOf(
-            id.toString(),
-            endpointTransform.expression,
-            transform.expression,
-        ).joinToString(separator = "")
 
     return object : Cacheable {
         override val id = id.toString()
-        override val cacheKey: String = cacheKey
+        override val cacheKey: (Exchange) -> String = { exchange ->
+            listOf(
+                id.toString(),
+                endpointTransform.expression,
+                resultTransform.expression,
+                exchange.getVariable("endpointTransformResult", "", String::class.java),
+            ).joinToString(separator = "")
+        }
         override val cacheSettings =
             object : CacheSettings {
                 override val enabled = cacheSettings.enabled
@@ -55,22 +55,21 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
 fun Relation.toCacheable(): Cacheable {
     val id = this.id.toString()
     val cacheSettings = this.relationCacheSettings
-//    TODO: Add filters and sort params to the key parts so cacheable entries are unique per transform
-    val cacheKey =
-        listOf(
-            id,
-            sourceToEndpointMapping,
-            transform.expression,
-        ).joinToString(separator = "")
 
     return object : Cacheable {
         override val id = id
-        override val cacheKey: String = cacheKey
         override val cacheSettings =
             object : CacheSettings {
                 override val enabled = cacheSettings.enabled
                 override val timeToLive = cacheSettings.timeToLive
             }
+        override val cacheKey: (Exchange) -> String = { exchange ->
+            listOf(
+                id,
+                sourceToEndpointMapping,
+                transform.expression,
+            ).joinToString(separator = "")
+        }
 
         override fun handleCacheEntry(
             exchange: Exchange,

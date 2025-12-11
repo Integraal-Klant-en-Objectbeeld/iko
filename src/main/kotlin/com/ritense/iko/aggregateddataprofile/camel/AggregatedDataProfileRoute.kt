@@ -2,7 +2,6 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.apache.camel.builder.RouteBuilder
@@ -11,8 +10,8 @@ import org.apache.camel.model.rest.RestParamType.query
 import org.springframework.data.domain.Pageable
 
 class AggregatedDataProfileRoute(
-    val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-    val objectMapper: ObjectMapper,
+    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+    private val objectMapper: ObjectMapper,
 ) : RouteBuilder() {
     override fun configure() {
         val containerParamsParamDefinition = ParamDefinition()
@@ -22,15 +21,12 @@ class AggregatedDataProfileRoute(
             .arrayType("String")
             .required(false)
 
-        rest("/aggregated-data-profiles/{iko_profile}")
+        rest("/aggregated-data-profiles")
             .description("Resolve ADP by profile name")
-            .get()
+            .get("/{iko_profile}")
             .param(containerParamsParamDefinition)
             .to("direct:rest-to-adp")
-
-        rest("/aggregated-data-profiles/{iko_profile}")
-            .description("Resolve ADP by profile name")
-            .get("/{iko_id}")
+            .get("/{iko_profile}/{iko_id}")
             .param(containerParamsParamDefinition)
             .to("direct:rest-to-adp-with-id")
 
@@ -46,7 +42,7 @@ class AggregatedDataProfileRoute(
                 val containerParams: List<ContainerParam> = when (
                     val paramHeader = exchange.`in`.getHeader("containerParam")
                 ) {
-                    is List<*> -> objectMapper.convertValue(paramHeader)
+                    is List<*> -> paramHeader.map { objectMapper.readValue(it.toString()) }
                     is String -> listOf(objectMapper.readValue(paramHeader))
                     else -> emptyList()
                 }
@@ -60,8 +56,8 @@ class AggregatedDataProfileRoute(
                             "adpFilterParams" to
                                 containerParams
                                     .filter { it.filters.isNotEmpty() }
-                                    .associate { it.containerId to it.filters }
-                        )
+                                    .associate { it.containerId to it.filters },
+                        ),
                     )
 
                 exchange.`in`.setHeader("iko_endpointTransformContext", endpointTransformContext)

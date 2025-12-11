@@ -50,7 +50,7 @@ class AggregatedDataProfile(
     var relations: MutableList<Relation> = mutableListOf(),
 
     @Embedded
-    var transform: Transform,
+    var resultTransform: Transform,
 
     @Column(name = "role")
     var role: String? = null,
@@ -71,7 +71,7 @@ class AggregatedDataProfile(
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
         this.endpointTransform = Transform(request.endpointTransform ?: ".")
-        this.transform = Transform(request.transform)
+        this.resultTransform = Transform(request.transform)
     }
 
     fun addRelation(request: AddRelationForm) {
@@ -136,7 +136,7 @@ class AggregatedDataProfile(
                 id = UUID.randomUUID(),
                 name = form.name,
                 role = role,
-                transform = Transform(form.transform),
+                resultTransform = Transform(form.transform),
                 connectorEndpointId = form.connectorEndpointId,
                 endpointTransform = Transform(form.endpointTransform),
                 connectorInstanceId = form.connectorInstanceId,

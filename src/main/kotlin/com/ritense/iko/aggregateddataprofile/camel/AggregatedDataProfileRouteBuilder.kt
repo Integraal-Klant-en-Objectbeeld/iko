@@ -33,10 +33,10 @@ class AggregatedDataProfileRouteBuilder(
         val relations = aggregatedDataProfile.relations.filter { it.sourceId == null }
 
         val connectorInstance = requireNotNull(
-            connectorInstanceRepository.findByIdOrNull(aggregatedDataProfile.connectorInstanceId)
+            connectorInstanceRepository.findByIdOrNull(aggregatedDataProfile.connectorInstanceId),
         ) { NoSuchElementException("Connector instance not found") }
         val connectorEndpoint = requireNotNull(
-            connectorEndpointRepository.findByIdOrNull(aggregatedDataProfile.connectorEndpointId)
+            connectorEndpointRepository.findByIdOrNull(aggregatedDataProfile.connectorEndpointId),
         ) { NoSuchElementException("Connector endpoint not found") }
 
         val effectiveRole = aggregatedDataProfile.role?.takeIf { it.isNotBlank() } ?: run {
@@ -83,7 +83,7 @@ class AggregatedDataProfileRouteBuilder(
                 }
             }
             // transform adp result
-            .transform(jq(aggregatedDataProfile.transform.expression))
+            .transform(jq(aggregatedDataProfile.resultTransform.expression))
             .process {
                 // put final value into cache if relevant
                 cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
