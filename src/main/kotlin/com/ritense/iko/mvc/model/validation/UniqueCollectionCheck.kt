@@ -6,8 +6,8 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@Constraint(validatedBy = [UniqueNameValidator::class])
-annotation class UniqueName(
+@Constraint(validatedBy = [UniqueCollectionCheckValidator::class])
+annotation class UniqueCollectionCheck(
     val message: String = "Name already exists.",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<out Payload>> = [],

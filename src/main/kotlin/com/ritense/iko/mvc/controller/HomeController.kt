@@ -2,7 +2,7 @@ package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.mvc.controller.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.model.MenuItem
-import com.ritense.iko.mvc.provider.SecurityContextHelper
+import com.ritense.iko.security.SecurityContextHelper
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader

@@ -14,7 +14,7 @@ import com.ritense.iko.mvc.model.connector.ConnectorEndpointConfigForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceConfigEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
-import com.ritense.iko.mvc.provider.SecurityContextHelper
+import com.ritense.iko.security.SecurityContextHelper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid

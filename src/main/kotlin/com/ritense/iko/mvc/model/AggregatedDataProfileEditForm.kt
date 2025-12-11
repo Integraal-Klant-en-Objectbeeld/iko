@@ -1,44 +1,46 @@
 package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.mvc.model.validation.UniqueName
+import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfile
+import com.ritense.iko.mvc.model.validation.UniqueCollectionCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import java.util.UUID
 
-@UniqueName
-data class AggregatedDataProfileForm(
-    val id: UUID? = null,
+@UniqueCollectionCheck
+data class AggregatedDataProfileEditForm(
+    override val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
     @field:Pattern(
         regexp = "[0-9a-zA-Z_\\-]+",
         message = "Name may only contain letters, digits, underscores, and hyphens.",
     )
-    val name: String? = null,
+    override val name: String,
     @field:NotBlank(message = "Please provide a role.")
     val role: String? = null,
-    @field:NotNull(message = "Please provide a connector instance.")
-    var connectorInstanceId: UUID? = null,
-    @field:NotNull(message = "Please provide a connector endpoint.")
-    var connectorEndpointId: UUID? = null,
+    var connectorInstanceId: UUID,
+    var connectorEndpointId: UUID,
     @field:ValidTransform
     val endpointTransform: String,
     @field:ValidTransform
     @field:NotBlank(message = "Please provide a transform expression.")
-    val resultTransform: String? = null,
-) {
+    val transform: String,
+    val cacheEnabled: Boolean,
+    val cacheTimeToLive: Int,
+) : UniqueAggregatedDataProfile {
 
     companion object {
-        fun from(aggregatedDataProfile: AggregatedDataProfile): AggregatedDataProfileForm = AggregatedDataProfileForm(
+        fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileEditForm(
             id = aggregatedDataProfile.id,
             name = aggregatedDataProfile.name,
             role = aggregatedDataProfile.role,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
             connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
-            resultTransform = aggregatedDataProfile.resultTransform.expression,
             endpointTransform = aggregatedDataProfile.endpointTransform.expression,
+            resultTransform = aggregatedDataProfile.resultTransform.expression,
+            cacheEnabled = aggregatedDataProfile.aggregatedDataProfileCacheSetting.enabled,
+            cacheTimeToLive = aggregatedDataProfile.aggregatedDataProfileCacheSetting.timeToLive,
         )
     }
 }

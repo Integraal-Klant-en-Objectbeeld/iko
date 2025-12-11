@@ -5,6 +5,7 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.apache.camel.CamelContext
 import org.apache.camel.CamelExecutionException
@@ -31,6 +32,7 @@ class TestController(
     )
     fun test(
         @Valid @ModelAttribute form: TestAggregatedDataProfileForm,
+        httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val tracer = camelContext.camelContextExtension.getContextPlugin(BacklogTracer::class.java)
         requireNotNull(tracer) { "BacklogTracer plugin not found in CamelContext" }

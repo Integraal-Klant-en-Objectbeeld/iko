@@ -8,39 +8,39 @@
             <cds-stack gap="7">
                 <cds-text-input name="name"
                                 label="Name"
-                                size="lg"
                                 th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                          invalid-text=${errors?.getFieldError('name')?.defaultMessage},
                                          value=${form?.name}">
                 </cds-text-input>
                 <div class="form-row">
                     <div class="form-col">
-                        <cds-select label-text="Select an connector instance"
-                                    size="lg"
-                                    name="connectorInstanceId"
-                                    th:value="${form?.connectorInstanceId}"
+                        <cds-select name="connectorInstanceId"
+                                    label-text="Select an connector instance"
                                     hx-get="/admin/aggregated-data-profiles/create/endpoints"
                                     hx-trigger="cds-select-selected"
-                                    hx-target="#formEndpoints"
+                                    hx-target="#connector-endpoints"
                                     th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
                                          invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
-                                         value=${form?.name}">
-                        <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
-                            (<span th:text="${instance.connector.name}"></span>)
-                            <span th:text="${instance.name}"></span>
-                        </cds-select-item>
-                    </cds-select>
+                                         value=${form?.connectorInstanceId != null ? form.connectorInstanceId : connectorInstances.first?.id}
+                                        ">
+                            <cds-select-item
+                                th:each="instance : ${connectorInstances}"
+                                th:value="${instance.id}">
+                                (<span th:text="${instance.connector.name}"></span>)
+                                <span th:text="${instance.name}"></span>
+                            </cds-select-item>
+                        </cds-select>
                     </div>
                     <div class="form-col">
-                        <div id="formEndpoints" th:fragment="connectorEndpoints">
+                        <div id="connector-endpoints" th:fragment="connectorEndpoints">
                             <cds-select label-text="Select an connector endpoint"
-                                        size="lg"
                                         name="connectorEndpointId"
-                                        th:value="${form?.connectorEndpointId}"
                                         th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
                                          invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
-                                         value=${form?.name}">
-                                <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
+                                         value=${form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints.first?.id}">
+                                <cds-select-item
+                                    th:each="endpoint : ${connectorEndpoints}"
+                                    th:value="${endpoint.id}">
                                     <span th:text="${endpoint.name}"></span>
                                 </cds-select-item>
                             </cds-select>
@@ -50,7 +50,6 @@
                 <!-- Add Aggregated Data Profile form -->
                 <cds-text-input name="role"
                                 label="Role"
-                                size="lg"
                                 th:attr="invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
                                          invalid-text=${errors?.getFieldError('role')?.defaultMessage},
                                          value=${form?.role}">
