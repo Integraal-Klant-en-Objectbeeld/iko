@@ -60,7 +60,7 @@ class AggregatedDataProfile(
 ) {
 
     fun handle(request: AggregatedDataProfileForm) {
-        this.name = request.name
+        checkNotNull(request.name) { " Name is required. " }
         if (!request.role.isNullOrBlank()) {
             this.role = request.role
         } else {
@@ -68,26 +68,26 @@ class AggregatedDataProfile(
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             this.role = defaultRole
         }
-        this.connectorEndpointId = request.connectorEndpointId
-        this.connectorInstanceId = request.connectorInstanceId
-        this.endpointTransform = Transform(request.endpointTransform ?: ".")
-        this.resultTransform = Transform(request.transform)
+        this.connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " }
+        this.connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " }
+        this.transform = Transform(checkNotNull(request.transform) { " Transform is required. " })
     }
 
     fun addRelation(request: AddRelationForm) {
         this.relations.add(
             Relation(
                 aggregatedDataProfile = this,
-                sourceId = if (request.sourceId?.isNotBlank() == true) {
+                sourceId =
+                if (request.sourceId?.isNotBlank() == true) {
                     UUID.fromString(request.sourceId)
                 } else {
                     null
                 },
-                transform = Transform(request.transform),
-                sourceToEndpointMapping = request.sourceToEndpointMapping,
-                connectorInstanceId = request.connectorInstanceId,
-                connectorEndpointId = request.connectorEndpointId,
-                propertyName = request.propertyName,
+                transform = Transform(checkNotNull(request.transform) { " Transform is required. " }),
+                sourceToEndpointMapping = checkNotNull(request.sourceToEndpointMapping) { " Source to endpoint mapping is required. " },
+                connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " },
+                connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " },
+                propertyName = checkNotNull(request.propertyName) { " Property name is required. " },
                 relationCacheSettings = RelationCacheSettings(),
             ),
         )
@@ -99,7 +99,8 @@ class AggregatedDataProfile(
             Relation(
                 id = request.id,
                 aggregatedDataProfile = this,
-                sourceId = if (request.sourceId?.isNotBlank() == true) {
+                sourceId =
+                if (request.sourceId?.isNotBlank() == true) {
                     UUID.fromString(request.sourceId)
                 } else {
                     null
@@ -129,17 +130,17 @@ class AggregatedDataProfile(
 
     companion object {
         fun create(form: AggregatedDataProfileForm): AggregatedDataProfile {
-            val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
+            val sanitizedName = form.name!!.replace(Regex("[^0-9a-zA-Z_-]+"), "")
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
             val role = if (form.role.isNullOrBlank()) defaultRole else form.role
             return AggregatedDataProfile(
                 id = UUID.randomUUID(),
                 name = form.name,
                 role = role,
-                resultTransform = Transform(form.transform),
-                connectorEndpointId = form.connectorEndpointId,
+                connectorInstanceId = checkNotNull(form.connectorInstanceId) { " Connector instance is required. " },
+                connectorEndpointId = checkNotNull(form.connectorEndpointId) { " Connector endpoint is required. " },
                 endpointTransform = Transform(form.endpointTransform),
-                connectorInstanceId = form.connectorInstanceId,
+                resultTransform = Transform(checkNotNull(form.resultTransform) { " Transform is required. " }),
                 aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             )
         }

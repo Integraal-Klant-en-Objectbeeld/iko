@@ -41,7 +41,7 @@ body {
     }
 }
 
-#selected-relation {
+#selected-relation{
     background-color: white;
 }
 
@@ -119,7 +119,7 @@ cds-breadcrumb-link {
     color: #2B79BD;
 }
 
-label {
+label{
     color: var(--cds-text-secondary, #525252);
     display: inline-block;
     font-size: var(--cds-label-01-font-size, .75rem);
@@ -269,6 +269,29 @@ cds-tile {
     }
 }
 
+.form-grid{
+    display: flex;
+    gap: 2rem;
+
+    .form-column {
+        flex: 1;
+        min-width: 0;
+        max-width: 100%;
+
+        cds-form-item.form-actions {
+            display: flex;
+            flex-direction: row;
+            justify-content: end;
+        }
+    }
+}
+
+@media (max-width: 1200px) {
+    #detail-grid {
+        flex-direction: column;
+    }
+}
+
 /* Datagrid */
 cds-table-row {
     cursor: pointer;
@@ -324,17 +347,10 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 /* Monaco Editor */
 .monaco-editor-style {
     width: 100%;
+    max-width: 100%;
     height: 300px;
-
-    &[data-size="sm"] {
-        height: 200px;
-    }
-    &[data-size="md"] {
-        height: 300px;
-    }
-    &[data-size="lg"] {
-        height: 400px;
-    }
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .monaco-editor-style-full-height {
@@ -342,52 +358,48 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 }
 
 .monaco-error {
+    color: #da1e28;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    margin-top: 0.25rem;
     display: none;
-    color: #ffffff;
-    background: var(--cds-button-danger-primary, #da1e28);
-    padding: 6px;
-    width: fit-content;
+}
+
+.monaco-error.show {
+    display: block;
 }
 
 .monaco-editor-error {
     border: 2px solid var(--cds-button-danger-primary, #da1e28);
 }
 
-/* fix for automaticLayout failing in flex container */
-.monaco-editor {
-    position: absolute !important;
+/* Modal */
+cds-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+cds-form-item {
+    width: 100%;
+    overflow: hidden;
 }
 
 /* Forms */
-
-form[grid] {
+.form-row {
     display: flex;
-
-    div[form-row] {
-        display: flex;
-        gap: 2rem;
-        width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-
-        > * {
-            flex: 1 1 360px;
-        }
-
-        &:last-child {
-            margin-bottom: 1rem;
-        }
-    }
-
-    .form-group-title {
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 24px;
-    }
+    flex-wrap: wrap;
+    gap: 2rem;
 }
 
-.form-actions {
-    display: flex;
-    flex-flow: row;
-    justify-content: flex-end;
+.form-col {
+    flex: 1 1 300px;
+    min-width: 250px;
 }
+
+.form-col > * {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+

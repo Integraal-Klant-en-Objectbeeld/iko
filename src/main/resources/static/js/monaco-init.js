@@ -19,7 +19,7 @@ require.config({
     }
 
     function initMonaco(el) {
-        if (initialized.has(el)) return Promise.resolve(initialized.get(el));
+        if (initialized.has(el)) return Promise.resolve(initialized.get(el).editor);
 
         const language = el.getAttribute("data-language") || "plaintext";
         const initialValue = el.getAttribute("data-initial") || "";
@@ -31,27 +31,45 @@ require.config({
             require(["vs/editor/editor.main"], function () {
                 defineThemes();
 
+                // Clear any existing content in the element
+                el.innerHTML = '';
+
                 const editor = monaco.editor.create(el, {
                     value: initialValue,
                     language,
                     theme,
-                    automaticLayout: true,
+                    automaticLayout: false,
                     minimap: { enabled: false },
                     readOnly: isReadOnly,
+                    scrollBeyondLastLine: false,
                 });
 
                 initialized.set(el, editor);
+                el._monacoEditor = editor; // Store reference on element for external access
 
+                // Sync editor content to textarea
                 if (textAreaSelector) {
                     const textArea = document.querySelector(textAreaSelector);
                     if (textArea) {
-                        const push = () => { textArea.value = editor.getValue(); }; // <— fixed
+                        const push = () => { textArea.value = editor.getValue(); };
                         push(); // initial sync
                         editor.onDidChangeModelContent(push);
                     } else {
                         console.warn("data-textarea selector did not match any element:", textAreaSelector);
                     }
                 }
+
+                // Use ResizeObserver to watch for container size changes
+                const resizeObserver = new ResizeObserver(() => {
+                    editor.layout();
+                });
+                resizeObserver.observe(el);
+
+                // Store both editor and observer for cleanup
+                initialized.set(el, { editor, resizeObserver });
+
+                // Initial layout
+                requestAnimationFrame(() => editor.layout());
 
                 resolve(editor);
             });
@@ -96,9 +114,16 @@ require.config({
     document.addEventListener("htmx:beforeSwap", (e) => {
         const root = e.detail?.target || e.target || document;
         root.querySelectorAll("[data-monaco]").forEach((el) => {
-            const editor = initialized.get(el);
-            if (editor) editor.dispose();
+            const data = initialized.get(el);
+            if (data) {
+                // Dispose editor
+                data.editor.dispose();
+                // Disconnect resize observer to prevent memory leaks
+                data.resizeObserver.disconnect();
+            }
             initialized.delete(el);
+            // Clear the element to prevent layout issues
+            el.innerHTML = '';
         });
     });
 })();

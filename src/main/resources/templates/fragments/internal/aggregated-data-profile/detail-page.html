@@ -4,7 +4,7 @@
 <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
 <div layout:fragment="view-panel-content" th:fragment="view-panel-content">
     <th:block th:fragment="adp-detail-page">
-        <div th:replace="~{layout-internal :: breadcrumb (${ {{'aggregated-data-profiles', '/admin/aggregated-data-profiles'}} })}"></div>
+        <div th:replace="~{layout-internal :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}} })}"></div>
         <div th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfile.name})}"></div>
         <cds-tabs value="general" type="contained">
             <cds-tab id="tab-general" target="panel-general" value="general">General</cds-tab>
@@ -13,15 +13,15 @@
         </cds-tabs>
 
         <div id="panel-general" role="tabpanel" aria-labelledby="tab-general">
-            <div th:replace="~{fragments/internal/aggregated-data-profile/general :: profile-general}"></div>
+            <div th:replace="fragments/internal/aggregated-data-profile/edit :: profile-edit-panel"></div>
         </div>
 
         <div id="panel-relations" role="tabpanel" aria-labelledby="tab-relations">
-            <div th:replace="~{fragments/internal/aggregated-data-profile/relations :: profile-relations}"></div>
+            <div th:replace="fragments/internal/aggregated-data-profile/relationsPanel :: relations-panel"></div>
         </div>
 
         <div id="panel-preview" role="tabpanel" aria-labelledby="tab-preview">
-            <div th:replace="~{fragments/internal/aggregated-data-profile/debug :: profile-debug}"></div>
+            <div th:replace="fragments/internal/aggregated-data-profile/test :: profile-debug"></div>
         </div>
     </th:block>
 </div>

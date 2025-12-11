@@ -22,9 +22,12 @@
                 </cds-dropdown>
             </cds-form-item>
             <cds-select label-text="Select an connector instance" size="lg" name="connectorInstanceId"
+                        th:value="${form?.connectorInstanceId}"
                         hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
                         hx-target="#formRelationEndpoints"
-            >
+                        th:attr="
+                                invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage}">
 
                 <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
                     (<span th:text="${instance.connector.name}"></span>)
@@ -32,7 +35,11 @@
                 </cds-select-item>
             </cds-select>
             <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
-                <cds-select label-text="Select an connector endpoint" size="lg" name="connectorEndpointId">
+                <cds-select label-text="Select an connector endpoint" size="lg" name="connectorEndpointId"
+                            th:value="${form?.connectorEndpointId}"
+                            th:attr="
+                                invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
+                                invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage}">
                     <cds-select-item th:each="endpoint: ${connectorEndpoints}" th:value="${endpoint.id}">
                         <span th:text="${endpoint.name}"></span>
                     </cds-select-item>
@@ -44,7 +51,7 @@
                               placeholder="e.g. {'searchParamA': '.myField'}"
                               th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
-                                value=${addRelationForm?.sourceToEndpointMapping}">
+                                value=${form?.sourceToEndpointMapping}">
                 </cds-textarea>
             </cds-form-item>
             <cds-form-item>
@@ -53,19 +60,33 @@
                                 placeholder="e.g. relation"
                               th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('propertyName')?.defaultMessage},
-                                value=${addRelationForm?.propertyName}">
+                                value=${form?.propertyName}">
                 </cds-text-input>
             </cds-form-item>
-            <cds-form-item>
-                <cds-textarea name="transform"
-                              label="Transform"
-                              helper-text="A valid JQ expression learn at https://jqlang.org/tutorial/"
-                              placeholder="e.g. {'fieldA': '.fieldB'}"
-                              th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('transform')?.defaultMessage},
-                                value=${addRelationForm?.transform}">
-                </cds-textarea>
+            <cds-form-item th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null">
+                <label for="transform">Transform</label>
+                <textarea id="transform"
+                          name="transform"
+                          th:text="${form?.transform}"
+                          hidden>
+                </textarea>
+
+                <!-- Monaco container -->
+                <div id="transform-editor"
+                     data-monaco
+                     data-language="jq"
+                     data-textarea="#transform"
+                     th:data-initial="${form?.transform}"
+                     data-theme="lightgray-theme"
+                     th:class="${errors?.getFieldError('transform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
+                </div>
             </cds-form-item>
+            <div id="monaco-error"
+                 th:class="${errors?.getFieldError('transform') != null} ? 'monaco-error show' : 'monaco-error'">
+                <span th:if="${errors?.getFieldError('transform') != null}"
+                      th:text="${errors?.getFieldError('transform')?.defaultMessage}"></span>
+            </div>
+            <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
             <input type="hidden" name="aggregatedDataProfileId" th:value="${aggregatedDataProfileId}"/>
         </cds-stack>
     </cds-form-group>
@@ -74,9 +95,8 @@
         <cds-button
             hx-post="/admin/relations"
             hx-include="#form-group-relation *"
-            hx-target="#panel-relations"
-            hx-swap="outerHTML"
-            size="xl">
+            hx-target="#relation-add"
+            hx-swap="outerHTML">
             Save
             <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M27.71,9.29l-5-5A1,1,0,0,0,22,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V10A1,1,0,0,0,27.71,9.29ZM12,6h8v4H12Zm8,20H12V18h8Zm2,0V18a2,2,0,0,0-2-2H12a2,2,0,0,0-2,2v8H6V6h4v4a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V6.41l4,4V26Z"></path><title>Save</title></svg>
         </cds-button>
