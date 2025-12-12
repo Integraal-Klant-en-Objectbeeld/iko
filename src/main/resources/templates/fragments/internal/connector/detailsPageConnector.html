@@ -183,7 +183,7 @@
                             hx-target="#view-panel"
                             hx-push-url="true"
                             role="link"
-                            onclick="if (e.target.closest('.app--table-cell-actions')) e.stopImmediatePropagation();"
+                            onclick="document.addEventListener('click', (e) => {if (e.target.closest('.app--table-cell-actions')) {e.stopImmediatePropagation();}});"
                             class="app--table-row-clickable">
                             <cds-table-cell th:text="${instance.name}"></cds-table-cell>
                             <cds-table-cell th:text="${instance.tag}"></cds-table-cell>
