@@ -460,11 +460,11 @@ class AggregatedDataProfileController(
             Source(
                 id = relation.id.toString(),
                 name =
-                    if (relation.sourceId == aggregatedDataProfile.id) {
-                        aggregatedDataProfile.name + ">" + relation.propertyName // use profile name if sourceId matches
-                    } else {
-                        relation.propertyName // otherwise use relation id
-                    },
+                if (relation.sourceId == aggregatedDataProfile.id) {
+                    aggregatedDataProfile.name + ">" + relation.propertyName // use profile name if sourceId matches
+                } else {
+                    relation.propertyName // otherwise use relation id
+                },
             )
         }
         .toMutableList()
