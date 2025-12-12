@@ -1,7 +1,16 @@
+/* CSS Tokens */
+:root {
+    --primary-color: #2B79BD;
+    --primary-color-hover: #286198;
+    --primary-color-active: #003361;
+    --color-disabled: #C6C6C6;
+    --color-skeleton: #E8E8E8;
+    --color-white: #ffffff;
+}
+
 /* Main layout */
 body {
-    padding: 0;
-    padding-top: 3rem;
+    padding: 3rem 0 0;
     font-size: var(--cds-body-compact-01-font-size);
     font-weight: var(--cds-body-01-font-weight);
     line-height: var(--cds-body-01-line-height);
@@ -80,18 +89,18 @@ body {
 }
 
 cds-link {
-    color: #2B79BD;
+    color: var(--primary-color);
     cursor: pointer;
 }
 
 cds-link::part(link) {
-    color: #2B79BD;
+    color: var(--primary-color);
     text-decoration: none;
 }
 
 cds-link:hover::part(link),
 cds-link:focus-within::part(link) {
-    color: #286198;
+    color: var(--primary-color-hover);
     text-decoration: underline;
 }
 
@@ -100,7 +109,7 @@ cds-link:visited::part(link) {
 }
 
 cds-link:active::part(link) {
-    color: #003361;
+    color: var(--primary-color-active);
 }
 
 cds-link[disabled]::part(link),
@@ -116,7 +125,7 @@ cds-link[aria-disabled="true"]::part(link) {
 }
 
 cds-breadcrumb-link {
-    color: #2B79BD;
+    color: var(--primary-color);
 }
 
 label{
@@ -133,20 +142,28 @@ label{
 /* Themes And CDS */
 .cds-theme-zone-g10,
 .cds-theme-zone-white {
-    --cds-button-primary: #2B79BD;
-    --cds-button-primary-hover: #286198;
-    --cds-button-primary-active: #003361;
-    --cds-button-primary-disabled: #C6C6C6;
-    --cds-button-tertiary-hover: #286198;
-    --cds-button-tertiary-active: #003361;
-    --cds-button-tertiary-disabled: #C6C6C6;
-    --cds-focus: #2B79BD;
-    --cds-skeleton-background: #E8E8E8;
-    --cds--btn--secondary: #ffffff;
+    --cds-interactive: var(--primary-color);
+    --cds-interactive-01: var(--primary-color);
+    --cds-interactive-04: var(--primary-color);
+    --cds-link-01: var(--primary-color);
+    --cds-focus: var(--primary-color);
+    --cds-border-interactive: var(--primary-color);
+    --cds-link-primary: var(--primary-color);
+    --cds-link-primary-hover:var(--primary-color-hover);
+
+    --cds-button-primary: var(--primary-color);
+    --cds-button-primary-hover: var(--primary-color-hover);
+    --cds-button-primary-active: var(--primary-color-active);
+    --cds-button-primary-disabled: var(--color-disabled);
+    --cds-button-tertiary-hover: var(--primary-color-hover);
+    --cds-button-tertiary-active: var(--primary-color-active);
+    --cds-button-tertiary-disabled: var(--color-disabled);
+    --cds-skeleton-background: var(--color-skeleton);
+    --cds--btn--secondary: var(--color-white);
 }
 
 cds-button[kind="ghost"]::part(button) {
-    border-color: #2B79BD;
+    border-color: var(--primary-color);
 }
 
 .cds-theme-zone-g10 h2.cds--type-heading-03,
@@ -178,7 +195,7 @@ cds-header-menu-button,
 }
 
 cds-header .header-panel {
-    background: #ffffff;
+    background: var(--color-white);
 }
 
 cds-header .header-panel cds-structured-list-cell {
@@ -334,7 +351,7 @@ cds-button {
 
 cds-modal-footer-button[kind="secondary"]::part(button) {
     background-color: white;
-    color: #2B79BD;
+    color: var(--primary-color);
 }
 
 .relation-button-bar {

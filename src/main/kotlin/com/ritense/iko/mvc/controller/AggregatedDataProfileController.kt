@@ -76,6 +76,8 @@ class AggregatedDataProfileController(
                 "connectorEndpoints" to endpoints,
                 "sources" to availableSources,
                 "isCached" to isCached,
+                "username" to SecurityContextHelper.getUserPropertyByKey("name"),
+                "email" to SecurityContextHelper.getUserPropertyByKey("email"),
             ),
         )
     }
@@ -99,8 +101,8 @@ class AggregatedDataProfileController(
                 addObject("page", page)
                 addObject("query", query)
                 addObject("menuItems", menuItems)
-                addObject("username" to SecurityContextHelper.getUserPropertyByKey("name"))
-                addObject("email" to SecurityContextHelper.getUserPropertyByKey("email"))
+                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
             }
         }
     }
@@ -116,6 +118,8 @@ class AggregatedDataProfileController(
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
+                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
             }
         return list
     }
@@ -139,12 +143,16 @@ class AggregatedDataProfileController(
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
+                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
                 }
             val pagination =
                 ModelAndView("$BASE_FRAGMENT_ADG/pagination").apply {
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
+                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
                 }
             return listOf(
                 searchResults,
@@ -157,8 +165,8 @@ class AggregatedDataProfileController(
                     addObject("page", page)
                     addObject("query", query)
                     addObject("menuItems", menuItems)
-                    addObject("username" to SecurityContextHelper.getUserPropertyByKey("name"))
-                    addObject("email" to SecurityContextHelper.getUserPropertyByKey("email"))
+                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
                 },
             )
         }
