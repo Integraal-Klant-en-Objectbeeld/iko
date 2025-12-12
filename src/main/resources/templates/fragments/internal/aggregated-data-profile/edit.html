@@ -72,12 +72,12 @@
                                                             name="cacheEnabledToggle"
                                                             label-text="Cache enabled"
                                                             aria-labelledby="cacheEnabled-label"
-                                                            hx-on:cds-toggle-changed="document.querySelector('#cacheEnabled-hidden').value = this.checked;"
+                                                            hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
                                                             th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
                                                                      invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
                                                                      checked=${form?.cacheEnabled}">
                                                 </cds-toggle>
-                                                <input type="hidden" name="cacheEnabled" id="cacheEnabled-hidden" th:value="${form?.cacheEnabled}">
+                                                <input type="hidden" name="cacheEnabled" id="adpCacheEnabledHidden" th:value="${form?.cacheEnabled}">
                                                 <cds-number-input id="cacheTimeToLive"
                                                                   name="cacheTimeToLive"
                                                                   required="true"

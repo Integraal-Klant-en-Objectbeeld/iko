@@ -13,7 +13,7 @@
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}">
-                    <cds-dropdown-item value="">
+                    <cds-dropdown-item th:value="${form.aggregatedDataProfileId}" disabled>
                          Profile root
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
@@ -96,6 +96,42 @@
                       th:text="${errors?.getFieldError('transform')?.defaultMessage}"></span>
             </div>
             <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
+
+            <!-- Cache setting -->
+            <div class="form-row" style="flex-direction: row; align-items: center; justify-content: space-between;">
+                <cds-toggle id="cacheEnabledToggle"
+                            name="cacheEnabledToggle"
+                            label-text="Cache enabled"
+                            aria-labelledby="cacheEnabled-label"
+                            hx-on:cds-toggle-changed="document.querySelector('#relationCacheEnabledHidden').value = this.checked;"
+                            th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
+                                     invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
+                                     checked=${form?.cacheEnabled}">
+                </cds-toggle>
+                <input type="hidden" name="cacheEnabled" id="relationCacheEnabledHidden" th:value="${form?.cacheEnabled}">
+                <cds-number-input id="cacheTimeToLive"
+                                  name="cacheTimeToLive"
+                                  required="true"
+                                  value="5000"
+                                  min="1000"
+                                  step="1000"
+                                  max="31536000000"
+                                  label="Time to live"
+                                  helper-text="Milliseconds"
+                                  style="width: 300px;"
+                                  th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
+                                           invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
+                                           value=${form?.cacheTimeToLive}">
+                </cds-number-input>
+                <cds-button kind="danger-tertiary"
+                            size="sm"
+                            hx-confirm="Are you sure?"
+                            th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
+                                     disabled=${!isCached}">
+                    Clear cache
+                </cds-button>
+            </div>
+            <!-- Cache setting -->
             <input type="hidden" name="aggregatedDataProfileId" th:value="${form.aggregatedDataProfileId}"/>
             <input type="hidden" name="id" th:value="${form.id}"/>
         </cds-stack>
@@ -108,16 +144,11 @@
                     hx-swap="innerHTML"
                     hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
                     hx-push-url="false"
-                    type="button"
-        >
+                    type="button">
             Delete
             <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 12H14V24H12zM18 12H20V24H18z"></path><path d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path><title>Trash can</title></svg>
         </cds-button>
-        <cds-button
-            type="submit"
-            hx-on:click="document.getElementById('relation-edit-form')?.requestSubmit()"
-            size="xl"
-        >
+        <cds-button type="submit" hx-on:click="document.getElementById('relation-edit-form')?.requestSubmit()">
             Save
             <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M27.71,9.29l-5-5A1,1,0,0,0,22,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V10A1,1,0,0,0,27.71,9.29ZM12,6h8v4H12Zm8,20H12V18h8Zm2,0V18a2,2,0,0,0-2-2H12a2,2,0,0,0-2,2v8H6V6h4v4a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V6.41l4,4V26Z"></path><title>Save</title></svg>
         </cds-button>

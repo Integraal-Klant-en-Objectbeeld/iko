@@ -2,13 +2,13 @@ package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfile
-import com.ritense.iko.mvc.model.validation.UniqueCollectionCheck
+import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfileCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import java.util.UUID
 
-@UniqueCollectionCheck
+@UniqueAggregatedDataProfileCheck
 data class AggregatedDataProfileEditForm(
     override val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
@@ -22,8 +22,8 @@ data class AggregatedDataProfileEditForm(
     val transform: String,
     @field:NotBlank(message = "Please provide a role.")
     val role: String? = null,
-    var connectorInstanceId: UUID,
-    var connectorEndpointId: UUID,
+    val connectorInstanceId: UUID,
+    val connectorEndpointId: UUID,
     val cacheEnabled: Boolean,
     val cacheTimeToLive: Int,
 ) : UniqueAggregatedDataProfile {

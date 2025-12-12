@@ -21,14 +21,12 @@ import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.security.SecurityContextHelper
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
-import org.springframework.validation.ObjectError
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -55,7 +53,8 @@ class AggregatedDataProfileController(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow { NoSuchElementException("ADP not found") }
+        val aggregatedDataProfile =
+            aggregatedDataProfileRepository.findById(id).orElseThrow { NoSuchElementException("ADP not found") }
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
         val endpoints = instance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
         val availableSources = sources(aggregatedDataProfile)
@@ -290,8 +289,10 @@ class AggregatedDataProfileController(
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile)
-        val connectorInstance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
-        val connectorEndpoints = connectorInstance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
+        val connectorInstance =
+            connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
+        val connectorEndpoints =
+            connectorInstance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
 
         if (bindingResult.hasErrors()) {
             val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add :: relation-add").apply {
@@ -306,13 +307,9 @@ class AggregatedDataProfileController(
             return listOf(modelAndView)
         }
 
-        form.run {
-            aggregatedDataProfile.let {
-                it.addRelation(form)
-                aggregatedDataProfileService.reloadRoutes(it)
-                aggregatedDataProfileRepository.save(it)
-            }
-        }
+        aggregatedDataProfile.addRelation(form)
+        aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
 
         val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
@@ -340,16 +337,14 @@ class AggregatedDataProfileController(
         val relation = aggregatedDataProfile.relations.find { it.id == relationId }
         val connector = connectorInstanceRepository.findById(relation?.connectorInstanceId!!).orElseThrow()
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
-        val modelAndView =
-            ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
-                addObject("sources", sources)
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
-                addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
-                addObject(
-                    "form",
-                    aggregatedDataProfile.relations.find { it.id == relationId }?.let { EditRelationForm.from(it) },
-                )
-            }
+        val isCached = cacheService.isCached(relation.id.toString())
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
+            addObject("sources", sources)
+            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
+            addObject("form", EditRelationForm.from(relation))
+            addObject("isCached", isCached)
+        }
         return modelAndView
     }
 
@@ -362,7 +357,8 @@ class AggregatedDataProfileController(
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
         val connectorInstance = connectorInstanceRepository.findById(form.connectorInstanceId).orElse(null)
-        val connectorEndpoints = connectorInstance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
+        val connectorEndpoints =
+            connectorInstance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
             addObject("sources", sources)
@@ -374,26 +370,16 @@ class AggregatedDataProfileController(
         if (bindingResult.hasErrors()) {
             return listOf(modelAndView)
         }
-        var updatedProfile: AggregatedDataProfile? = null
-        try {
-            updatedProfile =
-                form.run {
-                    aggregatedDataProfile.let {
-                        it.changeRelation(form)
-                        aggregatedDataProfileService.reloadRoutes(it)
-                        aggregatedDataProfileRepository.save(it)
-                    }
-                }
-        } catch (ex: DataIntegrityViolationException) {
-            bindingResult.addError(ObjectError("name", "This name already exists."))
-            return listOf(modelAndView)
-        }
+        aggregatedDataProfile.changeRelation(form)
+        aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
+
         val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADG/relationsPanel :: relations-panel").apply {
-            addObject("aggregatedDataProfile", updatedProfile!!)
-            addObject("relations", updatedProfile.relations.map { Relation.from(it) })
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
 
-        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${updatedProfile!!.id}")
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
@@ -482,11 +468,12 @@ class AggregatedDataProfileController(
             Source(
                 id = relation.id.toString(),
                 name =
-                if (relation.sourceId == aggregatedDataProfile.id) {
-                    aggregatedDataProfile.name + ">" + relation.id // use profile name if sourceId matches
-                } else {
-                    relation.id.toString() // otherwise use relation id
-                },
+                    if (relation.sourceId == aggregatedDataProfile.id) {
+                        aggregatedDataProfile.name + ">" + relation.propertyName // use profile name if sourceId matches
+                    } else {
+                        relation.propertyName // otherwise use relation id
+                    },
             )
-        }.toMutableList()
+        }
+        .toMutableList()
 }
