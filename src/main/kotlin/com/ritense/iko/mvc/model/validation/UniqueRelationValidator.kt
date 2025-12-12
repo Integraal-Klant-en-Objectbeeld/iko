@@ -6,26 +6,28 @@ import jakarta.validation.ConstraintValidatorContext
 import org.springframework.stereotype.Component
 
 @Component
-class UniqueCollectionCheckValidator(
+class UniqueRelationValidator(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-) : ConstraintValidator<UniqueCollectionCheck, UniqueAggregatedDataProfile> {
+) : ConstraintValidator<UniqueRelationCheck, UniqueRelation> {
     override fun isValid(
-        form: UniqueAggregatedDataProfile,
+        form: UniqueRelation,
         context: ConstraintValidatorContext,
     ): Boolean {
-        if (form.name.isBlank()) return false
+        if (form.propertyName.isBlank()) return false
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
+        val existing = aggregatedDataProfile.relations.find { it.id == form.id}
+        val duplicateOnSameLevel = aggregatedDataProfile.relations
+            .any { it.propertyName == form.propertyName && it.sourceId == form.sourceId }
 
-        val existing = aggregatedDataProfileRepository.findByName(form.name)
-        val isValid = existing == null || existing.id == form.id
+        val isValid = duplicateOnSameLevel || existing?.id == form.id
 
         if (!isValid) {
             context.disableDefaultConstraintViolation()
             context
-                .buildConstraintViolationWithTemplate("Name already exists, please choose another.")
+                .buildConstraintViolationWithTemplate("Name already exists/in use, please choose another.")
                 .addPropertyNode("name") // point to 'name' field
                 .addConstraintViolation()
         }
-
         return isValid
     }
 }

@@ -37,7 +37,7 @@ class AggregatedDataProfileRouteBuilder(
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
-            .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
+            .setVariable("endpointMapping").jq(source.sourceToEndpointMapping.expression)
             .setVariable("relationId", constant(source.id))
             .marshal().json()
             .choice()
