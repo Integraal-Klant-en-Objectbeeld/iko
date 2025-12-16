@@ -110,6 +110,16 @@ class AggregatedDataProfile(
         this.relations.removeIf { it.id in toRemove }
     }
 
+    fun level1Relations(): List<Relation> {
+        return relations.filter { it.sourceId == null || it.sourceId == this.id } // backwards compatible code either check on ADP id or null (used before prefilling)
+    }
+
+    fun relationsOf(id: UUID) : List<Relation> {
+        return relations.filter {
+            it.sourceId == id
+        }
+    }
+
     companion object {
         fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile {
             val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")

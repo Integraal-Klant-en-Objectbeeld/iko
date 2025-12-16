@@ -3,8 +3,8 @@ package com.ritense.iko.mvc.model
 import com.ritense.iko.mvc.model.validation.UniqueRelation
 import com.ritense.iko.mvc.model.validation.UniqueRelationCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Positive
 import java.util.UUID
 import com.ritense.iko.aggregateddataprofile.domain.Relation as RelationEntity
 
@@ -23,7 +23,7 @@ data class EditRelationForm(
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
     val cacheEnabled: Boolean,
-    @field:Positive(message = "Please provide a positive value.")
+    @field:Min(value = 0)
     val cacheTimeToLive: Int,
 ) : UniqueRelation {
     companion object {
