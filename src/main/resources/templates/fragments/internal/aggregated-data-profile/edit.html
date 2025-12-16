@@ -103,8 +103,32 @@
                                         </cds-stack>
                                     </div>
                                     <div class="form-column">
+                                        <cds-form-item th:attr="invalid=${errors?.getFieldError('endpointTransform') != null} ? 'true' : null">
+                                            <label for="endpointTransformCode">Endpoint Transform</label>
+                                            <textarea id="endpointTransformCode"
+                                                      name="endpointTransform"
+                                                      th:text="${form?.endpointTransform}"
+                                                      hidden>
+                                            </textarea>
+
+                                            <!-- Monaco container -->
+                                            <div id="endpoint-transform-editor"
+                                                 data-monaco
+                                                 data-language="jq"
+                                                 data-textarea="#endpointTransformCode"
+                                                 th:data-initial="${form?.endpointTransform}"
+                                                 data-theme="lightgray-theme"
+                                                 th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
+                                            </div>
+                                        </cds-form-item>
+                                        <div id="endpoint-transform-monaco-error"
+                                             th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-error show' : 'monaco-error'">
+                                            <span th:if="${errors?.getFieldError('endpointTransform') != null}"
+                                                  th:text="${errors?.getFieldError('endpointTransform')?.defaultMessage}"></span>
+                                        </div>
+
                                         <cds-form-item th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null">
-                                            <label for="resultTransformCode">Transform</label>
+                                            <label for="resultTransformCode">Result Transform</label>
                                             <textarea id="resultTransformCode"
                                                   name="resultTransform"
                                                   th:text="${form?.resultTransform}"
@@ -121,7 +145,7 @@
                                                  th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
                                             </div>
                                         </cds-form-item>
-                                        <div id="monaco-error"
+                                        <div id="result-transform-monaco-error"
                                              th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'">
                                             <span th:if="${errors?.getFieldError('resultTransform') != null}"
                                                   th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"></span>

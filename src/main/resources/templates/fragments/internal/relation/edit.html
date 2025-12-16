@@ -73,18 +73,18 @@
                 </cds-text-input>
             </cds-form-item>
             <cds-form-item th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null">
-                <label for="transformCodeEdit">Transform</label>
-                <textarea id="transformCodeEdit"
-                          name="transform"
+                <label for="resultTransformCodeEdit">Result Transform</label>
+                <textarea id="resultTransformCodeEdit"
+                          name="resultTransform"
                           th:text="${form?.resultTransform}"
                           hidden>
                 </textarea>
 
                 <!-- Monaco container -->
-                <div id="transform-editor-edit"
+                <div id="result-transform-editor-edit"
                      data-monaco
                      data-language="jq"
-                     data-textarea="#transformCodeEdit"
+                     data-textarea="#resultTransformCodeEdit"
                      th:data-initial="${form?.resultTransform}"
                      data-theme="lightgray-theme"
                      th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">

@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
@@ -353,7 +354,7 @@ class AggregatedDataProfileController(
     ): List<ModelAndView> {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
-        val connectorInstance = connectorInstanceRepository.findById(form.connectorInstanceId).orElse(null)
+        val connectorInstance = connectorInstanceRepository.findByIdOrNull(form.connectorInstanceId)
         val connectorEndpoints = connectorInstance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)

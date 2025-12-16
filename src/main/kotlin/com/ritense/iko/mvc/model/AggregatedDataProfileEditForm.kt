@@ -22,6 +22,7 @@ data class AggregatedDataProfileEditForm(
     var connectorInstanceId: UUID,
     var connectorEndpointId: UUID,
     @field:ValidTransform
+    @field:NotBlank(message = "Please provide a transform expression.")
     val endpointTransform: String,
     @field:ValidTransform
     @field:NotBlank(message = "Please provide a transform expression.")

@@ -1,6 +1,7 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute.Companion.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
@@ -48,6 +49,7 @@ class TestController(
                 "iko_id" to form.testId,
                 "iko_profile" to form.name,
                 "iko_trace_id" to ikoTraceId,
+                "iko_endpointTransformContext" to objectMapper.readTree(form.endpointTransformContext),
             )
         var result: String? = null
         var exception: ExceptionResponse? = null
@@ -76,6 +78,7 @@ class TestController(
         return ModelAndView("$BASE_FRAGMENT_ADP/debug :: profile-debug").apply {
             addObject("form", form)
             addObject("testId", form.testId)
+            addObject("endpointTransformContext", form.endpointTransformContext)
             addObject("testResult", result)
             addObject("traces", traces)
             addObject("exception", exception)

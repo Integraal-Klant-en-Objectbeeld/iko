@@ -24,11 +24,12 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
     return object : Cacheable {
         override val id = id.toString()
         override val cacheKey: (Exchange) -> String = { exchange ->
+            val endpointMappingResult = exchange.getVariable("endpointTransformResult", "{}", String::class.java)
             listOf(
                 id.toString(),
                 endpointTransform.expression,
+                endpointMappingResult,
                 resultTransform.expression,
-                exchange.getVariable("endpointTransformResult", "", String::class.java),
             ).joinToString(separator = "")
         }
         override val cacheSettings =
@@ -64,11 +65,14 @@ fun Relation.toCacheable(): Cacheable {
                 override val timeToLive = cacheSettings.timeToLive
             }
         override val cacheKey: (Exchange) -> String = { exchange ->
+            val endpointMappingResult = exchange.getVariable("endpointTransformResult", "{}", String::class.java)
+
             listOf(
                 id,
                 sourceToEndpointMapping,
+                endpointMappingResult,
                 resultTransform.expression,
-            ).joinToString(separator = "")
+                ).joinToString(separator = "")
         }
 
         override fun handleCacheEntry(

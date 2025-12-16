@@ -63,28 +63,28 @@
                                 value=${form?.propertyName}">
                 </cds-text-input>
             </cds-form-item>
-            <cds-form-item th:attr="invalid=${errors?.getFieldError('transform') != null} ? 'true' : null">
-                <label for="transform">Transform</label>
-                <textarea id="transform"
-                          name="transform"
+            <cds-form-item th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null">
+                <label for="resultTransform">Result Transform</label>
+                <textarea id="resultTransform"
+                          name="resultTransform"
                           th:text="${form?.resultTransform}"
                           hidden>
                 </textarea>
 
                 <!-- Monaco container -->
-                <div id="transform-editor"
+                <div id="result-transform-editor"
                      data-monaco
                      data-language="jq"
-                     data-textarea="#transform"
+                     data-textarea="#resultTransform"
                      th:data-initial="${form?.resultTransform}"
                      data-theme="lightgray-theme"
-                     th:class="${errors?.getFieldError('transform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
+                     th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
                 </div>
             </cds-form-item>
             <div id="monaco-error"
-                 th:class="${errors?.getFieldError('transform') != null} ? 'monaco-error show' : 'monaco-error'">
-                <span th:if="${errors?.getFieldError('transform') != null}"
-                      th:text="${errors?.getFieldError('transform')?.defaultMessage}"></span>
+                 th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'">
+                <span th:if="${errors?.getFieldError('resultTransform') != null}"
+                      th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"></span>
             </div>
             <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
             <input type="hidden" name="aggregatedDataProfileId" th:value="${aggregatedDataProfileId}"/>

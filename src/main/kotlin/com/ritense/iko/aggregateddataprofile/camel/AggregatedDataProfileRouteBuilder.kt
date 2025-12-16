@@ -30,7 +30,7 @@ class AggregatedDataProfileRouteBuilder(
 
     override fun configure() {
         // prepare relation variables
-        val relations = aggregatedDataProfile.relations.filter { it.sourceId == null }
+        val relations = aggregatedDataProfile.relations.filter { it.sourceId == it.aggregatedDataProfile.id }
 
         val connectorInstance = requireNotNull(
             connectorInstanceRepository.findByIdOrNull(aggregatedDataProfile.connectorInstanceId),
@@ -94,11 +94,12 @@ class AggregatedDataProfileRouteBuilder(
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, endpointTransformExpression)
             .routeDescription("[ADP Endpoint Transform]")
-            .process {
-                val result = it.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java)
+            .process { exchange ->
+                val endpointTransformResult: ObjectNode? =
+                    exchange.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java)
 
-                result?.forEachEntry { key, value ->
-                    it.getIn().setHeader(key, value.asText())
+                endpointTransformResult?.forEachEntry { key, value ->
+                    exchange.getIn().setHeader(key, value.asText())
                 }
             }
 
@@ -108,7 +109,6 @@ class AggregatedDataProfileRouteBuilder(
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
                 .multicast(MapAggregator)
                 .parallelProcessing()
-                .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
 
             relations.forEach { relation ->
                 // build route for child relation
@@ -130,28 +130,42 @@ class AggregatedDataProfileRouteBuilder(
         val connectorEndpoint = connectorEndpointRepository.findById(currentRelation.connectorEndpointId)
             .orElseThrow { NoSuchElementException("Connector endpoint not found") }
 
+        val sourceToEndpointTransformExpression = expression()
+            .jq(currentRelation.sourceToEndpointMapping)
+            .variableName(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE)
+            .resultType(JsonNode::class.java)
+            .end()
+
         from("direct:relation_${currentRelation.id}")
             .routeId("relation_${currentRelation.id}_root")
             .routeDescription("[${aggregatedDataProfile.name}] <-- [${currentRelation.propertyName}]")
             .removeHeaders("*")
-            .setVariable("endpointMapping").jq(currentRelation.sourceToEndpointMapping)
+            .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
+            .process { exchange ->
+                val endpointTransformContext =
+                    exchange.getVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, ObjectNode::class.java)
+                val body = exchange.message.getBody(ObjectNode::class.java)
+                val updatedContext = endpointTransformContext.setAll<ObjectNode>(body)
+                exchange.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, updatedContext)
+            }
+            .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, sourceToEndpointTransformExpression)
             .setVariable("relationId", constant(currentRelation.id))
             .marshal().json()
             .choice()
-            .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isArray }
+            .`when` { ex -> ex.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, JsonNode::class.java).isArray }
             .to("direct:relation_${currentRelation.id}_array")
-            .`when` { ex -> ex.getVariable("endpointMapping", JsonNode::class.java).isObject }
+            .`when` { ex -> ex.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, JsonNode::class.java).isObject }
             .to("direct:relation_${currentRelation.id}_map")
 
         from("direct:relation_${currentRelation.id}_map")
             .routeId("relation_${currentRelation.id}_map")
             .routeDescription("Endpoint mapping (Map): [${currentRelation.propertyName}]")
             .process {
-                it.getVariable("endpointMapping", ObjectNode::class.java).forEachEntry { key, value ->
+                it.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java).forEachEntry { key, value ->
                     it.getIn().setHeader(key, value.asText())
                 }
             }
-            .removeVariable("endpointMapping")
+//            .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
             .to("direct:relation_${currentRelation.id}_loop")
             .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
@@ -160,7 +174,7 @@ class AggregatedDataProfileRouteBuilder(
             .routeId("relation_${currentRelation.id}_array")
             .routeDescription("Endpoint mapping (List): [${currentRelation.propertyName}]")
             .split(
-                variable("endpointMapping"),
+                variable(ENDPOINT_TRANSFORM_RESULT_VARIABLE),
                 FlexibleAggregationStrategy<JsonNode>()
                     .pick(body())
                     .castAs(JsonNode::class.java)
@@ -172,7 +186,7 @@ class AggregatedDataProfileRouteBuilder(
                     ex.getIn().setHeader(key, value.asText())
                 }
             }
-            .removeVariable("endpointMapping")
+//            .removeVariable("endpointMapping")
             .to("direct:relation_${currentRelation.id}_loop") // Executes the relation route
             .end()
             .transform(jq(currentRelation.resultTransform.expression))
@@ -197,9 +211,12 @@ class AggregatedDataProfileRouteBuilder(
             .`when` { ex -> !ex.getVariable("cacheHit_${currentRelation.id}", Boolean::class.java) } // cacheHit false
             .to(Iko.connector())
             .process {
+//                val asd = it.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java)
+//                val cacheKey = currentRelation.toCacheable().cacheKey(it)
                 cacheProcessor.putCache(exchange = it, cacheable = currentRelation.toCacheable())
             }
             .end()
+            .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
             .let {
                 if (relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${currentRelation.id}", PairAggregator)

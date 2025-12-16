@@ -49,11 +49,11 @@ class AggregatedDataProfileRoute(
                 val endpointTransformContext: JsonNode = objectMapper
                     .valueToTree(
                         mapOf(
-                            "adpSortParams" to
+                            "sortParams" to
                                 containerParams
                                     .filter { !Pageable.unpaged().equals(it.pageable) }
                                     .associate { it.containerId to it.pageable },
-                            "adpFilterParams" to
+                            "filterParams" to
                                 containerParams
                                     .filter { it.filters.isNotEmpty() }
                                     .associate { it.containerId to it.filters },
