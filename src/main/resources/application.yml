@@ -109,7 +109,7 @@ camel:
             enabled: true
             paths: classpath:camel/*.yaml
     main:
-        tracing: true # for debugging
+        tracing: false # for debugging
     trace:
         enabled: false
         standby: true
