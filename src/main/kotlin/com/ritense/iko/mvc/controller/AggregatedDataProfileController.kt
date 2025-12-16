@@ -457,6 +457,20 @@ class AggregatedDataProfileController(
         return details(id, true)
     }
 
+    @DeleteMapping("/aggregated-data-profiles/{id}/relation/{relationId}/cache")
+    fun evictRelationCacheKey(
+        @PathVariable id: UUID,
+        @PathVariable relationId: UUID,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val relation = aggregatedDataProfile.relations.first { it.id == relationId }
+        cacheService.evictByPrefix(relation.id.toString())
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+        return details(id, true)
+    }
+
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations
         .sortedWith(
             compareBy<com.ritense.iko.aggregateddataprofile.domain.Relation>(

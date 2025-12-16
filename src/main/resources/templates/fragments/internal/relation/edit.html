@@ -126,7 +126,7 @@
                 <cds-button kind="danger-tertiary"
                             size="sm"
                             hx-confirm="Are you sure?"
-                            th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
+                            th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relation/' + ${form.id} + '/cache'},
                                      disabled=${!isCached}">
                     Clear cache
                 </cds-button>
