@@ -6,6 +6,7 @@ import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfileCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Positive
 import java.util.UUID
 
 @UniqueAggregatedDataProfileCheck
@@ -25,6 +26,7 @@ data class AggregatedDataProfileEditForm(
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
     val cacheEnabled: Boolean,
+    @field:Positive(message = "Please provide a positive value.")
     val cacheTimeToLive: Int,
 ) : UniqueAggregatedDataProfile {
 
