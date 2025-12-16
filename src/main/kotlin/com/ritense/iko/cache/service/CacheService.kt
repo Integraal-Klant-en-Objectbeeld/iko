@@ -76,7 +76,7 @@ class CacheService(
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    fun isCached(id: String) = template.keys("id*").count() > 0
+    fun isCached(id: String) = template.keys("$id*").count() > 0
 
     companion object {
         private val logger = KotlinLogging.logger {}

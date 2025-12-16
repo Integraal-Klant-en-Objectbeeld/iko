@@ -6,9 +6,9 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@Constraint(validatedBy = [UniqueCollectionCheckValidator::class])
-annotation class UniqueCollectionCheck(
-    val message: String = "Name already exists.",
+@Constraint(validatedBy = [UniqueRelationValidator::class])
+annotation class UniqueRelationCheck(
+    val message: String = "Name already exists/in use, please choose another.",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<out Payload>> = [],
 )

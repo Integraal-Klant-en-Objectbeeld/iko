@@ -62,44 +62,37 @@ class AggregatedDataProfile(
         )
     }
 
-    fun addRelation(request: AddRelationForm) {
+    fun addRelation(form: AddRelationForm) {
         this.relations.add(
             Relation(
                 aggregatedDataProfile = this,
-                sourceId =
-                if (request.sourceId?.isNotBlank() == true) {
-                    UUID.fromString(request.sourceId)
-                } else {
-                    null
-                },
-                transform = Transform(checkNotNull(request.transform) { " Transform is required. " }),
-                sourceToEndpointMapping = checkNotNull(request.sourceToEndpointMapping) { " Source to endpoint mapping is required. " },
-                connectorEndpointId = checkNotNull(request.connectorEndpointId) { " Connector endpoint is required. " },
-                connectorInstanceId = checkNotNull(request.connectorInstanceId) { " Connector instance is required. " },
-                propertyName = checkNotNull(request.propertyName) { " Property name is required. " },
+                sourceId = form.sourceId,
+                transform = Transform(form.transform),
+                sourceToEndpointMapping = EndpointTransform(form.sourceToEndpointMapping),
+                connectorEndpointId = form.connectorEndpointId,
+                connectorInstanceId = form.connectorInstanceId,
+                propertyName = form.propertyName,
                 relationCacheSettings = RelationCacheSettings(),
             ),
         )
     }
 
-    fun changeRelation(request: EditRelationForm) {
-        this.relations.removeIf { it.id == request.id }
+    fun changeRelation(form: EditRelationForm) {
+        this.relations.removeIf { it.id == form.id }
         this.relations.add(
             Relation(
-                id = request.id,
+                id = form.id,
                 aggregatedDataProfile = this,
-                sourceId =
-                if (request.sourceId?.isNotBlank() == true) {
-                    UUID.fromString(request.sourceId)
-                } else {
-                    null
-                },
-                transform = Transform(request.transform),
-                sourceToEndpointMapping = request.sourceToEndpointMapping,
-                connectorInstanceId = request.connectorInstanceId,
-                connectorEndpointId = request.connectorEndpointId,
-                propertyName = request.propertyName,
-                relationCacheSettings = RelationCacheSettings(),
+                sourceId = form.sourceId,
+                transform = Transform(form.transform),
+                sourceToEndpointMapping = EndpointTransform(form.sourceToEndpointMapping),
+                connectorInstanceId = form.connectorInstanceId,
+                connectorEndpointId = form.connectorEndpointId,
+                propertyName = form.propertyName,
+                relationCacheSettings = RelationCacheSettings(
+                    enabled = form.cacheEnabled,
+                    timeToLive = form.cacheTimeToLive,
+                ),
             ),
         )
     }
@@ -115,6 +108,14 @@ class AggregatedDataProfile(
         }
         collectDescendants(request.id)
         this.relations.removeIf { it.id in toRemove }
+    }
+
+    fun level1Relations(): List<Relation> {
+        return relations.filter { it.sourceId == null || it.sourceId == this.id } // backwards compatible code either check on ADP id or null (used before prefilling)
+    }
+
+    fun relationsOf(id: UUID): List<Relation> = relations.filter {
+        it.sourceId == id
     }
 
     companion object {

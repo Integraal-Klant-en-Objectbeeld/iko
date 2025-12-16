@@ -25,10 +25,10 @@ class AggregatedDataProfileRouteBuilder(
     private val cacheProcessor: CacheProcessor,
 ) : RouteBuilder(camelContext) {
 
-    fun createRelationRoute(aggregatedDataProfile: AggregatedDataProfile, source: Relation) {
+    fun createRelationRoute(source: Relation) {
         camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
 
-        val relations = aggregatedDataProfile.relations.filter { it.sourceId == source.id }
+        val relations = source.aggregatedDataProfile.relationsOf(source.id)
         val connectorInstance = connectorInstanceRepository.findById(source.connectorInstanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connectorEndpoint = connectorEndpointRepository.findById(source.connectorEndpointId)
@@ -37,7 +37,7 @@ class AggregatedDataProfileRouteBuilder(
         from("direct:relation_${source.id}")
             .routeId("relation_${source.id}_direct")
             .removeHeaders("*")
-            .setVariable("endpointMapping").jq(source.sourceToEndpointMapping)
+            .setVariable("endpointMapping").jq(source.sourceToEndpointMapping.expression)
             .setVariable("relationId", constant(source.id))
             .marshal().json()
             .choice()
@@ -114,8 +114,8 @@ class AggregatedDataProfileRouteBuilder(
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
-            aggregatedDataProfile.relations.filter { it.sourceId == source.id }.forEach { relation ->
-                createRelationRoute(aggregatedDataProfile, relation)
+            relations.forEach { relation ->
+                createRelationRoute(relation)
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
 
@@ -124,7 +124,7 @@ class AggregatedDataProfileRouteBuilder(
     }
 
     override fun configure() {
-        val relations = aggregatedDataProfile.relations.filter { it.sourceId == null }
+        val level1Relations = aggregatedDataProfile.level1Relations()
 
         val connectorInstance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
@@ -158,7 +158,7 @@ class AggregatedDataProfileRouteBuilder(
             }
             .to(Iko.connector())
             .let {
-                if (relations.isNotEmpty()) {
+                if (level1Relations.isNotEmpty()) {
                     it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)
                 } else {
                     it
@@ -169,14 +169,14 @@ class AggregatedDataProfileRouteBuilder(
                 cacheProcessor.putCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
             }
             .marshal().json()
-        if (relations.isNotEmpty()) {
+        if (level1Relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
-            aggregatedDataProfile.relations.filter { it.sourceId == null }.forEach { relation ->
-                createRelationRoute(aggregatedDataProfile, relation)
+            level1Relations.forEach { relation ->
+                createRelationRoute(relation)
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
             multicast.end()
