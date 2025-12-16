@@ -114,10 +114,8 @@ class AggregatedDataProfile(
         return relations.filter { it.sourceId == null || it.sourceId == this.id } // backwards compatible code either check on ADP id or null (used before prefilling)
     }
 
-    fun relationsOf(id: UUID) : List<Relation> {
-        return relations.filter {
-            it.sourceId == id
-        }
+    fun relationsOf(id: UUID): List<Relation> = relations.filter {
+        it.sourceId == id
     }
 
     companion object {

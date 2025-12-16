@@ -115,7 +115,7 @@ class AggregatedDataProfileRouteBuilder(
                 .parallelProcessing()
 
             relations.forEach { relation ->
-                createRelationRoute( relation)
+                createRelationRoute(relation)
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
 
@@ -176,7 +176,7 @@ class AggregatedDataProfileRouteBuilder(
                 .parallelProcessing()
 
             level1Relations.forEach { relation ->
-                createRelationRoute( relation)
+                createRelationRoute(relation)
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
             multicast.end()
