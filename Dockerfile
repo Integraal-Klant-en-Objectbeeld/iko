@@ -17,5 +17,6 @@ LABEL org.opencontainers.image.description="Integraal Klant & Objectbeeld (IKO) 
 
 COPY --from=build /app/build/libs/iko.jar /app/iko.jar
 COPY --from=build --chmod=775 /app/entrypoint.sh /entrypoint.sh
+COPY --from=build /app/otel/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
 
 ENTRYPOINT ["/entrypoint.sh"]
