@@ -3,6 +3,8 @@ package com.ritense.iko.aggregateddataprofile.camel
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.CONTAINER_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.ParamDefinition
@@ -15,7 +17,7 @@ class AggregatedDataProfileRoute(
 ) : RouteBuilder() {
     override fun configure() {
         val containerParamsParamDefinition = ParamDefinition()
-            .name("containerParam")
+            .name(CONTAINER_PARAM_HEADER)
             .description("Container parameters for ADP")
             .type(query)
             .arrayType("String")
@@ -39,28 +41,7 @@ class AggregatedDataProfileRoute(
         from("direct:aggregated-data-profile-container-params")
             .routeId("aggregated-data-profile-container-params")
             .process { exchange ->
-                val containerParams: List<ContainerParam> = when (
-                    val paramHeader = exchange.`in`.getHeader("containerParam")
-                ) {
-                    is List<*> -> paramHeader.map { objectMapper.readValue(it.toString()) }
-                    is String -> listOf(objectMapper.readValue(paramHeader))
-                    else -> emptyList()
-                }
-                val endpointTransformContext: JsonNode = objectMapper
-                    .valueToTree(
-                        mapOf(
-                            "sortParams" to
-                                containerParams
-                                    .filter { !Pageable.unpaged().equals(it.pageable) }
-                                    .associate { it.containerId to it.pageable },
-                            "filterParams" to
-                                containerParams
-                                    .filter { it.filters.isNotEmpty() }
-                                    .associate { it.containerId to it.filters },
-                        ),
-                    )
 
-                exchange.`in`.setHeader("iko_endpointTransformContext", endpointTransformContext)
             }
             .removeHeader("containerParam")
             .to("direct:aggregated_data_profile_rest_continuation")
@@ -74,17 +55,10 @@ class AggregatedDataProfileRoute(
             .process { exchange ->
                 val aggregatedDataProfileName = exchange.getVariable("profile", String::class.java)
                 val aggregatedDataProfile = aggregatedDataProfileRepository.findByName(aggregatedDataProfileName)
-                if (aggregatedDataProfile == null) {
-                    throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
-                }
+                    ?: throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
             }
             .routeDescription("REST consumer --> ADP entrypoint")
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
-    }
-
-    companion object {
-        const val ENDPOINT_TRANSFORM_CONTEXT_VARIABLE = "endpointTransformContext"
-        const val ENDPOINT_TRANSFORM_RESULT_VARIABLE = "endpointTransformResult"
     }
 }

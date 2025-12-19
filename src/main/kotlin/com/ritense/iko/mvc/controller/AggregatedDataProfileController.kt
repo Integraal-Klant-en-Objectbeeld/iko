@@ -373,7 +373,7 @@ class AggregatedDataProfileController(
         aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
 
-        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relationsPanel :: relations-panel").apply {
+        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
@@ -413,7 +413,7 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.save(it)
             }
         }
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relationsPanel :: relations-panel").apply {
+        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileEditForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })

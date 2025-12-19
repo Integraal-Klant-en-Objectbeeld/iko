@@ -2,9 +2,9 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute.Companion.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
-import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute.Companion.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
