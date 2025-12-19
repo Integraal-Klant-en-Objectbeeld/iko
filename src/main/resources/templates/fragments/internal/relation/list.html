@@ -10,7 +10,7 @@
             <cds-table-cell th:text="${relation.sourceId}"></cds-table-cell>
             <cds-table-cell th:text="${relation.sourceToEndpointMapping}"></cds-table-cell>
             <cds-table-cell th:text="${relation.propertyName}"></cds-table-cell>
-            <cds-table-cell th:text="${relation.transform}"></cds-table-cell>
+            <cds-table-cell th:text="${relation.resultTransform}"></cds-table-cell>
             <cds-table-cell>
                 <cds-button kind="danger"
                             th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${relation.aggregatedDataProfileId} + '/relations/edit/' + ${relation.id} + '/delete'} "

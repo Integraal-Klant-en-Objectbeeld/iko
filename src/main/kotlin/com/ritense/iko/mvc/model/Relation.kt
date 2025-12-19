@@ -11,15 +11,15 @@ data class Relation(
     val connectorEndpointId: UUID,
     val propertyName: String,
     val sourceToEndpointMapping: String,
-    val transform: String,
+    val resultTransform: String,
 ) {
     companion object {
         fun from(it: RelationEntity): Relation = Relation(
             aggregatedDataProfileId = it.aggregatedDataProfile.id,
             id = it.id,
             sourceId = it.sourceId ?: it.aggregatedDataProfile.id,
-            sourceToEndpointMapping = it.sourceToEndpointMapping.expression,
-            transform = it.transform.expression,
+            sourceToEndpointMapping = it.endpointTransform.expression,
+            resultTransform = it.resultTransform.expression,
             connectorInstanceId = it.connectorInstanceId,
             connectorEndpointId = it.connectorEndpointId,
             propertyName = it.propertyName,

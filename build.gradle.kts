@@ -63,6 +63,8 @@ dependencies {
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.4")
+
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")

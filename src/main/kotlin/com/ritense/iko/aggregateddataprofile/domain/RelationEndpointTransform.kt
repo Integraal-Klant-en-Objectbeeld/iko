@@ -7,8 +7,8 @@ import net.thisptr.jackson.jq.Versions
 import net.thisptr.jackson.jq.exception.JsonQueryException
 
 @Embeddable
-class EndpointTransform(
-    @Column(name = "endpoint_transform")
+class RelationEndpointTransform(
+    @Column(name = "source_to_endpoint_mapping")
     val expression: String,
 ) {
     init {
