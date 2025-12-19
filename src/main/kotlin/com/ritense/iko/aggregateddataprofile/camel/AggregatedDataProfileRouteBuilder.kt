@@ -3,8 +3,8 @@ package com.ritense.iko.aggregateddataprofile.camel
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.ENDPOINT_TRANSFORM_RESULT_VARIABLE
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
@@ -211,8 +211,6 @@ class AggregatedDataProfileRouteBuilder(
             .`when` { ex -> !ex.getVariable("cacheHit_${currentRelation.id}", Boolean::class.java) } // cacheHit false
             .to(Iko.connector())
             .process {
-//                val asd = it.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java)
-//                val cacheKey = currentRelation.toCacheable().cacheKey(it)
                 cacheProcessor.putCache(exchange = it, cacheable = currentRelation.toCacheable())
             }
             .end()

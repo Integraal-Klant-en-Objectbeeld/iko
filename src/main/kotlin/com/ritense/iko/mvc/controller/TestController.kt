@@ -1,6 +1,10 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_ENDPOINT_TRANSFORM_CONTEXT_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_ID_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_PROFILE_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_TRACE_ID_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
@@ -38,17 +42,17 @@ class TestController(
         requireNotNull(tracer) { "BacklogTracer plugin not found in CamelContext" }
         val ikoTraceId = UUID.randomUUID().toString()
         tracer.isEnabled = true
-        tracer.traceFilter = "\${header.iko_trace_id} == '$ikoTraceId'"
+        tracer.traceFilter = "\${header.$IKO_TRACE_ID_HEADER} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
         // Run ADP
         val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
         val headers =
             mapOf(
-                "iko_id" to form.testId,
-                "iko_profile" to form.name,
-                "iko_trace_id" to ikoTraceId,
-                "iko_endpointTransformContext" to objectMapper.readTree(form.endpointTransformContext),
+                IKO_ID_PARAM_HEADER to form.testId,
+                IKO_PROFILE_PARAM_HEADER to form.name,
+                IKO_TRACE_ID_HEADER to ikoTraceId,
+                IKO_ENDPOINT_TRANSFORM_CONTEXT_HEADER to objectMapper.readTree(form.endpointTransformContext),
             )
         var result: String? = null
         var exception: ExceptionResponse? = null
