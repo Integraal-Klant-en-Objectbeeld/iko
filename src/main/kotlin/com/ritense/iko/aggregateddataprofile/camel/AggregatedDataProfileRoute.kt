@@ -14,7 +14,7 @@ import org.apache.camel.model.rest.RestParamType.query
 
 class AggregatedDataProfileRoute(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-    private val containerParamsProcessor: ContainerParamsProcessor
+    private val containerParamsProcessor: ContainerParamsProcessor,
 ) : RouteBuilder() {
     override fun configure() {
         val containerParamsParamDefinition = ParamDefinition()
