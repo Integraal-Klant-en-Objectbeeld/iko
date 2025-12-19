@@ -11,8 +11,8 @@
                               th:attr="
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage}"
-                              th:value="${parentId}">
-                    <cds-dropdown-item value="" disabled>
+                              th:value="${parentId != null ? parentId : aggregatedDataProfileId}">
+                    <cds-dropdown-item th:value="${aggregatedDataProfileId}" disabled>
                         Profile root
                     </cds-dropdown-item>
                     <cds-dropdown-item th:each="source : ${sources}"
@@ -22,13 +22,11 @@
                 </cds-dropdown>
             </cds-form-item>
             <cds-select label-text="Select an connector instance" size="lg" name="connectorInstanceId"
-                        th:value="${form?.connectorInstanceId}"
+                        th:value="${form != null ? form.connectorInstanceId : connectorInstances.first.id}"
                         hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
                         hx-target="#formRelationEndpoints"
-                        th:attr="
-                                invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage}">
-
+                        th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
+                                 invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage}">
                 <cds-select-item th:each="instance: ${connectorInstances}" th:value="${instance.id}">
                     (<span th:text="${instance.connector.name}"></span>)
                     <span th:text="${instance.name}"></span>
@@ -36,7 +34,7 @@
             </cds-select>
             <div id="formRelationEndpoints" th:fragment="connectorEndpoints">
                 <cds-select label-text="Select an connector endpoint" size="lg" name="connectorEndpointId"
-                            th:value="${form?.connectorEndpointId}"
+                            th:value="${form != null ? form.connectorEndpointId : connectorEndpoints.first.id}"
                             th:attr="
                                 invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage}">
@@ -51,7 +49,7 @@
                               placeholder="e.g. {'searchParamA': '.myField'}"
                               th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
-                                value=${form?.sourceToEndpointMapping}">
+                                value=${form != null ? form.sourceToEndpointMapping : '{}'}">
                 </cds-textarea>
             </cds-form-item>
             <cds-form-item>
@@ -64,10 +62,10 @@
                 </cds-text-input>
             </cds-form-item>
             <cds-form-item th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null">
-                <label for="resultTransform">Result Transform</label>
+                <label for="resultTransform">Transform</label>
                 <textarea id="resultTransform"
                           name="resultTransform"
-                          th:text="${form?.resultTransform}"
+                          th:text="${form != null ? form.resultTransform : '.'}"
                           hidden>
                 </textarea>
 
@@ -76,7 +74,7 @@
                      data-monaco
                      data-language="jq"
                      data-textarea="#resultTransform"
-                     th:data-initial="${form?.resultTransform}"
+                     th:data-initial="${form != null ? form.resultTransform : '.'}"
                      data-theme="lightgray-theme"
                      th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
                 </div>
@@ -103,4 +101,4 @@
     </div>
 
 </div>
-<span id="selected-relation-name" hx-swap-oob="true" class="tile-title">Add relation</span>
+<span id="selected-relation-name" hx-swap-oob="true" class="tile-title">New relation</span>

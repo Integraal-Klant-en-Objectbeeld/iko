@@ -30,7 +30,7 @@ class AggregatedDataProfileRouteBuilder(
 
     override fun configure() {
         // prepare relation variables
-        val relations = aggregatedDataProfile.relations.filter { it.sourceId == it.aggregatedDataProfile.id }
+        val level1Relations = aggregatedDataProfile.level1Relations()
 
         val connectorInstance = requireNotNull(
             connectorInstanceRepository.findByIdOrNull(aggregatedDataProfile.connectorInstanceId),
@@ -75,7 +75,7 @@ class AggregatedDataProfileRouteBuilder(
             }
             .to(Iko.connector())
             .let {
-                if (relations.isNotEmpty()) {
+                if (level1Relations.isNotEmpty()) {
                     // enrich root exchange with multicast routes from relations
                     it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)
                 } else {
@@ -104,15 +104,15 @@ class AggregatedDataProfileRouteBuilder(
             }
 
         // create multicast and build routes for relations
-        if (relations.isNotEmpty()) {
+        if (level1Relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
-            relations.forEach { relation ->
+            level1Relations.forEach { relation ->
                 // build route for child relation
-                buildRelationRoute(aggregatedDataProfile, relation)
+                buildRelationRoute(relation)
                 // invoke relation route as multicast
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
@@ -121,17 +121,17 @@ class AggregatedDataProfileRouteBuilder(
         }
     }
 
-    private fun buildRelationRoute(rootProfile: AggregatedDataProfile, currentRelation: Relation) {
+    private fun buildRelationRoute(currentRelation: Relation) {
         camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
 
-        val relations = rootProfile.relations.filter { it.sourceId == currentRelation.id }
+        val relations = currentRelation.aggregatedDataProfile.relationsOf(currentRelation.id)
         val connectorInstance = connectorInstanceRepository.findById(currentRelation.connectorInstanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
         val connectorEndpoint = connectorEndpointRepository.findById(currentRelation.connectorEndpointId)
             .orElseThrow { NoSuchElementException("Connector endpoint not found") }
 
         val sourceToEndpointTransformExpression = expression()
-            .jq(currentRelation.sourceToEndpointMapping)
+            .jq(currentRelation.sourceToEndpointMapping.expression)
             .variableName(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE)
             .resultType(JsonNode::class.java)
             .end()
@@ -234,7 +234,7 @@ class AggregatedDataProfileRouteBuilder(
 
             relations.forEach { relation ->
                 // build route for child relation
-                buildRelationRoute(rootProfile, relation)
+                buildRelationRoute(relation)
                 // invoke relation route as multicast
                 multicast = multicast.to("direct:relation_${relation.id}")
             }

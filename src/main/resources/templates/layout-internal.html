@@ -194,9 +194,13 @@
             <div id="breadcrumb" th:fragment="breadcrumb (entries)">
                 <cds-breadcrumb no-trailing-slash="" th:if="${entries != null}">
                     <cds-breadcrumb-item>
-                        <cds-breadcrumb>
+                        <cds-breadcrumb-link
+                            href="javascript:void(0)"
+                            hx-get="/admin"
+                            hx-push-url="true"
+                            hx-target="#view-panel">
                             Home
-                        </cds-breadcrumb>
+                        </cds-breadcrumb-link>
                     </cds-breadcrumb-item>
                     <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
                         <cds-breadcrumb-link

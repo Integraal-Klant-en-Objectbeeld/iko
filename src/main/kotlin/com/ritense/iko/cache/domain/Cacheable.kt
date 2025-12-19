@@ -45,7 +45,8 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
             if (cacheEvent.type == HIT) {
                 with(exchange) {
                     message.body = cacheEvent.value
-                    message.setHeader("Content-Type", "application/json")
+                    // Ensure downstream components interpret the cached payload as JSON
+                    message.setHeader(Exchange.CONTENT_TYPE, "application/json")
                     isRouteStop = true
                 }
             }
@@ -81,6 +82,8 @@ fun Relation.toCacheable(): Cacheable {
         ) = with(exchange) {
             if (cacheEvent.type == HIT) {
                 message.body = cacheEvent.value
+                // Ensure downstream components interpret the cached payload as JSON
+                message.setHeader(Exchange.CONTENT_TYPE, "application/json")
                 exchange.setVariable("cacheHit_$id", true)
             } else if (cacheEvent.type == MISS) {
                 exchange.setVariable("cacheHit_$id", false)

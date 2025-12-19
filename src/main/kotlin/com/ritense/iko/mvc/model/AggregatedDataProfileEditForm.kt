@@ -2,13 +2,14 @@ package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfile
-import com.ritense.iko.mvc.model.validation.UniqueCollectionCheck
+import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfileCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import java.util.UUID
 
-@UniqueCollectionCheck
+@UniqueAggregatedDataProfileCheck
 data class AggregatedDataProfileEditForm(
     override val id: UUID,
     @field:NotBlank(message = "Please provide a name.")
@@ -19,8 +20,8 @@ data class AggregatedDataProfileEditForm(
     override val name: String,
     @field:NotBlank(message = "Please provide a role.")
     val role: String? = null,
-    var connectorInstanceId: UUID,
-    var connectorEndpointId: UUID,
+    val connectorInstanceId: UUID,
+    val connectorEndpointId: UUID,
     @field:ValidTransform
     @field:NotBlank(message = "Please provide a transform expression.")
     val endpointTransform: String,
@@ -28,6 +29,7 @@ data class AggregatedDataProfileEditForm(
     @field:NotBlank(message = "Please provide a transform expression.")
     val resultTransform: String,
     val cacheEnabled: Boolean,
+    @field:Min(value = 0)
     val cacheTimeToLive: Int,
 ) : UniqueAggregatedDataProfile {
 

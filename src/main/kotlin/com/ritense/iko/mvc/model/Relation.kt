@@ -6,7 +6,7 @@ import com.ritense.iko.aggregateddataprofile.domain.Relation as RelationEntity
 data class Relation(
     val aggregatedDataProfileId: UUID,
     val id: UUID,
-    val sourceId: String,
+    val sourceId: UUID,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
     val propertyName: String,
@@ -17,8 +17,8 @@ data class Relation(
         fun from(it: RelationEntity): Relation = Relation(
             aggregatedDataProfileId = it.aggregatedDataProfile.id,
             id = it.id,
-            sourceId = it.sourceId?.toString() ?: "Profile root",
-            sourceToEndpointMapping = it.sourceToEndpointMapping,
+            sourceId = it.sourceId ?: it.aggregatedDataProfile.id,
+            sourceToEndpointMapping = it.sourceToEndpointMapping.expression,
             resultTransform = it.resultTransform.expression,
             connectorInstanceId = it.connectorInstanceId,
             connectorEndpointId = it.connectorEndpointId,

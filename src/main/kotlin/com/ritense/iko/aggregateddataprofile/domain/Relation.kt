@@ -19,14 +19,14 @@ class Relation(
     var propertyName: String,
     @Column(name = "source_id")
     var sourceId: UUID? = null,
-    @Column(name = "source_to_endpoint_mapping")
-    var sourceToEndpointMapping: String = "",
+    @Embedded
+    var sourceToEndpointMapping: EndpointTransform = EndpointTransform("{}"),
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
     @Column(name = "connector_endpoint_id")
     var connectorEndpointId: UUID,
     @Embedded
-    var resultTransform: Transform,
+    var resultTransform: Transform = Transform("."),
     @Embedded
     var relationCacheSettings: RelationCacheSettings,
 )
