@@ -1,10 +1,12 @@
 package com.ritense.iko.cache.domain
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.cache.domain.CacheEntry.CacheEventType.HIT
 import com.ritense.iko.cache.domain.CacheEntry.CacheEventType.MISS
 import org.apache.camel.Exchange
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 interface Cacheable {
     val id: String
@@ -24,7 +26,7 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
     return object : Cacheable {
         override val id = id.toString()
         override val cacheKey: (Exchange) -> String = { exchange ->
-            val endpointMappingResult = exchange.getVariable("endpointTransformResult", "{}", String::class.java)
+            val endpointMappingResult = exchange.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, String::class.java)
             listOf(
                 id.toString(),
                 endpointTransform.expression,
@@ -46,7 +48,7 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
                 with(exchange) {
                     message.body = cacheEvent.value
                     // Ensure downstream components interpret the cached payload as JSON
-                    message.setHeader(Exchange.CONTENT_TYPE, "application/json")
+                    message.setHeader(Exchange.CONTENT_TYPE, APPLICATION_JSON_VALUE)
                     isRouteStop = true
                 }
             }
@@ -66,7 +68,7 @@ fun Relation.toCacheable(): Cacheable {
                 override val timeToLive = cacheSettings.timeToLive
             }
         override val cacheKey: (Exchange) -> String = { exchange ->
-            val endpointMappingResult = exchange.getVariable("endpointTransformResult", "{}", String::class.java)
+            val endpointMappingResult = exchange.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, String::class.java)
 
             listOf(
                 id,
@@ -83,7 +85,7 @@ fun Relation.toCacheable(): Cacheable {
             if (cacheEvent.type == HIT) {
                 message.body = cacheEvent.value
                 // Ensure downstream components interpret the cached payload as JSON
-                message.setHeader(Exchange.CONTENT_TYPE, "application/json")
+                message.setHeader(Exchange.CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 exchange.setVariable("cacheHit_$id", true)
             } else if (cacheEvent.type == MISS) {
                 exchange.setVariable("cacheHit_$id", false)
