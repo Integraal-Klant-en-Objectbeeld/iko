@@ -145,7 +145,7 @@ class AggregatedDataProfileRouteBuilder(
                 val endpointTransformContext =
                     exchange.getVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, ObjectNode::class.java)
                 val body = exchange.message.getBody(ObjectNode::class.java)
-                val updatedContext = endpointTransformContext.setAll<ObjectNode>(body)
+                val updatedContext = endpointTransformContext.set<ObjectNode>("source", body)
                 exchange.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, updatedContext)
             }
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, sourceToEndpointTransformExpression)
@@ -165,7 +165,6 @@ class AggregatedDataProfileRouteBuilder(
                     it.getIn().setHeader(key, value.asText())
                 }
             }
-//            .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
             .to("direct:relation_${currentRelation.id}_loop")
             .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
@@ -186,7 +185,6 @@ class AggregatedDataProfileRouteBuilder(
                     ex.getIn().setHeader(key, value.asText())
                 }
             }
-//            .removeVariable("endpointMapping")
             .to("direct:relation_${currentRelation.id}_loop") // Executes the relation route
             .end()
             .transform(jq(currentRelation.resultTransform.expression))
