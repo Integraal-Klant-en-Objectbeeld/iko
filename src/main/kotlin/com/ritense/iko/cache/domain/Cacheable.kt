@@ -72,7 +72,7 @@ fun Relation.toCacheable(): Cacheable {
                 sourceToEndpointMapping,
                 endpointMappingResult,
                 resultTransform.expression,
-                ).joinToString(separator = "")
+            ).joinToString(separator = "")
         }
 
         override fun handleCacheEntry(

@@ -1,7 +1,6 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute.Companion.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
