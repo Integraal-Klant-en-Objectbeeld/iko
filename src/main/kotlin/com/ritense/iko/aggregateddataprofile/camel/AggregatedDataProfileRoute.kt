@@ -35,12 +35,6 @@ class AggregatedDataProfileRoute(
             .get("/{$IKO_PROFILE_PARAM_HEADER}")
             .param(containerParamsParamDefinition)
             .param(ikoIdParamDefinition)
-            .to("direct:rest-to-adp")
-
-        from("direct:rest-to-adp")
-            .to("direct:aggregated-data-profile-container-params")
-
-        from("direct:rest-to-adp-with-id")
             .to("direct:aggregated-data-profile-container-params")
 
         from("direct:aggregated-data-profile-container-params")
