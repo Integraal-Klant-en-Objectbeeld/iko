@@ -70,7 +70,7 @@ fun Relation.toCacheable(): Cacheable {
 
             listOf(
                 id,
-                sourceToEndpointMapping,
+                endpointTransform,
                 endpointMappingResult,
                 resultTransform.expression,
             ).joinToString(separator = "")

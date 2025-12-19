@@ -20,7 +20,7 @@ class Relation(
     @Column(name = "source_id")
     var sourceId: UUID? = null,
     @Embedded
-    var sourceToEndpointMapping: EndpointTransform = EndpointTransform("{}"),
+    var endpointTransform: RelationEndpointTransform = RelationEndpointTransform("{}"),
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
     @Column(name = "connector_endpoint_id")

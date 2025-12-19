@@ -18,7 +18,7 @@ data class Relation(
             aggregatedDataProfileId = it.aggregatedDataProfile.id,
             id = it.id,
             sourceId = it.sourceId ?: it.aggregatedDataProfile.id,
-            sourceToEndpointMapping = it.sourceToEndpointMapping.expression,
+            sourceToEndpointMapping = it.endpointTransform.expression,
             resultTransform = it.resultTransform.expression,
             connectorInstanceId = it.connectorInstanceId,
             connectorEndpointId = it.connectorEndpointId,

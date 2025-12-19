@@ -131,7 +131,7 @@ class AggregatedDataProfileRouteBuilder(
             .orElseThrow { NoSuchElementException("Connector endpoint not found") }
 
         val sourceToEndpointTransformExpression = expression()
-            .jq(currentRelation.sourceToEndpointMapping.expression)
+            .jq(currentRelation.endpointTransform.expression)
             .variableName(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE)
             .resultType(JsonNode::class.java)
             .end()
