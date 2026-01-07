@@ -1,6 +1,6 @@
 spring:
     application:
-        name: iko-test
+        name: IKO (Test)
 logging:
     level:
         root: INFO
