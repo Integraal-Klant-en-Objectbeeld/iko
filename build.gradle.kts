@@ -39,7 +39,10 @@ repositories {
     mavenCentral()
 }
 
+val mockitoAgent = configurations.create("mockitoAgent")
+
 dependencies {
+    mockitoAgent("org.mockito:mockito-core:5.17.0") { isTransitive = false }
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
     implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.13.0")) // BOM
 
@@ -115,6 +118,7 @@ tasks.withType<BootRun> {
 }
 
 tasks.named<Test>("test") {
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
     useJUnitPlatform {
         excludeTags("integration")
     }
@@ -126,6 +130,8 @@ val integrationTest = tasks.register<Test>("integrationTest") {
 
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
+
+    jvmArgs("-javaagent:${mockitoAgent.asPath}")
 
     useJUnitPlatform {
         includeTags("integration")
