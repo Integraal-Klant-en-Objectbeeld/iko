@@ -10,6 +10,7 @@ plugins {
     id("org.springframework.boot") version "3.5.8"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    id("com.avast.gradle.docker-compose") version "0.17.20"
 }
 
 group = "com.ritense"
@@ -107,10 +108,44 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
 tasks.withType<BootRun> {
     environment = env.allVariables()
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+}
+
+val integrationTest = tasks.register<Test>("integrationTest") {
+    description = "Runs integration tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    mustRunAfter(tasks.test)
+
+    environment.putAll(env.allVariables())
+}
+
+tasks.named("check") {
+    dependsOn(integrationTest)
+}
+
+dockerCompose {
+    setProjectName(name) // uses projectRoot.name as the container group name
+    stopContainers.set(true) // doesn't call `docker-compose down` if set to false; default is true
+    removeContainers.set(false) // containers are retained upon composeDown for persistent storage
+
+    createNested("testConfiguration").apply {
+        isRequiredBy(tasks.named("integrationTest"))
+        setProjectName("Iko-test")
+        useComposeFiles.set(listOf("docker-compose-integration-test.yaml"))
+        removeVolumes.set(true)
+    }
 }

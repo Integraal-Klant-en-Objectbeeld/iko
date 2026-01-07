@@ -1,0 +1,47 @@
+spring:
+    jpa:
+        hibernate:
+            ddl-auto: none
+        open-in-view: false
+    flyway:
+        enabled: true
+    main:
+        allow-bean-definition-overriding: true
+    security:
+        oauth2:
+            client:
+                registration:
+                    keycloak:
+                        provider: keycloak
+                        authorization-grant-type: authorization_code
+                        scope: openid
+                        client-id: iko
+                        client-secret: ThisIsNotASecret
+                provider:
+                    keycloak:
+                        issuer-uri: http://keycloak:8082/auth/realms/valtimo
+            resourceserver:
+                jwt:
+                    issuer-uri: http://keycloak:8082/auth/realms/valtimo
+                    audiences: iko
+                    authority-prefix:
+                    authorities-claim-name: "[resource_access][iko][roles]"
+
+server:
+    port: 0
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "health,info"
+
+# Crypto key for tests (Base64-encoded 32 bytes)
+iko:
+    crypto:
+        key: "dGVzdC10ZXN0LXRlc3QtdGVzdC10ZXN0LXRlc3QtdGVzdA=="
+
+logging:
+    level:
+        root: INFO
+        com.ritense.iko: DEBUG
