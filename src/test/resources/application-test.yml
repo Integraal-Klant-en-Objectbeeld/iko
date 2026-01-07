@@ -15,14 +15,14 @@ spring:
                         provider: keycloak
                         authorization-grant-type: authorization_code
                         scope: openid
-                        client-id: iko
-                        client-secret: ThisIsNotASecret
+                        client-id: # ENV
+                        client-secret: # ENV
                 provider:
                     keycloak:
-                        issuer-uri: http://keycloak:8082/auth/realms/valtimo
+                        issuer-uri: # ENV
             resourceserver:
                 jwt:
-                    issuer-uri: http://keycloak:8082/auth/realms/valtimo
+                    issuer-uri: # ENV
                     audiences: iko
                     authority-prefix:
                     authorities-claim-name: "[resource_access][iko][roles]"

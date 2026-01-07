@@ -42,3 +42,16 @@ services:
             POSTGRES_PASSWORD: keycloak
         labels:
             org.springframework.boot.ignore: true
+
+    # Redis cache for the IKO application
+    iko-redis-test:
+        image: redis:8.4.0-alpine
+        ports:
+            - "6379:6379"
+        container_name: iko-redis-test
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
