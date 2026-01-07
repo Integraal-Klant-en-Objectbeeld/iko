@@ -4,4 +4,4 @@
 | |_____________________________________| |
 |_________________________________________|
 Powered by Spring Boot ${spring-boot.formatted-version}
-Application name ${spring.application.name}
+Application name: ${spring.application.name}
