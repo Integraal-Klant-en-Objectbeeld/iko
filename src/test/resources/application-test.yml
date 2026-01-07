@@ -1,46 +1,6 @@
 spring:
-    jpa:
-        hibernate:
-            ddl-auto: none
-        open-in-view: false
-    flyway:
-        enabled: true
-    main:
-        allow-bean-definition-overriding: true
-    security:
-        oauth2:
-            client:
-                registration:
-                    keycloak:
-                        provider: keycloak
-                        authorization-grant-type: authorization_code
-                        scope: openid
-                        client-id: # ENV
-                        client-secret: # ENV
-                provider:
-                    keycloak:
-                        issuer-uri: # ENV
-            resourceserver:
-                jwt:
-                    issuer-uri: # ENV
-                    audiences: iko
-                    authority-prefix:
-                    authorities-claim-name: "[resource_access][iko][roles]"
-
-server:
-    port: 0
-
-management:
-    endpoints:
-        web:
-            exposure:
-                include: "health,info"
-
-# Crypto key for tests (Base64-encoded 32 bytes)
-iko:
-    crypto:
-        key: "dGVzdC10ZXN0LXRlc3QtdGVzdC10ZXN0LXRlc3QtdGVzdA=="
-
+    application:
+        name: iko-test
 logging:
     level:
         root: INFO
