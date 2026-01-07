@@ -12,7 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
         // ClientAutoConfigure::class, <-- place here your client auto configure classes
     ]
 )
-@ActiveProfiles("test")
+@ActiveProfiles("test") // Will merge test yml with main yml
 @ExtendWith(value = [SpringExtension::class])
 @Tag("integration")
 abstract class BaseIntegrationTest
