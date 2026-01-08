@@ -8,7 +8,7 @@ import org.springframework.test.context.ActiveProfiles
     classes = [
         TestIkoApplication::class,
         IkoTestConfiguration::class,
-    ]
+    ],
 )
 @ActiveProfiles("test") // Will merge test yml with main yml
 @Tag("integration")
