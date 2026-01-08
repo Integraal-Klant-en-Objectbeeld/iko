@@ -153,5 +153,6 @@ dockerCompose {
         useComposeFiles.set(listOf("docker-compose-integration-test.yaml"))
         removeVolumes.set(true)
         noRecreate.set(true)
+        removeContainers.set(true)
     }
 }

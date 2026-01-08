@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
 
 @AutoConfigureMockMvc
 internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() {
@@ -28,8 +27,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When a valid ADP is requested via REST then it should route to the dynamic route`() {
         // Act & Assert
-        val id = UUID.fromString("44444444-4444-4444-4444-444444444444")
-        mockMvc.perform(get("/aggregated-data-profiles/test/$id"))
+        mockMvc.perform(get("/aggregated-data-profiles/test/externalId"))
             .andDo(print()) // logs final response
             .andExpect(status().isOk)
     }
@@ -38,7 +36,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When a non-existing ADP is requested via REST then it should return an error`() {
         // Act & Assert
-        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing/some-id"))
+        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing/externalId"))
             .andDo(print()) // logs async start response
             .andReturn()
 
