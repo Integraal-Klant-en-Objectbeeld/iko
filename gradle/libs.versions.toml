@@ -1,0 +1,95 @@
+[versions]
+kotlin = "2.2.0"
+springBoot = "3.5.8"
+springDependencyManagement = "1.1.7"
+ktlint = "14.0.1"
+dockerCompose = "0.17.20"
+dotenv = "4.0.0"
+
+mockito = "5.17.0"
+springBootPlatform = "3.5.4"
+camelSpringBoot = "4.13.0"
+thymeleafLayoutDialect = "3.4.0"
+jjwt = "0.12.6"
+kotlinLogging = "7.0.13"
+mockwebserver = "4.12.0"
+
+[libraries]
+# Platforms
+spring-boot-dependencies = { group = "org.springframework.boot", name = "spring-boot-dependencies", version.ref = "springBootPlatform" }
+camel-spring-boot-dependencies = { group = "org.apache.camel.springboot", name = "camel-spring-boot-dependencies", version.ref = "camelSpringBoot" }
+
+# Mockito Agent
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+
+# Camel
+camel-spring-boot = { group = "org.apache.camel.springboot", name = "camel-spring-boot" }
+camel-direct-starter = { group = "org.apache.camel.springboot", name = "camel-direct-starter" }
+camel-netty-http-starter = { group = "org.apache.camel.springboot", name = "camel-netty-http-starter" }
+camel-platform-http-starter = { group = "org.apache.camel.springboot", name = "camel-platform-http-starter" }
+camel-jackson-starter = { group = "org.apache.camel.springboot", name = "camel-jackson-starter" }
+camel-spring-security-starter = { group = "org.apache.camel.springboot", name = "camel-spring-security-starter" }
+camel-jacksonxml = { group = "org.apache.camel.springboot", name = "camel-jacksonxml-starter" }
+camel-http-starter = { group = "org.apache.camel.springboot", name = "camel-http-starter" }
+camel-rest-starter = { group = "org.apache.camel.springboot", name = "camel-rest-starter" }
+camel-openapi-java-starter = { group = "org.apache.camel.springboot", name = "camel-openapi-java-starter" }
+camel-groovy-starter = { group = "org.apache.camel.springboot", name = "camel-groovy-starter" }
+camel-management = { group = "org.apache.camel", name = "camel-management" }
+camel-yaml-dsl = { group = "org.apache.camel", name = "camel-yaml-dsl" }
+camel-rest-openapi = { group = "org.apache.camel", name = "camel-rest-openapi" }
+camel-jq = { group = "org.apache.camel", name = "camel-jq" }
+camel-bean = { group = "org.apache.camel", name = "camel-bean" }
+
+# Spring Boot Starters
+spring-boot-starter-thymeleaf = { group = "org.springframework.boot", name = "spring-boot-starter-thymeleaf" }
+spring-boot-starter-validation = { group = "org.springframework.boot", name = "spring-boot-starter-validation" }
+spring-boot-starter-web = { group = "org.springframework.boot", name = "spring-boot-starter-web" }
+spring-boot-starter-data-jpa = { group = "org.springframework.boot", name = "spring-boot-starter-data-jpa" }
+spring-boot-starter-security = { group = "org.springframework.boot", name = "spring-boot-starter-security" }
+spring-boot-starter-data-redis = { group = "org.springframework.boot", name = "spring-boot-starter-data-redis" }
+spring-boot-starter-oauth2-resourceServer = { group = "org.springframework.boot", name = "spring-boot-starter-oauth2-resource-server" }
+spring-boot-starter-oauth2-client = { group = "org.springframework.boot", name = "spring-boot-starter-oauth2-client" }
+spring-boot-starter-actuator = { group = "org.springframework.boot", name = "spring-boot-starter-actuator" }
+spring-boot-starter-test = { group = "org.springframework.boot", name = "spring-boot-starter-test" }
+
+# Database
+flyway-database-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql" }
+flyway-core = { group = "org.flywaydb", name = "flyway-core" }
+postgresql = { group = "org.postgresql", name = "postgresql" }
+
+# Redis
+jedis = { group = "redis.clients", name = "jedis" }
+
+# JWT
+jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwt" }
+
+# Other
+thymeleaf-layout-dialect = { group = "nz.net.ultraq.thymeleaf", name = "thymeleaf-layout-dialect", version.ref = "thymeleafLayoutDialect" }
+micrometer-registry-prometheus = { group = "io.micrometer", name = "micrometer-registry-prometheus" }
+kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "kotlinLogging" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect" }
+kotlinx-coroutines-reactor = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor" }
+
+# Testing
+reactor-test = { group = "io.projectreactor", name = "reactor-test" }
+kotlin-test-junit5 = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit5" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test" }
+camel-test-spring-junit5 = { group = "org.apache.camel", name = "camel-test-spring-junit5" }
+camel-test-junit5 = { group = "org.apache.camel", name = "camel-test-junit5" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+assertj-core = { group = "org.assertj", name = "assertj-core" }
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+docker-compose = { id = "com.avast.gradle.docker-compose", version.ref = "dockerCompose" }
+dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotenv" }

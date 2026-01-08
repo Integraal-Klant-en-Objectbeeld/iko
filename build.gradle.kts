@@ -2,15 +2,15 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     base
-    id("co.uzzu.dotenv.gradle") version "4.0.0"
-    kotlin("jvm") version "2.2.0"
-    kotlin("plugin.spring") version "2.2.0"
-    kotlin("plugin.jpa") version "2.2.0"
-    kotlin("plugin.allopen") version "2.2.0"
-    id("org.springframework.boot") version "3.5.8"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
-    id("com.avast.gradle.docker-compose") version "0.17.20"
+    alias(libs.plugins.dotenv)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.jpa)
+    alias(libs.plugins.kotlin.allopen)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.docker.compose)
 }
 
 group = "com.ritense"
@@ -42,76 +42,75 @@ repositories {
 val mockitoAgent = configurations.create("mockitoAgent")
 
 dependencies {
-    mockitoAgent("org.mockito:mockito-core:5.17.0") { isTransitive = false }
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.4"))
-    implementation(platform("org.apache.camel.springboot:camel-spring-boot-dependencies:4.13.0")) // BOM
+    mockitoAgent(libs.mockito.core) { isTransitive = false }
+    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(libs.camel.spring.boot.dependencies)) // BOM
 
-    implementation("org.apache.camel.springboot:camel-spring-boot")
-    implementation("org.apache.camel.springboot:camel-direct-starter")
-    implementation("org.apache.camel.springboot:camel-netty-http-starter")
-    implementation("org.apache.camel.springboot:camel-platform-http-starter")
-    implementation("org.apache.camel.springboot:camel-jackson-starter")
-    implementation("org.apache.camel.springboot:camel-spring-security-starter")
-    implementation("org.apache.camel.springboot:camel-jacksonxml-starter")
-    implementation("org.apache.camel.springboot:camel-http-starter")
-    implementation("org.apache.camel.springboot:camel-rest-starter")
-    implementation("org.apache.camel.springboot:camel-openapi-java-starter")
-    implementation("org.apache.camel.springboot:camel-groovy-starter")
-    implementation("org.apache.camel:camel-management")
-    implementation("org.apache.camel:camel-yaml-dsl")
-    implementation("org.apache.camel:camel-rest-openapi")
-    implementation("org.apache.camel:camel-jq")
-    implementation("org.apache.camel:camel-bean")
+    implementation(libs.camel.spring.boot)
+    implementation(libs.camel.direct.starter)
+    implementation(libs.camel.netty.http.starter)
+    implementation(libs.camel.platform.http.starter)
+    implementation(libs.camel.jackson.starter)
+    implementation(libs.camel.spring.security.starter)
+    implementation(libs.camel.jacksonxml)
+    implementation(libs.camel.http.starter)
+    implementation(libs.camel.rest.starter)
+    implementation(libs.camel.openapi.java.starter)
+    implementation(libs.camel.groovy.starter)
+    implementation(libs.camel.management)
+    implementation(libs.camel.yaml.dsl)
+    implementation(libs.camel.rest.openapi)
+    implementation(libs.camel.jq)
+    implementation(libs.camel.bean)
 
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation(libs.spring.boot.starter.thymeleaf)
+    implementation(libs.thymeleaf.layout.dialect)
+    implementation(libs.spring.boot.starter.validation)
 
-    implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-api:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
+    implementation(libs.jjwt.impl)
+    implementation(libs.jjwt.api)
+    implementation(libs.jjwt.jackson)
 
     // Database
-    implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("org.flywaydb:flyway-core")
-    implementation("org.postgresql:postgresql")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation(libs.flyway.database.postgresql)
+    implementation(libs.flyway.core)
+    implementation(libs.postgresql)
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.security)
 
     // Redis Cache
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("redis.clients:jedis")
+    implementation(libs.spring.boot.starter.data.redis)
+    implementation(libs.jedis)
 
     // Security
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation(libs.spring.boot.starter.oauth2.resourceServer)
+    implementation(libs.spring.boot.starter.oauth2.client)
 
     // Actuator & Metrics
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+    implementation(libs.spring.boot.starter.actuator)
+    runtimeOnly(libs.micrometer.registry.prometheus)
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.13")
+    implementation(libs.kotlin.logging)
 
     // developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlinx.coroutines.reactor)
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    testImplementation(libs.spring.boot.starter.test) {
         exclude(group = "com.vaadin.external.google", module = "android-json")
     }
-    testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("org.apache.camel:camel-test-spring-junit5")
-    testImplementation("org.apache.camel:camel-test-junit5")
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.assertj:assertj-core")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.reactor.test)
+    testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.camel.test.spring.junit5)
+    testImplementation(libs.camel.test.junit5)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.mockwebserver)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<BootRun> {
