@@ -94,13 +94,11 @@ dependencies {
     // Logging
     implementation(libs.kotlin.logging)
 
-    // developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.reactor)
 
     testImplementation(libs.spring.boot.starter.test) {
-        exclude(group = "com.vaadin.external.google", module = "android-json")
+        exclude(group = libs.androidJson.get().group, module = libs.androidJson.get().name)
     }
     testImplementation(libs.reactor.test)
     testImplementation(libs.kotlin.test.junit5)
