@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
 
 @AutoConfigureMockMvc
 internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() {
@@ -27,7 +28,9 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When a valid ADP is requested via REST then it should route to the dynamic route`() {
         // Act & Assert
-        mockMvc.perform(get("/aggregated-data-profiles/test/some-id"))
+        val id = UUID.fromString("44444444-4444-4444-4444-444444444444")
+        mockMvc.perform(get("/aggregated-data-profiles/test/$id"))
+            .andDo(print()) // logs final response
             .andExpect(status().isOk)
     }
 

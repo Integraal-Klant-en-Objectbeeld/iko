@@ -1,4 +1,9 @@
 spring:
+    flyway:
+        out-of-order: true
+        locations:
+            - classpath:db/migration
+            - classpath:db/migration-test
     application:
         name: IKO (Test)
     data:
@@ -23,4 +28,5 @@ iko:
 logging:
     level:
         root: INFO
+        org.flywaydb: DEBUG
         com.ritense.iko: DEBUG
