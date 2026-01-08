@@ -135,8 +135,6 @@ val integrationTest = tasks.register<Test>("integrationTest") {
         includeTags("integration")
     }
     mustRunAfter(tasks.test)
-
-    environment.putAll(env.allVariables())
 }
 
 tasks.named("check") {
@@ -153,5 +151,6 @@ dockerCompose {
         setProjectName("Iko-test")
         useComposeFiles.set(listOf("docker-compose-integration-test.yaml"))
         removeVolumes.set(true)
+        noRecreate.set(true)
     }
 }

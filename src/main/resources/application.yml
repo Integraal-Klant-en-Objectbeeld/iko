@@ -116,3 +116,7 @@ camel:
         backlog-size: 1000
         remove-on-dump: true
         trace-pattern: "*"
+
+iko:
+    crypto:
+        key: # ENV var
