@@ -11,17 +11,10 @@ spring:
         password: secret
     security:
         oauth2:
-            client:
-                provider:
-                    keycloak:
-                        issuer-uri: http://keycloak:8082/auth/realms/valtimo
-                registration:
-                    keycloak:
-                        client-id: iko
-                        client-secret: ThisIsNotASecret
             resourceserver:
                 jwt:
-                    issuer-uri: http://keycloak:8082/auth/realms/valtimo
+                    authority-prefix: mock
+                    authorities-claim-name: "[mock]"
 
 iko:
     crypto:
