@@ -83,6 +83,7 @@ junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
 assertj-core = { group = "org.assertj", name = "assertj-core" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+spring-security-test = { group = "org.springframework.security", name = "spring-security-test" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

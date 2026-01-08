@@ -8,6 +8,8 @@ services:
             - POSTGRES_USER=iko-admin
         ports:
             - "5432:5432"
+        volumes:
+            - ./src/test/resources/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
     # Redis cache for the IKO application
     iko-redis-test:

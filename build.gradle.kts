@@ -100,6 +100,7 @@ dependencies {
     testImplementation(libs.spring.boot.starter.test) {
         exclude(group = libs.androidJson.get().group, module = libs.androidJson.get().name)
     }
+    testImplementation(libs.spring.security.test)
     testImplementation(libs.reactor.test)
     testImplementation(libs.kotlin.test.junit5)
     testImplementation(libs.kotlinx.coroutines.test)
