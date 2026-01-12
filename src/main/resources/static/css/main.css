@@ -395,6 +395,7 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 }
 
 /* Modal */
+
 cds-form-group {
     display: flex;
     flex-direction: column;
@@ -406,11 +407,12 @@ cds-form-item {
     overflow: hidden;
 }
 
-.form-column > cds-form-item {
+.form-column > cds-form-item:not(:last-child) {
     margin-bottom: 2rem;
 }
 
 /* Forms */
+
 .form-row {
     display: flex;
     flex-wrap: wrap;
