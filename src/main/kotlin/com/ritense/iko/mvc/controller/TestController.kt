@@ -1,9 +1,9 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_ENDPOINT_TRANSFORM_CONTEXT_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_ID_PARAM_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_PROFILE_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_TRACE_ID_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
@@ -49,10 +49,10 @@ class TestController(
         val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
         val headers =
             mapOf(
-                IKO_ID_PARAM_HEADER to form.testId,
-                IKO_PROFILE_PARAM_HEADER to form.name,
+                ADP_ID_PARAM_HEADER to form.testId,
+                ADP_PROFILE_NAME_PARAM_HEADER to form.name,
                 IKO_TRACE_ID_HEADER to ikoTraceId,
-                IKO_ENDPOINT_TRANSFORM_CONTEXT_HEADER to objectMapper.readTree(form.endpointTransformContext),
+                ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER to objectMapper.readTree(form.endpointTransformContext),
             )
         var result: String? = null
         var exception: ExceptionResponse? = null

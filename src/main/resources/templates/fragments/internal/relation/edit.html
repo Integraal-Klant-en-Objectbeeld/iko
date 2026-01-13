@@ -55,13 +55,53 @@
             </div>
 
             <cds-form-item>
-                <cds-textarea name="sourceToEndpointMapping"
-                              label="Endpoint parameter Mapping"
-                              placeholder="e.g. {'searchParamA': '.myField'}"
-                              th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,
-                                invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},
-                                value=${form?.sourceToEndpointMapping}">
-                </cds-textarea>
+                <label for="sourceToEndpointMappingCode">
+                    <cds-toggletip alignment="right" alignment-axis-offset="0">
+                        Endpoint parameter Mapping Transform
+                        <p slot="body-text">
+                            Apply a transform on the outgoing endpoint exchange.
+                            This can be used to map container parameters from the relation
+                            input to the connector endpoint.
+                        </p>
+                        <cds-link
+                                target="_blank"
+                                href="https://jqlang.org/manual/"
+                                slot="actions"
+                        >
+                            JQ Manual
+                        </cds-link>
+                    </cds-toggletip>
+                </label>
+                <cds-form-item
+                        th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null">
+                                                    <textarea id="sourceToEndpointMappingCode"
+                                                              name="sourceToEndpointMapping"
+                                                              th:text="${form?.sourceToEndpointMapping}"
+                                                              hidden>
+                                                </textarea>
+
+                    <!-- Monaco container -->
+                    <div id="endpoint-transform-editor"
+                         data-monaco
+                         data-language="jq"
+                         data-textarea="#sourceToEndpointMappingCode"
+                         th:data-initial="${form?.sourceToEndpointMapping}"
+                         data-theme="lightgray-theme"
+                         th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
+                    </div>
+                    <div id="source-to-endpoint-transform-monaco-error"
+                         th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-error show' : 'monaco-error'">
+                                                    <span th:if="${errors?.getFieldError('sourceToEndpointMapping') != null}"
+                                                          th:text="${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage}"></span>
+                    </div>
+                </cds-form-item>
+<!--                <cds-textarea name="sourceToEndpointMapping"-->
+<!--                              label="Endpoint parameter Mapping"-->
+<!--                              placeholder="e.g. {'searchParamA': '.myField'}"-->
+<!--                              th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null,-->
+<!--                                invalid-text=${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage},-->
+<!--                                value=${form?.sourceToEndpointMapping}">-->
+<!--                </cds-textarea>-->
             </cds-form-item>
             <cds-form-item>
                 <cds-text-input name="propertyName"
@@ -73,14 +113,27 @@
                 </cds-text-input>
             </cds-form-item>
             <cds-form-item th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null">
-                <label for="resultTransformCodeEdit">Result Transform</label>
+                <label for="resultTransformCodeEdit">
+                    <cds-toggletip alignment="right" alignment-axis-offset="0">
+                        Result Transform
+                        <p slot="body-text">
+                            Apply a JQ transform on the result before it is returned as a
+                            response to the client.
+                        </p>
+                        <cds-link
+                                target="_blank"
+                                href="https://jqlang.org/manual/"
+                                slot="actions">
+                            JQ Manual
+                        </cds-link>
+                    </cds-toggletip>
+                </label>
                 <textarea id="resultTransformCodeEdit"
                           name="resultTransform"
                           th:text="${form?.resultTransform}"
                           hidden>
                 </textarea>
 
-                <!-- Monaco container -->
                 <div id="result-transform-editor-edit"
                      data-monaco
                      data-language="jq"
@@ -89,12 +142,12 @@
                      data-theme="lightgray-theme"
                      th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
                 </div>
+                <div id="result-transform-monaco-error-edit"
+                     th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'">
+                    <span th:if="${errors?.getFieldError('resultTransform') != null}"
+                          th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"></span>
+                </div>
             </cds-form-item>
-            <div id="monaco-error-edit"
-                 th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'">
-                <span th:if="${errors?.getFieldError('resultTransform') != null}"
-                      th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"></span>
-            </div>
             <span class="sub-text">A valid JQ expression learn at https://jqlang.org/tutorial/</span>
 
             <!-- Cache setting -->
