@@ -20,17 +20,10 @@
                         <input type="hidden" id="name" name="name" th:value="${form.name}">
                         <input type="hidden" id="resultTransform" name="resultTransform" value=".">
 
-                        <cds-text-input id="testId"
-                                        name="testId"
-                                        label="Id for testing the ADP"
-                                        th:value="${testId}"
-                        >
-                        </cds-text-input>
-
                         <cds-form-item
-                                th:with="defaultEndpointTransformContext=${'{&quot;sortParams&quot;: {}, &quot;filterParams&quot;: {}}'}"
+                                th:with="defaultEndpointTransformContext=${'{&quot;idParam&quot;: &quot;&quot;, &quot;sortParams&quot;: {}, &quot;filterParams&quot;: {}}'}"
                         >
-                            <label for="endpointTransformContext">Endpoint Transform Context for testing the ADP Endpoint Transform</label>
+                            <label for="endpointTransformContext">Endpoint Transform Context for testing the ADP</label>
                             <textarea id="endpointTransformContext"
                                       name="endpointTransformContext"
                                       hidden
@@ -72,7 +65,7 @@
                                 hx-post="/admin/aggregated-data-profiles/debug"
                                 hx-target="#profile-debug"
                                 hx-swap="outerHTML"
-                                hx-include="[id='testId'], [id='endpointTransformContext'], [id='resultTransform'], [id='name']"
+                                hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name']"
                                 hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
                                 style="margin-top: 1rem;">
                                 Get results

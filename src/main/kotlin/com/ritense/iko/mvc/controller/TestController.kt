@@ -49,7 +49,6 @@ class TestController(
         val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
         val headers =
             mapOf(
-                ADP_ID_PARAM_HEADER to form.testId,
                 ADP_PROFILE_NAME_PARAM_HEADER to form.name,
                 IKO_TRACE_ID_HEADER to ikoTraceId,
                 ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER to objectMapper.readTree(form.endpointTransformContext),
@@ -80,7 +79,6 @@ class TestController(
 
         return ModelAndView("$BASE_FRAGMENT_ADP/debug :: profile-debug").apply {
             addObject("form", form)
-            addObject("testId", form.testId)
             addObject("endpointTransformContext", form.endpointTransformContext)
             addObject("testResult", result)
             addObject("traces", traces)

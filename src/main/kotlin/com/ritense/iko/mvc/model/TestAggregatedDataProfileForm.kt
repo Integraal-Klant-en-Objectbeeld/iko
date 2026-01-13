@@ -9,6 +9,5 @@ data class TestAggregatedDataProfileForm(
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
     val resultTransform: String,
-    val testId: String,
     val name: String,
 )
