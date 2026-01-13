@@ -2,7 +2,6 @@ package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_TRACE_ID_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
