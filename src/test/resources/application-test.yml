@@ -1,0 +1,26 @@
+spring:
+    application:
+        name: IKO (Test)
+    data:
+        redis:
+            host: iko-redis-test
+            port: 6379
+    datasource:
+        url: jdbc:postgresql://localhost:5432/iko-db
+        username: iko-admin
+        password: secret
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    authority-prefix: mock
+                    authorities-claim-name: "[mock]"
+
+iko:
+    crypto:
+        key: AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=
+
+logging:
+    level:
+        root: INFO
+        com.ritense.iko: DEBUG
