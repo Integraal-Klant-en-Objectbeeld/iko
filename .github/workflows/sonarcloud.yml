@@ -5,19 +5,22 @@ on:
         branches:
             - main
     pull_request:
-        types: [opened, synchronize, reopened]
+        types: [ opened, synchronize, reopened ]
 
 jobs:
     sonarcloud:
         runs-on: ubuntu-latest
-
         steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0  # IMPORTANT for proper analysis
+            -   uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0  # IMPORTANT for proper analysis
 
-            - name: SonarCloud Scan
-              uses: SonarSource/sonarcloud-github-action@v2
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            -   name: SonarCloud Scan
+                uses: SonarSource/sonarcloud-github-action@v2
+                with:
+                    args: >
+                        -Dsonar.projectKey=iko
+                        -Dsonar.organization=integraal-klant-en-objectbeeld
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
