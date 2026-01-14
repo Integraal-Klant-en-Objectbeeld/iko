@@ -171,7 +171,7 @@ sonar {
         property("sonar.token", System.getenv("SONAR_TOKEN"))
         property(
             "sonar.coverage.jacoco.xmlReportPaths",
-            "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml,${layout.buildDirectory.get()}/reports/jacoco/integrationTest/jacocoTestReport.xml"
+            "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml,${layout.buildDirectory.get()}/reports/jacoco/integrationTest/jacocoTestReport.xml",
         )
     }
 }
