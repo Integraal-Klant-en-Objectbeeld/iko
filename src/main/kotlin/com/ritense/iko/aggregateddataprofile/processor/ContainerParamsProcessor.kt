@@ -36,10 +36,10 @@ class ContainerParamsProcessor(
                 is String -> {
                     runCatching<List<ContainerParam>> {
                         objectMapper.readValue(
-                            src = Base64.decode(paramHeader)
+                            src = Base64.decode(paramHeader),
                         )
                     }.getOrDefault(
-                        defaultValue = emptyList()
+                        defaultValue = emptyList(),
                     )
                 }
 
