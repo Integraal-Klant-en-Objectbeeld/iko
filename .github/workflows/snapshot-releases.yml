@@ -1,78 +1,78 @@
 name: Build and Push Snapshot Image
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [ "main" ]
+    workflow_dispatch:
+    push:
+        branches: [ "main" ]
 
 # Needed to push to GHCR and write workflow cache
 permissions:
-  contents: read
-  packages: write
-  id-token: write
+    contents: read
+    packages: write
+    id-token: write
 
 concurrency:
-  group: docker-snapshot-${{ github.ref }}
-  cancel-in-progress: false
+    group: docker-snapshot-${{ github.ref }}
+    cancel-in-progress: false
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }} # metadata-action lowercases it
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    build-and-push:
+        runs-on: ubuntu-latest
+        env:
+            REGISTRY: ghcr.io
+            IMAGE_NAME: ${{ github.repository }} # metadata-action lowercases it
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
 
-      - name: Set up QEMU (for optional multi-arch)
-        uses: docker/setup-qemu-action@v3
+            -   name: Set up QEMU (for optional multi-arch)
+                uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+            -   name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            -   name: Log in to GHCR
+                if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+                uses: docker/login-action@v3
+                with:
+                    registry: ${{ env.REGISTRY }}
+                    username: ${{ github.actor }}
+                    password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            # Always include main tag on default branch
-            type=raw,value=main,enable={{is_default_branch}}
-            # Short SHA tag, e.g. sha-1a2b3c4
-            type=sha,format=short,prefix=sha-
-            # Snapshot tag for default branch, e.g. snapshot-202509161054
-            type=raw,value=snapshot-{{date 'YYYYMMDDHHmm'}},enable={{is_default_branch}}
-            # Snapshot tag for non-default branches, e.g. feat-my-branch-202511270711
-            type=ref,event=branch,prefix=snapshot-,suffix=-{{date 'YYYYMMDDHHmm'}},enable={{is_not_default_branch}}
-          labels: |
-            org.opencontainers.image.title=${{ github.event.repository.name }}
-            org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.created={{date 'RFC3339'}}
-          annotations: |
-            org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
+            -   name: Extract Docker metadata (tags, labels)
+                id: meta
+                uses: docker/metadata-action@v5
+                with:
+                    images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                    tags: |
+                        # Always include main tag on default branch
+                        type=raw,value=main,enable={{is_default_branch}}
+                        # Short SHA tag, e.g. sha-1a2b3c4
+                        type=sha,format=short,prefix=sha-
+                        # Snapshot tag for default branch, e.g. snapshot-202509161054
+                        type=raw,value=snapshot-{{date 'YYYYMMDDHHmm'}},enable={{is_default_branch}}
+                        # Snapshot tag for non-default branches, e.g. feat-my-branch-202511270711
+                        type=ref,event=branch,prefix=snapshot-,suffix=-{{date 'YYYYMMDDHHmm'}},enable={{is_not_default_branch}}
+                    labels: |
+                        org.opencontainers.image.title=${{ github.event.repository.name }}
+                        org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
+                        org.opencontainers.image.revision=${{ github.sha }}
+                        org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+                        org.opencontainers.image.created={{date 'RFC3339'}}
+                    annotations: |
+                        org.opencontainers.image.description=Integraal Klant & Objectbeeld (IKO) application container image
 
-      - name: Build (and push on main)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          annotations: ${{ steps.meta.outputs.annotations }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          # Disable provenance attestation to prevent GHCR showing an extra Unknown/Unknown platform
-          provenance: false
+            -   name: Build (and push on main)
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./Dockerfile
+                    platforms: linux/amd64
+                    push: true
+                    tags: ${{ steps.meta.outputs.tags }}
+                    labels: ${{ steps.meta.outputs.labels }}
+                    annotations: ${{ steps.meta.outputs.annotations }}
+                    cache-from: type=gha
+                    cache-to: type=gha,mode=max
+                    # Disable provenance attestation to prevent GHCR showing an extra Unknown/Unknown platform
+                    provenance: false

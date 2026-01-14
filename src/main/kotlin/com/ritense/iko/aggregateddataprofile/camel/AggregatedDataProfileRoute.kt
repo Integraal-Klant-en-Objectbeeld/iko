@@ -7,9 +7,11 @@ import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_PRO
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.ParamDefinition
 import org.apache.camel.model.rest.RestParamType.query
+import org.springframework.http.HttpStatus
 
 class AggregatedDataProfileRoute(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
@@ -28,7 +30,13 @@ class AggregatedDataProfileRoute(
             .type(query)
             .dataType("String")
             .required(false)
-
+        
+        onException(AggregatedDataProfileNotFound::class.java)
+            .handled(true)
+            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.NOT_FOUND.value()))
+            .setBody(simple("\${exception.message}"))
+            .marshal().json()
+        
         rest("/aggregated-data-profiles")
             .description("Resolve ADP by profile name")
             .get("/{$ADP_PROFILE_NAME_PARAM_HEADER}")
@@ -51,8 +59,11 @@ class AggregatedDataProfileRoute(
             .process { exchange ->
                 val aggregatedDataProfileName = exchange.getVariable("profile", String::class.java)
                 val aggregatedDataProfile = aggregatedDataProfileRepository.findByName(aggregatedDataProfileName)
-                    ?: throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
-                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+                if (aggregatedDataProfile == null) {
+                    throw AggregatedDataProfileNotFound(aggregatedDataProfileName)
+                } else {
+                    exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+                }
             }
             .routeDescription("REST consumer --> ADP entrypoint")
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")

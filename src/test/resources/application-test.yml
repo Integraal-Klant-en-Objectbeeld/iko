@@ -1,0 +1,40 @@
+spring:
+    flyway:
+        locations:
+            - classpath:db/migration
+            - classpath:db/migration-test
+        placeholder-replacement: false
+    mvc:
+        async:
+            request-timeout: 120000
+    application:
+        name: IKO (Test)
+    data:
+        redis:
+            host: iko-redis-test
+            port: 6379
+    datasource:
+        url: jdbc:postgresql://localhost:5432/iko-db
+        username: iko-admin
+        password: secret
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    authority-prefix: mock
+                    authorities-claim-name: "[mock]"
+
+iko:
+    crypto:
+        key: AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=
+
+logging:
+    level:
+        root: INFO
+        org.apache.camel: INFO
+        org.flywaydb: INFO
+        com.ritense.iko: DEBUG
+
+camel:
+    main:
+        tracing: true # for debugging
