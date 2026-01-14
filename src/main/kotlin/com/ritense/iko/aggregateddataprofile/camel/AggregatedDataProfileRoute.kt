@@ -5,6 +5,7 @@ import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_END
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.apache.camel.Exchange
@@ -30,13 +31,13 @@ class AggregatedDataProfileRoute(
             .type(query)
             .dataType("String")
             .required(false)
-        
+
         onException(AggregatedDataProfileNotFound::class.java)
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.NOT_FOUND.value()))
             .setBody(simple("\${exception.message}"))
             .marshal().json()
-        
+
         rest("/aggregated-data-profiles")
             .description("Resolve ADP by profile name")
             .get("/{$ADP_PROFILE_NAME_PARAM_HEADER}")

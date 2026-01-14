@@ -24,7 +24,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When a valid ADP is requested via REST then it should route to the dynamic route`() {
         // Act & Assert
-        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test/externalId"))
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test?id=externalId"))
             .andExpect(request().asyncStarted()) // Verify it started async if applicable
             .andReturn()
 
@@ -37,7 +37,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When a non-existing ADP is requested via REST then it should return an error`() {
         // Act & Assert
-        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing/externalId"))
+        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing"))
             .andDo(print()) // logs async start response
             .andReturn()
 
