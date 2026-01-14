@@ -6,7 +6,8 @@ sealed interface Error {
 
 sealed class DomainError(
     override val message: String,
-) : Error, RuntimeException(message)
+) : RuntimeException(message),
+    Error
 
 sealed class AggregatedDataProfileDomainError(
     message: String,

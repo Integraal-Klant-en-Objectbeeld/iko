@@ -16,7 +16,9 @@ import org.junit.jupiter.api.extension.ExtensionContext
  *
  * This ensures "once-only" initialization even when tests are running in parallel.
  */
-class MockWebServerExtension : BeforeAllCallback, AfterAllCallback {
+class MockWebServerExtension :
+    BeforeAllCallback,
+    AfterAllCallback {
 
     companion object {
         val server: PetMockServer by lazy {
