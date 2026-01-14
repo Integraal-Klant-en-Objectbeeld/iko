@@ -19,7 +19,7 @@ jobs:
                 uses: SonarSource/sonarcloud-github-action@v2
                 with:
                     args: >
-                        -Dsonar.projectKey=iko
+                        -Dsonar.projectKey=Integraal-Klant-en-Objectbeeld_iko
                         -Dsonar.organization=integraal-klant-en-objectbeeld
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
