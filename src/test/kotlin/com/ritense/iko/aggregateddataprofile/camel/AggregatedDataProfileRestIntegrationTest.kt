@@ -38,7 +38,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     fun `When a non-existing ADP is requested via REST then it should return an error`() {
         // Act & Assert
         val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing/externalId"))
-            .andDo(print()) // logs async start response
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
             .andReturn()
 
         mockMvc.perform(asyncDispatch(result))
