@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.docker.compose)
     alias(libs.plugins.sonarqube)
+    jacoco
 }
 
 group = "com.ritense"
@@ -168,5 +169,27 @@ sonar {
         property("sonar.projectKey", "iko")
         property("sonar.organization", "integraal-klant-en-objectbeeld")
         property("sonar.token", System.getenv("SONAR_TOKEN"))
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml,${layout.buildDirectory.get()}/reports/jacoco/integrationTest/jacocoTestReport.xml")
+    }
+}
+
+tasks.named<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+val jacocoIntegrationTestReport = tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
+    dependsOn(integrationTest)
+    executionData(integrationTest.get())
+    sourceDirectories.setFrom(sourceSets["main"].allSource.srcDirs)
+    classDirectories.setFrom(sourceSets["main"].output)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/integrationTest/jacocoTestReport.xml"))
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/integrationTest/html"))
     }
 }
