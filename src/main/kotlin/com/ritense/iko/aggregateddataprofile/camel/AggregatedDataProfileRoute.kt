@@ -1,14 +1,23 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
+import org.springframework.http.HttpStatus
 
 class AggregatedDataProfileRoute(
     val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     val objectMapper: ObjectMapper,
 ) : RouteBuilder() {
     override fun configure() {
+        onException(AggregatedDataProfileNotFound::class.java)
+            .handled(true)
+            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.NOT_FOUND.value()))
+            .setBody(simple("\${exception.message}"))
+            .marshal().json()
+
         rest("/aggregated-data-profiles")
             .get("/{iko_profile}/{iko_id}")
             .to("direct:aggregated_data_profile_rest")
@@ -26,9 +35,11 @@ class AggregatedDataProfileRoute(
                 val aggregatedDataProfileName = exchange.getVariable("profile", String::class.java)
                 val aggregatedDataProfile = aggregatedDataProfileRepository.findByName(aggregatedDataProfileName)
                 if (aggregatedDataProfile == null) {
-                    throw IllegalArgumentException("AggregatedDataProfile with name '$aggregatedDataProfileName' not found")
+                    throw AggregatedDataProfileNotFound(aggregatedDataProfileName)
+                } else {
+                    exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
                 }
-                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
-            }.toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
+            }
+            .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
     }
 }

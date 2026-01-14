@@ -4,25 +4,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class PetMockServerIntegrationTest : BaseIntegrationTest() {
-
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun setUp() {
-            PetMockServer.start()
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun tearDown() {
-            PetMockServer.shutdown()
-        }
-    }
 
     private val client = OkHttpClient()
 

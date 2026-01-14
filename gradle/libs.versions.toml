@@ -13,6 +13,7 @@ thymeleafLayoutDialect = "3.4.0"
 jjwt = "0.12.6"
 kotlinLogging = "7.0.13"
 mockwebserver = "4.12.0"
+sonarqube = "7.2.2.6593"
 
 [libraries]
 # Platforms
@@ -83,6 +84,7 @@ junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
 assertj-core = { group = "org.assertj", name = "assertj-core" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+spring-security-test = { group = "org.springframework.security", name = "spring-security-test" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -94,3 +96,4 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 docker-compose = { id = "com.avast.gradle.docker-compose", version.ref = "dockerCompose" }
 dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotenv" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }

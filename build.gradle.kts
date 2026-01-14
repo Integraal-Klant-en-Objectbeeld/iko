@@ -11,6 +11,8 @@ plugins {
     alias(libs.plugins.spring.dependency.management)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.docker.compose)
+    alias(libs.plugins.sonarqube)
+    jacoco
 }
 
 group = "com.ritense"
@@ -43,9 +45,18 @@ val mockitoAgent = configurations.create("mockitoAgent")
 
 dependencies {
     mockitoAgent(libs.mockito.core) { isTransitive = false }
-    implementation(platform(libs.spring.boot.dependencies))
-    implementation(platform(libs.camel.spring.boot.dependencies)) // BOM
 
+    // Platforms
+    implementation(platform(libs.spring.boot.dependencies))
+    implementation(platform(libs.camel.spring.boot.dependencies))
+
+    // Spring Boot Starters
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.validation)
+    implementation(libs.spring.boot.starter.thymeleaf)
+    implementation(libs.thymeleaf.layout.dialect)
+
+    // Camel
     implementation(libs.camel.spring.boot)
     implementation(libs.camel.direct.starter)
     implementation(libs.camel.netty.http.starter)
@@ -63,29 +74,23 @@ dependencies {
     implementation(libs.camel.jq)
     implementation(libs.camel.bean)
 
-    implementation(libs.spring.boot.starter.thymeleaf)
-    implementation(libs.thymeleaf.layout.dialect)
-    implementation(libs.spring.boot.starter.validation)
-
-    implementation(libs.jjwt.impl)
-    implementation(libs.jjwt.api)
-    implementation(libs.jjwt.jackson)
-
     // Database
-    implementation(libs.flyway.database.postgresql)
-    implementation(libs.flyway.core)
-    implementation(libs.postgresql)
-    implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)
-    implementation(libs.spring.boot.starter.security)
+    implementation(libs.postgresql)
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.database.postgresql)
 
     // Redis Cache
     implementation(libs.spring.boot.starter.data.redis)
     implementation(libs.jedis)
 
     // Security
+    implementation(libs.spring.boot.starter.security)
     implementation(libs.spring.boot.starter.oauth2.resourceServer)
     implementation(libs.spring.boot.starter.oauth2.client)
+    implementation(libs.jjwt.api)
+    implementation(libs.jjwt.impl)
+    implementation(libs.jjwt.jackson)
 
     // Actuator & Metrics
     implementation(libs.spring.boot.starter.actuator)
@@ -94,12 +99,15 @@ dependencies {
     // Logging
     implementation(libs.kotlin.logging)
 
+    // Kotlin
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.reactor)
 
+    // Testing
     testImplementation(libs.spring.boot.starter.test) {
         exclude(group = libs.androidJson.get().group, module = libs.androidJson.get().name)
     }
+    testImplementation(libs.spring.security.test)
     testImplementation(libs.reactor.test)
     testImplementation(libs.kotlin.test.junit5)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -152,5 +160,41 @@ dockerCompose {
         useComposeFiles.set(listOf("docker-compose-integration-test.yaml"))
         removeVolumes.set(true)
         noRecreate.set(true)
+        removeContainers.set(true)
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "iko")
+        property("sonar.organization", "integraal-klant-en-objectbeeld")
+        property("sonar.token", System.getenv("SONAR_TOKEN"))
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml,${layout.buildDirectory.get()}/reports/jacoco/integrationTest/jacocoTestReport.xml",
+        )
+    }
+}
+
+tasks.named<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+val jacocoIntegrationTestReport = tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
+    group = "verification"
+    description = "Generates Jacoco coverage reports for the integrationTest task."
+    dependsOn(integrationTest)
+    executionData(integrationTest.get())
+    sourceDirectories.setFrom(sourceSets["main"].allSource.srcDirs)
+    classDirectories.setFrom(sourceSets["main"].output)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/integrationTest/jacocoTestReport.xml"))
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/integrationTest/html"))
     }
 }
