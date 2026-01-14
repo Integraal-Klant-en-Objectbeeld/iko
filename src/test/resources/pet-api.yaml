@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: Pet Mock API
+  description: Mock API for testing purposes in IKO
+  version: 1.0.0
+servers:
+  - url: /api
+paths:
+  /pet:
+    get:
+      operationId: "GetPet"
+      summary: Get a mocked pet
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+    post:
+      summary: Create a new pet
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+    put:
+      summary: Update a pet
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+    delete:
+      summary: Delete a pet
+      responses:
+        '204':
+          description: No content
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
