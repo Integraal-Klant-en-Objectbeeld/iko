@@ -182,6 +182,8 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 val jacocoIntegrationTestReport = tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
+    group = "verification"
+    description = "Generates Jacoco coverage reports for the integrationTest task."
     dependsOn(integrationTest)
     executionData(integrationTest.get())
     sourceDirectories.setFrom(sourceSets["main"].allSource.srcDirs)
