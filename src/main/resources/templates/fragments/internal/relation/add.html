@@ -22,7 +22,7 @@
                 </cds-dropdown>
             </cds-form-item>
 
-            <cds-form-item id="formRelationEndpoints" th:fragment="connectorEndpoints">
+            <cds-form-item>
                 <cds-select label-text="Select an connector instance" size="lg" name="connectorInstanceId"
                             th:value="${form != null ? form.connectorInstanceId : connectorInstances.first.id}"
                             hx-get="/admin/aggregated-data-profiles/create/endpoints" hx-trigger="cds-select-selected"
