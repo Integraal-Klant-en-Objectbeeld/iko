@@ -9,6 +9,7 @@ import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_END
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import org.apache.camel.Exchange
 import org.springframework.data.domain.Pageable
+import kotlin.io.encoding.Base64
 
 class ContainerParamsProcessor(
     private val objectMapper: ObjectMapper,
@@ -20,8 +21,28 @@ class ContainerParamsProcessor(
             val containerParams: List<ContainerParam> = when (
                 val paramHeader = getHeader(ADP_CONTAINER_PARAM_HEADER)
             ) {
-                is List<*> -> paramHeader.map { objectMapper.readValue(it.toString()) }
-                is String -> listOf(objectMapper.readValue(paramHeader))
+                is List<*> -> {
+                    paramHeader
+                        .mapNotNull {
+                            runCatching {
+                                it as String
+                                String(Base64.decode(it), Charsets.UTF_8)
+                            }.getOrNull()
+                        }.map {
+                            objectMapper.readValue(it)
+                        }
+                }
+
+                is String -> {
+                    runCatching<List<ContainerParam>> {
+                        objectMapper.readValue(
+                            src = Base64.decode(paramHeader)
+                        )
+                    }.getOrDefault(
+                        defaultValue = emptyList()
+                    )
+                }
+
                 else -> emptyList()
             }
             val endpointTransformContext: JsonNode = objectMapper
