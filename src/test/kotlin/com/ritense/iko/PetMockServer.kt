@@ -11,7 +11,7 @@ object PetMockServer {
     val url: String
         get() = server.url("/api/pet").toString()
 
-    fun start(port: Int = 0) {
+    fun start(port: Int = 10000) {
         server.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 val path = request.path ?: ""

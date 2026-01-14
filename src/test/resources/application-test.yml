@@ -3,6 +3,10 @@ spring:
         locations:
             - classpath:db/migration
             - classpath:db/migration-test
+        placeholder-replacement: false
+    mvc:
+        async:
+            request-timeout: 120000
     application:
         name: IKO (Test)
     data:
@@ -26,6 +30,11 @@ iko:
 
 logging:
     level:
-        root: DEBUG
-        org.flywaydb: DEBUG
+        root: INFO
+        org.apache.camel: INFO
+        org.flywaydb: INFO
         com.ritense.iko: DEBUG
+
+camel:
+    main:
+        tracing: true # for debugging

@@ -1,7 +1,6 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
 import com.ritense.iko.BaseIntegrationTest
-import org.apache.camel.CamelContext
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,6 +11,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.async
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.request
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @AutoConfigureMockMvc
@@ -20,16 +20,17 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @Autowired
-    private lateinit var camelContext: CamelContext
-
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When a valid ADP is requested via REST then it should route to the dynamic route`() {
         // Act & Assert
-        mockMvc.perform(get("/aggregated-data-profiles/test/externalId"))
-            .andDo(print()) // logs final response
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test/externalId"))
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk)
+            .andExpect(content().json("""{"id": 1, "name": "Mocked Pet"}"""))
     }
 
     @Test
