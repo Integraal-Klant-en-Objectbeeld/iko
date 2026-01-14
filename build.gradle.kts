@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.spring.dependency.management)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.docker.compose)
+    alias(libs.plugins.sonarqube)
 }
 
 group = "com.ritense"

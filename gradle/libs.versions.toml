@@ -13,6 +13,7 @@ thymeleafLayoutDialect = "3.4.0"
 jjwt = "0.12.6"
 kotlinLogging = "7.0.13"
 mockwebserver = "4.12.0"
+sonarqube = "6.2.0.5505"
 
 [libraries]
 # Platforms
@@ -95,3 +96,4 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 docker-compose = { id = "com.avast.gradle.docker-compose", version.ref = "dockerCompose" }
 dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotenv" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
