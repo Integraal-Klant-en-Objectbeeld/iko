@@ -178,6 +178,7 @@ sonar {
         property("sonar.projectKey", "iko")
         property("sonar.organization", "integraal-klant-en-objectbeeld")
         property("sonar.token", System.getenv("SONAR_TOKEN"))
+        property("sonar.exclusions", "com/ritense/iko/mvc/**/*") // TODO: decide on testing strategy for mvc code
         property(
             "sonar.coverage.jacoco.xmlReportPaths",
             "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml,${layout.buildDirectory.get()}/reports/jacoco/integrationTest/jacocoTestReport.xml",
