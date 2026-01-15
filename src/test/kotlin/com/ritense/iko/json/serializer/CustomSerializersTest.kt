@@ -266,4 +266,14 @@ class CustomSerializersTest {
 
         assertThat(pageable.isPaged).isFalse()
     }
+
+    @Test
+    fun `deserializes null node to unpaged`() {
+        val parser = mapper.factory.createParser("null")
+        parser.nextToken()
+
+        val pageable = PageableDeserializer().deserialize(parser, mapper.deserializationContext)
+
+        assertThat(pageable.isPaged).isFalse()
+    }
 }

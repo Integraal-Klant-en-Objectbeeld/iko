@@ -136,6 +136,104 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
+    fun `When an ADP is requested with unpaged sorting then it returns sorted pets`() {
+        val uriTemplate = "/aggregated-data-profiles/pets"
+        val containerParam = ContainerParam(
+            containerId = "pets",
+            pageable = Pageable.unpaged(Sort.by("name").ascending()),
+        )
+        val encodedContainerParam = encodeContainerParam(containerParam)
+
+        val mvcResult = mockMvc.perform(
+            get(uriTemplate)
+                .queryParam("containerParam", encodedContainerParam),
+        ).andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """[
+                        "Bello",
+                        "Binky",
+                        "Blikkie",
+                        "Dikkie",
+                        "Minoes",
+                        "Pip",
+                        "Pluis",
+                        "Pukkie",
+                        "Snuffie",
+                        "Tijger"
+                    ]""",
+                ),
+            )
+            .andReturn()
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `When an ADP is requested with pageable sorting then it returns the selected page`() {
+        val uriTemplate = "/aggregated-data-profiles/pets"
+        val containerParam = ContainerParam(
+            containerId = "pets",
+            pageable = PageRequest.of(0, 3, Sort.by("name").descending()),
+        )
+        val encodedContainerParam = encodeContainerParam(containerParam)
+
+        val mvcResult = mockMvc.perform(
+            get(uriTemplate)
+                .queryParam("containerParam", encodedContainerParam),
+        ).andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """[
+                        "Tijger",
+                        "Snuffie",
+                        "Pukkie"
+                    ]""",
+                ),
+            )
+            .andReturn()
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `When an ADP is requested with a later page then it returns the correct slice`() {
+        val uriTemplate = "/aggregated-data-profiles/pets"
+        val containerParam = ContainerParam(
+            containerId = "pets",
+            pageable = PageRequest.of(1, 4, Sort.by("name").ascending()),
+        )
+        val encodedContainerParam = encodeContainerParam(containerParam)
+
+        val mvcResult = mockMvc.perform(
+            get(uriTemplate)
+                .queryParam("containerParam", encodedContainerParam),
+        ).andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """[
+                        "Minoes",
+                        "Pip",
+                        "Pluis",
+                        "Pukkie"
+                    ]""",
+                ),
+            )
+            .andReturn()
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `When the ADP is queried with ownerId filter then it returns matching pets`() {
         val uriTemplate = "/aggregated-data-profiles/pets"
         val containerParams = encodeContainerParam(
