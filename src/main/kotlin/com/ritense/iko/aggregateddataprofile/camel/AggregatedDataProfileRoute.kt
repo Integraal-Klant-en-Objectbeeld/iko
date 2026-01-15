@@ -27,6 +27,7 @@ class AggregatedDataProfileRoute(
             .routeId("aggregated-data-profile-rest-continuation")
             .setVariable("id", header("iko_id"))
             .setVariable("profile", header("iko_profile"))
+            .setVariable("correlationId", simple("\${exchangeId}"))
             .removeHeaders("iko_*", "iko_trace_id")
             .process { exchange ->
                 val aggregatedDataProfileName = exchange.getVariable("profile", String::class.java)

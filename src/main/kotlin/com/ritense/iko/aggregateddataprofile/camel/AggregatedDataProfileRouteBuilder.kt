@@ -145,7 +145,10 @@ class AggregatedDataProfileRouteBuilder(
             .errorResponse(status = HttpStatus.BAD_REQUEST)
 
         onException(HttpOperationFailedException::class.java)
-            .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR)
+            .errorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR,
+                exposeMessage = false,
+            )
 
         // Global
         onException(Exception::class.java)
