@@ -21,7 +21,7 @@ INSERT INTO connector_instance (id, name, connector_id, tag)
 VALUES ('22222222-2222-2222-2222-222222222222', 'Test Instance', '11111111-1111-1111-1111-111111111111', 'test-instance-tag');
 
 INSERT INTO connector_endpoint (id, name, connector_id, operation)
-VALUES ('33333333-3333-3333-3333-333333333333', 'Get Pet', '11111111-1111-1111-1111-111111111111', 'GetPet');
+VALUES ('33333333-3333-3333-3333-333333333333', 'Get Pets', '11111111-1111-1111-1111-111111111111', 'GetPets');
 
 INSERT INTO aggregated_data_profile (
     id,
@@ -36,10 +36,10 @@ INSERT INTO aggregated_data_profile (
 )
 VALUES (
     '44444444-4444-4444-4444-444444444444',
-    'test',
+    'pets',
     '22222222-2222-2222-2222-222222222222',
     '33333333-3333-3333-3333-333333333333',
-    '(if .filterParams?.pets?.owners? then {"owners": .filterParams.pets.owners} else {} end)
+    '(if .filterParams?.pets?.ownerId? then {"ownerId": .filterParams.pets.ownerId} else {} end)
      + (if .sortParams?.pets?.pageNumber? then {"page": .sortParams.pets.pageNumber} else {} end)
      + (if .sortParams?.pets?.pageSize? then {"size": .sortParams.pets.pageSize} else {} end)',
     'map(.name)',

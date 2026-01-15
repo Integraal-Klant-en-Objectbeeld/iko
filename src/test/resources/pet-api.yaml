@@ -6,21 +6,25 @@ info:
 servers:
   - url: /api
 paths:
-  /pet:
+  /pets:
     get:
-      operationId: "GetPet"
+      operationId: "GetPets"
       summary: Get a mocked pet
       parameters:
-        - name: owners
+        - name: ownerId
           in: query
           required: false
-          description: Filter pets by owner name
+          description: Filter pets by owner id
           schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: true
+            type: integer
+            minimum: 1
+        - name: id
+          in: query
+          required: false
+          description: Filter pets by id
+          schema:
+            type: integer
+            minimum: 1
         - name: page
           in: query
           required: false
@@ -67,6 +71,27 @@ paths:
       responses:
         '204':
           description: No content
+  /owners:
+    get:
+      operationId: "GetOwners"
+      summary: Get a mocked owner
+      parameters:
+        - name: id
+          in: query
+          required: false
+          description: Filter owners by id
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Owner'
 components:
   schemas:
     Pet:
@@ -76,7 +101,19 @@ components:
           type: integer
         name:
           type: string
-        owners:
-          type: array
-          items:
-            type: string
+        ownerId:
+          type: integer
+    Owner:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        gender:
+          type: string
+          enum:
+            - female
+            - male
+            - non-binary
+            - unknown

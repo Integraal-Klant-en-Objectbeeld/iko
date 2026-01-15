@@ -21,7 +21,7 @@ class PetMockServerIntegrationTest : BaseIntegrationTest() {
             assertThat(response.code).isEqualTo(200)
             val body = response.body?.string()
             assertThat(body).contains(""""id": 1""")
-            assertThat(body).contains(""""name": "Mocked Pet"""")
+            assertThat(body).contains(""""name": "Bello"""")
         }
     }
 
@@ -34,7 +34,7 @@ class PetMockServerIntegrationTest : BaseIntegrationTest() {
 
         client.newCall(request).execute().use { response ->
             assertThat(response.code).isEqualTo(201)
-            assertThat(response.body?.string()).contains(""""id": 2""")
+            assertThat(response.body?.string()).contains(""""id": 3""")
         }
     }
 
@@ -47,7 +47,7 @@ class PetMockServerIntegrationTest : BaseIntegrationTest() {
 
         client.newCall(request).execute().use { response ->
             assertThat(response.code).isEqualTo(200)
-            assertThat(response.body?.string()).contains(""""name": "Updated Pet"""")
+            assertThat(response.body?.string()).contains(""""name": "Binky"""")
         }
     }
 

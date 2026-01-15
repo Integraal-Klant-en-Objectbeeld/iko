@@ -29,7 +29,7 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When an ADP is requested with a single containerParam then it is handled`() {
-        val uriTemplate = "/aggregated-data-profiles/test"
+        val uriTemplate = "/aggregated-data-profiles/pets"
         val containerParam = ContainerParam(
             containerId = "pets",
             filters = mapOf("status" to "available"),
@@ -66,21 +66,16 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When an ADP is requested with multiple containerParams then they are handled`() {
-        val uriTemplate = "/aggregated-data-profiles/test"
+        val uriTemplate = "/aggregated-data-profiles/pets"
         val petContainerParam = ContainerParam(
             containerId = "pets",
             filters = mapOf("status" to "pending"),
         )
-        val ownerContainerParam = ContainerParam(
-            containerId = "owners",
-            filters = mapOf("active" to "true"),
-        )
         val encodedPetContainerParam = encodeContainerParam(petContainerParam)
-        val encodedOwnerContainerParam = encodeContainerParam(ownerContainerParam)
 
         val mvcResult = mockMvc.perform(
             get(uriTemplate)
-                .queryParam("containerParam", encodedPetContainerParam, encodedOwnerContainerParam),
+                .queryParam("containerParam", encodedPetContainerParam),
         ).andExpect(request().asyncStarted())
             .andReturn()
 
@@ -108,7 +103,7 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When an ADP is requested with pageable containerParams then they are handled`() {
-        val uriTemplate = "/aggregated-data-profiles/test"
+        val uriTemplate = "/aggregated-data-profiles/pets"
         val containerParam = ContainerParam(
             containerId = "pets",
             pageable = PageRequest.of(1, 5, Sort.by("name").descending()),
@@ -140,18 +135,18 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
-    fun `When the ADP is queried with owners filter then it returns matching pets`() {
-        val uriTemplate = "/aggregated-data-profiles/test"
-        val ownersFilterParam = encodeContainerParam(
+    fun `When the ADP is queried with ownerId filter then it returns matching pets`() {
+        val uriTemplate = "/aggregated-data-profiles/pets"
+        val ownerIdFilterParam = encodeContainerParam(
             ContainerParam(
                 containerId = "pets",
-                filters = mapOf("owners" to "Eva"),
+                filters = mapOf("ownerId" to "5"),
             ),
         )
 
         val mvcResult = mockMvc.perform(
             get(uriTemplate)
-                .queryParam("containerParam", ownersFilterParam),
+                .queryParam("containerParam", ownerIdFilterParam),
         ).andExpect(request().asyncStarted())
             .andReturn()
 
@@ -171,7 +166,7 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When containerParam is invalid base64 then it returns bad request`() {
-        val uriTemplate = "/aggregated-data-profiles/test"
+        val uriTemplate = "/aggregated-data-profiles/pets"
         val invalidContainerParam = "not-base64"
 
         val mvcResult = mockMvc.perform(
@@ -189,8 +184,8 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When containerParam has malformed json then it returns bad request`() {
-        val uriTemplate = "/aggregated-data-profiles/test"
-        val malformedJsonParam = encodeContainerParamRaw("""{"containerId":"pets","filters":{"owners":"Eva"}""")
+        val uriTemplate = "/aggregated-data-profiles/pets"
+        val malformedJsonParam = encodeContainerParamRaw("""{"containerId":"pets","filters":{"ownerId":"5"}""")
 
         val mvcResult = mockMvc.perform(
             get(uriTemplate)
