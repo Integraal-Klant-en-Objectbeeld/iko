@@ -153,6 +153,7 @@ class AggregatedDataProfileRouteBuilder(
                 ),
             )
             .marshal().json()
+
         onException(HttpOperationFailedException::class.java)
             .handled(true)
             .process(
