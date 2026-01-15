@@ -143,11 +143,9 @@ class AggregatedDataProfileRouteBuilder(
         onException(Exception::class.java)
             .handled(true)
             .process { exchange ->
-                val traceId = java.util.UUID.randomUUID().toString()
                 exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, HttpStatus.INTERNAL_SERVER_ERROR.value())
                 exchange.getIn().body = mapOf(
                     "error" to "Internal Server Error",
-                    "traceId" to traceId,
                 )
             }
             .marshal().json()
