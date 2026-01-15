@@ -41,7 +41,10 @@ VALUES (
     '2b5f7c9d-4a1e-4d3b-9c2f-5e7a1b3d6f8c',
     '(if .filterParams?.pets?.ownerId? then {"ownerId": .filterParams.pets.ownerId} else {} end)
      + (if .sortParams?.pets?.pageNumber? then {"page": .sortParams.pets.pageNumber} else {} end)
-     + (if .sortParams?.pets?.pageSize? then {"size": .sortParams.pets.pageSize} else {} end)',
+     + (if .sortParams?.pets?.pageSize? then {"size": .sortParams.pets.pageSize} else {} end)
+     + (if ((.sortParams?.pets?.sort? // []) | length) > 0
+        then {"ordering": (.sortParams.pets.sort[0] | if .direction == "DESC" then "-" + .property else .property end)}
+        else {} end)',
     'map(.name)',
     'ROLE_ADMIN',
     false,

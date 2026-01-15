@@ -123,11 +123,11 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
             .andExpect(
                 content().json(
                     """[
-                        "Tijger",
-                        "Snuffie",
-                        "Pluis",
+                        "Minoes",
+                        "Dikkie",
                         "Blikkie",
-                        "Dikkie"
+                        "Binky",
+                        "Bello"
                     ]""",
                 ),
             )
