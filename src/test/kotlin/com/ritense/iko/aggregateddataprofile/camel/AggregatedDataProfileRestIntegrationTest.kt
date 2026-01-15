@@ -43,7 +43,9 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
         mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk)
-            .andExpect(content().json("""
+            .andExpect(
+                content().json(
+                    """
                 {
                   "left": {"id": 1, "name": "Mocked Pet"},
                   "right": {
@@ -51,7 +53,9 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
                     "pet2": {"id": 1, "name": "Mocked Pet"}
                   }
                 }
-            """.trimIndent()))
+                    """.trimIndent(),
+                ),
+            )
     }
 
     @Test
