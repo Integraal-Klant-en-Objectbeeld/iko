@@ -16,3 +16,7 @@ sealed class AggregatedDataProfileDomainError(
 class AggregatedDataProfileNotFound(
     name: String,
 ) : AggregatedDataProfileDomainError("ADP with name: $name, not found")
+
+class ConnectorError(
+    message: String,
+) : DomainError(message)
