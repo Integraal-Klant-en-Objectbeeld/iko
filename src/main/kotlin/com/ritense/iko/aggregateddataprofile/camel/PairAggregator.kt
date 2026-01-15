@@ -8,6 +8,13 @@ object PairAggregator : AggregationStrategy {
         oldExchange: Exchange?,
         newExchange: Exchange,
     ): Exchange {
+
+        // Detect error
+        val exception = newExchange.getProperty(Exchange.EXCEPTION_CAUGHT)
+        if (exception != null) {
+            throw exception as Exception
+        }
+
         if (oldExchange == null) {
             return newExchange
         }

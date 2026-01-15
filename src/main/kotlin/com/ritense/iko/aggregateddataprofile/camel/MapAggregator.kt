@@ -8,6 +8,13 @@ object MapAggregator : AggregationStrategy {
         oldExchange: Exchange?,
         newExchange: Exchange,
     ): Exchange {
+
+        // Detect error
+        val exception = newExchange.getProperty(Exchange.EXCEPTION_CAUGHT)
+        if (exception != null) {
+            throw exception as Exception
+        }
+
         val key = newExchange.getVariable("relationPropertyName", String::class.java)
         val value = newExchange.getIn().body
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
+import com.ritense.iko.aggregateddataprofile.error.errorResponseProcessor
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.camel.Iko
@@ -11,9 +12,11 @@ import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
 import org.apache.camel.Exchange
+import org.apache.camel.ValidationException
 import org.apache.camel.builder.FlexibleAggregationStrategy
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
+import org.apache.camel.http.base.HttpOperationFailedException
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 
@@ -135,19 +138,42 @@ class AggregatedDataProfileRouteBuilder(
             val sanitizedName = aggregatedDataProfile.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
             "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
         }
-
+        // Error section
         onException(AccessDeniedException::class.java)
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
 
+        onException(ValidationException::class.java, IllegalArgumentException::class.java)
+            .handled(true)
+            .useOriginalMessage()
+            .process(
+                errorResponseProcessor(
+                    status = HttpStatus.BAD_REQUEST,
+                    errorLabel = "BAD_REQUEST"
+                )
+            )
+            .marshal().json()
+        onException(HttpOperationFailedException::class.java)
+            .handled(true)
+            .process(
+                errorResponseProcessor(
+                    status = HttpStatus.INTERNAL_SERVER_ERROR,
+                    errorLabel = "HttpOperationFailedException",
+                )
+            )
+            .marshal().json()
+
+        // Global
         onException(Exception::class.java)
             .handled(true)
-            .process { exchange ->
-                exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, HttpStatus.INTERNAL_SERVER_ERROR.value())
-                exchange.getIn().body = mapOf(
-                    "error" to "Internal Server Error",
+            .useOriginalMessage()
+            .process(
+                errorResponseProcessor(
+                    status = HttpStatus.INTERNAL_SERVER_ERROR,
+                    errorLabel = "INTERNAL_SERVER_ERROR",
+                    exposeMessage = false
                 )
-            }
+            )
             .marshal().json()
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
@@ -192,4 +218,5 @@ class AggregatedDataProfileRouteBuilder(
             multicast.end()
         }
     }
+
 }
