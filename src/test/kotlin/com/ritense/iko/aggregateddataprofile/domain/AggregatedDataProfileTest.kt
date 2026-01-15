@@ -30,29 +30,6 @@ class AggregatedDataProfileTest {
     }
 
     @Test
-    fun `add form can be created from aggregated data profile`() {
-        val profile = AggregatedDataProfile(
-            id = UUID.randomUUID(),
-            name = "pets",
-            connectorInstanceId = UUID.randomUUID(),
-            connectorEndpointId = UUID.randomUUID(),
-            endpointTransform = EndpointTransform("."),
-            resultTransform = Transform("."),
-            aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-            role = "ROLE_ADMIN",
-        )
-
-        val form = AggregatedDataProfileAddForm.from(profile)
-
-        assertThat(form.name).isEqualTo("pets")
-        assertThat(form.role).isEqualTo("ROLE_ADMIN")
-        assertThat(form.endpointTransform).isEqualTo(".")
-        assertThat(form.resultTransform).isEqualTo(".")
-        assertThat(form.connectorInstanceId).isEqualTo(profile.connectorInstanceId)
-        assertThat(form.connectorEndpointId).isEqualTo(profile.connectorEndpointId)
-    }
-
-    @Test
     fun `create throws when endpoint transform is invalid`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",

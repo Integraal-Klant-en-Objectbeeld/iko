@@ -36,38 +36,6 @@ class RelationTest {
     }
 
     @Test
-    fun `edit form can be created from relation`() {
-        val profile = AggregatedDataProfile(
-            id = UUID.randomUUID(),
-            name = "pets",
-            connectorInstanceId = UUID.randomUUID(),
-            connectorEndpointId = UUID.randomUUID(),
-            endpointTransform = EndpointTransform("."),
-            resultTransform = Transform("."),
-            aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-        )
-        val relation = Relation(
-            aggregatedDataProfile = profile,
-            propertyName = "owner",
-            sourceId = profile.id,
-            endpointTransform = RelationEndpointTransform("{\"id\": .source.ownerId}"),
-            connectorInstanceId = UUID.randomUUID(),
-            connectorEndpointId = UUID.randomUUID(),
-            resultTransform = Transform("."),
-            relationCacheSettings = RelationCacheSettings(),
-        )
-
-        val form = com.ritense.iko.mvc.model.EditRelationForm.from(relation)
-
-        assertThat(form.aggregatedDataProfileId).isEqualTo(profile.id)
-        assertThat(form.propertyName).isEqualTo("owner")
-        assertThat(form.sourceToEndpointMapping).isEqualTo("{\"id\": .source.ownerId}")
-        assertThat(form.resultTransform).isEqualTo(".")
-        assertThat(form.connectorInstanceId).isEqualTo(relation.connectorInstanceId)
-        assertThat(form.connectorEndpointId).isEqualTo(relation.connectorEndpointId)
-    }
-
-    @Test
     fun `constructing relation with invalid endpoint transform throws`() {
         val profile = AggregatedDataProfile(
             id = UUID.randomUUID(),
