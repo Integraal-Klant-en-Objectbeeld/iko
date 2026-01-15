@@ -71,6 +71,16 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
         mockMvc.perform(asyncDispatch(mvcResult))
             .andDo(print())
             .andExpect(status().isInternalServerError)
+            .andExpect(
+                content().json(
+                    """
+            {
+                "error":"HttpOperationFailedException",
+                "message":"HTTP operation failed invoking http://localhost:10000/api/pet/fail with statusCode: 500"
+            }
+                    """.trimIndent(),
+                ),
+            )
     }
 
     @Test
