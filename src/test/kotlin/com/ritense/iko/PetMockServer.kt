@@ -82,6 +82,11 @@ object PetMockServer {
                             else -> MockResponse().setResponseCode(405)
                         }
                     }
+
+                    path.startsWith("/api/pet/fail") -> {
+                        MockResponse().setResponseCode(500).setBody("""{"error": "Internal Server Error"}""")
+                    }
+
                     path.startsWith("/api/owners") -> {
                         when (request.method) {
                             "GET" -> {

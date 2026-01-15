@@ -8,6 +8,7 @@ import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPO
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
+import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
@@ -34,10 +35,7 @@ class AggregatedDataProfileRoute(
             .required(false)
 
         onException(AggregatedDataProfileNotFound::class.java)
-            .handled(true)
-            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.NOT_FOUND.value()))
-            .setBody(simple("\${exception.message}"))
-            .marshal().json()
+            .errorResponse(status = HttpStatus.NOT_FOUND)
 
         onException(AggregatedDataProfileQueryParametersError::class.java)
             .handled(true)
@@ -61,6 +59,7 @@ class AggregatedDataProfileRoute(
 
         from("direct:aggregated_data_profile_rest_continuation")
             .routeId("aggregated-data-profile-rest-continuation")
+            .setVariable("correlationId", simple("\${exchangeId}"))
             .setVariable("profile", header(ADP_PROFILE_NAME_PARAM_HEADER))
             .setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
             .removeHeaders("adp_*")

@@ -1,5 +1,17 @@
 package com.ritense.iko.aggregateddataprofile.error
 
+import org.apache.camel.Exchange
+import org.apache.camel.model.OnExceptionDefinition
+import org.apache.camel.model.ProcessorDefinition
+import org.springframework.http.HttpStatus
+
+fun OnExceptionDefinition.errorResponse(
+    status: HttpStatus,
+    exposeMessage: Boolean = true,
+): ProcessorDefinition<*> = this.handled(true)
+    .process(errorResponseProcessor(status, exposeMessage))
+    .marshal().json()
+
 sealed interface Error {
     val message: String
 }
@@ -20,3 +32,18 @@ class AggregatedDataProfileNotFound(
 class AggregatedDataProfileQueryParametersError(
     vararg parameters: String,
 ) : AggregatedDataProfileDomainError("Query parameter(s) [${parameters.joinToString(", ")}] could not be parsed")
+
+fun errorResponseProcessor(
+    status: HttpStatus,
+    exposeMessage: Boolean = true,
+): (Exchange) -> Unit = { exchange ->
+    val ex = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception::class.java)
+    // Retrieve the correlation ID from variables
+    val correlationId = exchange.getVariable("correlationId", String::class.java).orEmpty()
+    exchange.message.setHeader("X-Correlation-Id", correlationId)
+    exchange.message.setHeader(Exchange.HTTP_RESPONSE_CODE, status.value())
+    exchange.message.body = mapOf(
+        "message" to if (exposeMessage) ex?.message else "Unexpected error",
+        "correlationId" to correlationId,
+    )
+}

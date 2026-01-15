@@ -170,3 +170,9 @@ class UserController(private val svc: UserService) {
 - HTMX Documentation: `https://htmx.org/docs/`
 - Thymeleaf: `https://www.thymeleaf.org/documentation.html`
 - Spring MVC: `https://docs.spring.io/spring-framework/reference/web/webmvc.html`
+
+### File Formatting
+- Do not add empty trailing lines to any file.
+
+**Explanation:**
+- Keeping files compact without unnecessary trailing whitespace helps in maintaining a consistent and dense code structure.
