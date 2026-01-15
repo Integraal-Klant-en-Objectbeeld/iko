@@ -46,7 +46,7 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
     }
 
     private fun parseFromQuery(raw: String): Pageable {
-        val params = raw.split("&", ";").mapNotNull { part ->
+        val params = splitQueryParams(raw).mapNotNull { part ->
             val trimmed = part.trim()
             if (trimmed.isBlank()) {
                 return@mapNotNull null
@@ -70,6 +70,50 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
         }
         val sort = parseSortFromString(params["sort"])
         return PageRequest.of(pageNumber, sizeValue, sort)
+    }
+
+    private fun splitQueryParams(raw: String): List<String> {
+        if (raw.isBlank()) {
+            return emptyList()
+        }
+        val parts = mutableListOf<String>()
+        val current = StringBuilder()
+        var hasEquals = false
+        var index = 0
+        while (index < raw.length) {
+            val ch = raw[index]
+            if ((ch == '&' || ch == ';') && hasEquals && shouldSplit(raw, index + 1)) {
+                parts.add(current.toString())
+                current.setLength(0)
+                hasEquals = false
+                index++
+                continue
+            }
+            if (ch == '=' && !hasEquals) {
+                hasEquals = true
+            }
+            current.append(ch)
+            index++
+        }
+        if (current.isNotEmpty()) {
+            parts.add(current.toString())
+        }
+        return parts
+    }
+
+    private fun shouldSplit(raw: String, startIndex: Int): Boolean {
+        var idx = startIndex
+        while (idx < raw.length) {
+            val ch = raw[idx]
+            if (ch == '&' || ch == ';') {
+                return false
+            }
+            if (ch == '=') {
+                return true
+            }
+            idx++
+        }
+        return false
     }
 
     private fun parseSortNode(node: JsonNode?): Sort {

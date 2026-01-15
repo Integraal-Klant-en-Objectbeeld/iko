@@ -55,6 +55,66 @@ class CustomSerializersTest {
     }
 
     @Test
+    fun `deserializes alternative page and size keys`() {
+        val json = """{"page":4,"size":15}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(4)
+        assertThat(pageable.pageSize).isEqualTo(15)
+    }
+
+    @Test
+    fun `deserializes number and limit keys`() {
+        val json = """{"number":7,"limit":25}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(7)
+        assertThat(pageable.pageSize).isEqualTo(25)
+    }
+
+    @Test
+    fun `deserializes sort object with ignoreCase and nullHandling`() {
+        val json = """{"pageNumber":1,"pageSize":3,"sort":{"property":"name","direction":"desc","ignoreCase":true,"nullHandling":"last"}}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        val order = pageable.sort.getOrderFor("name")
+        assertThat(order?.direction).isEqualTo(Sort.Direction.DESC)
+        assertThat(order?.isIgnoreCase).isTrue()
+        assertThat(order?.nullHandling).isEqualTo(Sort.NullHandling.NATIVE)
+    }
+
+    @Test
+    fun `deserializes sort array with shorthand field`() {
+        val json = """{"pageNumber":0,"pageSize":5,"sort":[{"name":"asc"}]}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.ASC)
+    }
+
+    @Test
+    fun `deserializes sort from query string with multiple fields`() {
+        val json = mapper.writeValueAsString("page=1&size=2&sort=name,desc;ownerId,asc")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.DESC)
+        assertThat(pageable.sort.getOrderFor("ownerId")?.direction).isEqualTo(Sort.Direction.ASC)
+    }
+
+    @Test
+    fun `deserializes invalid sort direction as asc`() {
+        val json = """{"pageNumber":0,"pageSize":5,"sort":[{"property":"name","direction":"nope"}]}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.ASC)
+    }
+
+    @Test
     fun `deserializes query string pageable`() {
         val json = mapper.writeValueAsString("page=3&size=20&sort=name,desc")
 
