@@ -194,3 +194,10 @@ fun doWork() {
 * Logging frameworks let you tune log levels per environment.
 * You can enrich logs with MDC and structured formats (e.g., JSON) for analysis.
 * Guarding expensive messages avoids unnecessary overhead when the level is disabled.
+
+## 15. File Formatting
+* Do not add empty trailing lines to any file.
+
+**Explanation:**
+
+* Keeping files compact without unnecessary trailing whitespace helps in maintaining a consistent and dense code structure.
