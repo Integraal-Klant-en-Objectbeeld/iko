@@ -18,7 +18,7 @@ class AggregatedDataProfileRoute(
                 errorResponseProcessor(
                     status = HttpStatus.NOT_FOUND,
                     errorLabel = "ADP not found",
-                )
+                ),
             )
             .marshal().json()
 

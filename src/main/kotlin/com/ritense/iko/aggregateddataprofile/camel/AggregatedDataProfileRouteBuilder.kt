@@ -149,8 +149,8 @@ class AggregatedDataProfileRouteBuilder(
             .process(
                 errorResponseProcessor(
                     status = HttpStatus.BAD_REQUEST,
-                    errorLabel = "BAD_REQUEST"
-                )
+                    errorLabel = "BAD_REQUEST",
+                ),
             )
             .marshal().json()
         onException(HttpOperationFailedException::class.java)
@@ -159,7 +159,7 @@ class AggregatedDataProfileRouteBuilder(
                 errorResponseProcessor(
                     status = HttpStatus.INTERNAL_SERVER_ERROR,
                     errorLabel = "HttpOperationFailedException",
-                )
+                ),
             )
             .marshal().json()
 
@@ -171,8 +171,8 @@ class AggregatedDataProfileRouteBuilder(
                 errorResponseProcessor(
                     status = HttpStatus.INTERNAL_SERVER_ERROR,
                     errorLabel = "INTERNAL_SERVER_ERROR",
-                    exposeMessage = false
-                )
+                    exposeMessage = false,
+                ),
             )
             .marshal().json()
 
@@ -218,5 +218,4 @@ class AggregatedDataProfileRouteBuilder(
             multicast.end()
         }
     }
-
 }

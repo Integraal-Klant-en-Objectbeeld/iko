@@ -8,7 +8,6 @@ object MapAggregator : AggregationStrategy {
         oldExchange: Exchange?,
         newExchange: Exchange,
     ): Exchange {
-
         // Detect error
         val exception = newExchange.getProperty(Exchange.EXCEPTION_CAUGHT)
         if (exception != null) {
