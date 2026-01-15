@@ -11,7 +11,6 @@ import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
-import org.apache.camel.Exchange
 import org.apache.camel.ValidationException
 import org.apache.camel.builder.FlexibleAggregationStrategy
 import org.apache.camel.builder.RouteBuilder
@@ -140,8 +139,7 @@ class AggregatedDataProfileRouteBuilder(
         }
         // Error section
         onException(AccessDeniedException::class.java)
-            .handled(true)
-            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
+            .errorResponse(status = HttpStatus.UNAUTHORIZED)
 
         onException(ValidationException::class.java, IllegalArgumentException::class.java)
             .errorResponse(status = HttpStatus.BAD_REQUEST)
