@@ -75,7 +75,6 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
                 content().json(
                     """
             {
-                "error":"HttpOperationFailedException",
                 "message":"HTTP operation failed invoking http://localhost:10000/api/pet/fail with statusCode: 500"
             }
                     """.trimIndent(),

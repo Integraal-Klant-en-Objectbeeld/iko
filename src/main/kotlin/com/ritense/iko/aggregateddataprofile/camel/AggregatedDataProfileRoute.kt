@@ -2,7 +2,7 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
-import com.ritense.iko.aggregateddataprofile.error.errorResponseProcessor
+import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
@@ -13,14 +13,7 @@ class AggregatedDataProfileRoute(
 ) : RouteBuilder() {
     override fun configure() {
         onException(AggregatedDataProfileNotFound::class.java)
-            .handled(true)
-            .process(
-                errorResponseProcessor(
-                    status = HttpStatus.NOT_FOUND,
-                    errorLabel = "ADP not found",
-                ),
-            )
-            .marshal().json()
+            .errorResponse(status = HttpStatus.NOT_FOUND)
 
         rest("/aggregated-data-profiles")
             .get("/{iko_profile}/{iko_id}")

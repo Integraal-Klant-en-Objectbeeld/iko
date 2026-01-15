@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
-import com.ritense.iko.aggregateddataprofile.error.errorResponseProcessor
+import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.camel.Iko
@@ -144,38 +144,17 @@ class AggregatedDataProfileRouteBuilder(
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
 
         onException(ValidationException::class.java, IllegalArgumentException::class.java)
-            .handled(true)
-            .useOriginalMessage()
-            .process(
-                errorResponseProcessor(
-                    status = HttpStatus.BAD_REQUEST,
-                    errorLabel = "BAD_REQUEST",
-                ),
-            )
-            .marshal().json()
+            .errorResponse(status = HttpStatus.BAD_REQUEST)
 
         onException(HttpOperationFailedException::class.java)
-            .handled(true)
-            .process(
-                errorResponseProcessor(
-                    status = HttpStatus.INTERNAL_SERVER_ERROR,
-                    errorLabel = "HttpOperationFailedException",
-                ),
-            )
-            .marshal().json()
+            .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR)
 
         // Global
         onException(Exception::class.java)
-            .handled(true)
-            .useOriginalMessage()
-            .process(
-                errorResponseProcessor(
-                    status = HttpStatus.INTERNAL_SERVER_ERROR,
-                    errorLabel = "INTERNAL_SERVER_ERROR",
-                    exposeMessage = false,
-                ),
+            .errorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR,
+                exposeMessage = false,
             )
-            .marshal().json()
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
