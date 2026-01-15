@@ -29,6 +29,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
             .andReturn()
 
         mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print()) // logs final response
             .andExpect(status().isOk)
             .andExpect(content().json("""{"id": 1, "name": "Mocked Pet"}"""))
     }
@@ -42,6 +43,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
             .andReturn()
 
         mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print()) // logs final response
             .andExpect(status().isOk)
             .andExpect(
                 content().json(
@@ -56,6 +58,20 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
                     """.trimIndent(),
                 ),
             )
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `When one relation fails then the API should return 500 Internal Server Error`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-failing-relation/externalId"))
+            .andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print())
+            .andExpect(status().isInternalServerError)
+            .andExpect(content().string(containsString("Unexpected error")))
     }
 
     @Test

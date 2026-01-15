@@ -4,16 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
+import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.camel.Iko
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
-import org.apache.camel.Exchange
+import org.apache.camel.ValidationException
 import org.apache.camel.builder.FlexibleAggregationStrategy
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
+import org.apache.camel.http.base.HttpOperationFailedException
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 
@@ -135,10 +137,25 @@ class AggregatedDataProfileRouteBuilder(
             val sanitizedName = aggregatedDataProfile.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
             "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
         }
-
+        // Error section
         onException(AccessDeniedException::class.java)
-            .handled(true)
-            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
+            .errorResponse(status = HttpStatus.UNAUTHORIZED)
+
+        onException(ValidationException::class.java, IllegalArgumentException::class.java)
+            .errorResponse(status = HttpStatus.BAD_REQUEST)
+
+        onException(HttpOperationFailedException::class.java)
+            .errorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR,
+                exposeMessage = false,
+            )
+
+        // Global
+        onException(Exception::class.java)
+            .errorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR,
+                exposeMessage = false,
+            )
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")

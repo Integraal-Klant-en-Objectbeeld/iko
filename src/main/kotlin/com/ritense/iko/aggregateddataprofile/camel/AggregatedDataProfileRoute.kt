@@ -2,8 +2,8 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
+import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.http.HttpStatus
 
@@ -13,10 +13,7 @@ class AggregatedDataProfileRoute(
 ) : RouteBuilder() {
     override fun configure() {
         onException(AggregatedDataProfileNotFound::class.java)
-            .handled(true)
-            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.NOT_FOUND.value()))
-            .setBody(simple("\${exception.message}"))
-            .marshal().json()
+            .errorResponse(status = HttpStatus.NOT_FOUND)
 
         rest("/aggregated-data-profiles")
             .get("/{iko_profile}/{iko_id}")
@@ -30,6 +27,7 @@ class AggregatedDataProfileRoute(
             .routeId("aggregated-data-profile-rest-continuation")
             .setVariable("id", header("iko_id"))
             .setVariable("profile", header("iko_profile"))
+            .setVariable("correlationId", simple("\${exchangeId}"))
             .removeHeaders("iko_*", "iko_trace_id")
             .process { exchange ->
                 val aggregatedDataProfileName = exchange.getVariable("profile", String::class.java)
