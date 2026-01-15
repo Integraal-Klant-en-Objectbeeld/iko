@@ -15,7 +15,7 @@ object MapAggregator : AggregationStrategy {
 
         val oldBody = oldExchange.getIn().getBody(MutableMap::class.java)
         val newBody = newExchange.getIn().body
-        oldBody.toMutableMap().put(newExchange.getVariable("relationPropertyName"), newBody)
+        oldBody.toMutableMap()[newExchange.getVariable("relationPropertyName")] = newBody
         return oldExchange
     }
 }
