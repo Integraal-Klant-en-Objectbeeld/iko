@@ -50,7 +50,7 @@ body {
     }
 }
 
-#selected-relation{
+#selected-relation {
     background-color: white;
 }
 
@@ -128,7 +128,7 @@ cds-breadcrumb-link {
     color: var(--primary-color);
 }
 
-label{
+label {
     color: var(--cds-text-secondary, #525252);
     display: inline-block;
     font-size: var(--cds-label-01-font-size, .75rem);
@@ -149,7 +149,7 @@ label{
     --cds-focus: var(--primary-color);
     --cds-border-interactive: var(--primary-color);
     --cds-link-primary: var(--primary-color);
-    --cds-link-primary-hover:var(--primary-color-hover);
+    --cds-link-primary-hover: var(--primary-color-hover);
 
     --cds-button-primary: var(--primary-color);
     --cds-button-primary-hover: var(--primary-color-hover);
@@ -286,7 +286,7 @@ cds-tile {
     }
 }
 
-.form-grid{
+.form-grid {
     display: flex;
     gap: 2rem;
 
@@ -395,6 +395,7 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 }
 
 /* Modal */
+
 cds-form-group {
     display: flex;
     flex-direction: column;
@@ -406,7 +407,12 @@ cds-form-item {
     overflow: hidden;
 }
 
+.form-column > cds-form-item:not(:last-child) {
+    margin-bottom: 2rem;
+}
+
 /* Forms */
+
 .form-row {
     display: flex;
     flex-wrap: wrap;

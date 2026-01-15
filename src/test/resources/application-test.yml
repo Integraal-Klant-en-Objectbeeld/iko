@@ -11,10 +11,10 @@ spring:
         name: IKO (Test)
     data:
         redis:
-            host: iko-redis-test
-            port: 6379
+            host: localhost
+            port: 16379
     datasource:
-        url: jdbc:postgresql://localhost:5432/iko-db
+        url: jdbc:postgresql://localhost:15432/iko-db
         username: iko-admin
         password: secret
     security:

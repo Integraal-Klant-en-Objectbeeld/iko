@@ -17,7 +17,7 @@ data class EditRelationForm(
     val sourceToEndpointMapping: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
-    val transform: String,
+    val resultTransform: String,
     @field:NotBlank(message = "Please provide a property name.")
     override val propertyName: String,
     val connectorInstanceId: UUID,
@@ -31,8 +31,8 @@ data class EditRelationForm(
             aggregatedDataProfileId = it.aggregatedDataProfile.id,
             id = it.id,
             sourceId = it.sourceId ?: it.aggregatedDataProfile.id,
-            sourceToEndpointMapping = it.sourceToEndpointMapping.expression,
-            transform = it.transform.expression,
+            sourceToEndpointMapping = it.endpointTransform.expression,
+            resultTransform = it.resultTransform.expression,
             connectorInstanceId = it.connectorInstanceId,
             connectorEndpointId = it.connectorEndpointId,
             propertyName = it.propertyName,

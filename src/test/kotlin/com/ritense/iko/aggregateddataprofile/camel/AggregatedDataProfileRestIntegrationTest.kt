@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.request
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.Base64
 
 @AutoConfigureMockMvc
 internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() {
@@ -20,25 +21,52 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @Autowired
     private lateinit var mockMvc: MockMvc
 
+    @Autowired
+    private lateinit var objectMapper: com.fasterxml.jackson.databind.ObjectMapper
+
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When a valid ADP is requested via REST then it should route to the dynamic route`() {
         // Act & Assert
-        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test/externalId"))
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/pets?id=externalId"))
             .andExpect(request().asyncStarted()) // Verify it started async if applicable
             .andReturn()
 
         mockMvc.perform(asyncDispatch(mvcResult))
             .andDo(print()) // logs final response
             .andExpect(status().isOk)
-            .andExpect(content().json("""{"id": 1, "name": "Mocked Pet"}"""))
+            .andExpect(
+                content().json(
+                    """[
+                        "Bello",
+                        "Minoes",
+                        "Pip",
+                        "Binky",
+                        "Pukkie",
+                        "Tijger",
+                        "Snuffie",
+                        "Pluis",
+                        "Blikkie",
+                        "Dikkie"
+                    ]""",
+                ),
+            )
     }
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
-    fun `When a valid ADP with relations is requested via REST then it should aggregate the data`() {
+    fun `When the pets ADP is requested via REST then it should aggregate the data`() {
         // Act & Assert
-        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-with-relations/externalId"))
+        val containerParam = ContainerParam(
+            containerId = "pets",
+            filters = mapOf("id" to "4"),
+        )
+        val encodedContainerParam = encodeContainerParam(containerParam)
+
+        val mvcResult = mockMvc.perform(
+            get("/aggregated-data-profiles/pet-household")
+                .queryParam("containerParam", encodedContainerParam),
+        )
             .andExpect(request().asyncStarted())
             .andReturn()
 
@@ -47,15 +75,13 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
             .andExpect(status().isOk)
             .andExpect(
                 content().json(
-                    """
-                {
-                  "left": {"id": 1, "name": "Mocked Pet"},
-                  "right": {
-                    "pet1": {"id": 1, "name": "Mocked Pet"},
-                    "pet2": {"id": 1, "name": "Mocked Pet"}
-                  }
-                }
-                    """.trimIndent(),
+                    """{
+                        "owner": "Eva",
+                        "pets": [
+                            "Binky",
+                            "Blikkie"
+                        ]
+                    }""",
                 ),
             )
     }
@@ -64,7 +90,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When one relation fails then the API should return 500 Internal Server Error`() {
         // Act & Assert
-        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-failing-relation/externalId"))
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-failing-relation?id=externalId"))
             .andExpect(request().asyncStarted())
             .andReturn()
 
@@ -78,7 +104,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When a non-existing ADP is requested via REST then it should return an error`() {
         // Act & Assert
-        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing/externalId"))
+        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing"))
             .andExpect(request().asyncStarted()) // Verify it started async if applicable
             .andReturn()
 
@@ -86,5 +112,10 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
             .andDo(print()) // logs final response
             .andExpect(status().isNotFound)
             .andExpect(content().string(containsString("ADP with name: non-existing, not found")))
+    }
+
+    private fun encodeContainerParam(containerParam: ContainerParam): String {
+        val json = objectMapper.writeValueAsString(containerParam)
+        return Base64.getEncoder().encodeToString(json.toByteArray(Charsets.UTF_8))
     }
 }

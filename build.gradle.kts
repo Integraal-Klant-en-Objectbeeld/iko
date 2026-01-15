@@ -1,3 +1,5 @@
+import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.os.Os.FAMILY_MAC
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
@@ -102,6 +104,7 @@ dependencies {
     // Kotlin
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.reactor)
+    implementation(libs.jackson.module.kotlin)
 
     // Testing
     testImplementation(libs.spring.boot.starter.test) {
@@ -161,6 +164,12 @@ dockerCompose {
         removeVolumes.set(true)
         noRecreate.set(true)
         removeContainers.set(true)
+
+        if (Os.isFamily(FAMILY_MAC)) {
+            println("Configure docker compose plugin for macOs")
+            executable = "/usr/local/bin/docker-compose"
+            dockerExecutable = "/usr/local/bin/docker"
+        }
     }
 }
 
@@ -169,6 +178,7 @@ sonar {
         property("sonar.projectKey", "iko")
         property("sonar.organization", "integraal-klant-en-objectbeeld")
         property("sonar.token", System.getenv("SONAR_TOKEN"))
+        property("sonar.exclusions", "com/ritense/iko/mvc/**/*") // TODO: decide on testing strategy for mvc code
         property(
             "sonar.coverage.jacoco.xmlReportPaths",
             "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml,${layout.buildDirectory.get()}/reports/jacoco/integrationTest/jacocoTestReport.xml",

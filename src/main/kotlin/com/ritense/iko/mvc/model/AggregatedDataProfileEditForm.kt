@@ -18,13 +18,16 @@ data class AggregatedDataProfileEditForm(
         message = "Name may only contain letters, digits, underscores, and hyphens.",
     )
     override val name: String,
-    @field:ValidTransform
-    @field:NotBlank(message = "Please provide a transform expression.")
-    val transform: String,
     @field:NotBlank(message = "Please provide a role.")
     val role: String? = null,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
+    @field:ValidTransform
+    @field:NotBlank(message = "Please provide a transform expression.")
+    val endpointTransform: String,
+    @field:ValidTransform
+    @field:NotBlank(message = "Please provide a transform expression.")
+    val resultTransform: String,
     val cacheEnabled: Boolean,
     @field:Min(value = 0)
     val cacheTimeToLive: Int,
@@ -35,9 +38,10 @@ data class AggregatedDataProfileEditForm(
             id = aggregatedDataProfile.id,
             name = aggregatedDataProfile.name,
             role = aggregatedDataProfile.role,
-            transform = aggregatedDataProfile.transform.expression,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
             connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
+            endpointTransform = aggregatedDataProfile.endpointTransform.expression,
+            resultTransform = aggregatedDataProfile.resultTransform.expression,
             cacheEnabled = aggregatedDataProfile.aggregatedDataProfileCacheSetting.enabled,
             cacheTimeToLive = aggregatedDataProfile.aggregatedDataProfileCacheSetting.timeToLive,
         )

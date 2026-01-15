@@ -3,6 +3,7 @@ package com.ritense.iko.aggregateddataprofile.autoconfiguration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
+import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -17,7 +18,6 @@ class AggregatedDataProfileConfiguration(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val objectMapper: ObjectMapper,
     private val cacheProcessor: CacheProcessor,
 ) {
     init {
@@ -35,8 +35,15 @@ class AggregatedDataProfileConfiguration(
     }
 
     @Bean
-    fun aggregatedDataProfileRoute() = AggregatedDataProfileRoute(
+    fun aggregatedDataProfileRoute(
+        containerParamsProcessor: ContainerParamsProcessor,
+    ) = AggregatedDataProfileRoute(
         aggregatedDataProfileRepository,
-        objectMapper,
+        containerParamsProcessor,
     )
+
+    @Bean
+    fun containerParamsProcessor(
+        objectMapper: ObjectMapper,
+    ): ContainerParamsProcessor = ContainerParamsProcessor(objectMapper)
 }

@@ -7,13 +7,13 @@ services:
             - POSTGRES_PASSWORD=secret
             - POSTGRES_USER=iko-admin
         ports:
-            - "5432:5432"
+            - "15432:5432"
 
     # Redis cache for the IKO application
     iko-redis-test:
         image: redis:8.4.0-alpine
         ports:
-            - "6379:6379"
+            - "16379:6379"
         container_name: iko-redis-test
         healthcheck:
             test: [ "CMD", "redis-cli", "ping" ]

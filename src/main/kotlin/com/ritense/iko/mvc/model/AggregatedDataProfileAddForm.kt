@@ -19,7 +19,10 @@ data class AggregatedDataProfileAddForm(
     override val name: String,
     @field:ValidTransform
     @field:NotBlank(message = "Please provide a transform expression.")
-    val transform: String,
+    val endpointTransform: String,
+    @field:ValidTransform
+    @field:NotBlank(message = "Please provide a transform expression.")
+    val resultTransform: String,
     @field:NotBlank(message = "Please provide a role.")
     val role: String,
     val connectorInstanceId: UUID,
@@ -30,7 +33,8 @@ data class AggregatedDataProfileAddForm(
         fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileAddForm(
             name = aggregatedDataProfile.name,
             role = aggregatedDataProfile.role!!,
-            transform = aggregatedDataProfile.transform.expression,
+            endpointTransform = aggregatedDataProfile.endpointTransform.expression,
+            resultTransform = aggregatedDataProfile.resultTransform.expression,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
             connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
         )

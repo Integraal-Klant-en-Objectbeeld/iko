@@ -14,18 +14,46 @@
         </cds-tabs>
         <div style="margin-top: 1rem;">
             <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" hidden="">
-                <cds-form-group id="form-group-test" name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
-                    <cds-stack gap="7">
+                <cds-form-group id="form-group-test" name="form-group" class="cds-theme-zone-white"
+                                data-carbon-theme="white">
+                    <div class="form-column">
 
                         <input type="hidden" id="name" name="name" th:value="${form.name}">
-                        <input type="hidden" id="transform" name="transform" value=".">
+                        <input type="hidden" id="resultTransform" name="resultTransform" value=".">
 
-                        <cds-text-input id="testId"
-                                        name="testId"
-                                        label="Id for testing the ADP"
-                                        th:value="${testId}"
+                        <label for="endpointTransformContext">
+                            <cds-toggletip alignment="right" alignment-axis-offset="0">
+                                Endpoint Transform Context for testing the ADP
+                                <p slot="body-text">
+                                    Context passed to endpoint transformations for the ADP root route and when
+                                    mapping relation inputs. <br>
+                                    idParam: optional identifier header derived from incoming ADP requests. <br>
+                                    sortParams: containerId → Pageable pairs that capture requested
+                                    paging/sorting for each container. <br>
+                                    filterParams: containerId → filter map holding container-specific query
+                                    filters submitted by the client.
+                                </p>
+                            </cds-toggletip>
+                        </label>
+                        <cds-form-item
+                                th:with="defaultEndpointTransformContext=${'{&quot;idParam&quot;: &quot;&quot;, &quot;sortParams&quot;: {}, &quot;filterParams&quot;: {}}'}"
                         >
-                        </cds-text-input>
+                            <textarea id="endpointTransformContext"
+                                      name="endpointTransformContext"
+                                      hidden
+                                      th:value="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}">
+                            </textarea>
+
+                            <!-- Monaco container for Endpoint Transform Context -->
+                            <div id="endpointTransformContextEditor"
+                                 data-monaco
+                                 data-language="json"
+                                 data-textarea="#endpointTransformContext"
+                                 th:data-initial="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}"
+                                 data-theme="lightgray-theme"
+                                 class="monaco-editor-style">
+                            </div>
+                        </cds-form-item>
 
                         <cds-form-item>
                             <label for="testResult">Result</label>
@@ -47,30 +75,30 @@
                             </div>
 
                             <cds-button
-                                kind="primary"
-                                hx-post="/admin/aggregated-data-profiles/test"
-                                hx-target="#profile-debug"
-                                hx-swap="outerHTML"
-                                hx-include="[id='testId'], [id='transform'], [id='name']"
-                                hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
-                                style="margin-top: 1rem;">
+                                    kind="primary"
+                                    hx-post="/admin/aggregated-data-profiles/debug"
+                                    hx-target="#profile-debug"
+                                    hx-swap="outerHTML"
+                                    hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name']"
+                                    hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
+                                    style="margin-top: 1rem;">
                                 Get results
                             </cds-button>
                         </cds-form-item>
 
+                        <label for="query">Transform</label>
                         <cds-form-item>
-                            <label for="query">Transform</label>
                             <textarea id="query"
                                       name="query"
                                       hidden
-                                      th:attr="value=${form.transform}">
+                                      th:attr="value=${form.resultTransform}">
                             </textarea>
 
                             <div id="query-editor"
                                  data-monaco
                                  data-language="jq"
                                  data-textarea="#query"
-                                 th:data-initial="${form.transform}"
+                                 th:data-initial="${form.resultTransform}"
                                  data-theme="lightgray-theme"
                                  class="monaco-editor-style">
                             </div>
@@ -100,8 +128,11 @@
                         <script type="application/javascript">
                             // Helper: pretty-print anything
                             function pretty(v) {
-                                try { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); }
-                                catch { return String(v); }
+                                try {
+                                    return typeof v === 'string' ? v : JSON.stringify(v, null, 2);
+                                } catch {
+                                    return String(v);
+                                }
                             }
 
                             function getMonacoEditor(selector) {
@@ -155,7 +186,7 @@
                                 }
                             });
                         </script>
-                    </cds-stack>
+                    </div>
                 </cds-form-group>
             </div>
             <div id="panel-trace" role="tabpanel" aria-labelledby="tab-trace" hidden="">

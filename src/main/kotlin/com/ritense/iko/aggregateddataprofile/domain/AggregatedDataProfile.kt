@@ -24,12 +24,19 @@ import java.util.UUID
 class AggregatedDataProfile(
     @Id
     val id: UUID,
+
     @Column(name = "name", unique = true)
     var name: String,
+
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
+
     @Column(name = "connector_endpoint_id")
     var connectorEndpointId: UUID,
+
+    @Embedded
+    var endpointTransform: EndpointTransform,
+
     @OneToMany(
         cascade = [(CascadeType.ALL)],
         fetch = FetchType.EAGER,
@@ -37,10 +44,13 @@ class AggregatedDataProfile(
         mappedBy = "aggregatedDataProfile",
     )
     var relations: MutableList<Relation> = mutableListOf(),
+
     @Embedded
-    var transform: Transform,
+    var resultTransform: Transform,
+
     @Column(name = "role")
     var role: String? = null,
+
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
@@ -55,7 +65,8 @@ class AggregatedDataProfile(
         }
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
-        this.transform = Transform(request.transform)
+        this.endpointTransform = EndpointTransform(request.endpointTransform)
+        this.resultTransform = Transform(request.resultTransform)
         this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
             enabled = request.cacheEnabled,
             timeToLive = request.cacheTimeToLive,
@@ -67,8 +78,8 @@ class AggregatedDataProfile(
             Relation(
                 aggregatedDataProfile = this,
                 sourceId = form.sourceId,
-                transform = Transform(form.transform),
-                sourceToEndpointMapping = EndpointTransform(form.sourceToEndpointMapping),
+                resultTransform = Transform(form.resultTransform),
+                endpointTransform = RelationEndpointTransform(form.sourceToEndpointMapping),
                 connectorEndpointId = form.connectorEndpointId,
                 connectorInstanceId = form.connectorInstanceId,
                 propertyName = form.propertyName,
@@ -84,8 +95,8 @@ class AggregatedDataProfile(
                 id = form.id,
                 aggregatedDataProfile = this,
                 sourceId = form.sourceId,
-                transform = Transform(form.transform),
-                sourceToEndpointMapping = EndpointTransform(form.sourceToEndpointMapping),
+                resultTransform = Transform(form.resultTransform),
+                endpointTransform = RelationEndpointTransform(form.sourceToEndpointMapping),
                 connectorInstanceId = form.connectorInstanceId,
                 connectorEndpointId = form.connectorEndpointId,
                 propertyName = form.propertyName,
@@ -122,14 +133,15 @@ class AggregatedDataProfile(
         fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile {
             val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
             val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
-            val role = if (form.role.isNullOrBlank()) defaultRole else form.role
+            val role = form.role.ifBlank { defaultRole }
             return AggregatedDataProfile(
                 id = UUID.randomUUID(),
                 name = form.name,
                 role = role,
-                transform = Transform(checkNotNull(form.transform) { " Transform is required. " }),
-                connectorEndpointId = checkNotNull(form.connectorEndpointId) { " Connector endpoint is required. " },
-                connectorInstanceId = checkNotNull(form.connectorInstanceId) { " Connector instance is required. " },
+                connectorInstanceId = form.connectorInstanceId,
+                connectorEndpointId = form.connectorEndpointId,
+                endpointTransform = EndpointTransform(form.endpointTransform),
+                resultTransform = Transform(form.resultTransform),
                 aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             )
         }
