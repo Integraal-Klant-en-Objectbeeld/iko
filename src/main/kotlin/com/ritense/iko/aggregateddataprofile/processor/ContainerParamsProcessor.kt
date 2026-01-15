@@ -7,6 +7,7 @@ import com.ritense.iko.aggregateddataprofile.camel.ContainerParam
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
 import org.apache.camel.Exchange
 import org.springframework.data.domain.Pageable
 import kotlin.io.encoding.Base64
@@ -18,33 +19,15 @@ class ContainerParamsProcessor(
     fun process(exchange: Exchange) {
         with(exchange.`in`) {
             val idParam: String? = getHeader(ADP_ID_PARAM_HEADER, String::class.java)
-            val containerParams: List<ContainerParam> = when (
-                val paramHeader = getHeader(ADP_CONTAINER_PARAM_HEADER)
-            ) {
-                is List<*> -> {
-                    paramHeader
-                        .mapNotNull {
-                            runCatching {
-                                it as String
-                                String(Base64.decode(it), Charsets.UTF_8)
-                            }.getOrNull()
-                        }.map {
-                            objectMapper.readValue(it)
-                        }
-                }
-
-                is String -> {
-                    runCatching<List<ContainerParam>> {
-                        objectMapper.readValue(
-                            src = Base64.decode(paramHeader),
-                        )
-                    }.getOrDefault(
-                        defaultValue = emptyList(),
-                    )
-                }
-
-                else -> emptyList()
-            }
+            val decodedContainerParamsHeader: List<String> =
+                decodeContainerParams(
+                    header = getHeader(ADP_CONTAINER_PARAM_HEADER),
+                )
+            val containerParams =
+                runCatching<List<ContainerParam>> {
+                    decodedContainerParamsHeader.map { objectMapper.readValue(it) }
+                }.getOrNull()
+                    ?: throw AggregatedDataProfileQueryParametersError("containerParam")
             val endpointTransformContext: JsonNode = objectMapper
                 .valueToTree(
                     mapOf(
@@ -64,5 +47,29 @@ class ContainerParamsProcessor(
             removeHeader(ADP_ID_PARAM_HEADER)
             removeHeader(ADP_CONTAINER_PARAM_HEADER)
         }
+    }
+
+    private fun decodeContainerParams(header: Any): List<String> = when (header) {
+        is List<*> -> {
+            header
+                .map {
+                    runCatching {
+                        it as String
+                        String(Base64.decode(it), Charsets.UTF_8)
+                    }.getOrNull()
+                        ?: throw AggregatedDataProfileQueryParametersError("containerParam")
+                }
+        }
+
+        is String -> {
+            runCatching {
+                listOf(
+                    String(Base64.decode(header), Charsets.UTF_8),
+                )
+            }.getOrNull()
+                ?: throw AggregatedDataProfileQueryParametersError("containerParam")
+        }
+
+        else -> emptyList()
     }
 }

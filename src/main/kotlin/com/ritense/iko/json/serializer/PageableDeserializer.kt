@@ -26,18 +26,18 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
         if (!node.isObject) {
             return Pageable.unpaged()
         }
-        val pageNumber = node.get("page")?.intValue()
-            ?: node.get("pageNumber")?.intValue()
-            ?: node.get("number")?.intValue()
+        val pageNumber = node["page"]?.intValue()
+            ?: node["pageNumber"]?.intValue()
+            ?: node["number"]?.intValue()
             ?: 0
-        val sizeValue = node.get("size")?.intValue()
-            ?: node.get("pageSize")?.intValue()
-            ?: node.get("limit")?.intValue()
+        val sizeValue = node["size"]?.intValue()
+            ?: node["pageSize"]?.intValue()
+            ?: node["limit"]?.intValue()
             ?: -1
         if (sizeValue < 0) {
             return Pageable.unpaged()
         }
-        val sort = parseSortNode(node.get("sort"))
+        val sort = parseSortNode(node["sort"])
         return PageRequest.of(pageNumber, sizeValue, sort)
     }
 
@@ -88,13 +88,13 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
     }
 
     private fun parseOrder(node: JsonNode): Sort.Order? {
-        val propertyNode = node.get("property")
+        val propertyNode = node["property"]
         if (propertyNode != null && propertyNode.isTextual) {
-            var order = Sort.Order(parseDirection(node.get("direction")?.asText()), propertyNode.asText())
-            if (node.get("ignoreCase")?.asBoolean() == true) {
+            var order = Sort.Order(parseDirection(node["direction"]?.asText()), propertyNode.asText())
+            if (node["ignoreCase"]?.asBoolean() == true) {
                 order = order.ignoreCase()
             }
-            node.get("nullHandling")?.asText()?.let {
+            node["nullHandling"]?.asText()?.let {
                 order = order.with(parseNullHandling(it))
             }
             return order
@@ -105,7 +105,7 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
             if (field == "direction" || field == "ignoreCase" || field == "nullHandling" || field == "property") {
                 continue
             }
-            val value = node.get(field)
+            val value = node[field]
             if (value != null && value.isTextual) {
                 return Sort.Order(parseDirection(value.asText()), field)
             }
