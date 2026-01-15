@@ -34,7 +34,7 @@ class ContainerParamsProcessor(
                         "idParam" to idParam,
                         "sortParams" to
                             containerParams
-                                .filter { !Pageable.unpaged().equals(it.pageable) }
+                                .filter { it.pageable != Pageable.unpaged() }
                                 .associate { it.containerId to it.pageable },
                         "filterParams" to
                             containerParams
