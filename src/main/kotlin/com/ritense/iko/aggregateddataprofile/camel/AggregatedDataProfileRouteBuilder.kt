@@ -147,7 +147,7 @@ class AggregatedDataProfileRouteBuilder(
                 exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, HttpStatus.INTERNAL_SERVER_ERROR.value())
                 exchange.getIn().body = mapOf(
                     "error" to "Internal Server Error",
-                    "traceId" to traceId
+                    "traceId" to traceId,
                 )
             }
             .marshal().json()
