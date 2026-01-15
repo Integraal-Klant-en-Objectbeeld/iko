@@ -49,10 +49,35 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
+    fun `When a valid ADP with relations is requested via REST then it should aggregate the data`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-with-relations/externalId"))
+            .andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andExpect(status().isOk)
+            .andExpect(
+                content().json(
+                    """
+                {
+                  "left": {"id": 1, "name": "Mocked Pet"},
+                  "right": {
+                    "pet1": {"id": 1, "name": "Mocked Pet"},
+                    "pet2": {"id": 1, "name": "Mocked Pet"}
+                  }
+                }
+                    """.trimIndent(),
+                ),
+            )
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `When a non-existing ADP is requested via REST then it should return an error`() {
         // Act & Assert
-        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing"))
-            .andDo(print()) // logs async start response
+        val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing/externalId"))
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
             .andReturn()
 
         mockMvc.perform(asyncDispatch(result))

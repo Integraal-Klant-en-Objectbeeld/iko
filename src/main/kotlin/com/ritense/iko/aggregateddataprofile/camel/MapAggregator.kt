@@ -8,15 +8,14 @@ object MapAggregator : AggregationStrategy {
         oldExchange: Exchange?,
         newExchange: Exchange,
     ): Exchange {
-        val childRelationKey = newExchange.getVariable("relationPropertyName")
         if (oldExchange == null) {
-            newExchange.getIn().body = mutableMapOf(childRelationKey to newExchange.getIn().body)
+            newExchange.getIn().body = mutableMapOf(newExchange.getVariable("relationPropertyName") to newExchange.getIn().body)
             return newExchange
         }
 
-        val oldBody = oldExchange.getIn().getBody(Map::class.java).toMutableMap()
+        val oldBody = oldExchange.getIn().getBody(MutableMap::class.java)
         val newBody = newExchange.getIn().body
-        oldBody[childRelationKey] = newBody
+        oldBody.toMutableMap().put(newExchange.getVariable("relationPropertyName"), newBody)
         return oldExchange
     }
 }
