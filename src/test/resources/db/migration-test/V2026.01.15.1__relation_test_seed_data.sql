@@ -11,10 +11,10 @@ INSERT INTO aggregated_data_profile (
     cache_ttl
 )
 VALUES (
-    '55555555-5555-5555-5555-555555555555',
+    '1a3c5e7f-9b2d-4c6e-8f1a-3c5e7f9b2d4f',
     'pet-household',
-    '22222222-2222-2222-2222-222222222222',
-    '33333333-3333-3333-3333-333333333333',
+    '7c4a2e5b-1f9d-4b3a-8c2e-6f1b3a7d9c0e',
+    '2b5f7c9d-4a1e-4d3b-9c2f-5e7a1b3d6f8c',
     '(if .filterParams?.pets?.id? then {"id": .filterParams.pets.id} else {} end)',
     '.right',
     'ROLE_ADMIN',
@@ -23,9 +23,9 @@ VALUES (
 );
 
 INSERT INTO connector_endpoint (id, name, connector_id, operation)
-VALUES ('88888888-8888-8888-8888-888888888888', 'Get Owners', '11111111-1111-1111-1111-111111111111', 'GetOwners');
+VALUES ('3c6f8a1b-5d7e-4f2a-9b3c-6f8a1b5d7e9c', 'Get Owners', '9f3b9c7a-2d7c-4a1f-8f3d-1b9a2c7d4e5f', 'GetOwners');
 
 INSERT INTO relation (id, aggregated_data_profile_id, property_name, source_id, source_to_endpoint_mapping, connector_instance_id, connector_endpoint_id, transform, cache_enabled, cache_ttl)
 VALUES
-    ('66666666-6666-6666-6666-666666666666', '55555555-5555-5555-5555-555555555555', 'owner', '55555555-5555-5555-5555-555555555555', '{"id": .source.ownerId}', '22222222-2222-2222-2222-222222222222', '88888888-8888-8888-8888-888888888888', '.[0].name', false, 0),
-    ('77777777-7777-7777-7777-777777777777', '55555555-5555-5555-5555-555555555555', 'pets', '55555555-5555-5555-5555-555555555555', '{"ownerId": .source.ownerId, "ordering": .sortParams.pets.sort | if .direction == "DESC" then "-" + .property else .property end}', '22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333', 'map(.name)', false, 0);
+    ('4d7e9f1a-3b5c-4d6e-8f7a-9b1c3d5e7f8a', '1a3c5e7f-9b2d-4c6e-8f1a-3c5e7f9b2d4f', 'owner', '1a3c5e7f-9b2d-4c6e-8f1a-3c5e7f9b2d4f', '{"id": .source.ownerId}', '7c4a2e5b-1f9d-4b3a-8c2e-6f1b3a7d9c0e', '3c6f8a1b-5d7e-4f2a-9b3c-6f8a1b5d7e9c', '.[0].name', false, 0),
+    ('5e8f1a2b-6c7d-4e8f-9a1b-2c3d4e5f6a7b', '1a3c5e7f-9b2d-4c6e-8f1a-3c5e7f9b2d4f', 'pets', '1a3c5e7f-9b2d-4c6e-8f1a-3c5e7f9b2d4f', '{"ownerId": .source.ownerId, "ordering": .sortParams.pets.sort | if .direction == "DESC" then "-" + .property else .property end}', '7c4a2e5b-1f9d-4b3a-8c2e-6f1b3a7d9c0e', '2b5f7c9d-4a1e-4d3b-9c2f-5e7a1b3d6f8c', 'map(.name)', false, 0);

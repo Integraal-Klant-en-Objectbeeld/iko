@@ -6,6 +6,7 @@ object IkoConstants {
         const val ADP_CONTAINER_PARAM_HEADER = "containerParam"
         const val ADP_ID_PARAM_HEADER = "id"
         const val ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER = "adp_endpointTransformContext"
+        const val IKO_CORRELATION_ID_VARIABLE = "iko_correlation_id"
         const val IKO_TRACE_ID_HEADER = "iko_trace_id"
     }
     object Variables {

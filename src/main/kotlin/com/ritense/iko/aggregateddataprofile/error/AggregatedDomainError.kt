@@ -1,5 +1,6 @@
 package com.ritense.iko.aggregateddataprofile.error
 
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_CORRELATION_ID_VARIABLE
 import org.apache.camel.Exchange
 import org.apache.camel.model.OnExceptionDefinition
 import org.apache.camel.model.ProcessorDefinition
@@ -39,11 +40,11 @@ fun errorResponseProcessor(
 ): (Exchange) -> Unit = { exchange ->
     val ex = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception::class.java)
     // Retrieve the correlation ID from variables
-    val correlationId = exchange.getVariable("correlationId", String::class.java).orEmpty()
+    val correlationId = exchange.getVariable(IKO_CORRELATION_ID_VARIABLE, String::class.java).orEmpty()
     exchange.message.setHeader("X-Correlation-Id", correlationId)
     exchange.message.setHeader(Exchange.HTTP_RESPONSE_CODE, status.value())
     exchange.message.body = mapOf(
         "message" to if (exposeMessage) ex?.message else "Unexpected error",
-        "correlationId" to correlationId,
+        IKO_CORRELATION_ID_VARIABLE to correlationId,
     )
 }

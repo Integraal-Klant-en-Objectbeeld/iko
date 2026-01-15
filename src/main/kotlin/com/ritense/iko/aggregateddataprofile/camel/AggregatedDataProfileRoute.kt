@@ -4,11 +4,12 @@ import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_CON
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.IKO_CORRELATION_ID_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
-import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.error.errorResponse
+import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.apache.camel.Exchange
 import org.apache.camel.builder.RouteBuilder
@@ -59,7 +60,7 @@ class AggregatedDataProfileRoute(
 
         from("direct:aggregated_data_profile_rest_continuation")
             .routeId("aggregated-data-profile-rest-continuation")
-            .setVariable("correlationId", simple("\${exchangeId}"))
+            .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
             .setVariable("profile", header(ADP_PROFILE_NAME_PARAM_HEADER))
             .setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
             .removeHeaders("adp_*")

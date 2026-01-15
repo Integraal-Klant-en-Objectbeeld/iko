@@ -90,7 +90,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @WithMockUser(roles = ["ADMIN"])
     fun `When one relation fails then the API should return 500 Internal Server Error`() {
         // Act & Assert
-        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-failing-relation/externalId"))
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-failing-relation?id=externalId"))
             .andExpect(request().asyncStarted())
             .andReturn()
 

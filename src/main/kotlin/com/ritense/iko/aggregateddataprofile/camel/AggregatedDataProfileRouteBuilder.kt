@@ -141,8 +141,6 @@ class AggregatedDataProfileRouteBuilder(
     }
 
     private fun buildRelationRoute(currentRelation: Relation) {
-        camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
-
         val relations = currentRelation.aggregatedDataProfile.relationsOf(currentRelation.id)
         val connectorInstance = connectorInstanceRepository.findById(currentRelation.connectorInstanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
