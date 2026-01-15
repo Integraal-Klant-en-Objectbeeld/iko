@@ -223,6 +223,44 @@ class CustomSerializersTest {
     }
 
     @Test
+    fun `deserializes query string with pageNumber and pageSize keys`() {
+        val json = mapper.writeValueAsString("pageNumber=6&pageSize=12")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(6)
+        assertThat(pageable.pageSize).isEqualTo(12)
+    }
+
+    @Test
+    fun `deserializes query string with number and size keys`() {
+        val json = mapper.writeValueAsString("number=4&size=9")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(4)
+        assertThat(pageable.pageSize).isEqualTo(9)
+    }
+
+    @Test
+    fun `deserializes query string with invalid size as unpaged`() {
+        val json = mapper.writeValueAsString("page=1&size=-1")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.isPaged).isFalse()
+    }
+
+    @Test
+    fun `deserializes query string without size as unpaged`() {
+        val json = mapper.writeValueAsString("page=2")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.isPaged).isFalse()
+    }
+
+    @Test
     fun `deserializes invalid pageable to unpaged`() {
         val pageable: Pageable = mapper.readValue("""{"pageNumber":1,"pageSize":-1}""")
 
