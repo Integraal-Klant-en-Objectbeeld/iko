@@ -39,6 +39,12 @@ paths:
           schema:
             type: integer
             minimum: 1
+        - name: ordering
+          in: query
+          required: false
+          description: Sort by pet property name, prefix with '-' for descending
+          schema:
+            type: string
       responses:
         '200':
           description: Successful operation

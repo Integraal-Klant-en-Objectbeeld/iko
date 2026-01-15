@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
@@ -137,16 +138,17 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @WithMockUser(roles = ["ADMIN"])
     fun `When the ADP is queried with ownerId filter then it returns matching pets`() {
         val uriTemplate = "/aggregated-data-profiles/pets"
-        val ownerIdFilterParam = encodeContainerParam(
+        val containerParams = encodeContainerParam(
             ContainerParam(
                 containerId = "pets",
+                pageable = Pageable.unpaged(Sort.by("name").descending()),
                 filters = mapOf("ownerId" to "5"),
             ),
         )
 
         val mvcResult = mockMvc.perform(
             get(uriTemplate)
-                .queryParam("containerParam", ownerIdFilterParam),
+                .queryParam("containerParam", containerParams),
         ).andExpect(request().asyncStarted())
             .andReturn()
 
@@ -155,8 +157,8 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
             .andExpect(
                 content().json(
                     """[
-                        "Binky",
-                        "Blikkie"
+                        "Blikkie",
+                        "Binky"
                     ]""",
                 ),
             )

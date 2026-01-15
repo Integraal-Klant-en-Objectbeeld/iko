@@ -58,7 +58,8 @@ object PetMockServer {
                                 val responsePets = pets
                                     .filter { pet -> petId == null || pet.id == petId }
                                     .filter { pet -> ownerIds.isEmpty() || pet.ownerId in ownerIds }
-                                val pagedPets = applyPagination(request, responsePets)
+                                val orderedPets = applyOrdering(request, responsePets)
+                                val pagedPets = applyPagination(request, orderedPets)
                                 val body = if (petId != null) {
                                     responsePets.firstOrNull()
                                 } else {
@@ -139,6 +140,26 @@ object PetMockServer {
         }
         val toIndex = (fromIndex + size).coerceAtMost(responsePets.size)
         return responsePets.subList(fromIndex, toIndex)
+    }
+
+    private fun applyOrdering(request: RecordedRequest, responsePets: List<Pet>): List<Pet> {
+        val ordering = request.requestUrl?.queryParameter("ordering")?.trim().orEmpty()
+        if (ordering.isEmpty()) {
+            return responsePets
+        }
+        val descending = ordering.startsWith("-")
+        val property = if (descending) ordering.substring(1) else ordering
+        val comparator = when (property) {
+            "id" -> compareBy<Pet> { it.id }
+            "name" -> compareBy<Pet> { it.name }
+            "ownerId" -> compareBy<Pet> { it.ownerId }
+            else -> null
+        } ?: return responsePets
+        return if (descending) {
+            responsePets.sortedWith(comparator.reversed())
+        } else {
+            responsePets.sortedWith(comparator)
+        }
     }
 
     private data class Pet(
