@@ -138,10 +138,10 @@ class AggregatedDataProfile(
                 id = UUID.randomUUID(),
                 name = form.name,
                 role = role,
-                connectorInstanceId = requireNotNull(form.connectorInstanceId) { "Connector instance is required." },
-                connectorEndpointId = requireNotNull(form.connectorEndpointId) { "Connector endpoint is required." },
-                endpointTransform = EndpointTransform(requireNotNull(form.endpointTransform) { "Endpoint Transform is required." }),
-                resultTransform = Transform(requireNotNull(form.resultTransform) { "Transform is required." }),
+                connectorInstanceId = form.connectorInstanceId,
+                connectorEndpointId = form.connectorEndpointId,
+                endpointTransform = EndpointTransform(form.endpointTransform),
+                resultTransform = Transform(form.resultTransform),
                 aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             )
         }
