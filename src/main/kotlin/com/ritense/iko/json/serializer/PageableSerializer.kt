@@ -8,6 +8,10 @@ import org.springframework.data.domain.Sort
 
 class PageableSerializer : JsonSerializer<Pageable>() {
     override fun serialize(value: Pageable, gen: JsonGenerator, serializers: SerializerProvider) {
+        if (!value.isPaged) {
+            gen.writeNull()
+            return
+        }
         gen.writeStartObject()
         gen.writeNumberField("pageNumber", value.pageNumber)
         gen.writeNumberField("pageSize", value.pageSize)

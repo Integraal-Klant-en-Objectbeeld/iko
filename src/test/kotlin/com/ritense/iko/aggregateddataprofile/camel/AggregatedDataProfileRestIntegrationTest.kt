@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.request
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-
 @AutoConfigureMockMvc
 internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() {
 
@@ -30,7 +29,22 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
         mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk)
-            .andExpect(content().json("""{"id": 1, "name": "Mocked Pet"}"""))
+            .andExpect(
+                content().json(
+                    """[
+                        "Bello",
+                        "Minoes",
+                        "Pip",
+                        "Binky",
+                        "Pukkie",
+                        "Tijger",
+                        "Snuffie",
+                        "Pluis",
+                        "Blikkie",
+                        "Dikkie"
+                    ]""",
+                ),
+            )
     }
 
     @Test

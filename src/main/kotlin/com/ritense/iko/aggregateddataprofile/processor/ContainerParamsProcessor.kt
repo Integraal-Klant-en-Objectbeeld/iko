@@ -49,7 +49,7 @@ class ContainerParamsProcessor(
         }
     }
 
-    private fun decodeContainerParams(header: Any): List<String> = when (header) {
+    private fun decodeContainerParams(header: Any?): List<String> = when (header) {
         is List<*> -> {
             header
                 .map {

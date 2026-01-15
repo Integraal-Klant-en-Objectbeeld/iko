@@ -29,6 +29,8 @@ class AggregatedDataProfileRouteBuilder(
 ) : RouteBuilder(camelContext) {
 
     override fun configure() {
+        camelContext.globalOptions[JacksonConstants.ENABLE_TYPE_CONVERTER] = "true"
+
         // prepare relation variables
         val level1Relations = aggregatedDataProfile.level1Relations()
 

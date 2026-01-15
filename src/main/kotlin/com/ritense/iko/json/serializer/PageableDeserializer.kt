@@ -16,6 +16,10 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
         return parsePageableNode(node)
     }
 
+    override fun getNullValue(ctxt: DeserializationContext): Pageable = Pageable.unpaged()
+
+    override fun getEmptyValue(ctxt: DeserializationContext): Pageable = Pageable.unpaged()
+
     private fun parsePageableNode(node: JsonNode?): Pageable {
         if (node == null || node.isNull) {
             return Pageable.unpaged()
