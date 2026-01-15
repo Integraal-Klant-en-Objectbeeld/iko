@@ -39,8 +39,3 @@ fun errorResponseProcessor(
         "message" to if (exposeMessage) ex?.message else "Unexpected error",
     )
 }
-
-fun errorResponseHandler(
-    status: HttpStatus,
-    exposeMessage: Boolean = true,
-): (Exchange) -> Unit = errorResponseProcessor(status, exposeMessage)
