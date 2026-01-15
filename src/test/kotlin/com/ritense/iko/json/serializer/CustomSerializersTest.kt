@@ -75,6 +75,56 @@ class CustomSerializersTest {
     }
 
     @Test
+    fun `deserializes pageNumber and pageSize keys`() {
+        val json = """{"pageNumber":9,"pageSize":50}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(9)
+        assertThat(pageable.pageSize).isEqualTo(50)
+    }
+
+    @Test
+    fun `deserializes page and pageSize mixed keys`() {
+        val json = """{"page":2,"pageSize":30}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(2)
+        assertThat(pageable.pageSize).isEqualTo(30)
+    }
+
+    @Test
+    fun `deserializes pageNumber and size mixed keys`() {
+        val json = """{"pageNumber":5,"size":12}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(5)
+        assertThat(pageable.pageSize).isEqualTo(12)
+    }
+
+    @Test
+    fun `deserializes number and size mixed keys`() {
+        val json = """{"number":3,"size":8}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(3)
+        assertThat(pageable.pageSize).isEqualTo(8)
+    }
+
+    @Test
+    fun `deserializes number and pageSize mixed keys`() {
+        val json = """{"number":4,"pageSize":9}"""
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.pageNumber).isEqualTo(4)
+        assertThat(pageable.pageSize).isEqualTo(9)
+    }
+
+    @Test
     fun `deserializes sort object with ignoreCase and nullHandling`() {
         val json = """{"pageNumber":1,"pageSize":3,"sort":{"property":"name","direction":"desc","ignoreCase":true,"nullHandling":"last"}}"""
 
@@ -112,6 +162,53 @@ class CustomSerializersTest {
         val pageable: Pageable = mapper.readValue(json)
 
         assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.ASC)
+    }
+
+    @Test
+    fun `deserializes sort string single field defaults asc`() {
+        val json = mapper.writeValueAsString("page=0&size=5&sort=name")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.ASC)
+    }
+
+    @Test
+    fun `deserializes sort string with explicit direction`() {
+        val json = mapper.writeValueAsString("page=0&size=5&sort=name,DESC")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.DESC)
+    }
+
+    @Test
+    fun `deserializes sort string with multiple pairs`() {
+        val json = mapper.writeValueAsString("page=0&size=5&sort=name,desc,ownerId,asc")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.DESC)
+        assertThat(pageable.sort.getOrderFor("ownerId")?.direction).isEqualTo(Sort.Direction.ASC)
+    }
+
+    @Test
+    fun `deserializes sort string with extra whitespace`() {
+        val json = mapper.writeValueAsString("page=0&size=5&sort= name , desc ; ownerId , ASC ")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.getOrderFor("name")?.direction).isEqualTo(Sort.Direction.DESC)
+        assertThat(pageable.sort.getOrderFor("ownerId")?.direction).isEqualTo(Sort.Direction.ASC)
+    }
+
+    @Test
+    fun `deserializes empty sort string as unsorted`() {
+        val json = mapper.writeValueAsString("page=0&size=5&sort=")
+
+        val pageable: Pageable = mapper.readValue(json)
+
+        assertThat(pageable.sort.isSorted).isFalse()
     }
 
     @Test
