@@ -236,17 +236,23 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @WithMockUser(roles = ["ADMIN"])
     fun `When the ADP is queried with ownerId filter then it returns matching pets`() {
         val uriTemplate = "/aggregated-data-profiles/pets"
-        val containerParams = encodeContainerParam(
+        val containerSortParams = encodeContainerParam(
             ContainerParam(
                 containerId = "pets",
                 pageable = Pageable.unpaged(Sort.by("name").descending()),
+            ),
+        )
+        val containerFilterParams = encodeContainerParam(
+            ContainerParam(
+                containerId = "pets",
                 filters = mapOf("ownerId" to "5"),
             ),
         )
 
         val mvcResult = mockMvc.perform(
             get(uriTemplate)
-                .queryParam("containerParam", containerParams),
+                .queryParam("containerParam", containerSortParams)
+                .queryParam("containerParam", containerFilterParams),
         ).andExpect(request().asyncStarted())
             .andReturn()
 
