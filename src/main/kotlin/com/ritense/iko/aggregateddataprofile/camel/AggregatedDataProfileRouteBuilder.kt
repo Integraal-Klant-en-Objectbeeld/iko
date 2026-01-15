@@ -140,6 +140,18 @@ class AggregatedDataProfileRouteBuilder(
             .handled(true)
             .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(HttpStatus.UNAUTHORIZED.value()))
 
+        onException(Exception::class.java)
+            .handled(true)
+            .process { exchange ->
+                val traceId = java.util.UUID.randomUUID().toString()
+                exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, HttpStatus.INTERNAL_SERVER_ERROR.value())
+                exchange.getIn().body = mapOf(
+                    "error" to "Internal Server Error",
+                    "traceId" to traceId
+                )
+            }
+            .marshal().json()
+
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
             .setVariable(

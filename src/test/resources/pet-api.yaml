@@ -40,6 +40,20 @@ paths:
       responses:
         '204':
           description: No content
+  /pet/fail:
+    get:
+      operationId: "GetPetFail"
+      summary: Get a mocked pet that fails
+      responses:
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
 components:
   schemas:
     Pet:

@@ -56,6 +56,20 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
+    fun `When one relation fails then the API should return 500 Internal Server Error with trace ID`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/test-failing-relation/externalId"))
+            .andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print())
+            .andExpect(status().isInternalServerError)
+            .andExpect(content().string(containsString("traceId")))
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `When a non-existing ADP is requested via REST then it should return an error`() {
         // Act & Assert
         val result = mockMvc.perform(get("/aggregated-data-profiles/non-existing/externalId"))

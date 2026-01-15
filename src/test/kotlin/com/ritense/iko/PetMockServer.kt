@@ -16,6 +16,10 @@ object PetMockServer {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 val path = request.path ?: ""
                 return when {
+                    path.startsWith("/api/pet/fail") -> {
+                        MockResponse().setResponseCode(500).setBody("""{"error": "Internal Server Error"}""")
+                    }
+
                     path.startsWith("/api/pet") -> {
                         when (request.method) {
                             "GET" -> MockResponse().setResponseCode(200).setBody("""{"id": 1, "name": "Mocked Pet"}""")
