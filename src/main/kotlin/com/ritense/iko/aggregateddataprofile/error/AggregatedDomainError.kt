@@ -1,5 +1,6 @@
 package com.ritense.iko.aggregateddataprofile.error
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.Exchange
 import org.apache.camel.model.OnExceptionDefinition
 import org.apache.camel.model.ProcessorDefinition
@@ -33,6 +34,7 @@ fun errorResponseProcessor(
     status: HttpStatus,
     exposeMessage: Boolean = true,
 ): (Exchange) -> Unit = { exchange ->
+    val logger = KotlinLogging.logger {}
     val ex = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception::class.java)
     // Retrieve the correlation ID from variables
     val correlationId = exchange.getVariable("correlationId", String::class.java).orEmpty()
@@ -42,4 +44,5 @@ fun errorResponseProcessor(
         "message" to if (exposeMessage) ex?.message else "Unexpected error",
         "correlationId" to correlationId,
     )
+    logger.error(ex) { "Exception with correlationId: $correlationId" }
 }
