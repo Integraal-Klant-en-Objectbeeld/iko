@@ -4,14 +4,11 @@ spring:
             - classpath:db/migration
             - classpath:db/migration-test
         placeholder-replacement: false
-    mvc:
-        async:
-            request-timeout: 120000
     application:
         name: IKO (Test)
     data:
         redis:
-            host: iko-redis-test
+            host: localhost
             port: 6379
     datasource:
         url: jdbc:postgresql://localhost:5432/iko-db
@@ -34,6 +31,7 @@ logging:
         org.apache.camel: INFO
         org.flywaydb: INFO
         com.ritense.iko: DEBUG
+        org.springframework.security: DEBUG
 
 camel:
     main:
