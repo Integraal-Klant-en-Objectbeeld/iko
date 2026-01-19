@@ -24,9 +24,9 @@ class AuthRoute : RouteBuilder() {
                         return@process
                     }
 
-                    throw AccessDeniedException("User is not authorized to perform access this route. Missing authorities: $exAuthorities")
+                    throw AccessDeniedException("User is not authorized to access this route. Missing authorities: $exAuthorities")
                 }
-                throw AccessDeniedException("User is not authorized to perform access this route")
+                throw AccessDeniedException("User is not authorized to access this route")
             }
     }
 }
