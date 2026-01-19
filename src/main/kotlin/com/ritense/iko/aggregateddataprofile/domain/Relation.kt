@@ -20,13 +20,13 @@ class Relation(
     @Column(name = "source_id")
     var sourceId: UUID? = null,
     @Embedded
-    var endpointTransform: RelationEndpointTransform = RelationEndpointTransform("{}"),
+    var endpointTransform: RelationEndpointTransform,
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
     @Column(name = "connector_endpoint_id")
     var connectorEndpointId: UUID,
     @Embedded
-    var resultTransform: Transform = Transform("."),
+    var resultTransform: Transform,
     @Embedded
     var relationCacheSettings: RelationCacheSettings,
 )

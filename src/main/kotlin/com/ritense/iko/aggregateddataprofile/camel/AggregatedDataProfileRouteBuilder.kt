@@ -6,6 +6,7 @@ import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.Relation
+import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileUnsupportedEndpointTransformResultTypeError
 import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
@@ -60,6 +61,12 @@ class AggregatedDataProfileRouteBuilder(
                 exposeMessage = false,
             )
 
+        onException(AggregatedDataProfileUnsupportedEndpointTransformResultTypeError::class.java)
+            .errorResponse(
+                status = HttpStatus.BAD_REQUEST,
+                exposeMessage = true,
+            )
+
         // Global
         onException(Exception::class.java)
             .errorResponse(
@@ -70,7 +77,7 @@ class AggregatedDataProfileRouteBuilder(
         val endpointTransformExpression = expression()
             .jq(aggregatedDataProfile.endpointTransform.expression)
             .variableName(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE)
-            .resultType(ObjectNode::class.java)
+            .resultType(JsonNode::class.java)
             .end()
 
         // profile root route entrypoint
@@ -114,11 +121,17 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, endpointTransformExpression)
             .routeDescription("[ADP Endpoint Transform]")
             .process { exchange ->
-                val endpointTransformResult: ObjectNode? =
-                    exchange.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java)
+                val endpointTransformResult: JsonNode? =
+                    exchange.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, JsonNode::class.java)
 
-                endpointTransformResult?.forEachEntry { key, value ->
-                    exchange.getIn().setHeader(key, value.asText())
+                when (endpointTransformResult) {
+                    is ObjectNode -> endpointTransformResult.forEachEntry { key, value ->
+                        exchange.getIn().setHeader(key, value.asText())
+                    }
+                    null -> return@process
+                    else -> throw AggregatedDataProfileUnsupportedEndpointTransformResultTypeError(
+                        type = endpointTransformResult::class.java.simpleName,
+                    )
                 }
             }
 

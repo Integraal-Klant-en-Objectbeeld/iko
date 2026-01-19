@@ -59,7 +59,7 @@
                     <label for="endpointTransformCodeAdd">Endpoint Transform</label>
                     <textarea id="endpointTransformCodeAdd"
                               name="endpointTransform"
-                              th:text="${form?.endpointTransform}"
+                              th:text="."
                               hidden>
                     </textarea>
 
@@ -68,7 +68,7 @@
                          data-monaco
                          data-language="jq"
                          data-textarea="#endpointTransformCodeAdd"
-                         th:data-initial="${form?.endpointTransform}"
+                         th:data-initial="."
                          data-theme="lightgray-theme"
                          th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
                     </div>
@@ -78,7 +78,7 @@
                     <label for="resultTransformCodeAdd">Result Transform</label>
                     <textarea id="resultTransformCodeAdd"
                               name="resultTransform"
-                              th:text="${form?.resultTransform}"
+                              th:text="."
                               hidden>
                     </textarea>
 
@@ -87,7 +87,7 @@
                          data-monaco
                          data-language="jq"
                          data-textarea="#resultTransformCodeAdd"
-                         th:data-initial="${form?.resultTransform}"
+                         th:data-initial="."
                          data-theme="lightgray-theme"
                          th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
                     </div>
