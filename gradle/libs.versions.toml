@@ -7,13 +7,14 @@ dockerCompose = "0.17.20"
 dotenv = "4.0.0"
 
 mockito = "5.17.0"
-springBootPlatform = "3.5.4"
+springBootPlatform = "3.5.8"
 camelSpringBoot = "4.13.0"
 thymeleafLayoutDialect = "3.4.0"
 jjwt = "0.12.6"
 kotlinLogging = "7.0.13"
 mockwebserver = "4.12.0"
 sonarqube = "7.2.2.6593"
+jacksonModuleKotlin="2.19.4"
 
 [libraries]
 # Platforms
@@ -72,6 +73,7 @@ micrometer-registry-prometheus = { group = "io.micrometer", name = "micrometer-r
 kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "kotlinLogging" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect" }
 kotlinx-coroutines-reactor = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor" }
+jackson-module-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jacksonModuleKotlin" }
 
 # Testing
 androidJson = { group = "com.vaadin.external.google", name = "android-json" }

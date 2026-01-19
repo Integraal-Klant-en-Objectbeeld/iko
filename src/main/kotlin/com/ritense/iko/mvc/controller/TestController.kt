@@ -1,7 +1,10 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADG
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
+import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
@@ -27,7 +30,7 @@ class TestController(
     private val objectMapper: ObjectMapper,
 ) {
     @PostMapping(
-        path = ["/aggregated-data-profiles/test"],
+        path = ["/aggregated-data-profiles/debug"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     fun test(
@@ -38,16 +41,16 @@ class TestController(
         requireNotNull(tracer) { "BacklogTracer plugin not found in CamelContext" }
         val ikoTraceId = UUID.randomUUID().toString()
         tracer.isEnabled = true
-        tracer.traceFilter = "\${header.iko_trace_id} == '$ikoTraceId'"
+        tracer.traceFilter = "\${variable.$IKO_TRACE_ID_VARIABLE} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
         // Run ADP
         val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
         val headers =
             mapOf(
-                "iko_id" to form.testId,
-                "iko_profile" to form.name,
-                "iko_trace_id" to ikoTraceId,
+                ADP_PROFILE_NAME_PARAM_HEADER to form.name,
+                IKO_TRACE_ID_VARIABLE to ikoTraceId,
+                ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER to objectMapper.readTree(form.endpointTransformContext),
             )
         var result: String? = null
         var exception: ExceptionResponse? = null
@@ -73,9 +76,9 @@ class TestController(
         // Disable tracing
         tracer.isEnabled = false
 
-        return ModelAndView("$BASE_FRAGMENT_ADG/test :: profile-debug").apply {
+        return ModelAndView("$BASE_FRAGMENT_ADP/debug :: profile-debug").apply {
             addObject("form", form)
-            addObject("testId", form.testId)
+            addObject("endpointTransformContext", form.endpointTransformContext)
             addObject("testResult", result)
             addObject("traces", traces)
             addObject("exception", exception)

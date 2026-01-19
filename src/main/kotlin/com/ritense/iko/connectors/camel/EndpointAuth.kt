@@ -41,7 +41,7 @@ class EndpointAuth(
                         return@process
                     }
 
-                    throw AccessDeniedException("User is not authorized to perform access this route. Missing authorities: $it")
+                    throw AccessDeniedException("User is not authorized to access this route. Missing authorities: $it")
                 }
             }
     }
