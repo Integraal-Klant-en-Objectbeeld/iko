@@ -15,7 +15,7 @@ class AggregatedDataProfileTest {
     fun `create builds aggregated data profile from valid form`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",
-            role = "ROLE_ADMIN",
+            roles = "ROLE_ADMIN",
             endpointTransform = ".",
             resultTransform = ".",
             connectorInstanceId = UUID.randomUUID(),
@@ -25,7 +25,7 @@ class AggregatedDataProfileTest {
         val profile = AggregatedDataProfile.create(form)
 
         assertThat(profile.name).isEqualTo("pets")
-        assertThat(profile.role).isEqualTo("ROLE_ADMIN")
+        assertThat(profile.roles.value).isEqualTo("ROLE_ADMIN")
         assertThat(profile.endpointTransform.expression).isEqualTo(".")
         assertThat(profile.resultTransform.expression).isEqualTo(".")
         assertThat(profile.connectorInstanceId).isEqualTo(form.connectorInstanceId)
@@ -36,7 +36,7 @@ class AggregatedDataProfileTest {
     fun `create throws when endpoint transform is invalid`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",
-            role = "ROLE_ADMIN",
+            roles = "ROLE_ADMIN",
             endpointTransform = "?",
             resultTransform = ".",
             connectorInstanceId = UUID.randomUUID(),
@@ -52,7 +52,7 @@ class AggregatedDataProfileTest {
     fun `create throws when result transform is invalid`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",
-            role = "ROLE_ADMIN",
+            roles = "ROLE_ADMIN",
             endpointTransform = ".",
             resultTransform = "?",
             connectorInstanceId = UUID.randomUUID(),
@@ -285,6 +285,7 @@ class AggregatedDataProfileTest {
         connectorEndpointId = UUID.randomUUID(),
         endpointTransform = EndpointTransform("."),
         resultTransform = Transform("."),
+        roles = Roles("ROLE_TEST"),
         aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
     )
 }

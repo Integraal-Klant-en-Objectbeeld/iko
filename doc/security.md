@@ -69,18 +69,18 @@ Deze endpoints zijn beveiligd via OAuth2 login. Alleen gebruikers met `ROLE_ADMI
 
 ### Beveiligde API Endpoints (JWT)
 
-Deze endpoints vereisen een geldig JWT-token met de juiste rol:
+Deze endpoints vereisen een geldig JWT-token met de juiste rol in te stellen op ADP:
 
 ```
-/endpoints/**                → vereist: ROLE_ENDPOINT_{NAAM}
-/aggregated-data-profiles/** → vereist: ROLE_AGGREGATED_DATA_PROFILE_{NAAM}
+/endpoints/**                → vereist: ENDPOINT ROLE
+/aggregated-data-profiles/** → vereist: ADP ROLE
 ```
 
-Standaard wordt de rol voor een aggregatieprofiel opgebouwd uit ROLE_AGGREGATED_DATA_PROFILE_ gevolgd door de profielnaam (alle andere tekens verwijderd en in hoofdletters). In het beheer‑scherm kan per profiel echter ook een custom rol worden ingevuld. Wanneer een custom rol is ingesteld, moet het JWT‑token deze rol bevatten; de standaardrol wordt dan genegeerd.
+Standaard worden de rollen voor een aggregatieprofiel in het profiel zelf ingesteld. Dan moet het JWT‑token deze rollen bevatten om erbij te kunnen.
 
 #### Voorbeelden:
 
 - `/endpoints/voorbeeld` → `ROLE_ENDPOINT_VOORBEELD`
-- `/aggregated-data-profiles/voorbeeld/121` → `ROLE_AGGREGATED_DATA_PROFILE_VOORBEELD`A
-- `/aggregated-data-profiles/uitzondering/2` met custom rol `ROLE_SPECIAL` → token moet `ROLE_SPECIAL` bevatten
+- `/aggregated-data-profiles/voorbeeld?id=121` → `ROLE_USER`A
+- `/aggregated-data-profiles/uitzondering?id=2` met andere rol `ROLE_ADMIN`
 ``

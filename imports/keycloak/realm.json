@@ -54,13 +54,6 @@
             "containerId" : "valtimo",
             "attributes" : { }
         }, {
-            "id" : "6644d8b3-0556-4407-927e-fe64632860a0",
-            "name" : "ROLE_ENDPOINT_BRPPERSONENENDPOINT",
-            "composite" : false,
-            "clientRole" : false,
-            "containerId" : "valtimo",
-            "attributes" : { }
-        }, {
             "id" : "b8feef22-2fe3-4536-b624-89d76bdc9e06",
             "name" : "ROLE_USER",
             "composite" : false,
@@ -78,20 +71,6 @@
             "id" : "0b60197e-6a2f-477d-8e31-14dc804e032f",
             "name" : "offline_access",
             "description" : "${role_offline-access}",
-            "composite" : false,
-            "clientRole" : false,
-            "containerId" : "valtimo",
-            "attributes" : { }
-        }, {
-            "id" : "7644d8b3-0556-4407-927e-fe64632860a0",
-            "name" : "ROLE_AGGREGATED_DATA_PROFILE_BAGBEWONERS",
-            "composite" : false,
-            "clientRole" : false,
-            "containerId" : "valtimo",
-            "attributes" : { }
-        }, {
-            "id" : "8644d8b3-0556-4407-927e-fe64632860a0",
-            "name" : "ROLE_AGGREGATED_DATA_PROFILE_TEMP",
             "composite" : false,
             "clientRole" : false,
             "containerId" : "valtimo",
@@ -560,7 +539,7 @@
         "credentials" : [ ],
         "disableableCredentialTypes" : [ ],
         "requiredActions" : [ ],
-        "realmRoles" : [ "ROLE_ENDPOINT_BRPPERSONENENDPOINT", "ROLE_AGGREGATED_DATA_PROFILE_BAGBEWONERS", "ROLE_AGGREGATED_DATA_PROFILE_TEMP", "default-roles-valtimo" ],
+        "realmRoles" : [ "default-roles-valtimo" ],
         "notBefore" : 0,
         "groups" : [ ]
     }, {

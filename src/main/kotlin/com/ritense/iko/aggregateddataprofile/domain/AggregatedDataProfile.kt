@@ -48,21 +48,16 @@ class AggregatedDataProfile(
     @Embedded
     var resultTransform: Transform,
 
-    @Column(name = "role")
-    var role: String? = null,
+    @Embedded
+    var roles: Roles,
 
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
 
     fun handle(request: AggregatedDataProfileEditForm) {
-        if (!request.role.isNullOrBlank()) {
-            this.role = request.role
-        } else {
-            val sanitizedName = request.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
-            val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
-            this.role = defaultRole
-        }
+        this.name = request.name
+        this.roles = Roles(request.roles)
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
         this.endpointTransform = EndpointTransform(request.endpointTransform)
@@ -131,13 +126,10 @@ class AggregatedDataProfile(
 
     companion object {
         fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile {
-            val sanitizedName = form.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
-            val defaultRole = "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
-            val role = form.role.ifBlank { defaultRole }
             return AggregatedDataProfile(
                 id = UUID.randomUUID(),
                 name = form.name,
-                role = role,
+                roles = Roles(form.roles),
                 connectorInstanceId = form.connectorInstanceId,
                 connectorEndpointId = form.connectorEndpointId,
                 endpointTransform = EndpointTransform(form.endpointTransform),

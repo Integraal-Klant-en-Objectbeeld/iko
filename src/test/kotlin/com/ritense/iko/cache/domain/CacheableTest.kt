@@ -7,6 +7,7 @@ import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPO
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.domain.RelationCacheSettings
 import com.ritense.iko.aggregateddataprofile.domain.RelationEndpointTransform
+import com.ritense.iko.aggregateddataprofile.domain.Roles
 import com.ritense.iko.aggregateddataprofile.domain.Transform
 import org.apache.camel.Exchange
 import org.apache.camel.impl.DefaultCamelContext
@@ -31,7 +32,7 @@ class CacheableTest {
                 enabled = true,
                 timeToLive = 250,
             ),
-            role = "ROLE_ADMIN",
+            roles = Roles("ROLE_ADMIN"),
         )
 
         val exchange = DefaultExchange(context)
@@ -66,6 +67,7 @@ class CacheableTest {
             connectorEndpointId = UUID.randomUUID(),
             endpointTransform = EndpointTransform("."),
             resultTransform = Transform("."),
+            roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
         )
         val relation = Relation(

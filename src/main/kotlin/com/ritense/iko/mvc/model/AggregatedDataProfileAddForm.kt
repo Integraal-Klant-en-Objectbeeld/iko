@@ -23,8 +23,12 @@ data class AggregatedDataProfileAddForm(
     @field:ValidTransform
     @field:NotBlank(message = "Please provide a transform expression.")
     val resultTransform: String,
-    @field:NotBlank(message = "Please provide a role.")
-    val role: String,
+    @field:NotBlank(message = "Please provide roles.")
+    @field:Pattern(
+        regexp = "^ROLE_[A-Z0-9_]+(,ROLE_[A-Z0-9_]+)*$",
+        message = "Roles must be a comma-separated list of ROLE_xxx values (e.g., ROLE_ADMIN,ROLE_USER).",
+    )
+    val roles: String,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
 ) : UniqueAggregatedDataProfile {
@@ -32,7 +36,7 @@ data class AggregatedDataProfileAddForm(
     companion object {
         fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileAddForm(
             name = aggregatedDataProfile.name,
-            role = aggregatedDataProfile.role!!,
+            roles = aggregatedDataProfile.roles.value,
             endpointTransform = aggregatedDataProfile.endpointTransform.expression,
             resultTransform = aggregatedDataProfile.resultTransform.expression,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,

@@ -44,10 +44,6 @@ class AggregatedDataProfileRouteBuilder(
             connectorEndpointRepository.findByIdOrNull(aggregatedDataProfile.connectorEndpointId),
         ) { NoSuchElementException("Connector endpoint not found") }
 
-        val effectiveRole = aggregatedDataProfile.role?.takeIf { it.isNotBlank() } ?: run {
-            val sanitizedName = aggregatedDataProfile.name.replace(Regex("[^0-9a-zA-Z_-]+"), "")
-            "ROLE_AGGREGATED_DATA_PROFILE_${sanitizedName.uppercase()}"
-        }
         // Error section
         onException(AccessDeniedException::class.java)
             .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
@@ -86,7 +82,7 @@ class AggregatedDataProfileRouteBuilder(
             .routeDescription("[ADP Root]")
             .setVariable(
                 "authorities",
-                constant(effectiveRole),
+                constant(aggregatedDataProfile.roles.asList()),
             )
             .to("direct:auth")
             .to("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")

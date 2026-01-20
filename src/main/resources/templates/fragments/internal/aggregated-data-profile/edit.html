@@ -61,11 +61,11 @@
                                             </div>
 
                                             <!-- Add Aggregated Data Profile form -->
-                                            <cds-text-input name="role"
-                                                            label="Role"
-                                                            th:attr="invalid=${errors?.getFieldError('role') != null} ? 'true' : null,
-                                                                         invalid-text=${errors?.getFieldError('role')?.defaultMessage},
-                                                                         value=${form?.role}">
+                                            <cds-text-input name="roles"
+                                                            label="Roles"
+                                                            th:attr="invalid=${errors?.getFieldError('roles') != null} ? 'true' : null,
+                                                                         invalid-text=${errors?.getFieldError('roles')?.defaultMessage},
+                                                                         value=${form?.roles}">
                                             </cds-text-input>
 
                                             <div class="form-row"

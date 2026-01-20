@@ -400,7 +400,7 @@ class ConnectorController(
             return ModelAndView(
                 "fragments/internal/connector/formCreateConnectorInstanceRole :: form",
                 mapOf(
-                    "role" to form,
+                    "roles" to form,
                     "errors" to bindingResult,
                     "connectorEndpoints" to connectorEndpointRepository.findByConnector(connector),
                 ),
@@ -416,13 +416,11 @@ class ConnectorController(
                 .findById(UUID.fromString(form.endpointId))
                 .orElseThrow { NoSuchElementException("Connector endpoint not found") }
 
-        val role =
-            ConnectorEndpointRole(
-                id = UUID.randomUUID(),
-                connectorInstance = connectorInstance,
-                role = form.role,
-                connectorEndpoint = connectorEndpoint,
-            )
+        val role = ConnectorEndpointRole.create(
+            connectorInstance = connectorInstance,
+            connectorEndpoint = connectorEndpoint,
+            role = form.role,
+        )
 
         connectorEndpointRoleRepository.save(role)
 
