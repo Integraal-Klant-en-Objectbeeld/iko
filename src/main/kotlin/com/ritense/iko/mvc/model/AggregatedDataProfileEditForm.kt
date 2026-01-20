@@ -1,6 +1,7 @@
 package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Validation.ROLES_PATTERN
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfileCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
@@ -20,8 +21,8 @@ data class AggregatedDataProfileEditForm(
     override val name: String,
     @field:NotBlank(message = "Please provide roles.")
     @field:Pattern(
-        regexp = "^ROLE_[A-Z0-9_]+(,ROLE_[A-Z0-9_]+)*$",
-        message = "Roles must be a comma-separated list of ROLE_xxx values (e.g., ROLE_ADMIN,ROLE_USER).",
+        regexp = ROLES_PATTERN,
+        message = "Roles must be a comma-separated list of values (e.g., ROLE_ADMIN,ROLE_USER).",
     )
     val roles: String,
     val connectorInstanceId: UUID,

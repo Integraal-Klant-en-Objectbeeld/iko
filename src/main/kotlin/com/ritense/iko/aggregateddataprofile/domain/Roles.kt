@@ -1,5 +1,6 @@
 package com.ritense.iko.aggregateddataprofile.domain
 
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Validation.ROLES_PATTERN
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
@@ -17,11 +18,11 @@ class Roles(
     }
 
     companion object {
-        private val PATTERN = Regex("^ROLE_[A-Z0-9_]+(,ROLE_[A-Z0-9_]+)*$")
+        private val PATTERN = Regex(ROLES_PATTERN)
 
         fun validate(value: String) {
             require(PATTERN.matches(value)) {
-                "Roles must be a comma-separated list of ROLE_xxx values (e.g., ROLE_ADMIN,ROLE_USER)."
+                "Roles must be a comma-separated list of values (e.g., ROLE_ADMIN,ROLE_USER)."
             }
         }
     }
