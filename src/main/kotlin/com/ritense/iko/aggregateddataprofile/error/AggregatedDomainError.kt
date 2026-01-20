@@ -1,9 +1,9 @@
 package com.ritense.iko.aggregateddataprofile.error
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelExecutionException
 import org.apache.camel.Exchange
 import org.apache.camel.model.OnExceptionDefinition
