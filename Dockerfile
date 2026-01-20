@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . /app
 
 RUN chmod +x /app/gradlew
-RUN ./gradlew :build
+RUN ./gradlew :build -x integrationTest
 
 # also set platform for final image
 FROM amazoncorretto:21

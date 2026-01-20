@@ -9,9 +9,9 @@ spring:
     data:
         redis:
             host: localhost
-            port: 6379
+            port: 16379
     datasource:
-        url: jdbc:postgresql://localhost:5432/iko-db
+        url: jdbc:postgresql://localhost:15432/iko-db
         username: iko-admin
         password: secret
     security:

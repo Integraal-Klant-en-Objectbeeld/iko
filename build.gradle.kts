@@ -1,3 +1,5 @@
+import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.os.Os.FAMILY_MAC
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
@@ -102,6 +104,7 @@ dependencies {
     // Kotlin
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlinx.coroutines.reactor)
+    implementation(libs.jackson.module.kotlin)
 
     // Testing
     testImplementation(libs.spring.boot.starter.test) {
@@ -161,6 +164,12 @@ dockerCompose {
         removeVolumes.set(true)
         noRecreate.set(true)
         removeContainers.set(true)
+
+        if (Os.isFamily(FAMILY_MAC)) {
+            println("Configure docker compose plugin for macOs")
+            executable = "/usr/local/bin/docker-compose"
+            dockerExecutable = "/usr/local/bin/docker"
+        }
     }
 }
 
