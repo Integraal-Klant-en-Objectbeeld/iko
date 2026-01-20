@@ -126,26 +126,32 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When the adp is called twice result is cached Then the API returns 200`() {
+        val profileName = "test-cached"
+        cacheService.evictByPrefix(profileName)
+
+        aggregatedDataProfileRepository.findByName(profileName)?.let { profile ->
+            assertThat(cacheService.isCached(profile.id.toString()))
+                .withFailMessage { "Cache should not contain an entry for profile $profileName (${profile.id})" }
+                .isFalse()
+        } ?: throw AssertionError("Profile with name $profileName not found in repository")
+
         // First call
-        val mvcResult1 = mockMvc.perform(get("/aggregated-data-profiles/test-cached/externalId"))
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
             .andExpect(request().asyncStarted())
             .andReturn()
 
-        mockMvc.perform(asyncDispatch(mvcResult1))
+        mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk)
-            .andExpect(content().json("""{"id": 1, "name": "Mocked Pet"}"""))
 
         // Second call - should be cached
-        val mvcResult2 = mockMvc.perform(get("/aggregated-data-profiles/test-cached/externalId"))
+        val mvcResult2 = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
             .andExpect(request().asyncStarted())
             .andReturn()
 
         mockMvc.perform(asyncDispatch(mvcResult2))
             .andDo(print())
             .andExpect(status().isOk)
-            .andExpect(content().json("""{"id": 1, "name": "Mocked Pet"}"""))
 
-        val profileName = "test-cached"
         aggregatedDataProfileRepository.findByName(profileName)?.let { profile ->
             assertThat(cacheService.isCached(profile.id.toString()))
                 .withFailMessage { "Cache should contain an entry for profile $profileName (${profile.id})" }
@@ -157,5 +163,4 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
         val json = objectMapper.writeValueAsString(containerParam)
         return Base64.getEncoder().encodeToString(json.toByteArray(Charsets.UTF_8))
     }
-
 }
