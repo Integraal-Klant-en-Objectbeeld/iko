@@ -4,9 +4,6 @@ spring:
             - classpath:db/migration
             - classpath:db/migration-test
         placeholder-replacement: false
-    mvc:
-        async:
-            request-timeout: 120000
     application:
         name: IKO (Test)
     data:
@@ -34,6 +31,7 @@ logging:
         org.apache.camel: INFO
         org.flywaydb: INFO
         com.ritense.iko: DEBUG
+        org.springframework.security: DEBUG
 
 camel:
     main:

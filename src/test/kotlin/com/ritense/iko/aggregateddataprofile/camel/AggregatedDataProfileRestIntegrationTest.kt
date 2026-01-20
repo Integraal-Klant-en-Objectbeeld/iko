@@ -1,6 +1,9 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
 import com.ritense.iko.BaseIntegrationTest
+import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.cache.service.CacheService
+import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +20,12 @@ import java.util.Base64
 
 @AutoConfigureMockMvc
 internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() {
+
+    @Autowired
+    private lateinit var aggregatedDataProfileRepository: AggregatedDataProfileRepository
+
+    @Autowired
+    private lateinit var cacheService: CacheService
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -112,6 +121,55 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
             .andDo(print()) // logs final response
             .andExpect(status().isNotFound)
             .andExpect(content().string(containsString("ADP with name: non-existing, not found")))
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `When the adp is called twice result is cached Then the API returns 200`() {
+        val profileName = "test-cached"
+        cacheService.evictByPrefix(profileName)
+
+        aggregatedDataProfileRepository.findByName(profileName)?.let { profile ->
+            assertThat(cacheService.isCached(profile.id.toString()))
+                .withFailMessage { "Cache should not contain an entry for profile $profileName (${profile.id})" }
+                .isFalse()
+        } ?: throw AssertionError("Profile with name $profileName not found in repository")
+
+        // First call
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
+            .andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andExpect(status().isOk)
+
+        // Second call - should be cached
+        val mvcResult2 = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
+            .andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult2))
+            .andDo(print())
+            .andExpect(status().isOk)
+
+        aggregatedDataProfileRepository.findByName(profileName)?.let { profile ->
+            assertThat(cacheService.isCached(profile.id.toString()))
+                .withFailMessage { "Cache should contain an entry for profile $profileName (${profile.id})" }
+                .isTrue()
+        } ?: throw AssertionError("Profile with name $profileName not found in repository")
+    }
+
+    @Test
+    @WithMockUser(roles = ["UNKNOWN_ROLE"])
+    fun `Get adp pets returns 4XX when authenticated user lacks ROLE_ADMIN`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/pets?id=externalId"))
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print()) // logs final response
+            .andExpect(status().is4xxClientError)
     }
 
     private fun encodeContainerParam(containerParam: ContainerParam): String {
