@@ -159,6 +159,19 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
         } ?: throw AssertionError("Profile with name $profileName not found in repository")
     }
 
+    @Test
+    @WithMockUser(roles = ["UNKNOWN_ROLE"])
+    fun `Get adp pets returns 4XX when authenticated user lacks ROLE_ADMIN`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/pets?id=externalId"))
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print()) // logs final response
+            .andExpect(status().is4xxClientError)
+    }
+
     private fun encodeContainerParam(containerParam: ContainerParam): String {
         val json = objectMapper.writeValueAsString(containerParam)
         return Base64.getEncoder().encodeToString(json.toByteArray(Charsets.UTF_8))

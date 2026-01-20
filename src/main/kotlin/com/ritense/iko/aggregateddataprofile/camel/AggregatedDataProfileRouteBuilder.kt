@@ -50,7 +50,7 @@ class AggregatedDataProfileRouteBuilder(
         }
         // Error section
         onException(AccessDeniedException::class.java)
-            .errorResponse(status = HttpStatus.UNAUTHORIZED)
+            .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
 
         onException(ValidationException::class.java, IllegalArgumentException::class.java)
             .errorResponse(status = HttpStatus.BAD_REQUEST)
