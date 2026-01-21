@@ -1,3 +1,18 @@
+// Copyright (C) 2026 Ritense BV, the Netherlands.
+//
+// Licensed under EUPL, Version 1.2 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
 import io.spring.gradle.dependencymanagement.org.codehaus.plexus.interpolation.os.Os.FAMILY_MAC
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.springframework.boot.gradle.tasks.run.BootRun
@@ -11,7 +26,7 @@ plugins {
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
-    alias(libs.plugins.ktlint)
+    alias(libs.plugins.spotless)
     alias(libs.plugins.docker.compose)
     alias(libs.plugins.sonarqube)
     jacoco
@@ -171,6 +186,29 @@ dockerCompose {
             dockerExecutable = "/usr/local/bin/docker"
         }
     }
+}
+
+spotless {
+    val prettierConfig = mapOf("tabWidth" to 4)
+
+    kotlin {
+        ktlint()
+        licenseHeaderFile("templates/licenseHeaderFile.kt.template")
+    }
+    kotlinGradle {
+        ktlint()
+        licenseHeaderFile("templates/licenseHeaderFile.kts.template", "((?!\\/\\/)|\\w.*)")
+    }
+    css {
+        target("src/**/*.css")
+        prettier().config(prettierConfig)
+        licenseHeaderFile("templates/licenseHeaderFile.css.template", "(\\/\\*.*\\*\\/|.*\\{)")
+    }
+    format("html", {
+        target("src/**/*.html")
+        prettier().config(prettierConfig)
+        licenseHeaderFile("templates/licenseHeaderFile.html.template", "(<(?!!--).*>?)")
+    })
 }
 
 sonar {

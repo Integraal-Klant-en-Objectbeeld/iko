@@ -1,48 +1,77 @@
-<cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" open="true">
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<cds-modal
+    id="active-modal"
+    prevent-close-on-click-outside="true"
+    size="md"
+    open="true"
+>
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
         <cds-modal-label>Add new connector endpoint</cds-modal-label>
         <cds-modal-heading>Connector Endpoint</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-            <th:block th:fragment="form">
-                <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                    <cds-stack gap="7">
-                    <cds-text-input name="name"
-                                        size="lg"
-                                        th:value="${endpoint?.name}"
-                                        th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+        <th:block th:fragment="form">
+            <cds-form-group
+                id="form-group"
+                hx-swap-oob="true"
+                name="form-group"
+            >
+                <cds-stack gap="7">
+                    <cds-text-input
+                        name="name"
+                        size="lg"
+                        th:value="${endpoint?.name}"
+                        th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
-                                        required=""
-                                        label="Name"
-                                        invalid-text="Please enter a valid name"
-                        >
-                        </cds-text-input>
+                        required=""
+                        label="Name"
+                        invalid-text="Please enter a valid name"
+                    >
+                    </cds-text-input>
 
-                        <cds-text-input name="operation"
-                                        size="lg"
-                                        th:value="${endpoint?.operation}"
-                                        th:attr="invalid=${errors?.getFieldError('operation') != null} ? 'true' : null,
+                    <cds-text-input
+                        name="operation"
+                        size="lg"
+                        th:value="${endpoint?.operation}"
+                        th:attr="invalid=${errors?.getFieldError('operation') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('operation')?.defaultMessage}"
-                                        required=""
-                                        label="Operation"
-                                        invalid-text="Please enter a valid operation"
-                        >
-                        </cds-text-input>
-                    </cds-stack>
-                </cds-form-group>
-            </th:block>
+                        required=""
+                        label="Operation"
+                        invalid-text="Please enter a valid operation"
+                    >
+                    </cds-text-input>
+                </cds-stack>
+            </cds-form-group>
+        </th:block>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
             data-modal-close=""
             type="button"
-            kind="secondary">
+            kind="secondary"
+        >
             Cancel
         </cds-modal-footer-button>
         <cds-modal-footer-button
             type="submit"
-            th:hx-post="@{|/admin/connectors/${connectorId}/endpoints|}" hx-target="#form-group"
+            th:hx-post="@{|/admin/connectors/${connectorId}/endpoints|}"
+            hx-target="#form-group"
             hx-include="#form-group *"
         >
             Save

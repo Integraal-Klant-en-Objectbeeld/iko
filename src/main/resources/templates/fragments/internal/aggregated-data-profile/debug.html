@@ -1,3 +1,19 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
 <div id="profile-debug" th:fragment="profile-debug">
     <cds-tile>
         <cds-tabs value="result" type="contained">
@@ -7,129 +23,175 @@
             <cds-tab id="tab-trace" target="panel-trace" value="trace">
                 Trace
             </cds-tab>
-            <cds-tab id="tab-error" target="panel-error" value="error"
-                     th:attr="disabled=${exception == null ? 'true' : null}">
+            <cds-tab
+                id="tab-error"
+                target="panel-error"
+                value="error"
+                th:attr="disabled=${exception == null ? 'true' : null}"
+            >
                 Error
             </cds-tab>
         </cds-tabs>
-        <div style="margin-top: 1rem;">
-            <div id="panel-result" role="tabpanel" aria-labelledby="tab-result" hidden="">
-                <cds-form-group id="form-group-test" name="form-group" class="cds-theme-zone-white"
-                                data-carbon-theme="white">
+        <div style="margin-top: 1rem">
+            <div
+                id="panel-result"
+                role="tabpanel"
+                aria-labelledby="tab-result"
+                hidden=""
+            >
+                <cds-form-group
+                    id="form-group-test"
+                    name="form-group"
+                    class="cds-theme-zone-white"
+                    data-carbon-theme="white"
+                >
                     <div class="form-column">
-
-                        <input type="hidden" id="name" name="name" th:value="${form.name}">
-                        <input type="hidden" id="resultTransform" name="resultTransform" value=".">
+                        <input
+                            type="hidden"
+                            id="name"
+                            name="name"
+                            th:value="${form.name}"
+                        />
+                        <input
+                            type="hidden"
+                            id="resultTransform"
+                            name="resultTransform"
+                            value="."
+                        />
 
                         <label for="endpointTransformContext">
-                            <cds-toggletip alignment="right" alignment-axis-offset="0">
+                            <cds-toggletip
+                                alignment="right"
+                                alignment-axis-offset="0"
+                            >
                                 Endpoint Transform Context for testing the ADP
                                 <p slot="body-text">
-                                    Context passed to endpoint transformations for the ADP root route and when
-                                    mapping relation inputs. <br>
-                                    idParam: optional identifier header derived from incoming ADP requests. <br>
-                                    sortParams: containerId → Pageable pairs that capture requested
-                                    paging/sorting for each container. <br>
-                                    filterParams: containerId → filter map holding container-specific query
-                                    filters submitted by the client.
+                                    Context passed to endpoint transformations
+                                    for the ADP root route and when mapping
+                                    relation inputs. <br />
+                                    idParam: optional identifier header derived
+                                    from incoming ADP requests. <br />
+                                    sortParams: containerId → Pageable pairs
+                                    that capture requested paging/sorting for
+                                    each container. <br />
+                                    filterParams: containerId → filter map
+                                    holding container-specific query filters
+                                    submitted by the client.
                                 </p>
                             </cds-toggletip>
                         </label>
                         <cds-form-item
-                                th:with="defaultEndpointTransformContext=${'{&quot;idParam&quot;: &quot;&quot;, &quot;sortParams&quot;: {}, &quot;filterParams&quot;: {}}'}"
+                            th:with='defaultEndpointTransformContext=${&apos;{"idParam": "", "sortParams": {}, "filterParams": {}}&apos;}'
                         >
-                            <textarea id="endpointTransformContext"
-                                      name="endpointTransformContext"
-                                      hidden
-                                      th:value="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}">
+                            <textarea
+                                id="endpointTransformContext"
+                                name="endpointTransformContext"
+                                hidden
+                                th:value="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}"
+                            >
                             </textarea>
 
                             <!-- Monaco container for Endpoint Transform Context -->
-                            <div id="endpointTransformContextEditor"
-                                 data-monaco
-                                 data-language="json"
-                                 data-textarea="#endpointTransformContext"
-                                 th:data-initial="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}"
-                                 data-theme="lightgray-theme"
-                                 class="monaco-editor-style">
-                            </div>
+                            <div
+                                id="endpointTransformContextEditor"
+                                data-monaco
+                                data-language="json"
+                                data-textarea="#endpointTransformContext"
+                                th:data-initial="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}"
+                                data-theme="lightgray-theme"
+                                class="monaco-editor-style"
+                            ></div>
                         </cds-form-item>
 
                         <cds-form-item>
                             <label for="testResult">Result</label>
-                            <textarea id="testResult"
-                                      name="Test result"
-                                      hidden
-                                      th:value="${testResult}">
+                            <textarea
+                                id="testResult"
+                                name="Test result"
+                                hidden
+                                th:value="${testResult}"
+                            >
                             </textarea>
 
                             <!-- Monaco container for test result -->
-                            <div id="testResult-editor"
-                                 data-readonly=true
-                                 data-monaco
-                                 data-language="json"
-                                 data-textarea="#testResult"
-                                 th:data-initial="${testResult}"
-                                 data-theme="lightgray-theme"
-                                 class="monaco-editor-style">
-                            </div>
+                            <div
+                                id="testResult-editor"
+                                data-readonly="true"
+                                data-monaco
+                                data-language="json"
+                                data-textarea="#testResult"
+                                th:data-initial="${testResult}"
+                                data-theme="lightgray-theme"
+                                class="monaco-editor-style"
+                            ></div>
 
                             <cds-button
-                                    kind="primary"
-                                    hx-post="/admin/aggregated-data-profiles/debug"
-                                    hx-target="#profile-debug"
-                                    hx-swap="outerHTML"
-                                    hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name']"
-                                    hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
-                                    style="margin-top: 1rem;">
+                                kind="primary"
+                                hx-post="/admin/aggregated-data-profiles/debug"
+                                hx-target="#profile-debug"
+                                hx-swap="outerHTML"
+                                hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name']"
+                                hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
+                                style="margin-top: 1rem"
+                            >
                                 Get results
                             </cds-button>
                         </cds-form-item>
 
                         <label for="query">Transform</label>
                         <cds-form-item>
-                            <textarea id="query"
-                                      name="query"
-                                      hidden
-                                      th:attr="value=${form.resultTransform}">
+                            <textarea
+                                id="query"
+                                name="query"
+                                hidden
+                                th:attr="value=${form.resultTransform}"
+                            >
                             </textarea>
 
-                            <div id="query-editor"
-                                 data-monaco
-                                 data-language="jq"
-                                 data-textarea="#query"
-                                 th:data-initial="${form.resultTransform}"
-                                 data-theme="lightgray-theme"
-                                 class="monaco-editor-style">
-                            </div>
+                            <div
+                                id="query-editor"
+                                data-monaco
+                                data-language="jq"
+                                data-textarea="#query"
+                                th:data-initial="${form.resultTransform}"
+                                data-theme="lightgray-theme"
+                                class="monaco-editor-style"
+                            ></div>
 
-                            <div id="error" class="monaco-error show" style="margin-bottom: 1rem"></div>
-                            <cds-button id="run" kind="primary">Apply transform</cds-button>
+                            <div
+                                id="error"
+                                class="monaco-error show"
+                                style="margin-bottom: 1rem"
+                            ></div>
+                            <cds-button id="run" kind="primary"
+                                >Apply transform</cds-button
+                            >
                         </cds-form-item>
 
                         <cds-form-item>
                             <label for="output">Output</label>
-                            <textarea id="output"
-                                      name="output"
-                                      hidden>
-                                </textarea>
+                            <textarea id="output" name="output" hidden>
+                            </textarea>
 
                             <!-- Monaco container -->
-                            <div id="output-editor"
-                                 data-readonly=true
-                                 data-monaco
-                                 data-language="json"
-                                 data-textarea="#output"
-                                 data-theme="lightgray-theme"
-                                 class="monaco-editor-style">
-                            </div>
+                            <div
+                                id="output-editor"
+                                data-readonly="true"
+                                data-monaco
+                                data-language="json"
+                                data-textarea="#output"
+                                data-theme="lightgray-theme"
+                                class="monaco-editor-style"
+                            ></div>
                         </cds-form-item>
 
                         <script type="application/javascript">
                             // Helper: pretty-print anything
                             function pretty(v) {
                                 try {
-                                    return typeof v === 'string' ? v : JSON.stringify(v, null, 2);
+                                    return typeof v === "string"
+                                        ? v
+                                        : JSON.stringify(v, null, 2);
                                 } catch {
                                     return String(v);
                                 }
@@ -138,95 +200,163 @@
                             function getMonacoEditor(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return null;
-                                return monaco?.editor?.getEditors()?.find(e => e.getContainerDomNode() === el);
+                                return monaco?.editor
+                                    ?.getEditors()
+                                    ?.find(
+                                        (e) => e.getContainerDomNode() === el
+                                    );
                             }
 
-                            document.getElementById('run').addEventListener('click', async () => {
-                                let outEl = document.getElementById('output');
-                                let errEl = document.getElementById('error');
-                                errEl.textContent = '';
-                                outEl.textContent = 'Running...';
+                            document
+                                .getElementById("run")
+                                .addEventListener("click", async () => {
+                                    let outEl =
+                                        document.getElementById("output");
+                                    let errEl =
+                                        document.getElementById("error");
+                                    errEl.textContent = "";
+                                    outEl.textContent = "Running...";
 
-                                let data;
-                                let jsonEl;
+                                    let data;
+                                    let jsonEl;
 
-                                try {
-                                    const testResultEditor = getMonacoEditor('#testResult-editor');
-                                    jsonEl = testResultEditor ? testResultEditor.getValue() : document.getElementById('testResult').value;
-                                    data = JSON.parse(jsonEl);
-                                } catch (e) {
-                                    errEl.textContent = 'Invalid JSON: ' + e.message;
-                                    outEl.value = '';
-                                    const editor = getMonacoEditor('#output-editor');
-                                    if (editor) editor.setValue('');
-                                    return;
-                                }
+                                    try {
+                                        const testResultEditor =
+                                            getMonacoEditor(
+                                                "#testResult-editor"
+                                            );
+                                        jsonEl = testResultEditor
+                                            ? testResultEditor.getValue()
+                                            : document.getElementById(
+                                                  "testResult"
+                                              ).value;
+                                        data = JSON.parse(jsonEl);
+                                    } catch (e) {
+                                        errEl.textContent =
+                                            "Invalid JSON: " + e.message;
+                                        outEl.value = "";
+                                        const editor =
+                                            getMonacoEditor("#output-editor");
+                                        if (editor) editor.setValue("");
+                                        return;
+                                    }
 
-                                try {
-                                    const queryEditor = getMonacoEditor('#query-editor');
-                                    let program = queryEditor ? queryEditor.getValue() : document.getElementById('query').value;
+                                    try {
+                                        const queryEditor =
+                                            getMonacoEditor("#query-editor");
+                                        let program = queryEditor
+                                            ? queryEditor.getValue()
+                                            : document.getElementById("query")
+                                                  .value;
 
-                                    let result = (await jq).json(data, program);
-                                    const output = Array.isArray(result) && result.length > 1
-                                        ? pretty(result)
-                                        : pretty(Array.isArray(result) ? result[0] : result);
-                                    outEl.value = output;
+                                        let result = (await jq).json(
+                                            data,
+                                            program
+                                        );
+                                        const output =
+                                            Array.isArray(result) &&
+                                            result.length > 1
+                                                ? pretty(result)
+                                                : pretty(
+                                                      Array.isArray(result)
+                                                          ? result[0]
+                                                          : result
+                                                  );
+                                        outEl.value = output;
 
-
-                                    // Update Monaco editor
-                                    const editor = getMonacoEditor('#output-editor');
-                                    if (editor) editor.setValue(output);
-                                } catch (e) {
-                                    const queryEditorElement = document.getElementById('query-editor');
-                                    queryEditorElement.classList.add('monaco-editor-error');
-                                    errEl.textContent = 'jq error: ' + (e?.message || e);
-                                    outEl.textContent = '';
-                                    const editor = getMonacoEditor('#output-editor');
-                                    if (editor) editor.setValue('');
-                                }
-                            });
+                                        // Update Monaco editor
+                                        const editor =
+                                            getMonacoEditor("#output-editor");
+                                        if (editor) editor.setValue(output);
+                                    } catch (e) {
+                                        const queryEditorElement =
+                                            document.getElementById(
+                                                "query-editor"
+                                            );
+                                        queryEditorElement.classList.add(
+                                            "monaco-editor-error"
+                                        );
+                                        errEl.textContent =
+                                            "jq error: " + (e?.message || e);
+                                        outEl.textContent = "";
+                                        const editor =
+                                            getMonacoEditor("#output-editor");
+                                        if (editor) editor.setValue("");
+                                    }
+                                });
                         </script>
                     </div>
                 </cds-form-group>
             </div>
-            <div id="panel-trace" role="tabpanel" aria-labelledby="tab-trace" hidden="">
+            <div
+                id="panel-trace"
+                role="tabpanel"
+                aria-labelledby="tab-trace"
+                hidden=""
+            >
                 <cds-table>
                     <cds-table-head>
                         <cds-table-header-row>
                             <cds-table-header-cell>ID</cds-table-header-cell>
-                            <cds-table-header-cell>Timestamp</cds-table-header-cell>
+                            <cds-table-header-cell
+                                >Timestamp</cds-table-header-cell
+                            >
                             <cds-table-header-cell>Route</cds-table-header-cell>
-                            <cds-table-header-cell>Location</cds-table-header-cell>
-                            <cds-table-header-cell>Elapsed</cds-table-header-cell>
-                            <cds-table-header-cell>Status</cds-table-header-cell>
+                            <cds-table-header-cell
+                                >Location</cds-table-header-cell
+                            >
+                            <cds-table-header-cell
+                                >Elapsed</cds-table-header-cell
+                            >
+                            <cds-table-header-cell
+                                >Status</cds-table-header-cell
+                            >
                         </cds-table-header-row>
                     </cds-table-head>
                     <cds-table-body>
                         <cds-table-row th:each="trace : ${traces}">
-                            <cds-table-cell th:text="${trace.id}"></cds-table-cell>
-                            <cds-table-cell th:text="${trace.timestamp}"></cds-table-cell>
-                            <cds-table-cell th:text="${trace.route}"></cds-table-cell>
-                            <cds-table-cell th:text="${trace.location}"></cds-table-cell>
-                            <cds-table-cell th:text="${trace.elapsed}"></cds-table-cell>
-                            <cds-table-cell th:text="${trace.status}"
-                                            th:style="${trace.status == 'OK' ? 'color: var(--cds-support-success);' :
+                            <cds-table-cell
+                                th:text="${trace.id}"
+                            ></cds-table-cell>
+                            <cds-table-cell
+                                th:text="${trace.timestamp}"
+                            ></cds-table-cell>
+                            <cds-table-cell
+                                th:text="${trace.route}"
+                            ></cds-table-cell>
+                            <cds-table-cell
+                                th:text="${trace.location}"
+                            ></cds-table-cell>
+                            <cds-table-cell
+                                th:text="${trace.elapsed}"
+                            ></cds-table-cell>
+                            <cds-table-cell
+                                th:text="${trace.status}"
+                                th:style="${trace.status == 'OK' ? 'color: var(--cds-support-success);' :
                                             trace.status == 'FAILED' ? 'color: var(--cds-support-error);' :
-                                            trace.status == 'IN_PROGRESS' ? 'color: var(--cds-support-info);' : ''}">
+                                            trace.status == 'IN_PROGRESS' ? 'color: var(--cds-support-info);' : ''}"
+                            >
                             </cds-table-cell>
                         </cds-table-row>
                     </cds-table-body>
                 </cds-table>
             </div>
-            <div id="panel-error" role="tabpanel" aria-labelledby="tab-error" hidden="">
+            <div
+                id="panel-error"
+                role="tabpanel"
+                aria-labelledby="tab-error"
+                hidden=""
+            >
                 <h4>Stacktrace:</h4>
-                <div id="kotlin-stacktrace-viewer"
-                     data-monaco
-                     data-language="json"
-                     data-readonly=true
-                     data-theme="lightgray-theme"
-                     th:data-initial="${exception != null ? exception.getStacktrace() : ''}"
-                     class="monaco-editor-style-full-height">
-                </div>
+                <div
+                    id="kotlin-stacktrace-viewer"
+                    data-monaco
+                    data-language="json"
+                    data-readonly="true"
+                    data-theme="lightgray-theme"
+                    th:data-initial="${exception != null ? exception.getStacktrace() : ''}"
+                    class="monaco-editor-style-full-height"
+                ></div>
             </div>
         </div>
     </cds-tile>

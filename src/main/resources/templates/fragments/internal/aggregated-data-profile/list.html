@@ -1,73 +1,103 @@
-<th:block th:fragment="profile-list">
-    <div th:replace="~{layout-internal :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}} })}"></div>
-    <div th:replace="~{layout-internal :: page-header (title='Aggregated Data Profiles')}"></div>
-        <!-- Data table -->
-        <cds-table id="profile-table">
-            <!-- Toolbar + search -->
-            <cds-table-toolbar slot="toolbar">
-                <cds-table-toolbar-content>
-                    <cds-table-toolbar-search
-                        id="search-bar"
-                        placeholder="Type to search..."
-                        th:value="${query}"
-                        th:expanded="${query} ?: 'true'"
-                        name="query"
-                        size="lg"
-                        hx-get="/admin/aggregated-data-profiles/filter"
-                        hx-params="*"
-                        hx-trigger="input delay:600ms, keyup[key=='Enter']"
-                        hx-target="#search-results"
-                        hx-swap="outerHTML"
-                        hx-push-url="true">
-                    </cds-table-toolbar-search>
-                    <cds-button
-                        hx-get="/admin/aggregated-data-profiles/create"
-                        hx-target="#modal-container">
-                        Add new 'Aggregated Data Profile'
-                        <svg
-                            focusable="false"
-                            preserveAspectRatio="xMidYMid meet"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            aria-hidden="true"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 32 32"
-                            slot="icon">
-                            <path d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                        </svg>
-                    </cds-button>
-                </cds-table-toolbar-content>
-            </cds-table-toolbar>
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
 
-            <!-- Header -->
-            <cds-table-head>
-                <cds-table-header-row>
-                    <cds-table-header-cell
-                        is-sortable
-                        size="md"
-                        hx-get="/admin/aggregated-data-profiles/filter"
-                        hx-target="#search-results"
-                        hx-swap="outerHTML"
-                        hx-push-url="false"
-                        hx-trigger="cds-table-header-cell-sort"
-                        hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
-                        hx-vals="js:{
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<th:block th:fragment="profile-list">
+    <div
+        th:replace="~{layout-internal :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}} })}"
+    ></div>
+    <div
+        th:replace="~{layout-internal :: page-header (title='Aggregated Data Profiles')}"
+    ></div>
+    <!-- Data table -->
+    <cds-table id="profile-table">
+        <!-- Toolbar + search -->
+        <cds-table-toolbar slot="toolbar">
+            <cds-table-toolbar-content>
+                <cds-table-toolbar-search
+                    id="search-bar"
+                    placeholder="Type to search..."
+                    th:value="${query}"
+                    th:expanded="${query} ?: 'true'"
+                    name="query"
+                    size="lg"
+                    hx-get="/admin/aggregated-data-profiles/filter"
+                    hx-params="*"
+                    hx-trigger="input delay:600ms, keyup[key=='Enter']"
+                    hx-target="#search-results"
+                    hx-swap="outerHTML"
+                    hx-push-url="true"
+                >
+                </cds-table-toolbar-search>
+                <cds-button
+                    hx-get="/admin/aggregated-data-profiles/create"
+                    hx-target="#modal-container"
+                >
+                    Add new 'Aggregated Data Profile'
+                    <svg
+                        focusable="false"
+                        preserveAspectRatio="xMidYMid meet"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        aria-hidden="true"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 32 32"
+                        slot="icon"
+                    >
+                        <path
+                            d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                        ></path>
+                    </svg>
+                </cds-button>
+            </cds-table-toolbar-content>
+        </cds-table-toolbar>
+
+        <!-- Header -->
+        <cds-table-head>
+            <cds-table-header-row>
+                <cds-table-header-cell
+                    is-sortable
+                    size="md"
+                    hx-get="/admin/aggregated-data-profiles/filter"
+                    hx-target="#search-results"
+                    hx-swap="outerHTML"
+                    hx-push-url="false"
+                    hx-trigger="cds-table-header-cell-sort"
+                    hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
+                    hx-vals="js:{
                         sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
                         size: document.querySelector('#pagination-container').__pageSize,
                         page: document.querySelector('#pagination-container').__page - 1,
                         query: document.querySelector('#search-bar').value
-                        }">
-                        Name
-                    </cds-table-header-cell>
-                    <cds-table-header-cell></cds-table-header-cell>
-                </cds-table-header-row>
-            </cds-table-head>
+                        }"
+                >
+                    Name
+                </cds-table-header-cell>
+                <cds-table-header-cell></cds-table-header-cell>
+            </cds-table-header-row>
+        </cds-table-head>
 
-            <th:block th:insert="~{fragments/internal/aggregated-data-profile/filterResults :: profile-filter-results}"></th:block>
-        </cds-table>
-        <!-- Pagination -->
-        <cds-pagination id="pagination-container"
-                        th:replace="~{fragments/internal/aggregated-data-profile/pagination :: profilePagination}">
-        </cds-pagination>
+        <th:block
+            th:insert="~{fragments/internal/aggregated-data-profile/filterResults :: profile-filter-results}"
+        ></th:block>
+    </cds-table>
+    <!-- Pagination -->
+    <cds-pagination
+        id="pagination-container"
+        th:replace="~{fragments/internal/aggregated-data-profile/pagination :: profilePagination}"
+    >
+    </cds-pagination>
 </th:block>

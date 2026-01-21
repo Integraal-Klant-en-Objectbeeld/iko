@@ -1,3 +1,19 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
 <div th:fragment="profile-edit-panel">
     <div class="detail-grid">
         <!-- Left column -->
@@ -7,53 +23,81 @@
                 <!--PROFILE EDIT FORM-->
                 <div id="profile-edit" th:fragment="profile-edit">
                     <cds-content>
-                        <form id="profile-edit-form"
-                              hx-put="/admin/aggregated-data-profiles"
-                              hx-target="#profile-edit"
-                              hx-swap="outerHTML">
-                            <cds-form-group id="form-group" name="form-group" class="cds-theme-zone-white"
-                                            data-carbon-theme="white">
+                        <form
+                            id="profile-edit-form"
+                            hx-put="/admin/aggregated-data-profiles"
+                            hx-target="#profile-edit"
+                            hx-swap="outerHTML"
+                        >
+                            <cds-form-group
+                                id="form-group"
+                                name="form-group"
+                                class="cds-theme-zone-white"
+                                data-carbon-theme="white"
+                            >
                                 <div class="form-grid">
                                     <div class="form-column">
                                         <cds-stack gap="7">
-                                            <input type="hidden" name="id" th:value="${form.id}"/>
-                                            <cds-text-input name="name"
-                                                            label="Name"
-                                                            th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                            <input
+                                                type="hidden"
+                                                name="id"
+                                                th:value="${form.id}"
+                                            />
+                                            <cds-text-input
+                                                name="name"
+                                                label="Name"
+                                                th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                                                          invalid-text=${errors?.getFieldError('name')?.defaultMessage},
-                                                                         value=${form.name}">
+                                                                         value=${form.name}"
+                                            >
                                             </cds-text-input>
 
                                             <div class="form-row">
                                                 <div class="form-col">
-                                                    <cds-select name="connectorInstanceId"
-                                                                label-text="Select an connector instance"
-                                                                hx-get="/admin/aggregated-data-profiles/create/endpoints"
-                                                                hx-trigger="cds-select-selected"
-                                                                hx-target="#connector-endpoints"
-                                                                th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
+                                                    <cds-select
+                                                        name="connectorInstanceId"
+                                                        label-text="Select an connector instance"
+                                                        hx-get="/admin/aggregated-data-profiles/create/endpoints"
+                                                        hx-trigger="cds-select-selected"
+                                                        hx-target="#connector-endpoints"
+                                                        th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
                                                                  invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
                                                                  value=${form.connectorInstanceId}
-                                                                ">
+                                                                "
+                                                    >
                                                         <cds-select-item
-                                                                th:each="instance : ${connectorInstances}"
-                                                                th:value="${instance.id}">
-                                                            (<span th:text="${instance.connector.name}"></span>)
-                                                            <span th:text="${instance.name}"></span>
+                                                            th:each="instance : ${connectorInstances}"
+                                                            th:value="${instance.id}"
+                                                        >
+                                                            (<span
+                                                                th:text="${instance.connector.name}"
+                                                            ></span
+                                                            >)
+                                                            <span
+                                                                th:text="${instance.name}"
+                                                            ></span>
                                                         </cds-select-item>
                                                     </cds-select>
                                                 </div>
                                                 <div class="form-col">
-                                                    <div id="formEndpoints" th:fragment="connectorEndpoints">
-                                                        <cds-select label-text="Select an connector endpoint"
-                                                                    name="connectorEndpointId"
-                                                                    th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
+                                                    <div
+                                                        id="formEndpoints"
+                                                        th:fragment="connectorEndpoints"
+                                                    >
+                                                        <cds-select
+                                                            label-text="Select an connector endpoint"
+                                                            name="connectorEndpointId"
+                                                            th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
                                                                      invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
-                                                                     value=${form.connectorEndpointId}">
+                                                                     value=${form.connectorEndpointId}"
+                                                        >
                                                             <cds-select-item
-                                                                    th:each="endpoint : ${connectorEndpoints}"
-                                                                    th:value="${endpoint.id}">
-                                                                <span th:text="${endpoint.name}"></span>
+                                                                th:each="endpoint : ${connectorEndpoints}"
+                                                                th:value="${endpoint.id}"
+                                                            >
+                                                                <span
+                                                                    th:text="${endpoint.name}"
+                                                                ></span>
                                                             </cds-select-item>
                                                         </cds-select>
                                                     </div>
@@ -61,45 +105,63 @@
                                             </div>
 
                                             <!-- Add Aggregated Data Profile form -->
-                                            <cds-text-input name="roles"
-                                                            label="Roles"
-                                                            th:attr="invalid=${errors?.getFieldError('roles') != null} ? 'true' : null,
+                                            <cds-text-input
+                                                name="roles"
+                                                label="Roles"
+                                                th:attr="invalid=${errors?.getFieldError('roles') != null} ? 'true' : null,
                                                                          invalid-text=${errors?.getFieldError('roles')?.defaultMessage},
-                                                                         value=${form?.roles}">
+                                                                         value=${form?.roles}"
+                                            >
                                             </cds-text-input>
 
-                                            <div class="form-row"
-                                                 style="flex-direction: row; align-items: center; justify-content: space-between;">
-                                                <cds-toggle id="cacheEnabledToggle"
-                                                            name="cacheEnabledToggle"
-                                                            label-text="Cache enabled"
-                                                            aria-labelledby="cacheEnabled-label"
-                                                            hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
-                                                            th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
+                                            <div
+                                                class="form-row"
+                                                style="
+                                                    flex-direction: row;
+                                                    align-items: center;
+                                                    justify-content: space-between;
+                                                "
+                                            >
+                                                <cds-toggle
+                                                    id="cacheEnabledToggle"
+                                                    name="cacheEnabledToggle"
+                                                    label-text="Cache enabled"
+                                                    aria-labelledby="cacheEnabled-label"
+                                                    hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
+                                                    th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
                                                                      invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
-                                                                     checked=${form?.cacheEnabled}">
+                                                                     checked=${form?.cacheEnabled}"
+                                                >
                                                 </cds-toggle>
-                                                <input type="hidden" name="cacheEnabled" id="adpCacheEnabledHidden"
-                                                       th:value="${form?.cacheEnabled}">
-                                                <cds-number-input id="cacheTimeToLive"
-                                                                  name="cacheTimeToLive"
-                                                                  required="true"
-                                                                  value="5000"
-                                                                  min="0"
-                                                                  step="1000"
-                                                                  max="31536000000"
-                                                                  label="Time to live"
-                                                                  helper-text="Milliseconds"
-                                                                  style="width: 300px;"
-                                                                  th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
+                                                <input
+                                                    type="hidden"
+                                                    name="cacheEnabled"
+                                                    id="adpCacheEnabledHidden"
+                                                    th:value="${form?.cacheEnabled}"
+                                                />
+                                                <cds-number-input
+                                                    id="cacheTimeToLive"
+                                                    name="cacheTimeToLive"
+                                                    required="true"
+                                                    value="5000"
+                                                    min="0"
+                                                    step="1000"
+                                                    max="31536000000"
+                                                    label="Time to live"
+                                                    helper-text="Milliseconds"
+                                                    style="width: 300px"
+                                                    th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
                                                                      invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
-                                                                     value=${form?.cacheTimeToLive}">
+                                                                     value=${form?.cacheTimeToLive}"
+                                                >
                                                 </cds-number-input>
-                                                <cds-button kind="danger-tertiary"
-                                                            size="sm"
-                                                            hx-confirm="Are you sure?"
-                                                            th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
-                                                                disabled=${!isCached}">
+                                                <cds-button
+                                                    kind="danger-tertiary"
+                                                    size="sm"
+                                                    hx-confirm="Are you sure?"
+                                                    th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
+                                                                disabled=${!isCached}"
+                                                >
                                                     Clear cache
                                                 </cds-button>
                                             </div>
@@ -107,92 +169,120 @@
                                     </div>
                                     <div class="form-column">
                                         <label for="endpointTransformCode">
-                                            <cds-toggletip alignment="right" alignment-axis-offset="0">
+                                            <cds-toggletip
+                                                alignment="right"
+                                                alignment-axis-offset="0"
+                                            >
                                                 Endpoint Transform
                                                 <p slot="body-text">
-                                                    Apply a transform on the outgoing endpoint exchange.
-                                                    This can be used to map container parameters from the ADP
-                                                    input to the connector endpoint.
+                                                    Apply a transform on the
+                                                    outgoing endpoint exchange.
+                                                    This can be used to map
+                                                    container parameters from
+                                                    the ADP input to the
+                                                    connector endpoint.
                                                 </p>
                                                 <cds-link
-                                                        target="_blank"
-                                                        href="https://jqlang.org/manual/"
-                                                        slot="actions"
+                                                    target="_blank"
+                                                    href="https://jqlang.org/manual/"
+                                                    slot="actions"
                                                 >
                                                     JQ Manual
                                                 </cds-link>
                                             </cds-toggletip>
                                         </label>
                                         <cds-form-item
-                                                th:attr="invalid=${errors?.getFieldError('endpointTransform') != null} ? 'true' : null">
-                                                    <textarea id="endpointTransformCode"
-                                                              name="endpointTransform"
-                                                              th:text="${form?.endpointTransform}"
-                                                              hidden>
-                                                </textarea>
+                                            th:attr="invalid=${errors?.getFieldError('endpointTransform') != null} ? 'true' : null"
+                                        >
+                                            <textarea
+                                                id="endpointTransformCode"
+                                                name="endpointTransform"
+                                                th:text="${form?.endpointTransform}"
+                                                hidden
+                                            >
+                                            </textarea>
 
                                             <!-- Monaco container -->
-                                            <div id="endpoint-transform-editor"
-                                                 data-monaco
-                                                 data-language="jq"
-                                                 data-textarea="#endpointTransformCode"
-                                                 th:data-initial="${form?.endpointTransform}"
-                                                 data-theme="lightgray-theme"
-                                                 th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
-                                            </div>
-                                            <div id="endpoint-transform-monaco-error"
-                                                 th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-error show' : 'monaco-error'">
-                                                    <span th:if="${errors?.getFieldError('endpointTransform') != null}"
-                                                          th:text="${errors?.getFieldError('endpointTransform')?.defaultMessage}"></span>
+                                            <div
+                                                id="endpoint-transform-editor"
+                                                data-monaco
+                                                data-language="jq"
+                                                data-textarea="#endpointTransformCode"
+                                                th:data-initial="${form?.endpointTransform}"
+                                                data-theme="lightgray-theme"
+                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                            ></div>
+                                            <div
+                                                id="endpoint-transform-monaco-error"
+                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                                            >
+                                                <span
+                                                    th:if="${errors?.getFieldError('endpointTransform') != null}"
+                                                    th:text="${errors?.getFieldError('endpointTransform')?.defaultMessage}"
+                                                ></span>
                                             </div>
                                         </cds-form-item>
                                         <label for="resultTransformCode">
-                                            <cds-toggletip alignment="right" alignment-axis-offset="0">
+                                            <cds-toggletip
+                                                alignment="right"
+                                                alignment-axis-offset="0"
+                                            >
                                                 Result Transform
                                                 <p slot="body-text">
-                                                    Apply a JQ transform on the result of the adp.
-                                                    Use this to manipulate the result before it is returned as a
+                                                    Apply a JQ transform on the
+                                                    result of the adp. Use this
+                                                    to manipulate the result
+                                                    before it is returned as a
                                                     response to the client.
                                                 </p>
                                                 <cds-link
-                                                        target="_blank"
-                                                        href="https://jqlang.org/manual/"
-                                                        slot="actions"
+                                                    target="_blank"
+                                                    href="https://jqlang.org/manual/"
+                                                    slot="actions"
                                                 >
                                                     JQ Manual
                                                 </cds-link>
                                             </cds-toggletip>
                                         </label>
                                         <cds-form-item
-                                                th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null">
-                                                <textarea id="resultTransformCode"
-                                                          name="resultTransform"
-                                                          th:text="${form?.resultTransform}"
-                                                          hidden>
-                                                </textarea>
+                                            th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null"
+                                        >
+                                            <textarea
+                                                id="resultTransformCode"
+                                                name="resultTransform"
+                                                th:text="${form?.resultTransform}"
+                                                hidden
+                                            >
+                                            </textarea>
 
                                             <!-- Monaco container -->
-                                            <div id="result-transform-editor"
-                                                 data-monaco
-                                                 data-language="jq"
-                                                 data-textarea="#resultTransformCode"
-                                                 th:data-initial="${form?.resultTransform}"
-                                                 data-theme="lightgray-theme"
-                                                 th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
-                                            </div>
-                                            <div id="result-transform-monaco-error"
-                                                 th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'">
-                                                <span th:if="${errors?.getFieldError('resultTransform') != null}"
-                                                      th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"></span>
+                                            <div
+                                                id="result-transform-editor"
+                                                data-monaco
+                                                data-language="jq"
+                                                data-textarea="#resultTransformCode"
+                                                th:data-initial="${form?.resultTransform}"
+                                                data-theme="lightgray-theme"
+                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                            ></div>
+                                            <div
+                                                id="result-transform-monaco-error"
+                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                                            >
+                                                <span
+                                                    th:if="${errors?.getFieldError('resultTransform') != null}"
+                                                    th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"
+                                                ></span>
                                             </div>
                                         </cds-form-item>
                                         <cds-form-item class="form-actions">
                                             <cds-button
-                                                    type="submit"
-                                                    data-save-btn
-                                                    hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
-                                                    hx-on::before-request="const btn = this.querySelector('[data-save-btn]'); if(btn){ btn.dataset.label = btn.textContent; btn.textContent='Saving…'; btn.setAttribute('disabled',''); }"
-                                                    hx-on::after-request="const btn = this.querySelector('[data-save-btn]'); if(btn && btn.dataset.label){ btn.textContent = btn.dataset.label; btn.removeAttribute('disabled'); delete btn.dataset.label; }">
+                                                type="submit"
+                                                data-save-btn
+                                                hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
+                                                hx-on::before-request="const btn = this.querySelector('[data-save-btn]'); if(btn){ btn.dataset.label = btn.textContent; btn.textContent='Saving…'; btn.setAttribute('disabled',''); }"
+                                                hx-on::after-request="const btn = this.querySelector('[data-save-btn]'); if(btn && btn.dataset.label){ btn.textContent = btn.dataset.label; btn.removeAttribute('disabled'); delete btn.dataset.label; }"
+                                            >
                                                 Save
                                             </cds-button>
                                         </cds-form-item>

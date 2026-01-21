@@ -1,45 +1,72 @@
-<cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" open="true">
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<cds-modal
+    id="active-modal"
+    prevent-close-on-click-outside="true"
+    size="md"
+    open="true"
+>
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
         <cds-modal-label>Add new connector instance config</cds-modal-label>
         <cds-modal-heading>Connector Instance Config</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-            <th:block th:fragment="form">
-                <cds-form-group id="form-group" name="form-group">
-                    <cds-stack gap="7">
-                        <cds-text-input name="key"
-                                        size="lg"
-                                        th:value="${config?.key}"
-                                        th:attr="invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
+        <th:block th:fragment="form">
+            <cds-form-group id="form-group" name="form-group">
+                <cds-stack gap="7">
+                    <cds-text-input
+                        name="key"
+                        size="lg"
+                        th:value="${config?.key}"
+                        th:attr="invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('key')?.defaultMessage}"
-                                        label="Key">
-                        </cds-text-input>
-                        <cds-text-input name="value"
-                                        type="password"
-                                        size="lg"
-                                        show-password-visibility-toggle="true"
-                                        th:value="${config?.value}"
-                                        th:attr="invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
+                        label="Key"
+                    >
+                    </cds-text-input>
+                    <cds-text-input
+                        name="value"
+                        type="password"
+                        size="lg"
+                        show-password-visibility-toggle="true"
+                        th:value="${config?.value}"
+                        th:attr="invalid=${errors?.getFieldError('value') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('value')?.defaultMessage}"
-                                        label="Value">
-                        </cds-text-input>
-                    </cds-stack>
-                </cds-form-group>
-            </th:block>
+                        label="Value"
+                    >
+                    </cds-text-input>
+                </cds-stack>
+            </cds-form-group>
+        </th:block>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
             data-modal-close=""
             type="button"
-            kind="secondary">
+            kind="secondary"
+        >
             Cancel
         </cds-modal-footer-button>
         <cds-modal-footer-button
             type="submit"
             th:hx-post="@{|/admin/connectors/${connectorId}/instances/${instanceId}/config|}"
             hx-target="#form-group"
-            hx-include="#form-group *">
+            hx-include="#form-group *"
+        >
             Save
         </cds-modal-footer-button>
     </cds-modal-footer>

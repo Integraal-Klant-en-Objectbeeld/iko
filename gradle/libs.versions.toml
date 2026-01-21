@@ -2,7 +2,6 @@
 kotlin = "2.2.0"
 springBoot = "3.5.8"
 springDependencyManagement = "1.1.7"
-ktlint = "14.0.1"
 dockerCompose = "0.17.20"
 dotenv = "4.0.0"
 
@@ -14,6 +13,7 @@ jjwt = "0.12.6"
 kotlinLogging = "7.0.13"
 mockwebserver = "4.12.0"
 sonarqube = "7.2.2.6593"
+spotless = "8.1.0"
 jacksonModuleKotlin="2.19.4"
 
 [libraries]
@@ -95,7 +95,7 @@ kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
 kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 docker-compose = { id = "com.avast.gradle.docker-compose", version.ref = "dockerCompose" }
 dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotenv" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

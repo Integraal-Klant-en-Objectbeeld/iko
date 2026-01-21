@@ -1,5 +1,5 @@
-<!--
- Copyright (C) 2026 Ritense BV, the Netherlands.
+/*
+ Copyright (C) $YEAR Ritense BV, the Netherlands.
 
  Licensed under EUPL, Version 1.2 (the "License");
  you may not use this file except in compliance with the License.
@@ -12,18 +12,5 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
- -->
+*/
 
-<!DOCTYPE html>
-<html
-    layout:decorate="~{layout-internal.html}"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
->
-    <body>
-        <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
-        <div
-            layout:fragment="view-panel-content"
-            th:insert="~{fragments/internal/aggregated-data-profile/list :: profile-list}"
-        ></div>
-    </body>
-</html>
