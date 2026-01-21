@@ -13,4 +13,7 @@ object IkoConstants {
         const val ENDPOINT_TRANSFORM_CONTEXT_VARIABLE = "endpointTransformContext"
         const val ENDPOINT_TRANSFORM_RESULT_VARIABLE = "endpointTransformResult"
     }
+    object Validation {
+        const val ROLES_PATTERN = "^[A-Za-z0-9_-]+(,[A-Za-z0-9_-]+)*$"
+    }
 }

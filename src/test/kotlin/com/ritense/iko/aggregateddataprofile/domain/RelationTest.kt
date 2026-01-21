@@ -16,6 +16,7 @@ class RelationTest {
             connectorEndpointId = UUID.randomUUID(),
             endpointTransform = EndpointTransform("."),
             resultTransform = Transform("."),
+            roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
         )
 
@@ -44,6 +45,7 @@ class RelationTest {
             connectorEndpointId = UUID.randomUUID(),
             endpointTransform = EndpointTransform("."),
             resultTransform = Transform("."),
+            roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
         )
 
@@ -71,6 +73,7 @@ class RelationTest {
             connectorEndpointId = UUID.randomUUID(),
             endpointTransform = EndpointTransform("."),
             resultTransform = Transform("."),
+            roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
         )
 

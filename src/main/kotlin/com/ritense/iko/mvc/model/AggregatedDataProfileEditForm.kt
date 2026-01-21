@@ -1,6 +1,7 @@
 package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Validation.ROLES_PATTERN
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfileCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform
@@ -18,8 +19,12 @@ data class AggregatedDataProfileEditForm(
         message = "Name may only contain letters, digits, underscores, and hyphens.",
     )
     override val name: String,
-    @field:NotBlank(message = "Please provide a role.")
-    val role: String? = null,
+    @field:NotBlank(message = "Please provide roles.")
+    @field:Pattern(
+        regexp = ROLES_PATTERN,
+        message = "Roles must be a comma-separated list of values (e.g., ROLE_ADMIN,ROLE_USER).",
+    )
+    val roles: String,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
     @field:ValidTransform
@@ -37,7 +42,7 @@ data class AggregatedDataProfileEditForm(
         fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileEditForm(
             id = aggregatedDataProfile.id,
             name = aggregatedDataProfile.name,
-            role = aggregatedDataProfile.role,
+            roles = aggregatedDataProfile.roles.value,
             connectorInstanceId = aggregatedDataProfile.connectorInstanceId,
             connectorEndpointId = aggregatedDataProfile.connectorEndpointId,
             endpointTransform = aggregatedDataProfile.endpointTransform.expression,

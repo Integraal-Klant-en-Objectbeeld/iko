@@ -2,6 +2,7 @@ package com.ritense.iko.aggregateddataprofile.domain
 
 import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileAddForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import org.assertj.core.api.Assertions.assertThat
@@ -15,7 +16,7 @@ class AggregatedDataProfileTest {
     fun `create builds aggregated data profile from valid form`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",
-            role = "ROLE_ADMIN",
+            roles = "ROLE_ADMIN",
             endpointTransform = ".",
             resultTransform = ".",
             connectorInstanceId = UUID.randomUUID(),
@@ -25,7 +26,7 @@ class AggregatedDataProfileTest {
         val profile = AggregatedDataProfile.create(form)
 
         assertThat(profile.name).isEqualTo("pets")
-        assertThat(profile.role).isEqualTo("ROLE_ADMIN")
+        assertThat(profile.roles.value).isEqualTo("ROLE_ADMIN")
         assertThat(profile.endpointTransform.expression).isEqualTo(".")
         assertThat(profile.resultTransform.expression).isEqualTo(".")
         assertThat(profile.connectorInstanceId).isEqualTo(form.connectorInstanceId)
@@ -36,7 +37,7 @@ class AggregatedDataProfileTest {
     fun `create throws when endpoint transform is invalid`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",
-            role = "ROLE_ADMIN",
+            roles = "ROLE_ADMIN",
             endpointTransform = "?",
             resultTransform = ".",
             connectorInstanceId = UUID.randomUUID(),
@@ -52,7 +53,7 @@ class AggregatedDataProfileTest {
     fun `create throws when result transform is invalid`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",
-            role = "ROLE_ADMIN",
+            roles = "ROLE_ADMIN",
             endpointTransform = ".",
             resultTransform = "?",
             connectorInstanceId = UUID.randomUUID(),
@@ -62,6 +63,51 @@ class AggregatedDataProfileTest {
         assertThatThrownBy { AggregatedDataProfile.create(form) }
             .isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("Invalid expression")
+    }
+
+    @Test
+    fun `create throws when roles is invalid`() {
+        val form = AggregatedDataProfileAddForm(
+            name = "pets",
+            roles = "ROLE ADMIN",
+            endpointTransform = ".",
+            resultTransform = ".",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+        )
+
+        assertThatThrownBy { AggregatedDataProfile.create(form) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Roles must be a comma-separated list of values")
+    }
+
+    @Test
+    fun `handle updates profile from edit form`() {
+        val profile = createProfile()
+        val newConnectorInstanceId = UUID.randomUUID()
+        val newConnectorEndpointId = UUID.randomUUID()
+        val form = AggregatedDataProfileEditForm(
+            id = profile.id,
+            name = "updated-name",
+            roles = "ROLE_UPDATED",
+            connectorInstanceId = newConnectorInstanceId,
+            connectorEndpointId = newConnectorEndpointId,
+            endpointTransform = ".updated",
+            resultTransform = ".result",
+            cacheEnabled = true,
+            cacheTimeToLive = 3600,
+        )
+
+        profile.handle(form)
+
+        assertThat(profile.name).isEqualTo("updated-name")
+        assertThat(profile.roles.value).isEqualTo("ROLE_UPDATED")
+        assertThat(profile.connectorInstanceId).isEqualTo(newConnectorInstanceId)
+        assertThat(profile.connectorEndpointId).isEqualTo(newConnectorEndpointId)
+        assertThat(profile.endpointTransform.expression).isEqualTo(".updated")
+        assertThat(profile.resultTransform.expression).isEqualTo(".result")
+        assertThat(profile.aggregatedDataProfileCacheSetting.enabled).isTrue
+        assertThat(profile.aggregatedDataProfileCacheSetting.timeToLive).isEqualTo(3600)
     }
 
     @Test
@@ -285,6 +331,7 @@ class AggregatedDataProfileTest {
         connectorEndpointId = UUID.randomUUID(),
         endpointTransform = EndpointTransform("."),
         resultTransform = Transform("."),
+        roles = Roles("ROLE_TEST"),
         aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
     )
 }

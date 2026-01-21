@@ -6,6 +6,7 @@ import com.ritense.iko.aggregateddataprofile.domain.EndpointTransform
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.domain.RelationCacheSettings
 import com.ritense.iko.aggregateddataprofile.domain.RelationEndpointTransform
+import com.ritense.iko.aggregateddataprofile.domain.Roles
 import com.ritense.iko.aggregateddataprofile.domain.Transform
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -23,7 +24,7 @@ class RelationTest {
             endpointTransform = EndpointTransform("."),
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-            role = "ROLE_ADMIN",
+            roles = Roles("ROLE_ADMIN"),
         )
         val relation = Relation(
             aggregatedDataProfile = profile,
@@ -58,7 +59,7 @@ class RelationTest {
             endpointTransform = EndpointTransform("."),
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-            role = "ROLE_ADMIN",
+            roles = Roles("ROLE_ADMIN"),
         )
         val relation = Relation(
             aggregatedDataProfile = profile,

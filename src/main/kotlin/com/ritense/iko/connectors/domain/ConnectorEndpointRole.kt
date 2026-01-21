@@ -21,4 +21,17 @@ class ConnectorEndpointRole(
     var connectorInstance: ConnectorInstance,
     @Column(name = "role")
     var role: String,
-)
+) {
+    companion object {
+        fun create(
+            connectorInstance: ConnectorInstance,
+            connectorEndpoint: ConnectorEndpoint,
+            role: String,
+        ): ConnectorEndpointRole = ConnectorEndpointRole(
+            id = UUID.randomUUID(),
+            connectorInstance = connectorInstance,
+            connectorEndpoint = connectorEndpoint,
+            role = role,
+        )
+    }
+}
