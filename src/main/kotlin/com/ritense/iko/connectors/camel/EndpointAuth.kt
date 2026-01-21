@@ -1,9 +1,11 @@
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.builder.RouteBuilder
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.UUID
@@ -14,9 +16,12 @@ class EndpointAuth(
     val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
 ) : RouteBuilder() {
     override fun configure() {
+        // Error section
+        onException(AccessDeniedException::class.java)
+            .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
+
         from("direct:iko:endpoint:auth")
             .routeId("endpoint-auth")
-            .errorHandler(noErrorHandler())
             .process { ex ->
                 val connectorEndpointId = ex.getVariable("connectorEndpointId", UUID::class.java)
                 val connectorInstanceId = ex.getVariable("connectorInstanceId", UUID::class.java)

@@ -125,7 +125,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
-    fun `When the adp is called twice result is cached Then the API returns 200`() {
+    fun `When adp is marked as cached then it exists in Redis`() {
         val profileName = "test-cached"
         cacheService.evictByPrefix(profileName)
 
@@ -135,7 +135,6 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
                 .isFalse()
         } ?: throw AssertionError("Profile with name $profileName not found in repository")
 
-        // First call
         val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
             .andExpect(request().asyncStarted())
             .andReturn()
@@ -161,6 +160,32 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
         mockMvc.perform(asyncDispatch(mvcResult))
             .andDo(print()) // logs final response
             .andExpect(status().is4xxClientError)
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `Get Endpoint pets returns 4XX when authenticated user lacks ROLE_ADMIN`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/endpoints/pet/test-instance-tag/GetPets"))
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print()) // logs final response
+            .andExpect(status().is4xxClientError)
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `Get Endpoint pets2 returns 200 when authenticated user`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/endpoints/pet/test-instance-tag/GetPet2"))
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print()) // logs final response
+            .andExpect(status().isOk)
     }
 
     private fun encodeContainerParam(containerParam: ContainerParam): String {

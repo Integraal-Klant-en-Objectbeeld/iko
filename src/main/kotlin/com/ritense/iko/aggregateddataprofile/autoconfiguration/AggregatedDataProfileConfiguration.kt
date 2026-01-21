@@ -22,15 +22,14 @@ class AggregatedDataProfileConfiguration(
 ) {
     init {
         this.aggregatedDataProfileRepository.findAll().forEach { aggregatedDataProfile ->
-            camelContext.addRoutes(
-                AggregatedDataProfileRouteBuilder(
-                    camelContext,
-                    aggregatedDataProfile,
-                    connectorInstanceRepository,
-                    connectorEndpointRepository,
-                    cacheProcessor,
-                ),
+            val adpRoute = AggregatedDataProfileRouteBuilder(
+                camelContext,
+                aggregatedDataProfile,
+                connectorInstanceRepository,
+                connectorEndpointRepository,
+                cacheProcessor,
             )
+            camelContext.addRoutes(adpRoute)
         }
     }
 
