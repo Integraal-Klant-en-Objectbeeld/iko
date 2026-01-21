@@ -65,6 +65,22 @@ class AggregatedDataProfileTest {
     }
 
     @Test
+    fun `create throws when roles is invalid`() {
+        val form = AggregatedDataProfileAddForm(
+            name = "pets",
+            roles = "ROLE ADMIN",
+            endpointTransform = ".",
+            resultTransform = ".",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+        )
+
+        assertThatThrownBy { AggregatedDataProfile.create(form) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Roles must be a comma-separated list of values")
+    }
+
+    @Test
     fun `addRelation appends a relation with default cache settings`() {
         val profile = createProfile()
         val form = AddRelationForm(
