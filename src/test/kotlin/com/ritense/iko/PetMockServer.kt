@@ -70,14 +70,33 @@ object PetMockServer {
                                     .setHeader("Content-Type", "application/json")
                                     .setBody(objectMapper.writeValueAsString(body))
                             }
+
                             "POST" -> MockResponse()
                                 .setResponseCode(201)
                                 .setHeader("Content-Type", "application/json")
-                                .setBody(objectMapper.writeValueAsString(Pet(id = 3, name = "Pip", ownerId = ownerIdByName("Diana"))))
+                                .setBody(
+                                    objectMapper.writeValueAsString(
+                                        Pet(
+                                            id = 3,
+                                            name = "Pip",
+                                            ownerId = ownerIdByName("Diana")
+                                        )
+                                    )
+                                )
+
                             "PUT" -> MockResponse()
                                 .setResponseCode(200)
                                 .setHeader("Content-Type", "application/json")
-                                .setBody(objectMapper.writeValueAsString(Pet(id = 1, name = "Binky", ownerId = ownerIdByName("Alice"))))
+                                .setBody(
+                                    objectMapper.writeValueAsString(
+                                        Pet(
+                                            id = 1,
+                                            name = "Binky",
+                                            ownerId = ownerIdByName("Alice")
+                                        )
+                                    )
+                                )
+
                             "DELETE" -> MockResponse().setResponseCode(204)
                             else -> MockResponse().setResponseCode(405)
                         }
@@ -103,6 +122,27 @@ object PetMockServer {
                             }
 
                             else -> MockResponse().setResponseCode(405)
+                        }
+                    }
+
+                    path.startsWith("/api/pet2") -> {
+                        when (request.method) {
+                            "GET" -> {
+                                MockResponse()
+                                    .setResponseCode(200)
+                                    .setHeader("Content-Type", "application/json")
+                                    .setBody(
+                                        objectMapper.writeValueAsString(
+                                            Pet(
+                                                id = 1,
+                                                name = "Binky",
+                                                ownerId = ownerIdByName("Alice")
+                                            )
+                                        )
+                                    )
+                            }
+
+                            else -> MockResponse().setResponseCode(404)
                         }
                     }
 
