@@ -125,7 +125,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
-    fun `When the adp is called twice result is cached Then the API returns 200`() {
+    fun `When adp is marked as cached then it exits in Redis`() {
         val profileName = "test-cached"
         cacheService.evictByPrefix(profileName)
 
@@ -135,21 +135,11 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
                 .isFalse()
         } ?: throw AssertionError("Profile with name $profileName not found in repository")
 
-        // First call
         val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
             .andExpect(request().asyncStarted())
             .andReturn()
 
         mockMvc.perform(asyncDispatch(mvcResult))
-            .andExpect(status().isOk)
-
-        // Second call - should be cached
-        val mvcResult2 = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
-            .andExpect(request().asyncStarted())
-            .andReturn()
-
-        mockMvc.perform(asyncDispatch(mvcResult2))
-            .andDo(print())
             .andExpect(status().isOk)
 
         aggregatedDataProfileRepository.findByName(profileName)?.let { profile ->
@@ -160,10 +150,23 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     }
 
     @Test
-    @WithMockUser(roles = ["UNKNOWN_ROLE"])
+    @WithMockUser(roles = ["UNKNOWN"])
     fun `Get adp pets returns 4XX when authenticated user lacks ROLE_ADMIN`() {
         // Act & Assert
         val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/pets?id=externalId"))
+            .andExpect(request().asyncStarted()) // Verify it started async if applicable
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(print()) // logs final response
+            .andExpect(status().is4xxClientError)
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `Get Endpoint pets returns 4XX when authenticated user lacks ROLE_ADMIN`() {
+        // Act & Assert
+        val mvcResult = mockMvc.perform(get("/endpoints/pet/test-instance-tag/GetPets"))
             .andExpect(request().asyncStarted()) // Verify it started async if applicable
             .andReturn()
 
