@@ -9,9 +9,7 @@ class Roles(
     @Column(name = "roles", nullable = false)
     val value: String,
 ) {
-    fun asList(): List<String> {
-        return this.value.split(",")
-    }
+    fun asList(): List<String> = this.value.split(",")
 
     init {
         validate(value)

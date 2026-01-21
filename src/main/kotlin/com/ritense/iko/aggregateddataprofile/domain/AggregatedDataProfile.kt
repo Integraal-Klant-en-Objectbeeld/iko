@@ -125,17 +125,15 @@ class AggregatedDataProfile(
     }
 
     companion object {
-        fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile {
-            return AggregatedDataProfile(
-                id = UUID.randomUUID(),
-                name = form.name,
-                roles = Roles(form.roles),
-                connectorInstanceId = form.connectorInstanceId,
-                connectorEndpointId = form.connectorEndpointId,
-                endpointTransform = EndpointTransform(form.endpointTransform),
-                resultTransform = Transform(form.resultTransform),
-                aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-            )
-        }
+        fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile = AggregatedDataProfile(
+            id = UUID.randomUUID(),
+            name = form.name,
+            roles = Roles(form.roles),
+            connectorInstanceId = form.connectorInstanceId,
+            connectorEndpointId = form.connectorEndpointId,
+            endpointTransform = EndpointTransform(form.endpointTransform),
+            resultTransform = Transform(form.resultTransform),
+            aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+        )
     }
 }

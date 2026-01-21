@@ -27,13 +27,11 @@ class ConnectorEndpointRole(
             connectorInstance: ConnectorInstance,
             connectorEndpoint: ConnectorEndpoint,
             role: String,
-        ): ConnectorEndpointRole {
-            return ConnectorEndpointRole(
-                id = UUID.randomUUID(),
-                connectorInstance = connectorInstance,
-                connectorEndpoint = connectorEndpoint,
-                role = role
-            )
-        }
+        ): ConnectorEndpointRole = ConnectorEndpointRole(
+            id = UUID.randomUUID(),
+            connectorInstance = connectorInstance,
+            connectorEndpoint = connectorEndpoint,
+            role = role,
+        )
     }
 }
