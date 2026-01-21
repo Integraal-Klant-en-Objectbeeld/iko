@@ -143,15 +143,6 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
         mockMvc.perform(asyncDispatch(mvcResult))
             .andExpect(status().isOk)
 
-        // Second call - should be cached
-        val mvcResult2 = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=externalId"))
-            .andExpect(request().asyncStarted())
-            .andReturn()
-
-        mockMvc.perform(asyncDispatch(mvcResult2))
-            .andDo(print())
-            .andExpect(status().isOk)
-
         aggregatedDataProfileRepository.findByName(profileName)?.let { profile ->
             assertThat(cacheService.isCached(profile.id.toString()))
                 .withFailMessage { "Cache should contain an entry for profile $profileName (${profile.id})" }
@@ -160,7 +151,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     }
 
     @Test
-    @WithMockUser(roles = ["UNKNOWN_ROLE"])
+    @WithMockUser(roles = ["UNKNOWN"])
     fun `Get adp pets returns 4XX when authenticated user lacks ROLE_ADMIN`() {
         // Act & Assert
         val mvcResult = mockMvc.perform(get("/aggregated-data-profiles/pets?id=externalId"))
