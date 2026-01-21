@@ -2,6 +2,7 @@ package com.ritense.iko.aggregateddataprofile.domain
 
 import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileAddForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import org.assertj.core.api.Assertions.assertThat
@@ -78,6 +79,35 @@ class AggregatedDataProfileTest {
         assertThatThrownBy { AggregatedDataProfile.create(form) }
             .isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("Roles must be a comma-separated list of values")
+    }
+
+    @Test
+    fun `handle updates profile from edit form`() {
+        val profile = createProfile()
+        val newConnectorInstanceId = UUID.randomUUID()
+        val newConnectorEndpointId = UUID.randomUUID()
+        val form = AggregatedDataProfileEditForm(
+            id = profile.id,
+            name = "updated-name",
+            roles = "ROLE_UPDATED",
+            connectorInstanceId = newConnectorInstanceId,
+            connectorEndpointId = newConnectorEndpointId,
+            endpointTransform = ".updated",
+            resultTransform = ".result",
+            cacheEnabled = true,
+            cacheTimeToLive = 3600,
+        )
+
+        profile.handle(form)
+
+        assertThat(profile.name).isEqualTo("updated-name")
+        assertThat(profile.roles.value).isEqualTo("ROLE_UPDATED")
+        assertThat(profile.connectorInstanceId).isEqualTo(newConnectorInstanceId)
+        assertThat(profile.connectorEndpointId).isEqualTo(newConnectorEndpointId)
+        assertThat(profile.endpointTransform.expression).isEqualTo(".updated")
+        assertThat(profile.resultTransform.expression).isEqualTo(".result")
+        assertThat(profile.aggregatedDataProfileCacheSetting.enabled).isTrue
+        assertThat(profile.aggregatedDataProfileCacheSetting.timeToLive).isEqualTo(3600)
     }
 
     @Test
