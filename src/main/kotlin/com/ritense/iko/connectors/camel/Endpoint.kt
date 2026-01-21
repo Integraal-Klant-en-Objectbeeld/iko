@@ -4,9 +4,6 @@ import org.apache.camel.builder.RouteBuilder
 
 class Endpoint : RouteBuilder() {
     override fun configure() {
-        // TODO
-        // Add exceptions
-
         rest("/endpoints")
             .get("/{iko_connector}/{iko_config}/{iko_operation}")
             .to(Iko.iko("rest:endpoint"))

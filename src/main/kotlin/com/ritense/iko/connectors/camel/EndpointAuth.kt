@@ -16,7 +16,6 @@ class EndpointAuth(
     val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
 ) : RouteBuilder() {
     override fun configure() {
-
         // Error section
         onException(AccessDeniedException::class.java)
             .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)

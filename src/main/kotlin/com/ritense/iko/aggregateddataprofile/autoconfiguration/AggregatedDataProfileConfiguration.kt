@@ -34,7 +34,6 @@ class AggregatedDataProfileConfiguration(
             ).apply {
                 onException(AccessDeniedException::class.java)
                     .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
-
             }
             camelContext.addRoutes(route)
         }

@@ -79,9 +79,9 @@ object PetMockServer {
                                         Pet(
                                             id = 3,
                                             name = "Pip",
-                                            ownerId = ownerIdByName("Diana")
-                                        )
-                                    )
+                                            ownerId = ownerIdByName("Diana"),
+                                        ),
+                                    ),
                                 )
 
                             "PUT" -> MockResponse()
@@ -92,9 +92,9 @@ object PetMockServer {
                                         Pet(
                                             id = 1,
                                             name = "Binky",
-                                            ownerId = ownerIdByName("Alice")
-                                        )
-                                    )
+                                            ownerId = ownerIdByName("Alice"),
+                                        ),
+                                    ),
                                 )
 
                             "DELETE" -> MockResponse().setResponseCode(204)
@@ -136,9 +136,9 @@ object PetMockServer {
                                             Pet(
                                                 id = 1,
                                                 name = "Binky",
-                                                ownerId = ownerIdByName("Alice")
-                                            )
-                                        )
+                                                ownerId = ownerIdByName("Alice"),
+                                            ),
+                                        ),
                                     )
                             }
 
