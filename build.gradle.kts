@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
-    alias(libs.plugins.ktlint)
+    alias(libs.plugins.spotless)
     alias(libs.plugins.docker.compose)
     alias(libs.plugins.sonarqube)
     jacoco
@@ -171,6 +171,29 @@ dockerCompose {
             dockerExecutable = "/usr/local/bin/docker"
         }
     }
+}
+
+spotless {
+    val prettierConfig = mapOf("tabWidth" to 4)
+
+    kotlin {
+        ktlint()
+        licenseHeaderFile("templates/licenseHeaderFile.kt.template")
+    }
+    kotlinGradle {
+        ktlint()
+        licenseHeaderFile("templates/licenseHeaderFile.kts.template", "((?!\\/\\/)|\\w.*)")
+    }
+    css {
+        target("src/**/*.css")
+        prettier().config(prettierConfig)
+        licenseHeaderFile("templates/licenseHeaderFile.css.template", "(\\/\\*.*\\*\\/|.*\\{)")
+    }
+    format("html", {
+        target("src/**/*.html")
+        prettier().config(prettierConfig)
+        licenseHeaderFile("templates/licenseHeaderFile.html.template", "(<(?!!--).*>?)")
+    })
 }
 
 sonar {
