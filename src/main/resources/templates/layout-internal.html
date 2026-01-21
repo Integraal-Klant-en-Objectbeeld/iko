@@ -1,249 +1,353 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
 <!DOCTYPE html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>IKO Admin</title>
+    <head>
+        <meta charset="UTF-8" />
+        <title>IKO Admin</title>
 
-    <!-- Preconnects for faster resource loading -->
-    <link rel="preconnect" href="https://unpkg.com">
-    <link rel="preconnect" href="https://1.www.s81c.com">
+        <!-- Preconnects for faster resource loading -->
+        <link rel="preconnect" href="https://unpkg.com" />
+        <link rel="preconnect" href="https://1.www.s81c.com" />
 
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@2.0.4"
+        <!-- HTMX -->
+        <script
+            src="https://unpkg.com/htmx.org@2.0.4"
             integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
-            crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/transition.js"></script>
+            crossorigin="anonymous"
+        ></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/transition.js"></script>
 
-    <!-- Carbon v11 -->
-    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"/>
-    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"/>
-    <link rel="stylesheet" href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css">
+        <!-- Carbon v11 -->
+        <link
+            rel="stylesheet"
+            href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/themes.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://1.www.s81c.com/common/carbon/web-components/tag/v2/latest/grid.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/@carbon/styles@1.81.0/css/styles.css"
+        />
 
-    <!-- Highlight.js for code samples -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"></script>
+        <!-- Highlight.js for code samples -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"></script>
 
-    <!-- Application stylesheet -->
-    <link rel="stylesheet" href="/assets/css/main.css" />
+        <!-- Application stylesheet -->
+        <link rel="stylesheet" href="/assets/css/main.css" />
 
-    <script src="/assets/js/jq.js" type="application/javascript"></script>
+        <script src="/assets/js/jq.js" type="application/javascript"></script>
 
-    <!--  Monaco Editor -->
-    <script src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"></script>
-    <script src="/assets/js/monaco-init.js"></script>
-    <script src="/assets/js/main.js"></script>
+        <!--  Monaco Editor -->
+        <script src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"></script>
+        <script src="/assets/js/monaco-init.js"></script>
+        <script src="/assets/js/main.js"></script>
 
-    <!-- Dynamically load Carbon Web Components -->
-    <script type="module">
-        const VERSION = window.CARBON_CDN_VERSION || 'v2.44.0';
+        <!-- Dynamically load Carbon Web Components -->
+        <script type="module">
+            const VERSION = window.CARBON_CDN_VERSION || "v2.44.0";
 
-        const components = [
-            'accordion', 'breadcrumb', 'button', 'checkbox', 'code-snippet', 'combo-box',
-            'content-switcher', 'copy-button', 'data-table', 'date-picker', 'dropdown',
-            'file-uploader', 'floating-menu', 'form', 'form-group', 'inline-loading', 'text-input', 'link',
-            'list', 'loading', 'modal', 'multi-select', 'notification', 'number-input',
-            'overflow-menu', 'pagination', 'progress-indicator', 'radio-button', 'search',
-            'select', 'skeleton-placeholder', 'skeleton-text', 'skip-to-content', 'slider', 'stack',
-            'structured-list', 'tabs', 'tag', 'textarea', 'tile', 'toggle', 'toggle-tip', 'tooltip', 'ui-shell', 'grid',
-            'tree-view'
-        ];
-        // Import each Carbon component module dynamically.
-        for (const component of components) {
-            import(`https://1.www.s81c.com/common/carbon/web-components/version/${VERSION}/${component}.min.js`);
-        }
-    </script>
-</head>
-<body class="cds-theme-zone-white" data-carbon-theme="white">
-<cds-header aria-label="IBM Platform Name">
-    <cds-header-menu-button
-        button-label-active="Close menu"
-        button-label-inactive="Open menu"
-    >
-    </cds-header-menu-button>
-
-    <cds-header-name
-        href="javascript:void(0)"
-        hx-get="/admin"
-        hx-push-url="true"
-        hx-target="#view-panel"
-        prefix="IKO"
-    >[Platform]
-    </cds-header-name>
-
-    <cds-header-global-bar>
-        <span class="header-user-name">
-            <span th:text="${username == 'null' ? email : username}"></span>
-        </span>
-
-        <cds-header-global-action
-            panel-id="switcher-panel"
-            tooltip-alignment="right"
-            tooltip-text="Open switcher"
-        >
-            <svg
-                slot="icon"
-                aria-hidden="true"
-                focusable="false"
-                width="20"
-                height="20"
-                viewBox="0 0 32 32"
+            const components = [
+                "accordion",
+                "breadcrumb",
+                "button",
+                "checkbox",
+                "code-snippet",
+                "combo-box",
+                "content-switcher",
+                "copy-button",
+                "data-table",
+                "date-picker",
+                "dropdown",
+                "file-uploader",
+                "floating-menu",
+                "form",
+                "form-group",
+                "inline-loading",
+                "text-input",
+                "link",
+                "list",
+                "loading",
+                "modal",
+                "multi-select",
+                "notification",
+                "number-input",
+                "overflow-menu",
+                "pagination",
+                "progress-indicator",
+                "radio-button",
+                "search",
+                "select",
+                "skeleton-placeholder",
+                "skeleton-text",
+                "skip-to-content",
+                "slider",
+                "stack",
+                "structured-list",
+                "tabs",
+                "tag",
+                "textarea",
+                "tile",
+                "toggle",
+                "toggle-tip",
+                "tooltip",
+                "ui-shell",
+                "grid",
+                "tree-view",
+            ];
+            // Import each Carbon component module dynamically.
+            for (const component of components) {
+                import(
+                    `https://1.www.s81c.com/common/carbon/web-components/version/${VERSION}/${component}.min.js`
+                );
+            }
+        </script>
+    </head>
+    <body class="cds-theme-zone-white" data-carbon-theme="white">
+        <cds-header aria-label="IBM Platform Name">
+            <cds-header-menu-button
+                button-label-active="Close menu"
+                button-label-inactive="Open menu"
             >
-                <path
-                    d="M16 4a5 5 0 11-5 5 5 5 0 015-5m0-2a7 7 0 107 7A7 7 0 0016 2zM26 30H24V25a5 5 0 00-5-5H13a5 5 0 00-5 5v5H6V25a7 7 0 017-7h6a7 7 0 017 7z"
-                />
-            </svg>
-        </cds-header-global-action>
-    </cds-header-global-bar>
+            </cds-header-menu-button>
 
-    <cds-header-panel id="switcher-panel" class="header-panel">
-        <cds-tabs value="account">
-            <cds-tab value="account">Account</cds-tab>
-        </cds-tabs>
-        <cds-tab-panels>
-            <cds-tab-panel value="account">
-                <cds-structured-list>
-                    <cds-structured-list-head>
-                        <cds-structured-list-header-row>
-                            <cds-structured-list-header-cell>
-                                Snelkoppelingen
-                            </cds-structured-list-header-cell>
-                        </cds-structured-list-header-row>
-                    </cds-structured-list-head>
-                    <cds-structured-list-body>
-                        <cds-structured-list-row>
-                            <cds-structured-list-cell>
-                                <cds-link href="https://docs.integraal-klant-objectbeeld.nl" target="_blank">
-                                    Help
-                                </cds-link>
-                            </cds-structured-list-cell>
-                        </cds-structured-list-row>
-                        <cds-structured-list-row>
-                            <cds-structured-list-cell>
-                                <cds-link href="/logout">
-                                    Afmelden
-                                </cds-link>
-                            </cds-structured-list-cell>
-                        </cds-structured-list-row>
-                    </cds-structured-list-body>
-                </cds-structured-list>
-            </cds-tab-panel>
-        </cds-tab-panels>
-    </cds-header-panel>
-</cds-header>
+            <cds-header-name
+                href="javascript:void(0)"
+                hx-get="/admin"
+                hx-push-url="true"
+                hx-target="#view-panel"
+                prefix="IKO"
+                >[Platform]
+            </cds-header-name>
 
-<cds-side-nav
-    th:fragment="side-nav"
-    aria-label="Side navigation"
-    role="navigation"
-    collapse-mode="rail"
-    collapsed
->
-    <cds-side-nav-items>
-        <cds-side-nav-link
-            href="javascript:void(0)"
-            hx-get="/admin/aggregated-data-profiles"
-            hx-on::after-request="document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));this?.toggleAttribute('active');"
-            hx-push-url="true"
-            hx-target="#view-panel"
+            <cds-header-global-bar>
+                <span class="header-user-name">
+                    <span
+                        th:text="${username == 'null' ? email : username}"
+                    ></span>
+                </span>
+
+                <cds-header-global-action
+                    panel-id="switcher-panel"
+                    tooltip-alignment="right"
+                    tooltip-text="Open switcher"
+                >
+                    <svg
+                        slot="icon"
+                        aria-hidden="true"
+                        focusable="false"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 32 32"
+                    >
+                        <path
+                            d="M16 4a5 5 0 11-5 5 5 5 0 015-5m0-2a7 7 0 107 7A7 7 0 0016 2zM26 30H24V25a5 5 0 00-5-5H13a5 5 0 00-5 5v5H6V25a7 7 0 017-7h6a7 7 0 017 7z"
+                        />
+                    </svg>
+                </cds-header-global-action>
+            </cds-header-global-bar>
+
+            <cds-header-panel id="switcher-panel" class="header-panel">
+                <cds-tabs value="account">
+                    <cds-tab value="account">Account</cds-tab>
+                </cds-tabs>
+                <cds-tab-panels>
+                    <cds-tab-panel value="account">
+                        <cds-structured-list>
+                            <cds-structured-list-head>
+                                <cds-structured-list-header-row>
+                                    <cds-structured-list-header-cell>
+                                        Snelkoppelingen
+                                    </cds-structured-list-header-cell>
+                                </cds-structured-list-header-row>
+                            </cds-structured-list-head>
+                            <cds-structured-list-body>
+                                <cds-structured-list-row>
+                                    <cds-structured-list-cell>
+                                        <cds-link
+                                            href="https://docs.integraal-klant-objectbeeld.nl"
+                                            target="_blank"
+                                        >
+                                            Help
+                                        </cds-link>
+                                    </cds-structured-list-cell>
+                                </cds-structured-list-row>
+                                <cds-structured-list-row>
+                                    <cds-structured-list-cell>
+                                        <cds-link href="/logout">
+                                            Afmelden
+                                        </cds-link>
+                                    </cds-structured-list-cell>
+                                </cds-structured-list-row>
+                            </cds-structured-list-body>
+                        </cds-structured-list>
+                    </cds-tab-panel>
+                </cds-tab-panels>
+            </cds-header-panel>
+        </cds-header>
+
+        <cds-side-nav
+            th:fragment="side-nav"
+            aria-label="Side navigation"
+            role="navigation"
+            collapse-mode="rail"
+            collapsed
         >
-            <svg
-                aria-hidden="true"
-                fill="currentColor"
-                focusable="false"
-                height="16"
-                width="16"
-                preserveAspectRatio="xMidYMid meet"
-                slot="title-icon"
-                viewBox="0 0 32 32"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <circle cx="9" cy="26" r="1"></circle><path d="M4 24v4c0 1.1.9 2 2 2h12v-2H6v-4h12v-2H6c-1.1 0-2 .9-2 2zM4 13v5c0 1.1.9 2 2 2h8v-2H6v-5h-2z"></path><circle cx="9" cy="16" r="1"></circle><path d="M28 19v-5c0-1.1-.9-2-2-2h-8v2h8v5h2zM28 8v-4c0-1.1-.9-2-2-2h-12v2h12v4h-12v2h12c1.1 0 2-.9 2-2z"></path><path d="m23.41,22l-13.41-13.41V2H2v8h6.59l13.41,13.41v6.59h8v-8h-6.59Zm-15.41-14h-4v-4h4v4Zm20,20h-4v-4h4v4Z"></path>            </svg>
-            Aggregated Data Profiles
-        </cds-side-nav-link>
-        <cds-side-nav-link
-            href="javascript:void(0)"
-            hx-get="/admin/connectors"
-            hx-on::after-request="
+            <cds-side-nav-items>
+                <cds-side-nav-link
+                    href="javascript:void(0)"
+                    hx-get="/admin/aggregated-data-profiles"
+                    hx-on::after-request="document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));this?.toggleAttribute('active');"
+                    hx-push-url="true"
+                    hx-target="#view-panel"
+                >
+                    <svg
+                        aria-hidden="true"
+                        fill="currentColor"
+                        focusable="false"
+                        height="16"
+                        width="16"
+                        preserveAspectRatio="xMidYMid meet"
+                        slot="title-icon"
+                        viewBox="0 0 32 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <circle cx="9" cy="26" r="1"></circle>
+                        <path
+                            d="M4 24v4c0 1.1.9 2 2 2h12v-2H6v-4h12v-2H6c-1.1 0-2 .9-2 2zM4 13v5c0 1.1.9 2 2 2h8v-2H6v-5h-2z"
+                        ></path>
+                        <circle cx="9" cy="16" r="1"></circle>
+                        <path
+                            d="M28 19v-5c0-1.1-.9-2-2-2h-8v2h8v5h2zM28 8v-4c0-1.1-.9-2-2-2h-12v2h12v4h-12v2h12c1.1 0 2-.9 2-2z"
+                        ></path>
+                        <path
+                            d="m23.41,22l-13.41-13.41V2H2v8h6.59l13.41,13.41v6.59h8v-8h-6.59Zm-15.41-14h-4v-4h4v4Zm20,20h-4v-4h4v4Z"
+                        ></path>
+                    </svg>
+                    Aggregated Data Profiles
+                </cds-side-nav-link>
+                <cds-side-nav-link
+                    href="javascript:void(0)"
+                    hx-get="/admin/connectors"
+                    hx-on::after-request="
  document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
  this?.toggleAttribute('active');"
-            hx-push-url="true"
-            hx-target="#view-panel"
-        >
-            <svg
-                aria-hidden="true"
-                fill="currentColor"
-                focusable="false"
-                height="16"
-                preserveAspectRatio="xMidYMid meet"
-                slot="title-icon"
-                viewBox="0 0 32 32"
-                width="16"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path d="M23,16a7,7,0,0,0-4.18,1.39L14.6,13.17A6.86,6.86,0,0,0,16,9a7,7,0,1,0-2.81,5.59l4.21,4.22A7,7,0,1,0,23,16ZM4,9a5,5,0,1,1,5,5A5,5,0,0,1,4,9Z" transform="translate(0 .01)"></path>
-            </svg>
-            Connectors
-        </cds-side-nav-link>
-    </cds-side-nav-items>
-</cds-side-nav>
+                    hx-push-url="true"
+                    hx-target="#view-panel"
+                >
+                    <svg
+                        aria-hidden="true"
+                        fill="currentColor"
+                        focusable="false"
+                        height="16"
+                        preserveAspectRatio="xMidYMid meet"
+                        slot="title-icon"
+                        viewBox="0 0 32 32"
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="M23,16a7,7,0,0,0-4.18,1.39L14.6,13.17A6.86,6.86,0,0,0,16,9a7,7,0,1,0-2.81,5.59l4.21,4.22A7,7,0,1,0,23,16ZM4,9a5,5,0,1,1,5,5A5,5,0,0,1,4,9Z"
+                            transform="translate(0 .01)"
+                        ></path>
+                    </svg>
+                    Connectors
+                </cds-side-nav-link>
+            </cds-side-nav-items>
+        </cds-side-nav>
 
-<main class="cds-theme-zone-g10" data-carbon-theme="g10">
-    <cds-content>
-        <div id="view-panel" layout:fragment="view-panel-content" th:fragment="details">
-            <div id="breadcrumb" th:fragment="breadcrumb (entries)">
-                <cds-breadcrumb no-trailing-slash="" th:if="${entries != null}">
-                    <cds-breadcrumb-item>
-                        <cds-breadcrumb-link
-                            href="javascript:void(0)"
-                            hx-get="/admin"
-                            hx-push-url="true"
-                            hx-target="#view-panel">
-                            Home
-                        </cds-breadcrumb-link>
-                    </cds-breadcrumb-item>
-                    <cds-breadcrumb-item th:each="breadcrumb, iter : ${entries}">
-                        <cds-breadcrumb-link
-                            href="javascript:void(0)"
-                            th:hx-get="${breadcrumb[1]}"
-                            hx-push-url="true"
-                            hx-target="#view-panel"
-                            th:attrappend="is-currentpage=${iter.last}?'true'"
-                            th:is-currentpage="${iter.last}"
-                            th:text="${breadcrumb[0]}">
-                        </cds-breadcrumb-link>
-                    </cds-breadcrumb-item>
-                </cds-breadcrumb>
-            </div>
+        <main class="cds-theme-zone-g10" data-carbon-theme="g10">
+            <cds-content>
+                <div
+                    id="view-panel"
+                    layout:fragment="view-panel-content"
+                    th:fragment="details"
+                >
+                    <div id="breadcrumb" th:fragment="breadcrumb (entries)">
+                        <cds-breadcrumb
+                            no-trailing-slash=""
+                            th:if="${entries != null}"
+                        >
+                            <cds-breadcrumb-item>
+                                <cds-breadcrumb-link
+                                    href="javascript:void(0)"
+                                    hx-get="/admin"
+                                    hx-push-url="true"
+                                    hx-target="#view-panel"
+                                >
+                                    Home
+                                </cds-breadcrumb-link>
+                            </cds-breadcrumb-item>
+                            <cds-breadcrumb-item
+                                th:each="breadcrumb, iter : ${entries}"
+                            >
+                                <cds-breadcrumb-link
+                                    href="javascript:void(0)"
+                                    th:hx-get="${breadcrumb[1]}"
+                                    hx-push-url="true"
+                                    hx-target="#view-panel"
+                                    th:attrappend="is-currentpage=${iter.last}?'true'"
+                                    th:is-currentpage="${iter.last}"
+                                    th:text="${breadcrumb[0]}"
+                                >
+                                </cds-breadcrumb-link>
+                            </cds-breadcrumb-item>
+                        </cds-breadcrumb>
+                    </div>
 
-            <div id="page-header" th:fragment="page-header">
-                <h2 class="page-title cds--type-heading-03">
-                    <span th:text="${title}"></span>
-                </h2>
-            </div>
-            <h4>Welcome to IKO</h4>
-            <img
-                class="page-landing__illo"
-                th:src="@{assets/tab-illo.png}"
-                alt="Carbon illustration"
-                width="640"
-                height="498"/>
-        </div>
-    </cds-content>
-</main>
+                    <div id="page-header" th:fragment="page-header">
+                        <h2 class="page-title cds--type-heading-03">
+                            <span th:text="${title}"></span>
+                        </h2>
+                    </div>
+                    <h4>Welcome to IKO</h4>
+                    <img
+                        class="page-landing__illo"
+                        th:src="@{assets/tab-illo.png}"
+                        alt="Carbon illustration"
+                        width="640"
+                        height="498"
+                    />
+                </div>
+            </cds-content>
+        </main>
 
+        <!--Modal container-->
+        <div
+            id="modal-container"
+            class="cds-theme-zone-g10"
+            data-carbon-theme="g10"
+        ></div>
+        <script type="text/javascript">
+            // htmx.logAll();
+            htmx.config.allowNestedOobSwaps = false;
 
-<!--Modal container-->
-<div id="modal-container" class="cds-theme-zone-g10" data-carbon-theme="g10"></div>
-<script type="text/javascript">
-    // htmx.logAll();
-    htmx.config.allowNestedOobSwaps = false;
-
-    document.body.addEventListener("close-modal", () => {
-       document
-           .querySelector("#modal-container #active-modal")
-           .removeAttribute("open");
-    });
-</script>
-</body>
+            document.body.addEventListener("close-modal", () => {
+                document
+                    .querySelector("#modal-container #active-modal")
+                    .removeAttribute("open");
+            });
+        </script>
+    </body>
 </html>

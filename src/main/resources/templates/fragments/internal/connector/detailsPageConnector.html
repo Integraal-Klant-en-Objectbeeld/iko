@@ -1,218 +1,366 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
 <!DOCTYPE html>
-<html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-<body>
-<!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
-<div layout:fragment="view-panel-content">
-    <th:block th:fragment="details">
-        <div
-            th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"></div>
-        <div
-            th:replace="~{layout-internal :: page-header (pageName='Connector', title=${connector.name}, subtext=${connector.tag})}"></div>
+<html
+    layout:decorate="~{layout-internal.html}"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+    <body>
+        <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
+        <div layout:fragment="view-panel-content">
+            <th:block th:fragment="details">
+                <div
+                    th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"
+                ></div>
+                <div
+                    th:replace="~{layout-internal :: page-header (pageName='Connector', title=${connector.name}, subtext=${connector.tag})}"
+                ></div>
 
-        <cds-layout>
-            <cds-tabs value="instances" type="contained" class="cds--tabs cds--tabs--contained">
-                <cds-tab id="tab-instances" target="panel-instances" value="instances">Instances</cds-tab>
-                <cds-tab id="tab-connector-code" target="panel-connector-code" value="connector-code" selected="">
-                    Connector Code
-                </cds-tab>
-                <cds-tab id="tab-endpoints" target="panel-endpoints" value="endpoints">Endpoints</cds-tab>
-            </cds-tabs>
-
-            <div id="panel-connector-code" role="tabpanel" aria-labelledby="tab-connector-code"
-                 class="cds--tab-content cds--tab-content--interactive">
-                <div style="display: flex; flex-flow: row; justify-content: flex-end; align-items: center;">
-                    <cds-button
-                        id="save-button"
-                        type="submit"
-                        th:hx-put="@{|/admin/connectors/${connector.id}|}"
-                        hx-include="#connectorCode"
-                        hx-target="this"
-                        hx-select="#connector-code"
-                        hx-swap="none"
-                        data-editor-selector="#connector-editor"
-                        style="display: none"
-                        onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
+                <cds-layout>
+                    <cds-tabs
+                        value="instances"
+                        type="contained"
+                        class="cds--tabs cds--tabs--contained"
                     >
-                        Save
-                    </cds-button>
+                        <cds-tab
+                            id="tab-instances"
+                            target="panel-instances"
+                            value="instances"
+                            >Instances</cds-tab
+                        >
+                        <cds-tab
+                            id="tab-connector-code"
+                            target="panel-connector-code"
+                            value="connector-code"
+                            selected=""
+                        >
+                            Connector Code
+                        </cds-tab>
+                        <cds-tab
+                            id="tab-endpoints"
+                            target="panel-endpoints"
+                            value="endpoints"
+                            >Endpoints</cds-tab
+                        >
+                    </cds-tabs>
 
-                    <cds-button
-                        id="edit-code-button"
-                        onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
+                    <div
+                        id="panel-connector-code"
+                        role="tabpanel"
+                        aria-labelledby="tab-connector-code"
+                        class="cds--tab-content cds--tab-content--interactive"
                     >
-                        Edit code
-                    </cds-button>
+                        <div
+                            style="
+                                display: flex;
+                                flex-flow: row;
+                                justify-content: flex-end;
+                                align-items: center;
+                            "
+                        >
+                            <cds-button
+                                id="save-button"
+                                type="submit"
+                                th:hx-put="@{|/admin/connectors/${connector.id}|}"
+                                hx-include="#connectorCode"
+                                hx-target="this"
+                                hx-select="#connector-code"
+                                hx-swap="none"
+                                data-editor-selector="#connector-editor"
+                                style="display: none"
+                                onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
+                            >
+                                Save
+                            </cds-button>
 
-                </div>
-                <div id="connector-code" style="margin: 0.5em;" th:fragment="connector-code">
+                            <cds-button
+                                id="edit-code-button"
+                                onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
+                            >
+                                Edit code
+                            </cds-button>
+                        </div>
+                        <div
+                            id="connector-code"
+                            style="margin: 0.5em"
+                            th:fragment="connector-code"
+                        >
+                            <textarea
+                                id="connectorCode"
+                                name="connectorCode"
+                                th:text="${connector?.connectorCode}"
+                                hidden
+                            ></textarea>
 
-                    <textarea id="connectorCode"
-                              name="connectorCode"
-                              th:text="${connector?.connectorCode}"
-                              hidden></textarea>
+                            <!-- Monaco container -->
+                            <div
+                                id="connector-editor"
+                                data-monaco
+                                data-language="yaml"
+                                data-textarea="#connectorCode"
+                                data-readonly="true"
+                                th:data-initial="${connector.connectorCode}"
+                                class="monaco-editor-style-full-height"
+                            ></div>
 
-                    <!-- Monaco container -->
-                    <div id="connector-editor"
-                         data-monaco
-                         data-language="yaml"
-                         data-textarea="#connectorCode"
-                         data-readonly=true
-                         th:data-initial="${connector.connectorCode}"
-                         class="monaco-editor-style-full-height">
+                            <div id="monaco-error" class="monaco-error"></div>
+                        </div>
                     </div>
 
-                    <div id="monaco-error" class="monaco-error"></div>
-
-                </div>
-            </div>
-
-            <div id="panel-endpoints" role="tabpanel" aria-labelledby="tab-endpoints" hidden=""
-                 class="cds--tab-content cds--tab-content--interactive">
-                <cds-table id="endpoints-table" th:fragment="endpoints-table">
-                    <cds-table-toolbar slot="toolbar">
-                        <cds-table-toolbar-content>
-                            <cds-button
-                                th:hx-get="@{|/admin/connectors/${connector.id}/endpoints/create|}"
-                                hx-target="#modal-container"
-                                kind="primary"
-                            >
-                                Add endpoint
-                                <svg
-                                    focusable="false"
-                                    preserveAspectRatio="xMidYMid meet"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor"
-                                    aria-hidden="true"
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 32 32"
-                                    slot="icon">
-                                    <path
-                                        d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                                </svg>
-                            </cds-button>
-                        </cds-table-toolbar-content>
-                    </cds-table-toolbar>
-                    <!-- Header -->
-                    <cds-table-head>
-                        <cds-table-header-row>
-                            <cds-table-header-cell class="col-width-30">
-                                Name
-                            </cds-table-header-cell>
-                            <cds-table-header-cell class="col-width-30">
-                                Reference
-                            </cds-table-header-cell>
-                            <cds-table-header-cell>
-                            </cds-table-header-cell>
-
-                        </cds-table-header-row>
-                    </cds-table-head>
-                    <cds-table-body id="endpoints">
-                        <cds-table-row th:each="endpoint: ${endpoints}">
-                            <cds-table-cell th:text="${endpoint.name}"></cds-table-cell>
-                            <cds-table-cell th:text="${endpoint.operation}"></cds-table-cell>
-                            <cds-table-cell class="app--table-cell-actions">
-                                <cds-overflow-menu
-                                    enter-delay-ms="3000"
-                                    leave-delay-ms="0"
-                                    close-on-activation
-                                    hx-on:click="event.stopPropagation()"
+                    <div
+                        id="panel-endpoints"
+                        role="tabpanel"
+                        aria-labelledby="tab-endpoints"
+                        hidden=""
+                        class="cds--tab-content cds--tab-content--interactive"
+                    >
+                        <cds-table
+                            id="endpoints-table"
+                            th:fragment="endpoints-table"
+                        >
+                            <cds-table-toolbar slot="toolbar">
+                                <cds-table-toolbar-content>
+                                    <cds-button
+                                        th:hx-get="@{|/admin/connectors/${connector.id}/endpoints/create|}"
+                                        hx-target="#modal-container"
+                                        kind="primary"
+                                    >
+                                        Add endpoint
+                                        <svg
+                                            focusable="false"
+                                            preserveAspectRatio="xMidYMid meet"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 32 32"
+                                            slot="icon"
+                                        >
+                                            <path
+                                                d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                                            ></path>
+                                        </svg>
+                                    </cds-button>
+                                </cds-table-toolbar-content>
+                            </cds-table-toolbar>
+                            <!-- Header -->
+                            <cds-table-head>
+                                <cds-table-header-row>
+                                    <cds-table-header-cell class="col-width-30">
+                                        Name
+                                    </cds-table-header-cell>
+                                    <cds-table-header-cell class="col-width-30">
+                                        Reference
+                                    </cds-table-header-cell>
+                                    <cds-table-header-cell>
+                                    </cds-table-header-cell>
+                                </cds-table-header-row>
+                            </cds-table-head>
+                            <cds-table-body id="endpoints">
+                                <cds-table-row th:each="endpoint: ${endpoints}">
+                                    <cds-table-cell
+                                        th:text="${endpoint.name}"
+                                    ></cds-table-cell>
+                                    <cds-table-cell
+                                        th:text="${endpoint.operation}"
+                                    ></cds-table-cell>
+                                    <cds-table-cell
+                                        class="app--table-cell-actions"
+                                    >
+                                        <cds-overflow-menu
+                                            enter-delay-ms="3000"
+                                            leave-delay-ms="0"
+                                            close-on-activation
+                                            hx-on:click="event.stopPropagation()"
+                                        >
+                                            <svg
+                                                focusable="false"
+                                                preserveAspectRatio="xMidYMid meet"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="currentColor"
+                                                slot="icon"
+                                                class="cds--overflow-menu__icon"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 32 32"
+                                                aria-hidden="true"
+                                            >
+                                                <circle
+                                                    cx="16"
+                                                    cy="8"
+                                                    r="2"
+                                                ></circle>
+                                                <circle
+                                                    cx="16"
+                                                    cy="16"
+                                                    r="2"
+                                                ></circle>
+                                                <circle
+                                                    cx="16"
+                                                    cy="24"
+                                                    r="2"
+                                                ></circle>
+                                            </svg>
+                                            <span slot="tooltip-content">
+                                                Options
+                                            </span>
+                                            <cds-overflow-menu-body flipped="">
+                                                <cds-overflow-menu-item
+                                                    hx-confirm="Are you sure you want to delete this endpoint?"
+                                                    th:hx-delete="@{|/admin/connectors/${connector.id}/endpoints/${endpoint.id}|}"
+                                                    hx-swap="outerHTML"
+                                                    hx-target="#endpoints-table"
+                                                    danger="true"
+                                                >
+                                                    Delete
+                                                </cds-overflow-menu-item>
+                                            </cds-overflow-menu-body>
+                                        </cds-overflow-menu>
+                                    </cds-table-cell>
+                                </cds-table-row>
+                            </cds-table-body>
+                        </cds-table>
+                    </div>
+                    <div
+                        id="panel-instances"
+                        role="tabpanel"
+                        aria-labelledby="tab-instances"
+                        hidden=""
+                        class="cds--tab-content cds--tab-content--interactive"
+                    >
+                        <cds-table
+                            id="instance-table"
+                            th:fragment="instance-table"
+                        >
+                            <cds-table-toolbar slot="toolbar">
+                                <cds-table-toolbar-content>
+                                    <cds-button
+                                        th:hx-get="@{|/admin/connectors/${connector.id}/instances/create|}"
+                                        hx-target="#modal-container"
+                                        kind="primary"
+                                    >
+                                        Add instance
+                                        <svg
+                                            focusable="false"
+                                            preserveAspectRatio="xMidYMid meet"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 32 32"
+                                            slot="icon"
+                                        >
+                                            <path
+                                                d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                                            ></path>
+                                        </svg>
+                                    </cds-button>
+                                </cds-table-toolbar-content>
+                            </cds-table-toolbar>
+                            <!-- Header -->
+                            <cds-table-head>
+                                <cds-table-header-row>
+                                    <cds-table-header-cell class="col-width-30">
+                                        Name
+                                    </cds-table-header-cell>
+                                    <cds-table-header-cell class="col-width-30">
+                                        Reference
+                                    </cds-table-header-cell>
+                                    <cds-table-header-cell>
+                                    </cds-table-header-cell>
+                                </cds-table-header-row>
+                            </cds-table-head>
+                            <cds-table-body id="instances">
+                                <cds-table-row
+                                    th:each="instance: ${instances}"
+                                    th:hx-get="@{|/admin/connectors/${connector.id}/instances/${instance.id}|}"
+                                    hx-target="#view-panel"
+                                    hx-push-url="true"
+                                    role="link"
+                                    onclick="document.addEventListener('click', (e) => {if (e.target.closest('.app--table-cell-actions')) {e.stopImmediatePropagation();}});"
+                                    class="app--table-row-clickable"
                                 >
-                                    <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" slot="icon" class="cds--overflow-menu__icon" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="8" r="2"></circle><circle cx="16" cy="16" r="2"></circle><circle cx="16" cy="24" r="2"></circle></svg>
-                                    <span slot="tooltip-content"> Options </span>
-                                    <cds-overflow-menu-body flipped="" >
-                                        <cds-overflow-menu-item
-                                            hx-confirm="Are you sure you want to delete this endpoint?"
-                                            th:hx-delete="@{|/admin/connectors/${connector.id}/endpoints/${endpoint.id}|}"
-                                            hx-swap="outerHTML"
-                                            hx-target="#endpoints-table"
-                                            danger="true"
-                                        > Delete </cds-overflow-menu-item>
-                                    </cds-overflow-menu-body>
-                                </cds-overflow-menu>
-                            </cds-table-cell>
-                        </cds-table-row>
-                    </cds-table-body>
-                </cds-table>
-            </div>
-            <div id="panel-instances" role="tabpanel" aria-labelledby="tab-instances" hidden=""
-                 class="cds--tab-content cds--tab-content--interactive"
-            >
-                <cds-table id="instance-table" th:fragment="instance-table">
-                    <cds-table-toolbar slot="toolbar">
-                        <cds-table-toolbar-content>
-                            <cds-button
-                                th:hx-get="@{|/admin/connectors/${connector.id}/instances/create|}"
-                                hx-target="#modal-container"
-                                kind="primary"
-                            >
-                                Add instance
-                                <svg
-                                    focusable="false"
-                                    preserveAspectRatio="xMidYMid meet"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor"
-                                    aria-hidden="true"
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 32 32"
-                                    slot="icon">
-                                    <path
-                                        d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                                </svg>
-                            </cds-button>
-                        </cds-table-toolbar-content>
-                    </cds-table-toolbar>
-                    <!-- Header -->
-                    <cds-table-head>
-                        <cds-table-header-row>
-                            <cds-table-header-cell class="col-width-30">
-                                Name
-                            </cds-table-header-cell>
-                            <cds-table-header-cell class="col-width-30">
-                                Reference
-                            </cds-table-header-cell>
-                            <cds-table-header-cell>
-                            </cds-table-header-cell>
-                        </cds-table-header-row>
-                    </cds-table-head>
-                    <cds-table-body id="instances">
-                        <cds-table-row
-                            th:each="instance: ${instances}"
-                            th:hx-get="@{|/admin/connectors/${connector.id}/instances/${instance.id}|}"
-                            hx-target="#view-panel"
-                            hx-push-url="true"
-                            role="link"
-                            onclick="document.addEventListener('click', (e) => {if (e.target.closest('.app--table-cell-actions')) {e.stopImmediatePropagation();}});"
-                            class="app--table-row-clickable">
-                            <cds-table-cell th:text="${instance.name}"></cds-table-cell>
-                            <cds-table-cell th:text="${instance.tag}"></cds-table-cell>
-                            <cds-table-cell class="app--table-cell-actions">
-                                <cds-overflow-menu
-                                    enter-delay-ms="3000"
-                                    leave-delay-ms="0"
-                                    close-on-activation
-                                    hx-on:click="event.stopPropagation()"
-                                >
-                                    <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" slot="icon" class="cds--overflow-menu__icon" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="8" r="2"></circle><circle cx="16" cy="16" r="2"></circle><circle cx="16" cy="24" r="2"></circle></svg>
-                                    <span slot="tooltip-content"> Options </span>
-                                    <cds-overflow-menu-body flipped="" >
-                                        <cds-overflow-menu-item
-                                            hx-confirm="Are you sure you want to delete this instance?"
-                                            th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${instance.id}|}"
-                                            hx-swap="outerHTML"
-                                            hx-target="#instance-table"
-                                            danger="true"
-                                        > Delete </cds-overflow-menu-item>
-                                    </cds-overflow-menu-body>
-                                </cds-overflow-menu>
-                            </cds-table-cell>
-                        </cds-table-row>
-                    </cds-table-body>
-                </cds-table>
-            </div>
-        </cds-layout>
-    </th:block>
-</div>
-</body>
+                                    <cds-table-cell
+                                        th:text="${instance.name}"
+                                    ></cds-table-cell>
+                                    <cds-table-cell
+                                        th:text="${instance.tag}"
+                                    ></cds-table-cell>
+                                    <cds-table-cell
+                                        class="app--table-cell-actions"
+                                    >
+                                        <cds-overflow-menu
+                                            enter-delay-ms="3000"
+                                            leave-delay-ms="0"
+                                            close-on-activation
+                                            hx-on:click="event.stopPropagation()"
+                                        >
+                                            <svg
+                                                focusable="false"
+                                                preserveAspectRatio="xMidYMid meet"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="currentColor"
+                                                slot="icon"
+                                                class="cds--overflow-menu__icon"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 32 32"
+                                                aria-hidden="true"
+                                            >
+                                                <circle
+                                                    cx="16"
+                                                    cy="8"
+                                                    r="2"
+                                                ></circle>
+                                                <circle
+                                                    cx="16"
+                                                    cy="16"
+                                                    r="2"
+                                                ></circle>
+                                                <circle
+                                                    cx="16"
+                                                    cy="24"
+                                                    r="2"
+                                                ></circle>
+                                            </svg>
+                                            <span slot="tooltip-content">
+                                                Options
+                                            </span>
+                                            <cds-overflow-menu-body flipped="">
+                                                <cds-overflow-menu-item
+                                                    hx-confirm="Are you sure you want to delete this instance?"
+                                                    th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${instance.id}|}"
+                                                    hx-swap="outerHTML"
+                                                    hx-target="#instance-table"
+                                                    danger="true"
+                                                >
+                                                    Delete
+                                                </cds-overflow-menu-item>
+                                            </cds-overflow-menu-body>
+                                        </cds-overflow-menu>
+                                    </cds-table-cell>
+                                </cds-table-row>
+                            </cds-table-body>
+                        </cds-table>
+                    </div>
+                </cds-layout>
+            </th:block>
+        </div>
+    </body>
 </html>

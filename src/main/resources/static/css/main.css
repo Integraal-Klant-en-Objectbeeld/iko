@@ -1,10 +1,26 @@
+/*
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+
 /* CSS Tokens */
 :root {
-    --primary-color: #2B79BD;
+    --primary-color: #2b79bd;
     --primary-color-hover: #286198;
     --primary-color-active: #003361;
-    --color-disabled: #C6C6C6;
-    --color-skeleton: #E8E8E8;
+    --color-disabled: #c6c6c6;
+    --color-skeleton: #e8e8e8;
     --color-white: #ffffff;
 }
 
@@ -54,7 +70,6 @@ body {
     background-color: white;
 }
 
-
 /* Typography and Helper classes */
 .pointer {
     cursor: pointer;
@@ -66,7 +81,7 @@ body {
     font-style: normal;
     font-weight: 400;
     line-height: 16px;
-    letter-spacing: 0.32px
+    letter-spacing: 0.32px;
 }
 
 .no-content-container {
@@ -131,12 +146,11 @@ cds-breadcrumb-link {
 label {
     color: var(--cds-text-secondary, #525252);
     display: inline-block;
-    font-size: var(--cds-label-01-font-size, .75rem);
+    font-size: var(--cds-label-01-font-size, 0.75rem);
     font-weight: 400;
-    letter-spacing: var(--cds-label-01-letter-spacing, .32px);
+    letter-spacing: var(--cds-label-01-letter-spacing, 0.32px);
     line-height: 1rem;
-    margin-block-end: .5rem;
-
+    margin-block-end: 0.5rem;
 }
 
 /* Themes And CDS */
@@ -186,7 +200,7 @@ cds-header .app--table-cell-actions {
 
 cds-header ~ cds-side-nav {
     block-size: calc(100% - 3rem);
-    margin-block-start: 3rem
+    margin-block-start: 3rem;
 }
 
 cds-header-menu-button,
@@ -223,7 +237,8 @@ cds-header cds-header-global-bar {
 
 /* Content and components */
 main {
-    padding: var(--cds-spacing-09) var(--cds-spacing-07) var(--cds-spacing-09) var(--cds-spacing-11);
+    padding: var(--cds-spacing-09) var(--cds-spacing-07) var(--cds-spacing-09)
+        var(--cds-spacing-11);
     min-height: calc(100vh - 3rem);
     background-color: var(--cds-layer-02);
 }
@@ -428,5 +443,3 @@ cds-form-item {
     width: 100%;
     box-sizing: border-box;
 }
-
-

@@ -1,84 +1,134 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
 <!DOCTYPE html>
-<html layout:decorate="~{layout-internal.html}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
-<body>
-<!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
-<div layout:fragment="view-panel-content">
-    <th:block th:fragment="connector-list">
-        <div th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}} })}"></div>
-        <div th:replace="~{layout-internal :: page-header (title='Connectors')}"></div>
-        <!-- Data table -->
-        <cds-table id="profile-table">
-            <cds-table-toolbar slot="toolbar">
-                <cds-table-toolbar-content>
-                    <cds-button
-                        hx-get="/admin/connectors/create"
-                        hx-target="#modal-container"
-                        kind="primary">
-                        Add connector
-                        <svg
-                            focusable="false"
-                            preserveAspectRatio="xMidYMid meet"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            aria-hidden="true"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 32 32"
-                            slot="icon">
-                            <path
-                                d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"></path>
-                        </svg>
-                    </cds-button>
-                </cds-table-toolbar-content>
-            </cds-table-toolbar>
-            <!-- Header -->
-            <cds-table-head>
-                <cds-table-header-row>
-                    <cds-table-header-cell class="col-width-30">
-                        Name
-                    </cds-table-header-cell>
-                    <cds-table-header-cell class="col-width-30">
-                        Reference
-                    </cds-table-header-cell>
-                    <cds-table-header-cell>
-                    </cds-table-header-cell>
-                </cds-table-header-row>
-            </cds-table-head>
-            <cds-table-body id="search-results">
-                <cds-table-row
-                    th:each="connector : ${connectors}"
-                    th:hx-get="@{|/admin/connectors/${connector.id}|}"
-                    hx-target="#view-panel"
-                    hx-push-url="true"
-                    hx-trigger="click"
-                    role="link"
-                    class="app--table-row-clickable">
-                    <cds-table-cell th:text="${connector.name}"></cds-table-cell>
-                    <cds-table-cell th:text="${connector.tag}"></cds-table-cell>
-                    <cds-table-cell class="app--table-cell-actions">
-                        <cds-overflow-menu
-                            enter-delay-ms="3000"
-                            leave-delay-ms="0"
-                            close-on-activation
-                            hx-on:click="event.stopPropagation()"
+<html
+    layout:decorate="~{layout-internal.html}"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    lang="en"
+>
+    <body>
+        <!-- /* Content of this page will be decorated by the elements of layout-internal.html */ -->
+        <div layout:fragment="view-panel-content">
+            <th:block th:fragment="connector-list">
+                <div
+                    th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}} })}"
+                ></div>
+                <div
+                    th:replace="~{layout-internal :: page-header (title='Connectors')}"
+                ></div>
+                <!-- Data table -->
+                <cds-table id="profile-table">
+                    <cds-table-toolbar slot="toolbar">
+                        <cds-table-toolbar-content>
+                            <cds-button
+                                hx-get="/admin/connectors/create"
+                                hx-target="#modal-container"
+                                kind="primary"
+                            >
+                                Add connector
+                                <svg
+                                    focusable="false"
+                                    preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 32 32"
+                                    slot="icon"
+                                >
+                                    <path
+                                        d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                                    ></path>
+                                </svg>
+                            </cds-button>
+                        </cds-table-toolbar-content>
+                    </cds-table-toolbar>
+                    <!-- Header -->
+                    <cds-table-head>
+                        <cds-table-header-row>
+                            <cds-table-header-cell class="col-width-30">
+                                Name
+                            </cds-table-header-cell>
+                            <cds-table-header-cell class="col-width-30">
+                                Reference
+                            </cds-table-header-cell>
+                            <cds-table-header-cell> </cds-table-header-cell>
+                        </cds-table-header-row>
+                    </cds-table-head>
+                    <cds-table-body id="search-results">
+                        <cds-table-row
+                            th:each="connector : ${connectors}"
+                            th:hx-get="@{|/admin/connectors/${connector.id}|}"
+                            hx-target="#view-panel"
+                            hx-push-url="true"
+                            hx-trigger="click"
+                            role="link"
+                            class="app--table-row-clickable"
                         >
-                            <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="currentColor" slot="icon" class="cds--overflow-menu__icon" width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="8" r="2"></circle><circle cx="16" cy="16" r="2"></circle><circle cx="16" cy="24" r="2"></circle></svg>
-                            <span slot="tooltip-content"> Options </span>
-                            <cds-overflow-menu-body flipped="" >
-                                <cds-overflow-menu-item
-                                    hx-confirm="Are you sure you want to delete this connector?"
-                                    th:hx-delete="@{|/admin/connectors/${connector.id}|}"
-                                    hx-swap="outerHTML"
-                                    hx-target="#search-results"
-                                    danger="true"
-                                > Delete </cds-overflow-menu-item>
-                            </cds-overflow-menu-body>
-                        </cds-overflow-menu>
-                    </cds-table-cell>
-                </cds-table-row>
-            </cds-table-body>
-        </cds-table>
-    </th:block>
-</div>
-</body>
+                            <cds-table-cell
+                                th:text="${connector.name}"
+                            ></cds-table-cell>
+                            <cds-table-cell
+                                th:text="${connector.tag}"
+                            ></cds-table-cell>
+                            <cds-table-cell class="app--table-cell-actions">
+                                <cds-overflow-menu
+                                    enter-delay-ms="3000"
+                                    leave-delay-ms="0"
+                                    close-on-activation
+                                    hx-on:click="event.stopPropagation()"
+                                >
+                                    <svg
+                                        focusable="false"
+                                        preserveAspectRatio="xMidYMid meet"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        slot="icon"
+                                        class="cds--overflow-menu__icon"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 32 32"
+                                        aria-hidden="true"
+                                    >
+                                        <circle cx="16" cy="8" r="2"></circle>
+                                        <circle cx="16" cy="16" r="2"></circle>
+                                        <circle cx="16" cy="24" r="2"></circle>
+                                    </svg>
+                                    <span slot="tooltip-content">
+                                        Options
+                                    </span>
+                                    <cds-overflow-menu-body flipped="">
+                                        <cds-overflow-menu-item
+                                            hx-confirm="Are you sure you want to delete this connector?"
+                                            th:hx-delete="@{|/admin/connectors/${connector.id}|}"
+                                            hx-swap="outerHTML"
+                                            hx-target="#search-results"
+                                            danger="true"
+                                        >
+                                            Delete
+                                        </cds-overflow-menu-item>
+                                    </cds-overflow-menu-body>
+                                </cds-overflow-menu>
+                            </cds-table-cell>
+                        </cds-table-row>
+                    </cds-table-body>
+                </cds-table>
+            </th:block>
+        </div>
+    </body>
 </html>

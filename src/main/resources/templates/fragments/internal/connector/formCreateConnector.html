@@ -1,68 +1,108 @@
-<cds-modal id="active-modal" prevent-close-on-click-outside="true" size="md" open="true">
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<cds-modal
+    id="active-modal"
+    prevent-close-on-click-outside="true"
+    size="md"
+    open="true"
+>
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
         <cds-modal-heading>Connector</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-            <th:block th:fragment="form">
-                <cds-form-group id="form-group" hx-swap-oob="true" name="form-group">
-                    <cds-stack gap="7">
-                        <cds-text-input name="name"
-                                        size="lg"
-                                        th:value="${connector?.name}"
-                                        th:attr="
+        <th:block th:fragment="form">
+            <cds-form-group
+                id="form-group"
+                hx-swap-oob="true"
+                name="form-group"
+            >
+                <cds-stack gap="7">
+                    <cds-text-input
+                        name="name"
+                        size="lg"
+                        th:value="${connector?.name}"
+                        th:attr="
                                         invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage}
                                         "
-                                        required=""
-                                        label="Name"
-                                        invalid-text="Please enter a valid name">
-                        </cds-text-input>
+                        required=""
+                        label="Name"
+                        invalid-text="Please enter a valid name"
+                    >
+                    </cds-text-input>
 
-                        <cds-text-input name="reference"
-                                        size="lg"
-                                        th:value="${connector?.reference}"
-                                        th:attr="
+                    <cds-text-input
+                        name="reference"
+                        size="lg"
+                        th:value="${connector?.reference}"
+                        th:attr="
                                         invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
                                         invalid-text=${errors?.getFieldError('reference')?.defaultMessage}
                                         "
-                                        required=""
-                                        label="Reference"
-                                        invalid-text="Please enter a valid reference">
-                        </cds-text-input>
+                        required=""
+                        label="Reference"
+                        invalid-text="Please enter a valid reference"
+                    >
+                    </cds-text-input>
 
-                        <div class="cds--form-item">
-                            <label class="cds--label" for="connectorCodeEditor">Code</label>
-                            <div id="connectorCodeEditor"
-                                 data-monaco
-                                 data-language="yaml"
-                                 th:attr="data-initial=${connector?.connectorCode}"
-                                 data-textarea="#connectorCodeField"
-                                 data-theme="lightgray-theme"
-                                 class="monaco-editor-style">
-                            </div>
-                            <textarea id="connectorCodeField"
-                                      name="connectorCode"
-                                      hidden
-                                      th:text="${connector?.connectorCode}"></textarea>
-                            <div class="cds--form-requirement" th:if="${errors?.getFieldError('connectorCode') != null}"
-                                 th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"></div>
-                        </div>
-                    </cds-stack>
-                </cds-form-group>
-            </th:block>
+                    <div class="cds--form-item">
+                        <label class="cds--label" for="connectorCodeEditor"
+                            >Code</label
+                        >
+                        <div
+                            id="connectorCodeEditor"
+                            data-monaco
+                            data-language="yaml"
+                            th:attr="data-initial=${connector?.connectorCode}"
+                            data-textarea="#connectorCodeField"
+                            data-theme="lightgray-theme"
+                            class="monaco-editor-style"
+                        ></div>
+                        <textarea
+                            id="connectorCodeField"
+                            name="connectorCode"
+                            hidden
+                            th:text="${connector?.connectorCode}"
+                        ></textarea>
+                        <div
+                            class="cds--form-requirement"
+                            th:if="${errors?.getFieldError('connectorCode') != null}"
+                            th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
+                        ></div>
+                    </div>
+                </cds-stack>
+            </cds-form-group>
+        </th:block>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
             data-modal-close=""
             type="button"
-            kind="secondary">
+            kind="secondary"
+        >
             Cancel
         </cds-modal-footer-button>
         <cds-modal-footer-button
             type="submit"
-            hx-post="/admin/connectors" hx-target="#form-group"
-            hx-include="#form-group *">
+            hx-post="/admin/connectors"
+            hx-target="#form-group"
+            hx-include="#form-group *"
+        >
             Save
         </cds-modal-footer-button>
     </cds-modal-footer>

@@ -1,53 +1,96 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
 <div th:fragment="relation-edit" id="relation-edit">
-    <form id="relation-edit-form" hx-put="/admin/relations" hx-target="#relation-edit" hx-swap="outerHTML"
-          hx-include="#relation-edit-form *">
-        <cds-form-group name="form-group" class="cds-theme-zone-white" data-carbon-theme="white">
+    <form
+        id="relation-edit-form"
+        hx-put="/admin/relations"
+        hx-target="#relation-edit"
+        hx-swap="outerHTML"
+        hx-include="#relation-edit-form *"
+    >
+        <cds-form-group
+            name="form-group"
+            class="cds-theme-zone-white"
+            data-carbon-theme="white"
+        >
             <div class="form-column">
                 <cds-form-item>
-                    <cds-dropdown name="sourceId"
-                                  size="lg"
-                                  style="width: 100%"
-                                  helper-text=""
-                                  title-text="From"
-                                  label="Select a from"
-                                  th:attr="
+                    <cds-dropdown
+                        name="sourceId"
+                        size="lg"
+                        style="width: 100%"
+                        helper-text=""
+                        title-text="From"
+                        label="Select a from"
+                        th:attr="
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
-                                value=${form?.sourceId}">
-                        <cds-dropdown-item th:value="${form.aggregatedDataProfileId}" disabled>
+                                value=${form?.sourceId}"
+                    >
+                        <cds-dropdown-item
+                            th:value="${form.aggregatedDataProfileId}"
+                            disabled
+                        >
                             Profile root
                         </cds-dropdown-item>
-                        <cds-dropdown-item th:each="source : ${sources}"
-                                           th:value="${source.id}">
-                            <span th:text="'Relation (' +${source.name} +')'"></span>
+                        <cds-dropdown-item
+                            th:each="source : ${sources}"
+                            th:value="${source.id}"
+                        >
+                            <span
+                                th:text="'Relation (' +${source.name} +')'"
+                            ></span>
                         </cds-dropdown-item>
                     </cds-dropdown>
                 </cds-form-item>
                 <cds-form-item>
                     <cds-select
-                            label-text="Select an connector instance"
-                            size="lg"
-                            name="connectorInstanceId"
-                            hx-get="/admin/aggregated-data-profiles/create/endpoints"
-                            hx-trigger="cds-select-selected"
-                            hx-target="#formRelationEndpoints"
-                            th:value="${form?.connectorInstanceId}">
-
-                        <cds-select-item th:each="instance: ${connectorInstances}"
-                                         th:value="${instance.id}">
+                        label-text="Select an connector instance"
+                        size="lg"
+                        name="connectorInstanceId"
+                        hx-get="/admin/aggregated-data-profiles/create/endpoints"
+                        hx-trigger="cds-select-selected"
+                        hx-target="#formRelationEndpoints"
+                        th:value="${form?.connectorInstanceId}"
+                    >
+                        <cds-select-item
+                            th:each="instance: ${connectorInstances}"
+                            th:value="${instance.id}"
+                        >
                             (<span th:text="${instance.connector.name}"></span>)
                             <span th:text="${instance.name}"></span>
                         </cds-select-item>
                     </cds-select>
                 </cds-form-item>
 
-                <cds-form-item id="formRelationEndpoints" th:fragment="connectorEndpoints">
-                    <cds-select label-text="Select an connector endpoint"
-                                size="lg"
-                                name="connectorEndpointId"
-                                th:value="${form?.connectorEndpointId}">
-                        <cds-select-item th:each="endpoint: ${connectorEndpoints}"
-                                         th:value="${endpoint.id}">
+                <cds-form-item
+                    id="formRelationEndpoints"
+                    th:fragment="connectorEndpoints"
+                >
+                    <cds-select
+                        label-text="Select an connector endpoint"
+                        size="lg"
+                        name="connectorEndpointId"
+                        th:value="${form?.connectorEndpointId}"
+                    >
+                        <cds-select-item
+                            th:each="endpoint: ${connectorEndpoints}"
+                            th:value="${endpoint.id}"
+                        >
                             <span th:text="${endpoint.name}"></span>
                         </cds-select-item>
                     </cds-select>
@@ -57,13 +100,14 @@
                         Endpoint parameter Mapping Transform
                         <p slot="body-text">
                             Apply a transform on the outgoing endpoint exchange.
-                            This can be used to map soruce and container parameters from the relation
-                            input to the connector endpoint.
+                            This can be used to map soruce and container
+                            parameters from the relation input to the connector
+                            endpoint.
                         </p>
                         <cds-link
-                                target="_blank"
-                                href="https://jqlang.org/manual/"
-                                slot="actions"
+                            target="_blank"
+                            href="https://jqlang.org/manual/"
+                            slot="actions"
                         >
                             JQ Manual
                         </cds-link>
@@ -71,139 +115,214 @@
                 </label>
                 <cds-form-item>
                     <cds-form-item
-                            th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null">
-                                                    <textarea id="sourceToEndpointMappingCode"
-                                                              name="sourceToEndpointMapping"
-                                                              th:text="${form?.sourceToEndpointMapping}"
-                                                              hidden>
-                                                </textarea>
+                        th:attr="invalid=${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'true' : null"
+                    >
+                        <textarea
+                            id="sourceToEndpointMappingCode"
+                            name="sourceToEndpointMapping"
+                            th:text="${form?.sourceToEndpointMapping}"
+                            hidden
+                        >
+                        </textarea>
 
                         <!-- Monaco container -->
-                        <div id="endpoint-transform-editor"
-                             data-monaco
-                             data-language="jq"
-                             data-textarea="#sourceToEndpointMappingCode"
-                             th:data-initial="${form?.sourceToEndpointMapping}"
-                             data-theme="lightgray-theme"
-                             th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
-                        </div>
-                        <div id="source-to-endpoint-transform-monaco-error"
-                             th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-error show' : 'monaco-error'">
-                                                    <span th:if="${errors?.getFieldError('sourceToEndpointMapping') != null}"
-                                                          th:text="${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage}"></span>
+                        <div
+                            id="endpoint-transform-editor"
+                            data-monaco
+                            data-language="jq"
+                            data-textarea="#sourceToEndpointMappingCode"
+                            th:data-initial="${form?.sourceToEndpointMapping}"
+                            data-theme="lightgray-theme"
+                            th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                        ></div>
+                        <div
+                            id="source-to-endpoint-transform-monaco-error"
+                            th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-error show' : 'monaco-error'"
+                        >
+                            <span
+                                th:if="${errors?.getFieldError('sourceToEndpointMapping') != null}"
+                                th:text="${errors?.getFieldError('sourceToEndpointMapping')?.defaultMessage}"
+                            ></span>
                         </div>
                     </cds-form-item>
                 </cds-form-item>
                 <cds-form-item>
-                    <cds-text-input name="propertyName"
-                                    label="Property Name"
-                                    placeholder="e.g. relation"
-                                    th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
+                    <cds-text-input
+                        name="propertyName"
+                        label="Property Name"
+                        placeholder="e.g. relation"
+                        th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('propertyName')?.defaultMessage},
-                                value=${form?.propertyName}">
+                                value=${form?.propertyName}"
+                    >
                     </cds-text-input>
                 </cds-form-item>
                 <label for="resultTransformCodeEdit">
                     <cds-toggletip alignment="right" alignment-axis-offset="0">
                         Result Transform
                         <p slot="body-text">
-                            Apply a JQ transform on the result before it is returned as a
-                            response to the client.
+                            Apply a JQ transform on the result before it is
+                            returned as a response to the client.
                         </p>
                         <cds-link
-                                target="_blank"
-                                href="https://jqlang.org/manual/"
-                                slot="actions">
+                            target="_blank"
+                            href="https://jqlang.org/manual/"
+                            slot="actions"
+                        >
                             JQ Manual
                         </cds-link>
                     </cds-toggletip>
                 </label>
-                <cds-form-item th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null">
-                <textarea id="resultTransformCodeEdit"
-                          name="resultTransform"
-                          th:text="${form?.resultTransform}"
-                          hidden>
-                </textarea>
+                <cds-form-item
+                    th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null"
+                >
+                    <textarea
+                        id="resultTransformCodeEdit"
+                        name="resultTransform"
+                        th:text="${form?.resultTransform}"
+                        hidden
+                    >
+                    </textarea>
 
-                    <div id="result-transform-editor-edit"
-                         data-monaco
-                         data-language="jq"
-                         data-textarea="#resultTransformCodeEdit"
-                         th:data-initial="${form?.resultTransform}"
-                         data-theme="lightgray-theme"
-                         th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'">
-                    </div>
-                    <div id="result-transform-monaco-error-edit"
-                         th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'">
-                    <span th:if="${errors?.getFieldError('resultTransform') != null}"
-                          th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"></span>
+                    <div
+                        id="result-transform-editor-edit"
+                        data-monaco
+                        data-language="jq"
+                        data-textarea="#resultTransformCodeEdit"
+                        th:data-initial="${form?.resultTransform}"
+                        data-theme="lightgray-theme"
+                        th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                    ></div>
+                    <div
+                        id="result-transform-monaco-error-edit"
+                        th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                    >
+                        <span
+                            th:if="${errors?.getFieldError('resultTransform') != null}"
+                            th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"
+                        ></span>
                     </div>
                 </cds-form-item>
 
                 <!-- Cache setting -->
-                <div class="form-row" style="flex-direction: row; align-items: center; justify-content: space-between;">
-                    <cds-toggle id="cacheEnabledToggle"
-                                name="cacheEnabledToggle"
-                                label-text="Cache enabled"
-                                aria-labelledby="cacheEnabled-label"
-                                hx-on:cds-toggle-changed="document.querySelector('#relationCacheEnabledHidden').value = this.checked;"
-                                th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
+                <div
+                    class="form-row"
+                    style="
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: space-between;
+                    "
+                >
+                    <cds-toggle
+                        id="cacheEnabledToggle"
+                        name="cacheEnabledToggle"
+                        label-text="Cache enabled"
+                        aria-labelledby="cacheEnabled-label"
+                        hx-on:cds-toggle-changed="document.querySelector('#relationCacheEnabledHidden').value = this.checked;"
+                        th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
                                      invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
-                                     checked=${form?.cacheEnabled}">
+                                     checked=${form?.cacheEnabled}"
+                    >
                     </cds-toggle>
-                    <input type="hidden" name="cacheEnabled" id="relationCacheEnabledHidden"
-                           th:value="${form?.cacheEnabled}">
-                    <cds-number-input id="cacheTimeToLive"
-                                      name="cacheTimeToLive"
-                                      required="true"
-                                      value="5000"
-                                      min="0"
-                                      step="1000"
-                                      max="31536000000"
-                                      label="Time to live"
-                                      helper-text="Milliseconds"
-                                      style="width: 300px;"
-                                      th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
+                    <input
+                        type="hidden"
+                        name="cacheEnabled"
+                        id="relationCacheEnabledHidden"
+                        th:value="${form?.cacheEnabled}"
+                    />
+                    <cds-number-input
+                        id="cacheTimeToLive"
+                        name="cacheTimeToLive"
+                        required="true"
+                        value="5000"
+                        min="0"
+                        step="1000"
+                        max="31536000000"
+                        label="Time to live"
+                        helper-text="Milliseconds"
+                        style="width: 300px"
+                        th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
                                            invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
-                                           value=${form?.cacheTimeToLive}">
+                                           value=${form?.cacheTimeToLive}"
+                    >
                     </cds-number-input>
-                    <cds-button kind="danger-tertiary"
-                                size="sm"
-                                hx-confirm="Are you sure?"
-                                th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relation/' + ${form.id} + '/cache'},
-                                     disabled=${!isCached}">
+                    <cds-button
+                        kind="danger-tertiary"
+                        size="sm"
+                        hx-confirm="Are you sure?"
+                        th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relation/' + ${form.id} + '/cache'},
+                                     disabled=${!isCached}"
+                    >
                         Clear cache
                     </cds-button>
                 </div>
                 <!-- Cache setting -->
-                <input type="hidden" name="aggregatedDataProfileId" th:value="${form.aggregatedDataProfileId}"/>
-                <input type="hidden" name="id" th:value="${form.id}"/>
+                <input
+                    type="hidden"
+                    name="aggregatedDataProfileId"
+                    th:value="${form.aggregatedDataProfileId}"
+                />
+                <input type="hidden" name="id" th:value="${form.id}" />
             </div>
         </cds-form-group>
 
         <div class="relation-button-bar">
-            <cds-button kind="danger"
-                        th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/edit/' + ${form.id} + '/delete'} "
-                        hx-target="#modal-container"
-                        hx-swap="innerHTML"
-                        hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
-                        hx-push-url="false"
-                        type="button">
+            <cds-button
+                kind="danger"
+                th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/edit/' + ${form.id} + '/delete'} "
+                hx-target="#modal-container"
+                hx-swap="innerHTML"
+                hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
+                hx-push-url="false"
+                type="button"
+            >
                 Delete
-                <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="32"
-                     height="32" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                    slot="icon"
+                    focusable="false"
+                    preserveAspectRatio="xMidYMid meet"
+                    fill="currentColor"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 32 32"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
                     <path d="M12 12H14V24H12zM18 12H20V24H18z"></path>
-                    <path d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path>
-                    <title>Trash can</title></svg>
+                    <path
+                        d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"
+                    ></path>
+                    <title>Trash can</title>
+                </svg>
             </cds-button>
-            <cds-button type="submit" hx-on:click="document.getElementById('relation-edit-form')?.requestSubmit()">
+            <cds-button
+                type="submit"
+                hx-on:click="document.getElementById('relation-edit-form')?.requestSubmit()"
+            >
                 Save
-                <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet" fill="currentColor" width="16"
-                     height="16" viewBox="0 0 32 32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M27.71,9.29l-5-5A1,1,0,0,0,22,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V10A1,1,0,0,0,27.71,9.29ZM12,6h8v4H12Zm8,20H12V18h8Zm2,0V18a2,2,0,0,0-2-2H12a2,2,0,0,0-2,2v8H6V6h4v4a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V6.41l4,4V26Z"></path>
-                    <title>Save</title></svg>
+                <svg
+                    slot="icon"
+                    focusable="false"
+                    preserveAspectRatio="xMidYMid meet"
+                    fill="currentColor"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 32 32"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        d="M27.71,9.29l-5-5A1,1,0,0,0,22,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V10A1,1,0,0,0,27.71,9.29ZM12,6h8v4H12Zm8,20H12V18h8Zm2,0V18a2,2,0,0,0-2-2H12a2,2,0,0,0-2,2v8H6V6h4v4a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V6.41l4,4V26Z"
+                    ></path>
+                    <title>Save</title>
+                </svg>
             </cds-button>
         </div>
     </form>
 </div>
-<span id="selected-relation-name" hx-swap-oob="true" class="tile-title" th:text="${form?.propertyName}"></span>
+<span
+    id="selected-relation-name"
+    hx-swap-oob="true"
+    class="tile-title"
+    th:text="${form?.propertyName}"
+></span>

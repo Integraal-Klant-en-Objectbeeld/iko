@@ -1,22 +1,40 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
 <th:block th:fragment="profilePagination">
-    <cds-pagination id="pagination-container"
-                    hx-swap-oob="true"
-                    size="md"
-                    th:attr="page=${page.number + 1},
+    <cds-pagination
+        id="pagination-container"
+        hx-swap-oob="true"
+        size="md"
+        th:attr="page=${page.number + 1},
                                   totalPages=${page.totalPages},
                                   total-items=${page.totalElements},
                                   page-size=${page.size}"
-                    hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
-                    hx-get="/admin/aggregated-data-profiles/filter"
-                    hx-target="#search-results"
-                    hx-swap="outerHTML"
-                    hx-push-url="true"
-                    hx-on:cds-pagination-changed-current="console.log('cds-pagination-changed-current', event, this.pageSize, this.page)"
-                    hx-vals="js:{
+        hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
+        hx-get="/admin/aggregated-data-profiles/filter"
+        hx-target="#search-results"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        hx-on:cds-pagination-changed-current="console.log('cds-pagination-changed-current', event, this.pageSize, this.page)"
+        hx-vals="js:{
                       size: event.detail.pageSize,
                       page: event.detail.page - 1,
                       query: document.querySelector('#search-bar').value
-                    }">
+                    }"
+    >
         <cds-select-item value="10">10</cds-select-item>
         <cds-select-item value="20">20</cds-select-item>
         <cds-select-item value="30">30</cds-select-item>
