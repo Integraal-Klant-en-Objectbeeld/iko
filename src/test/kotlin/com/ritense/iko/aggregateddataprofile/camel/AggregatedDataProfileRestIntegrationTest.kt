@@ -125,7 +125,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
-    fun `When adp is marked as cached then it exits in Redis`() {
+    fun `When adp is marked as cached then it exists in Redis`() {
         val profileName = "test-cached"
         cacheService.evictByPrefix(profileName)
 

@@ -400,7 +400,7 @@ class ConnectorController(
             return ModelAndView(
                 "fragments/internal/connector/formCreateConnectorInstanceRole :: form",
                 mapOf(
-                    "roles" to form,
+                    "role" to form,
                     "errors" to bindingResult,
                     "connectorEndpoints" to connectorEndpointRepository.findByConnector(connector),
                 ),
