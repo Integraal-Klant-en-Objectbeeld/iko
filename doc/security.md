@@ -81,6 +81,6 @@ Standaard worden de rollen voor een aggregatieprofiel in het profiel zelf ingest
 #### Voorbeelden:
 
 - `/endpoints/voorbeeld` → `ROLE_ENDPOINT_VOORBEELD`
-- `/aggregated-data-profiles/voorbeeld?id=121` → `ROLE_USER`A
+- `/aggregated-data-profiles/voorbeeld?id=121` → `ROLE_USER`
 - `/aggregated-data-profiles/uitzondering?id=2` met andere rol `ROLE_ADMIN`
 ``
