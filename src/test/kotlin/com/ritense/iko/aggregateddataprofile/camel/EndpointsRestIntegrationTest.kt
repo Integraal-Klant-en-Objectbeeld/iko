@@ -63,5 +63,4 @@ internal class EndpointsRestIntegrationTest : BaseIntegrationTest() {
             .andDo(print()) // logs final response
             .andExpect(status().isOk)
     }
-
 }

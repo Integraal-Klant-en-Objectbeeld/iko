@@ -59,7 +59,7 @@ class ConnectorConfiguration(
         connectorInstanceRepository: ConnectorInstanceRepository,
     ) = EndpointValidation(
         connectorEndpointRepository,
-        connectorInstanceRepository
+        connectorInstanceRepository,
     )
 
     @Bean
@@ -67,9 +67,9 @@ class ConnectorConfiguration(
 
     @Bean
     fun ikoConnectorConfig(
-        connectorInstanceRepository: ConnectorInstanceRepository
+        connectorInstanceRepository: ConnectorInstanceRepository,
     ) = ConnectorConfig(
-        connectorInstanceRepository
+        connectorInstanceRepository,
     )
 
     @Bean
