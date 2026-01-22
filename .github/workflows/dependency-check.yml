@@ -1,0 +1,47 @@
+name: Dependency check
+
+on:
+    schedule:
+        -   cron: "0 8 * * 1"
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: dependency-check-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    dependency-check:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+            -   name: Setup Java
+                uses: actions/setup-java@v4
+                with:
+                    distribution: 'temurin'
+                    java-version: 21
+            -   name: Set up gradle
+                uses: gradle/actions/setup-gradle@v5
+            -   name: Build project
+                run: ./gradlew build -x test -x integrationTest -x spotlessCheck
+            -   name: Dependency check
+                uses: dependency-check/Dependency-Check_Action@main
+                env:
+                    JAVA_HOME: /opt/jdk
+                with:
+                    project: 'IKO'
+                    path: '.'
+                    format: 'HTML'
+                    out: 'dependency-check'
+                    args: >
+                        --failOnCVSS 8
+                        --enableRetired
+            -   name: Upload Test results
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Dependency check result
+                    path: ${{github.workspace}}/dependency-check
