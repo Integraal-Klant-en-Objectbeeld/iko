@@ -20,7 +20,6 @@ import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBui
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.processor.CacheProcessor
-import com.ritense.iko.camel.GlobalErrorHandlerConfiguration
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -33,16 +32,10 @@ class AggregatedDataProfileService(
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val ikoCacheProcessor: CacheProcessor,
-    private val globalErrorHandlerConfiguration: GlobalErrorHandlerConfiguration,
 ) {
 
-    @EventListener(
-        ApplicationReadyEvent::class,
-    )
-    fun loadAllAggregatedDataProfilesAtStartup(
-        event: ApplicationReadyEvent,
-    ) {
-        camelContext.addRoutes(globalErrorHandlerConfiguration)
+    @EventListener(ApplicationReadyEvent::class)
+    fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
         aggregatedDataProfileRepository.findAll().forEach { aggregatedDataProfile ->
             val adpRoute = AggregatedDataProfileRouteBuilder(
                 camelContext,

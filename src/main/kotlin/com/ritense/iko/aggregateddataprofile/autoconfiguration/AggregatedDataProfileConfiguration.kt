@@ -22,7 +22,6 @@ import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.cache.processor.CacheProcessor
-import com.ritense.iko.camel.GlobalErrorHandlerConfiguration
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -39,14 +38,12 @@ class AggregatedDataProfileConfiguration {
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
         ikoCacheProcessor: CacheProcessor,
-        globalErrorHandlerConfiguration: GlobalErrorHandlerConfiguration,
     ) = AggregatedDataProfileService(
         camelContext,
         aggregatedDataProfileRepository,
         connectorEndpointRepository,
         connectorInstanceRepository,
         ikoCacheProcessor,
-        globalErrorHandlerConfiguration,
     )
 
     @Bean
@@ -62,7 +59,4 @@ class AggregatedDataProfileConfiguration {
     fun containerParamsProcessor(
         objectMapper: ObjectMapper,
     ) = ContainerParamsProcessor(objectMapper)
-
-    @Bean
-    fun globalErrorHandlerConfiguration() = GlobalErrorHandlerConfiguration()
 }
