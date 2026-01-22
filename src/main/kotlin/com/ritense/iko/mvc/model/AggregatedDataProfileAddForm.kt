@@ -17,7 +17,7 @@
 package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Validation.ROLES_PATTERN
+import com.ritense.iko.camel.IkoConstants.Validation.ROLES_PATTERN
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfile
 import com.ritense.iko.mvc.model.validation.UniqueAggregatedDataProfileCheck
 import com.ritense.iko.mvc.model.validation.ValidTransform

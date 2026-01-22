@@ -19,25 +19,20 @@ package com.ritense.iko.aggregateddataprofile.camel
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileUnsupportedEndpointTransformResultTypeError
-import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
-import com.ritense.iko.connectors.camel.Iko
+import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
+import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
-import org.apache.camel.ValidationException
 import org.apache.camel.builder.FlexibleAggregationStrategy
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.jackson.JacksonConstants
-import org.apache.camel.http.base.HttpOperationFailedException
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus
-import org.springframework.security.access.AccessDeniedException
 
 class AggregatedDataProfileRouteBuilder(
     private val camelContext: CamelContext,
@@ -60,32 +55,6 @@ class AggregatedDataProfileRouteBuilder(
             connectorEndpointRepository.findByIdOrNull(aggregatedDataProfile.connectorEndpointId),
         ) { NoSuchElementException("Connector endpoint not found") }
 
-        // Error section
-        onException(AccessDeniedException::class.java)
-            .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
-
-        onException(ValidationException::class.java, IllegalArgumentException::class.java)
-            .errorResponse(status = HttpStatus.BAD_REQUEST)
-
-        onException(HttpOperationFailedException::class.java)
-            .errorResponse(
-                status = HttpStatus.INTERNAL_SERVER_ERROR,
-                exposeMessage = false,
-            )
-
-        onException(AggregatedDataProfileUnsupportedEndpointTransformResultTypeError::class.java)
-            .errorResponse(
-                status = HttpStatus.BAD_REQUEST,
-                exposeMessage = true,
-            )
-
-        // Global
-        onException(Exception::class.java)
-            .errorResponse(
-                status = HttpStatus.INTERNAL_SERVER_ERROR,
-                exposeMessage = false,
-            )
-
         val endpointTransformExpression = expression()
             .jq(aggregatedDataProfile.endpointTransform.expression)
             .variableName(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE)
@@ -95,6 +64,7 @@ class AggregatedDataProfileRouteBuilder(
         // profile root route entrypoint
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
+            .routeConfigurationId("global-error-handler-configuration")
             .routeDescription("[ADP Root]")
             .setVariable(
                 "authorities",
@@ -105,13 +75,13 @@ class AggregatedDataProfileRouteBuilder(
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
-            .to(Iko.endpoint("validate"))
-            .to(Iko.iko("config"))
-            .to(Iko.transform())
+            .to(IkoRouteHelper.endpoint("validate"))
+            .to(IkoRouteHelper.iko("config"))
+            .to(IkoRouteHelper.transform())
             .process {
                 cacheProcessor.checkCache(exchange = it, cacheable = aggregatedDataProfile.toCacheable())
             }
-            .to(Iko.connector())
+            .to(IkoRouteHelper.connector())
             .let {
                 if (level1Relations.isNotEmpty()) {
                     // enrich root exchange with multicast routes from relations
@@ -130,6 +100,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+            .routeConfigurationId("global-error-handler-configuration")
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, endpointTransformExpression)
             .routeDescription("[ADP Endpoint Transform]")
             .process { exchange ->
@@ -140,6 +111,7 @@ class AggregatedDataProfileRouteBuilder(
                     is ObjectNode -> endpointTransformResult.forEachEntry { key, value ->
                         exchange.getIn().setHeader(key, value.asText())
                     }
+
                     null -> return@process
                     else -> throw AggregatedDataProfileUnsupportedEndpointTransformResultTypeError(
                         type = endpointTransformResult::class.java.simpleName,
@@ -180,6 +152,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}")
             .routeId("relation_${currentRelation.id}_root")
+            .routeConfigurationId("global-error-handler-configuration")
             .routeDescription("[${aggregatedDataProfile.name}] <-- [${currentRelation.propertyName}]")
             .removeHeaders("*")
             .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
@@ -201,6 +174,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_map")
             .routeId("relation_${currentRelation.id}_map")
+            .routeConfigurationId("global-error-handler-configuration")
             .routeDescription("Endpoint mapping (Map): [${currentRelation.propertyName}]")
             .process {
                 it.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java).forEachEntry { key, value ->
@@ -213,6 +187,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_array")
             .routeId("relation_${currentRelation.id}_array")
+            .routeConfigurationId("global-error-handler-configuration")
             .routeDescription("Endpoint mapping (List): [${currentRelation.propertyName}]")
             .split(
                 variable(ENDPOINT_TRANSFORM_RESULT_VARIABLE),
@@ -235,21 +210,22 @@ class AggregatedDataProfileRouteBuilder(
         // Executes each relation route
         from("direct:relation_${currentRelation.id}_loop")
             .routeId("relation_${currentRelation.id}_loop")
+            .routeConfigurationId("global-error-handler-configuration")
             .routeDescription("[${currentRelation.propertyName}] --> Endpoint")
             .unmarshal().json()
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
             .setVariable("relationPropertyName", constant(currentRelation.propertyName))
-            .to(Iko.endpoint("validate"))
-            .to(Iko.iko("config"))
-            .to(Iko.transform())
+            .to(IkoRouteHelper.endpoint("validate"))
+            .to(IkoRouteHelper.iko("config"))
+            .to(IkoRouteHelper.transform())
             .process {
                 cacheProcessor.checkCache(exchange = it, cacheable = currentRelation.toCacheable())
             }
             .choice()
             .`when` { ex -> !ex.getVariable("cacheHit_${currentRelation.id}", Boolean::class.java) } // cacheHit false
-            .to(Iko.connector())
+            .to(IkoRouteHelper.connector())
             .process {
                 cacheProcessor.putCache(exchange = it, cacheable = currentRelation.toCacheable())
             }

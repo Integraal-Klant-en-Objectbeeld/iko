@@ -9,6 +9,7 @@ The current connectors are:
 - [BAG](./bag.md)
 - [BRP](./haalcentraal-brp.md)
 - [ObjectenAPI](objectenapi.md)
+- [OpenDocumenten](opendocumenten.md)
 - [OpenKlant](openklant.md)
 - [OpenZaak](openzaak.md)
 

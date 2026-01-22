@@ -16,13 +16,14 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoRouteHelper
 import org.apache.camel.builder.RouteBuilder
 
 class Connector : RouteBuilder() {
     override fun configure() {
-        from(Iko.connector())
+        from(IkoRouteHelper.connector())
             .routeId("connector")
-            .errorHandler(noErrorHandler())
-            .toD(Iko.connector("\${variable.connector}"))
+            .routeConfigurationId("global-error-handler-configuration")
+            .toD(IkoRouteHelper.connector("\${variable.connector}"))
     }
 }

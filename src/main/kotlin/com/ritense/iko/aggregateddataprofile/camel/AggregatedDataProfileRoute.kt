@@ -16,22 +16,19 @@
 
 package com.ritense.iko.aggregateddataprofile.camel
 
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
-import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
-import com.ritense.iko.aggregateddataprofile.error.errorResponse
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_ID_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.ParamDefinition
 import org.apache.camel.model.rest.RestParamType
-import org.springframework.http.HttpStatus
 
 class AggregatedDataProfileRoute(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
@@ -70,15 +67,10 @@ class AggregatedDataProfileRoute(
             .dataType("string")
             .required(false)
 
-        onException(AggregatedDataProfileNotFound::class.java)
-            .errorResponse(status = HttpStatus.NOT_FOUND)
-
-        onException(AggregatedDataProfileQueryParametersError::class.java)
-            .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
-
         rest("/aggregated-data-profiles")
             .description("Resolve ADP by profile name")
             .get("/{$ADP_PROFILE_NAME_PARAM_HEADER}")
+            .routeId("get-aggregated-data-profile-rest-entrypoint")
             .param(profileNamePathParam)
             .param(idParam)
             .param(containerParamsParam)
@@ -86,6 +78,7 @@ class AggregatedDataProfileRoute(
 
         from("direct:aggregated-data-profile-container-params")
             .routeId("aggregated-data-profile-container-params")
+            .routeConfigurationId("global-error-handler-configuration")
             .process {
                 containerParamsProcessor.process(exchange = it)
             }
@@ -93,6 +86,7 @@ class AggregatedDataProfileRoute(
 
         from("direct:aggregated_data_profile_rest_continuation")
             .routeId("aggregated-data-profile-rest-continuation")
+            .routeConfigurationId("global-error-handler-configuration")
             .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
             .setVariable(IKO_TRACE_ID_VARIABLE, header(IKO_TRACE_ID_VARIABLE))
             .setVariable("profile", header(ADP_PROFILE_NAME_PARAM_HEADER))

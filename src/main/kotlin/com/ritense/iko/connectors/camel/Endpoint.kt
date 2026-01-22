@@ -16,44 +16,45 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoRouteHelper
 import org.apache.camel.builder.RouteBuilder
 
 class Endpoint : RouteBuilder() {
     override fun configure() {
         rest("/endpoints")
             .get("/{iko_connector}/{iko_config}/{iko_operation}")
-            .to(Iko.iko("rest:endpoint"))
+            .to(IkoRouteHelper.iko("rest:endpoint"))
             .get("/{iko_connector}/{iko_config}/{iko_operation}/{id}")
-            .to(Iko.iko("rest:endpoint.id"))
+            .to(IkoRouteHelper.iko("rest:endpoint.id"))
 
-        from(Iko.iko("rest:endpoint"))
+        from(IkoRouteHelper.iko("rest:endpoint"))
             .routeId("rest-endpoint")
-            .errorHandler(noErrorHandler())
+            .routeConfigurationId("global-error-handler-configuration")
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
             .removeHeaders("iko_*")
-            .to(Iko.endpoint("validate"))
-            .to(Iko.endpoint("auth"))
-            .to(Iko.iko("config"))
-            .to(Iko.transform())
-            .to(Iko.connector())
+            .to(IkoRouteHelper.endpoint("validate"))
+            .to(IkoRouteHelper.endpoint("auth"))
+            .to(IkoRouteHelper.iko("config"))
+            .to(IkoRouteHelper.transform())
+            .to(IkoRouteHelper.connector())
             .marshal()
             .json()
 
-        from(Iko.iko("rest:endpoint.id"))
+        from(IkoRouteHelper.iko("rest:endpoint.id"))
             .routeId("rest-endpoint-id")
-            .errorHandler(noErrorHandler())
+            .routeConfigurationId("global-error-handler-configuration")
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
             .setVariable("id", header("id"))
             .removeHeaders("iko_*")
-            .to(Iko.endpoint("validate"))
-            .to(Iko.endpoint("auth"))
-            .to(Iko.iko("config"))
-            .to(Iko.transform())
-            .toD(Iko.connector())
+            .to(IkoRouteHelper.endpoint("validate"))
+            .to(IkoRouteHelper.endpoint("auth"))
+            .to(IkoRouteHelper.iko("config"))
+            .to(IkoRouteHelper.transform())
+            .toD(IkoRouteHelper.connector())
             .marshal()
             .json()
     }

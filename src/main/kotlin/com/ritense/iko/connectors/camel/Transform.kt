@@ -16,23 +16,24 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoRouteHelper
 import org.apache.camel.builder.RouteBuilder
 
 class Transform : RouteBuilder() {
     override fun configure() {
-        from(Iko.transform())
+        from(IkoRouteHelper.transform())
             .routeId("transform")
-            .errorHandler(noErrorHandler())
+            .routeConfigurationId("global-error-handler-configuration")
             .choice()
-            .`when` { ex -> ex.context.hasEndpoint(Iko.transform("${ex.getVariable("connector")}")) != null }
-            .toD(Iko.transform("\${variable.connector}"))
+            .`when` { ex -> ex.context.hasEndpoint(IkoRouteHelper.transform("${ex.getVariable("connector")}")) != null }
+            .toD(IkoRouteHelper.transform("\${variable.connector}"))
             .end()
             .choice()
             .`when` { ex ->
                 ex.context.hasEndpoint(
-                    Iko.transform("${ex.getVariable("connector")}.${ex.getVariable("operation")}"),
+                    IkoRouteHelper.transform("${ex.getVariable("connector")}.${ex.getVariable("operation")}"),
                 ) != null
-            }.toD(Iko.transform("\${variable.connector}.\${variable.operation}"))
+            }.toD(IkoRouteHelper.transform("\${variable.connector}.\${variable.operation}"))
             .end()
     }
 }

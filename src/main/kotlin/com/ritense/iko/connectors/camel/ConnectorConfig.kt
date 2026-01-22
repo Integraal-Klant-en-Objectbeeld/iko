@@ -26,6 +26,7 @@ class ConnectorConfig(
     override fun configure() {
         from("direct:iko:config")
             .routeId("connector-config")
+            .routeConfigurationId("global-error-handler-configuration")
             .process { exchange ->
                 val connectorInstance =
                     (

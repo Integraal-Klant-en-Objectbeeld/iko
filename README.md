@@ -6,9 +6,11 @@ IKO is a Kotlin/Spring Boot application that uses Apache Camel to integrate with
 
 ### Features
 - Spring Boot 3.5.x, Kotlin 2.2, JDK 21
-- Apache Camel routes (YAML DSL) auto-discovered from `classpath:camel/*.yaml`
+- Apache Camel 4.x routes (YAML DSL) auto-discovered from `classpath:camel/*.yaml`
 - OAuth2 (Keycloak) for admin login and JWT resource server
-- Connectors for BRP, OpenZaak, BAG, Objecten API, OpenKlant (configurable via environment)
+- Redis caching for improved performance
+- Connectors for BRP, OpenZaak, BAG, Objecten API, OpenKlant, OpenDocumenten (configurable via environment)
+- Prometheus metrics endpoint for monitoring
 - Dockerfile for containerized runs and GitHub Actions CI/CD
 
 ---

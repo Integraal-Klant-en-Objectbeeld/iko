@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.camel
+package com.ritense.iko.connectors.error
 
-class Iko {
-    companion object {
-        fun iko(uri: String) = "direct:iko:$uri"
-
-        fun api(uri: String? = null) = iko(uri?.let { "api:$it" } ?: "api")
-
-        fun connector(uri: String? = null) = iko(uri?.let { "connector:$it" } ?: "connector")
-
-        fun endpoint(uri: String? = null) = iko(uri?.let { "endpoint:$it" } ?: "endpoint")
-
-        fun transform(uri: String? = null) = endpoint(uri?.let { "transform:$it" } ?: "transform")
-    }
+sealed interface Error {
+    val message: String
 }
+
+sealed class DomainError(
+    override val message: String,
+) : RuntimeException(message),
+    Error
+
+sealed class ConnectorDomainError(
+    message: String,
+) : DomainError(message)
+
+class ConnectorAccessDenied(
+    name: String,
+) : ConnectorDomainError("Connector with name: $name, access denied")
+
+class ConnectorNotFound(
+    name: String,
+) : ConnectorDomainError("Connector with name: $name, not found")

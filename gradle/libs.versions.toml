@@ -7,14 +7,14 @@ dotenv = "4.0.0"
 
 mockito = "5.17.0"
 springBootPlatform = "3.5.8"
-camelSpringBoot = "4.13.0"
+camelSpringBoot = "4.17.0"
 thymeleafLayoutDialect = "3.4.0"
 jjwt = "0.12.6"
 kotlinLogging = "7.0.13"
 mockwebserver = "4.12.0"
 sonarqube = "7.2.2.6593"
 spotless = "8.1.0"
-jacksonModuleKotlin="2.19.4"
+jacksonModuleKotlin = "2.19.4"
 
 [libraries]
 # Platforms

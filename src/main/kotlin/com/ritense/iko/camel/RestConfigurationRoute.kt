@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.route
+package com.ritense.iko.camel
 
 import org.apache.camel.builder.RouteBuilder
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.json.serializer
+package com.ritense.iko.aggregateddataprofile.serializer
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext

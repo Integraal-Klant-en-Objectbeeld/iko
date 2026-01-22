@@ -18,10 +18,11 @@ package com.ritense.iko.aggregateddataprofile.autoconfiguration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
-import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.cache.processor.CacheProcessor
+import com.ritense.iko.camel.GlobalErrorHandlerConfiguration
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -29,29 +30,29 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class AggregatedDataProfileConfiguration(
-    private val camelContext: CamelContext,
-    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-    private val connectorInstanceRepository: ConnectorInstanceRepository,
-    private val connectorEndpointRepository: ConnectorEndpointRepository,
-    private val cacheProcessor: CacheProcessor,
-) {
-    init {
-        this.aggregatedDataProfileRepository.findAll().forEach { aggregatedDataProfile ->
-            val adpRoute = AggregatedDataProfileRouteBuilder(
-                camelContext,
-                aggregatedDataProfile,
-                connectorInstanceRepository,
-                connectorEndpointRepository,
-                cacheProcessor,
-            )
-            camelContext.addRoutes(adpRoute)
-        }
-    }
+class AggregatedDataProfileConfiguration {
+
+    @Bean
+    fun aggregatedDataProfileService(
+        camelContext: CamelContext,
+        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+        connectorEndpointRepository: ConnectorEndpointRepository,
+        connectorInstanceRepository: ConnectorInstanceRepository,
+        ikoCacheProcessor: CacheProcessor,
+        globalErrorHandlerConfiguration: GlobalErrorHandlerConfiguration,
+    ) = AggregatedDataProfileService(
+        camelContext,
+        aggregatedDataProfileRepository,
+        connectorEndpointRepository,
+        connectorInstanceRepository,
+        ikoCacheProcessor,
+        globalErrorHandlerConfiguration,
+    )
 
     @Bean
     fun aggregatedDataProfileRoute(
         containerParamsProcessor: ContainerParamsProcessor,
+        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     ) = AggregatedDataProfileRoute(
         aggregatedDataProfileRepository,
         containerParamsProcessor,
@@ -60,5 +61,8 @@ class AggregatedDataProfileConfiguration(
     @Bean
     fun containerParamsProcessor(
         objectMapper: ObjectMapper,
-    ): ContainerParamsProcessor = ContainerParamsProcessor(objectMapper)
+    ) = ContainerParamsProcessor(objectMapper)
+
+    @Bean
+    fun globalErrorHandlerConfiguration() = GlobalErrorHandlerConfiguration()
 }
