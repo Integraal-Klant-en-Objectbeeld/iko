@@ -22,6 +22,8 @@ import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryPar
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileUnsupportedEndpointTransformResultTypeError
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.error.ConnectorAccessDenied
+import com.ritense.iko.connectors.error.ConnectorEndpointNotFound
+import com.ritense.iko.connectors.error.ConnectorInstanceNotFound
 import org.apache.camel.builder.RouteConfigurationBuilder
 import org.apache.camel.http.base.HttpOperationFailedException
 import org.springframework.http.HttpStatus
@@ -33,6 +35,10 @@ class GlobalErrorHandlerConfiguration : RouteConfigurationBuilder() {
             .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
             .onException(ConnectorAccessDenied::class.java)
             .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
+            .onException(ConnectorInstanceNotFound::class.java)
+            .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
+            .onException(ConnectorEndpointNotFound::class.java)
+            .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
             .onException(HttpOperationFailedException::class.java)
             .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = false)
             .onException(AggregatedDataProfileUnsupportedEndpointTransformResultTypeError::class.java)
