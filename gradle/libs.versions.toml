@@ -4,9 +4,7 @@ springBoot = "3.5.9"
 springDependencyManagement = "1.1.7"
 dockerCompose = "0.17.20"
 dotenv = "4.0.0"
-
 mockito = "5.17.0"
-springBootPlatform = "3.5.8"
 camelSpringBoot = "4.17.0"
 thymeleafLayoutDialect = "3.4.0"
 jjwt = "0.12.6"
@@ -18,7 +16,7 @@ jacksonModuleKotlin = "2.19.4"
 
 [libraries]
 # Platforms
-spring-boot-dependencies = { group = "org.springframework.boot", name = "spring-boot-dependencies", version.ref = "springBootPlatform" }
+spring-boot-dependencies = { group = "org.springframework.boot", name = "spring-boot-dependencies", version.ref = "springBoot" }
 camel-spring-boot-dependencies = { group = "org.apache.camel.springboot", name = "camel-spring-boot-dependencies", version.ref = "camelSpringBoot" }
 
 # Mockito Agent
