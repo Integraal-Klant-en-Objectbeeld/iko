@@ -17,6 +17,7 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileAccessDenied
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 import org.springframework.security.core.context.SecurityContextHolder
 
@@ -24,7 +25,7 @@ class AuthRoute : RouteBuilder() {
     override fun configure() {
         from("direct:auth")
             .routeId("authenticate")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { ex ->
                 val exAuthorities = ex.getVariable("authorities", List::class.java)
                 exAuthorities?.let {

@@ -20,6 +20,7 @@ import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileAccessDe
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileUnsupportedEndpointTransformResultTypeError
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.error.ConnectorAccessDenied
 import org.apache.camel.builder.RouteConfigurationBuilder
 import org.apache.camel.http.base.HttpOperationFailedException
@@ -27,7 +28,7 @@ import org.springframework.http.HttpStatus
 
 class GlobalErrorHandlerConfiguration : RouteConfigurationBuilder() {
     override fun configuration() {
-        routeConfiguration("global-error-handler-configuration")
+        routeConfiguration(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .onException(AggregatedDataProfileAccessDenied::class.java)
             .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
             .onException(ConnectorAccessDenied::class.java)

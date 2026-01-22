@@ -17,6 +17,7 @@
 package com.ritense.iko.connectors.camel
 
 import com.ritense.iko.camel.IkoRouteHelper
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.exception.EndpointValidationFailed
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -29,7 +30,7 @@ class EndpointValidation(
     override fun configure() {
         from(IkoRouteHelper.endpoint("validate"))
             .routeId("endpoint-validation")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { ex ->
                 val connector = ex.getVariable("connector", String::class.java)
                 val config = ex.getVariable("config", String::class.java)

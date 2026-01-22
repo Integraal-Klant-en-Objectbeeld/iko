@@ -26,6 +26,7 @@ import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.ParamDefinition
 import org.apache.camel.model.rest.RestParamType
@@ -78,7 +79,7 @@ class AggregatedDataProfileRoute(
 
         from("direct:aggregated-data-profile-container-params")
             .routeId("aggregated-data-profile-container-params")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process {
                 containerParamsProcessor.process(exchange = it)
             }
@@ -86,7 +87,7 @@ class AggregatedDataProfileRoute(
 
         from("direct:aggregated_data_profile_rest_continuation")
             .routeId("aggregated-data-profile-rest-continuation")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
             .setVariable(IKO_TRACE_ID_VARIABLE, header(IKO_TRACE_ID_VARIABLE))
             .setVariable("profile", header(ADP_PROFILE_NAME_PARAM_HEADER))

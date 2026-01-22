@@ -18,6 +18,8 @@ package com.ritense.iko.camel
 
 class IkoRouteHelper {
     companion object {
+        const val GLOBAL_ERROR_HANDLER_CONFIGURATION = "global-error-handler-configuration"
+
         fun iko(uri: String) = "direct:iko:$uri"
 
         fun api(uri: String? = null) = iko(uri?.let { "api:$it" } ?: "api")

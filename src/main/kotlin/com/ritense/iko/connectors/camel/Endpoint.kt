@@ -17,6 +17,7 @@
 package com.ritense.iko.connectors.camel
 
 import com.ritense.iko.camel.IkoRouteHelper
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
 class Endpoint : RouteBuilder() {
@@ -29,7 +30,7 @@ class Endpoint : RouteBuilder() {
 
         from(IkoRouteHelper.iko("rest:endpoint"))
             .routeId("rest-endpoint")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
@@ -44,7 +45,7 @@ class Endpoint : RouteBuilder() {
 
         from(IkoRouteHelper.iko("rest:endpoint.id"))
             .routeId("rest-endpoint-id")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))

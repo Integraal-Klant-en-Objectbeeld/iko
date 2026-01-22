@@ -26,6 +26,9 @@ import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
+import com.ritense.iko.connectors.error.ConnectorEndpointNotFound
+import com.ritense.iko.connectors.error.ConnectorInstanceNotFound
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
@@ -50,10 +53,10 @@ class AggregatedDataProfileRouteBuilder(
 
         val connectorInstance = requireNotNull(
             connectorInstanceRepository.findByIdOrNull(aggregatedDataProfile.connectorInstanceId),
-        ) { NoSuchElementException("Connector instance not found") }
+        ) { ConnectorInstanceNotFound(aggregatedDataProfile.connectorInstanceId.toString()) }
         val connectorEndpoint = requireNotNull(
             connectorEndpointRepository.findByIdOrNull(aggregatedDataProfile.connectorEndpointId),
-        ) { NoSuchElementException("Connector endpoint not found") }
+        ) { ConnectorEndpointNotFound(aggregatedDataProfile.connectorEndpointId.toString()) }
 
         val endpointTransformExpression = expression()
             .jq(aggregatedDataProfile.endpointTransform.expression)
@@ -64,7 +67,7 @@ class AggregatedDataProfileRouteBuilder(
         // profile root route entrypoint
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[ADP Root]")
             .setVariable(
                 "authorities",
@@ -100,7 +103,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, endpointTransformExpression)
             .routeDescription("[ADP Endpoint Transform]")
             .process { exchange ->
@@ -152,7 +155,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}")
             .routeId("relation_${currentRelation.id}_root")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${aggregatedDataProfile.name}] <-- [${currentRelation.propertyName}]")
             .removeHeaders("*")
             .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
@@ -174,7 +177,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_map")
             .routeId("relation_${currentRelation.id}_map")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("Endpoint mapping (Map): [${currentRelation.propertyName}]")
             .process {
                 it.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, ObjectNode::class.java).forEachEntry { key, value ->
@@ -187,7 +190,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_array")
             .routeId("relation_${currentRelation.id}_array")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("Endpoint mapping (List): [${currentRelation.propertyName}]")
             .split(
                 variable(ENDPOINT_TRANSFORM_RESULT_VARIABLE),
@@ -210,7 +213,7 @@ class AggregatedDataProfileRouteBuilder(
         // Executes each relation route
         from("direct:relation_${currentRelation.id}_loop")
             .routeId("relation_${currentRelation.id}_loop")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${currentRelation.propertyName}] --> Endpoint")
             .unmarshal().json()
             .setVariable("connector", constant(connectorInstance.connector.tag))

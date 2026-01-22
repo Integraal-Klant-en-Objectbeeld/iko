@@ -17,13 +17,14 @@
 package com.ritense.iko.connectors.camel
 
 import com.ritense.iko.camel.IkoRouteHelper
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
 class Transform : RouteBuilder() {
     override fun configure() {
         from(IkoRouteHelper.transform())
             .routeId("transform")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .choice()
             .`when` { ex -> ex.context.hasEndpoint(IkoRouteHelper.transform("${ex.getVariable("connector")}")) != null }
             .toD(IkoRouteHelper.transform("\${variable.connector}"))

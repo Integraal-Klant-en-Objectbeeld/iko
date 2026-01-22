@@ -33,6 +33,10 @@ class ConnectorAccessDenied(
     name: String,
 ) : ConnectorDomainError("Connector with name: $name, access denied")
 
-class ConnectorNotFound(
-    name: String,
-) : ConnectorDomainError("Connector with name: $name, not found")
+class ConnectorInstanceNotFound(
+    id: String,
+) : ConnectorDomainError("Connector instance with id: $id, not found")
+
+class ConnectorEndpointNotFound(
+    id: String,
+) : ConnectorDomainError("Connector endpoint with id: $id, not found")

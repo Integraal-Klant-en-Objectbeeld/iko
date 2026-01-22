@@ -16,6 +16,7 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.error.ConnectorAccessDenied
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
@@ -32,7 +33,7 @@ class EndpointAuth(
     override fun configure() {
         from("direct:iko:endpoint:auth")
             .routeId("endpoint-auth")
-            .routeConfigurationId("global-error-handler-configuration")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { ex ->
                 val connectorEndpointId = ex.getVariable("connectorEndpointId", UUID::class.java)
                 val connectorInstanceId = ex.getVariable("connectorInstanceId", UUID::class.java)
