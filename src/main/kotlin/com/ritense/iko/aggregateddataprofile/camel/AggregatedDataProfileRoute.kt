@@ -30,7 +30,7 @@ import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.ParamDefinition
-import org.apache.camel.model.rest.RestParamType.query
+import org.apache.camel.model.rest.RestParamType
 import org.springframework.http.HttpStatus
 
 class AggregatedDataProfileRoute(
@@ -38,17 +38,36 @@ class AggregatedDataProfileRoute(
     private val containerParamsProcessor: ContainerParamsProcessor,
 ) : RouteBuilder() {
     override fun configure() {
-        val containerParamsParamDefinition = ParamDefinition()
+        val profileNamePathParam = ParamDefinition()
+            .type(RestParamType.path)
+            .name(ADP_PROFILE_NAME_PARAM_HEADER)
+            .dataType("string")
+            .description("The profile name of the ADP that is being queried")
+            .example("zaken")
+            .required(true)
+
+        val containerParamsParam = ParamDefinition()
             .name(ADP_CONTAINER_PARAM_HEADER)
-            .description("Container parameters for ADP")
-            .type(query)
-            .arrayType("String")
+            .description(
+                "ContainerParam for use with the endpointTransform of an ADP " +
+                    "or sourceToEndpointMapping of a Relation encoded as Base64",
+            )
+            .type(RestParamType.query)
+            .arrayType("string")
+            .dataType("string")
+            .example(
+                "Base64 encoded ContainerParam",
+                "eyAiY29udGFpbmVySWQiOiAiemFrZW4iLCAicGFnZWFibGUiOiB7ICJwYWdlTnVtYmVyIjogIjAiLCAicGFnZV" +
+                    "NpemUiOiAiMTAiLCAic29ydCI6IHsgIm9yZGVycyI6IFsgeyAicHJvcGVydHkiOiAiaWRlbnRpZmljYXRpZSIgImRpcmV" +
+                    "jdGlvbiI6ICJBU0MiIH0gXSB9IH0sICJmaWx0ZXJzIjogeyAiemFha3R5cGUiOiAiaHR0cHM6Ly9leGFtcGxlLmNvbS9j" +
+                    "YXRhbG9naS9hcGkvemFha3R5cGVuL2IyNzU4MWM3LTMxMTMtNDE5NS1hZGM2LTkxNTY1MTNiOWUyZSIgfSB9",
+            )
             .required(false)
-        val ikoIdParamDefinition = ParamDefinition()
+        val idParam = ParamDefinition()
             .name(ADP_ID_PARAM_HEADER)
             .description("Id to use with ADPs that require one")
-            .type(query)
-            .dataType("String")
+            .type(RestParamType.query)
+            .dataType("string")
             .required(false)
 
         onException(AggregatedDataProfileNotFound::class.java)
@@ -60,8 +79,9 @@ class AggregatedDataProfileRoute(
         rest("/aggregated-data-profiles")
             .description("Resolve ADP by profile name")
             .get("/{$ADP_PROFILE_NAME_PARAM_HEADER}")
-            .param(containerParamsParamDefinition)
-            .param(ikoIdParamDefinition)
+            .param(profileNamePathParam)
+            .param(idParam)
+            .param(containerParamsParam)
             .to("direct:aggregated-data-profile-container-params")
 
         from("direct:aggregated-data-profile-container-params")
