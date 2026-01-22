@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.2.0"
-springBoot = "3.5.8"
+springBoot = "3.5.9"
 springDependencyManagement = "1.1.7"
 dockerCompose = "0.17.20"
 dotenv = "4.0.0"
