@@ -19,7 +19,7 @@ package com.ritense.iko.camel
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileAccessDenied
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
-import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileUnsupportedEndpointTransformResultTypeError
+import com.ritense.iko.aggregateddataprofile.error.TransformResultTypeUnsupportedError
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.error.ConnectorAccessDenied
 import com.ritense.iko.connectors.error.ConnectorEndpointNotFound
@@ -41,8 +41,8 @@ class GlobalErrorHandlerConfiguration : RouteConfigurationBuilder() {
             .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
             .onException(HttpOperationFailedException::class.java)
             .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = false)
-            .onException(AggregatedDataProfileUnsupportedEndpointTransformResultTypeError::class.java)
-            .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
+            .onException(TransformResultTypeUnsupportedError::class.java)
+            .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = true)
             .onException(AggregatedDataProfileNotFound::class.java)
             .errorResponse(status = HttpStatus.NOT_FOUND)
             .onException(AggregatedDataProfileQueryParametersError::class.java)

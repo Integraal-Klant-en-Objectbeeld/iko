@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
-import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileUnsupportedEndpointTransformResultTypeError
+import com.ritense.iko.aggregateddataprofile.error.TransformResultTypeUnsupportedError
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
@@ -116,7 +116,7 @@ class AggregatedDataProfileRouteBuilder(
                     }
 
                     null -> return@process
-                    else -> throw AggregatedDataProfileUnsupportedEndpointTransformResultTypeError(
+                    else -> throw TransformResultTypeUnsupportedError(
                         type = endpointTransformResult::class.java.simpleName,
                     )
                 }
@@ -174,6 +174,11 @@ class AggregatedDataProfileRouteBuilder(
             .to("direct:relation_${currentRelation.id}_array")
             .`when` { ex -> ex.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, JsonNode::class.java).isObject }
             .to("direct:relation_${currentRelation.id}_map")
+            .otherwise()
+            .throwException(
+                TransformResultTypeUnsupportedError(),
+            )
+            .endChoice()
 
         from("direct:relation_${currentRelation.id}_map")
             .routeId("relation_${currentRelation.id}_map")

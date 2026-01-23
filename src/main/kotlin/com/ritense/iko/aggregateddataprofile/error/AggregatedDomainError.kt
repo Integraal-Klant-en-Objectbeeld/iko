@@ -41,6 +41,8 @@ class AggregatedDataProfileQueryParametersError(
     vararg parameters: String,
 ) : AggregatedDataProfileDomainError("Query parameter(s) [${parameters.joinToString(", ")}] could not be parsed")
 
-class AggregatedDataProfileUnsupportedEndpointTransformResultTypeError(
-    type: String,
-) : AggregatedDataProfileDomainError("Endpoint Transform result is unsupported. Expected ObjectNode; got $type.")
+class TransformResultTypeUnsupportedError(
+    type: String? = null,
+) : AggregatedDataProfileDomainError(
+    "Transform result is unsupported. ${type?.let { "Expected ObjectNode; got $it." } ?: ""}",
+)
