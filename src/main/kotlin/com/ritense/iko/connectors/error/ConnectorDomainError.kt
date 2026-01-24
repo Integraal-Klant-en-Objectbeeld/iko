@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.aggregateddataprofile.error
+package com.ritense.iko.connectors.error
 
 sealed interface Error {
     val message: String
@@ -25,22 +25,18 @@ sealed class DomainError(
 ) : RuntimeException(message),
     Error
 
-sealed class AggregatedDataProfileDomainError(
+sealed class ConnectorDomainError(
     message: String,
 ) : DomainError(message)
 
-class AggregatedDataProfileAccessDenied(
+class ConnectorAccessDenied(
     name: String,
-) : AggregatedDataProfileDomainError("ADP with name: $name, access denied")
+) : ConnectorDomainError("Connector with name: $name, access denied")
 
-class AggregatedDataProfileNotFound(
-    name: String,
-) : AggregatedDataProfileDomainError("ADP with name: $name, not found")
+class ConnectorInstanceNotFound(
+    id: String,
+) : ConnectorDomainError("Connector instance with id: $id, not found")
 
-class AggregatedDataProfileQueryParametersError(
-    vararg parameters: String,
-) : AggregatedDataProfileDomainError("Query parameter(s) [${parameters.joinToString(", ")}] could not be parsed")
-
-class AggregatedDataProfileUnsupportedEndpointTransformResultTypeError(
-    type: String,
-) : AggregatedDataProfileDomainError("Endpoint Transform result is unsupported. Expected ObjectNode; got $type.")
+class ConnectorEndpointNotFound(
+    id: String,
+) : ConnectorDomainError("Connector endpoint with id: $id, not found")

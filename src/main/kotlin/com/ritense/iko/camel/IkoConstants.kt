@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.aggregateddataprofile.domain
+package com.ritense.iko.camel
 
 object IkoConstants {
     object Headers {

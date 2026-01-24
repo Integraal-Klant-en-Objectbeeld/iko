@@ -16,7 +16,7 @@
 
 package com.ritense.iko.aggregateddataprofile.domain
 
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Validation.ROLES_PATTERN
+import com.ritense.iko.camel.IkoConstants.Validation.ROLES_PATTERN
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 

@@ -16,6 +16,7 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.builder.RouteBuilder
 import java.util.UUID
@@ -26,6 +27,7 @@ class ConnectorConfig(
     override fun configure() {
         from("direct:iko:config")
             .routeId("connector-config")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { exchange ->
                 val connectorInstance =
                     (

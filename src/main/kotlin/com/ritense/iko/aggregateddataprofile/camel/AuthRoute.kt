@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.security
+package com.ritense.iko.aggregateddataprofile.camel
 
+import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileAccessDenied
+import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 
 class AuthRoute : RouteBuilder() {
     override fun configure() {
         from("direct:auth")
             .routeId("authenticate")
-            .errorHandler(noErrorHandler())
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { ex ->
                 val exAuthorities = ex.getVariable("authorities", List::class.java)
                 exAuthorities?.let {
@@ -40,9 +41,9 @@ class AuthRoute : RouteBuilder() {
                         return@process
                     }
 
-                    throw AccessDeniedException("User is not authorized to access this route. Missing authorities: $exAuthorities")
+                    throw AggregatedDataProfileAccessDenied("User is not authorized to access this route. Missing authorities: $exAuthorities")
                 }
-                throw AccessDeniedException("User is not authorized to access this route")
+                throw AggregatedDataProfileAccessDenied("User is not authorized to access this route")
             }
     }
 }
