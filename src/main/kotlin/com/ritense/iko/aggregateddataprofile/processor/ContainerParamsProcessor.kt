@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.ritense.iko.aggregateddataprofile.camel.ContainerParam
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
-import com.ritense.iko.aggregateddataprofile.domain.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import org.apache.camel.Exchange
 import org.springframework.data.domain.Pageable
 import kotlin.io.encoding.Base64

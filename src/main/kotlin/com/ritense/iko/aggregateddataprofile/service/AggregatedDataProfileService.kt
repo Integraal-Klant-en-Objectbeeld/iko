@@ -18,19 +18,36 @@ package com.ritense.iko.aggregateddataprofile.service
 
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
-import org.springframework.stereotype.Service
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 
-@Service
 class AggregatedDataProfileService(
     private val camelContext: CamelContext,
+    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val ikoCacheProcessor: CacheProcessor,
 ) {
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
+        aggregatedDataProfileRepository.findAll().forEach { aggregatedDataProfile ->
+            val adpRoute = AggregatedDataProfileRouteBuilder(
+                camelContext,
+                aggregatedDataProfile,
+                connectorInstanceRepository,
+                connectorEndpointRepository,
+                ikoCacheProcessor,
+            )
+            camelContext.addRoutes(adpRoute)
+        }
+    }
+
     fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
         removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
         removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")

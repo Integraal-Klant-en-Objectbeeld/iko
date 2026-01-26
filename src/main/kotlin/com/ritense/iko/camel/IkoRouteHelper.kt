@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.camel
+package com.ritense.iko.camel
 
-import com.ritense.iko.camel.IkoRouteHelper
-import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
-import org.apache.camel.builder.RouteBuilder
+class IkoRouteHelper {
+    companion object {
+        const val GLOBAL_ERROR_HANDLER_CONFIGURATION = "global-error-handler-configuration"
 
-class Connector : RouteBuilder() {
-    override fun configure() {
-        from(IkoRouteHelper.connector())
-            .routeId("connector")
-            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .toD(IkoRouteHelper.connector("\${variable.connector}"))
+        fun iko(uri: String) = "direct:iko:$uri"
+
+        fun api(uri: String? = null) = iko(uri?.let { "api:$it" } ?: "api")
+
+        fun connector(uri: String? = null) = iko(uri?.let { "connector:$it" } ?: "connector")
+
+        fun endpoint(uri: String? = null) = iko(uri?.let { "endpoint:$it" } ?: "endpoint")
+
+        fun transform(uri: String? = null) = endpoint(uri?.let { "transform:$it" } ?: "transform")
     }
 }

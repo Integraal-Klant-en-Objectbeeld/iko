@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.camel
+package com.ritense.iko.camel
 
-class Iko {
-    companion object {
-        fun iko(uri: String) = "direct:iko:$uri"
+import org.apache.camel.CamelContext
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-        fun api(uri: String? = null) = iko(uri?.let { "api:$it" } ?: "api")
+@Configuration
+internal class CamelConfiguration {
 
-        fun connector(uri: String? = null) = iko(uri?.let { "connector:$it" } ?: "connector")
+    @Bean
+    internal fun globalErrorHandlerConfiguration() = GlobalErrorHandlerConfiguration()
 
-        fun endpoint(uri: String? = null) = iko(uri?.let { "endpoint:$it" } ?: "endpoint")
-
-        fun transform(uri: String? = null) = endpoint(uri?.let { "transform:$it" } ?: "transform")
-    }
+    @Bean
+    internal fun globalErrorHandlerService(
+        camelContext: CamelContext,
+        globalErrorHandlerConfiguration: GlobalErrorHandlerConfiguration,
+    ) = GlobalErrorHandlerService(
+        camelContext,
+        globalErrorHandlerConfiguration,
+    )
 }

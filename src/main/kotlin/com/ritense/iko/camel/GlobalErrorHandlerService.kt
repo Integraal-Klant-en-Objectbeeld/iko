@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.camel
+package com.ritense.iko.camel
 
-import com.ritense.iko.camel.IkoRouteHelper
-import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
-import org.apache.camel.builder.RouteBuilder
+import org.apache.camel.CamelContext
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 
-class Connector : RouteBuilder() {
-    override fun configure() {
-        from(IkoRouteHelper.connector())
-            .routeId("connector")
-            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .toD(IkoRouteHelper.connector("\${variable.connector}"))
+internal class GlobalErrorHandlerService(
+    private val camelContext: CamelContext,
+    private val globalErrorHandlerConfiguration: GlobalErrorHandlerConfiguration,
+) {
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun registerGlobalErrorHandler(event: ApplicationReadyEvent) {
+        camelContext.addRoutes(globalErrorHandlerConfiguration)
     }
 }

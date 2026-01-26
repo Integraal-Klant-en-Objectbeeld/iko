@@ -16,9 +16,9 @@
 
 package com.ritense.iko
 
-import com.ritense.iko.json.serializer.PageableDeserializer
-import com.ritense.iko.json.serializer.PageableSerializer
-import com.ritense.iko.route.RestConfigurationRoute
+import com.ritense.iko.aggregateddataprofile.serializer.PageableDeserializer
+import com.ritense.iko.aggregateddataprofile.serializer.PageableSerializer
+import com.ritense.iko.camel.RestConfigurationRoute
 import org.apache.camel.CamelContext
 import org.apache.camel.ProducerTemplate
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer

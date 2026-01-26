@@ -19,6 +19,8 @@ package com.ritense.iko.json.serializer
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.ritense.iko.aggregateddataprofile.serializer.PageableDeserializer
+import com.ritense.iko.aggregateddataprofile.serializer.PageableSerializer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageRequest

@@ -57,13 +57,20 @@ class ConnectorConfiguration(
     fun endpointValidation(
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
-    ) = EndpointValidation(connectorEndpointRepository, connectorInstanceRepository)
+    ) = EndpointValidation(
+        connectorEndpointRepository,
+        connectorInstanceRepository,
+    )
 
     @Bean
     fun ikoConnector() = Connector()
 
     @Bean
-    fun ikoConnectorConfig(connectorInstanceRepository: ConnectorInstanceRepository) = ConnectorConfig(connectorInstanceRepository)
+    fun ikoConnectorConfig(
+        connectorInstanceRepository: ConnectorInstanceRepository,
+    ) = ConnectorConfig(
+        connectorInstanceRepository,
+    )
 
     @Bean
     fun ikoTransform() = Transform()
