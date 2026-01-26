@@ -12,13 +12,13 @@ The following versions of this project are currently supported with security upd
 Version **1.0.0** is the **first official release** of this project.  
 Only the latest released version is supported with security fixes.
 
-# Have you discovered a security issue in Valtimo? Let us know!
+# Have you discovered a security issue in Iko? Let us know!
 Ritense is strongly committed to responding to disclosed security-related issues.  Security is of the essence for all users of this software stack. Keeping software secure is complex job - we value all suggestions to keep the software secure.
 
 # How to report?
 Send an email to security@ritense.com. If you want to notify us anonymously you can use a anonymous email address, for example Apple’s Hide My Email. Do note we cannot send you feedback, a thank you or additional questions if you use a temporary email address.
 
-Please clearly explain how the vulnerability can be exploited, preferably with screenshots and a step-by-step explanation. If possible include the version of Valtimo you used. If it concerns a running instance, please note the url and state the exact date and time you used the vulnerability. This helps us with our analysis of your report.
+Please clearly explain how the vulnerability can be exploited, preferably with screenshots and a step-by-step explanation. If possible include the version of Iko you used. If it concerns a running instance, please note the url and state the exact date and time you used the vulnerability. This helps us with our analysis of your report.
 
 # Information about the processing of your personal data
 We ask you to provide your name, email address and telephone number in order to communicate with you regarding your report. Providing a name and telephone number is optional. If you are eligible for a reward, we will also need your address if you wish us to send it to you. We may therefore ask for your address after your report is processed. Your data will not be shared with third parties unless disclosure of these data is compelled by law or by a court ruling.
