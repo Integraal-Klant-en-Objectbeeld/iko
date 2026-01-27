@@ -44,6 +44,15 @@ springBoot {
     buildInfo()
 }
 
+dependencyManagement {
+    dependencies {
+        // Transient dependency of spring boot gradle plugin. Override addresses https://nvd.nist.gov/vuln/detail/CVE-2025-48924
+        dependency(libs.commons.lang3.get().toString())
+        // Transient dependency of spring-boot-starter-logging. Override addresses https://nvd.nist.gov/vuln/detail/CVE-2025-68161
+        dependency(libs.log4j.api.get().toString())
+    }
+}
+
 kotlin {
     jvmToolchain(21)
 }
@@ -64,7 +73,6 @@ dependencies {
     mockitoAgent(libs.mockito.core) { isTransitive = false }
 
     // Platforms
-    implementation(platform(libs.spring.boot.dependencies))
     implementation(platform(libs.camel.spring.boot.dependencies))
 
     // Spring Boot Starters

@@ -13,10 +13,11 @@ mockwebserver = "4.12.0"
 sonarqube = "7.2.2.6593"
 spotless = "8.1.0"
 jacksonModuleKotlin = "2.19.4"
+commonsLang3 = "3.18.0"
+log4j = "2.25.3"
 
 [libraries]
 # Platforms
-spring-boot-dependencies = { group = "org.springframework.boot", name = "spring-boot-dependencies", version.ref = "springBoot" }
 camel-spring-boot-dependencies = { group = "org.apache.camel.springboot", name = "camel-spring-boot-dependencies", version.ref = "camelSpringBoot" }
 
 # Mockito Agent
@@ -72,6 +73,8 @@ kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", versi
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect" }
 kotlinx-coroutines-reactor = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactor" }
 jackson-module-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jacksonModuleKotlin" }
+commons-lang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commonsLang3" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4j" }
 
 # Testing
 androidJson = { group = "com.vaadin.external.google", name = "android-json" }
