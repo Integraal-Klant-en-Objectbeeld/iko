@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.camel
+package com.ritense.iko.camel.configuration
 
+import com.ritense.iko.camel.GlobalErrorHandlerConfiguration
+import com.ritense.iko.camel.GlobalErrorHandlerService
 import org.apache.camel.CamelContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

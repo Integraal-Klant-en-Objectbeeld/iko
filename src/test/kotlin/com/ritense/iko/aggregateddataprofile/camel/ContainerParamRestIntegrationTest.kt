@@ -29,6 +29,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.request
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -83,38 +84,34 @@ internal class ContainerParamRestIntegrationTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When an ADP is requested with multiple containerParams then they are handled`() {
-        val uriTemplate = "/aggregated-data-profiles/pets"
-        val petContainerParam = ContainerParam(
+        // Act & Assert
+        val containerParam = ContainerParam(
             containerId = "pets",
-            filters = mapOf("status" to "pending"),
+            filters = mapOf("id" to "4"),
         )
-        val encodedPetContainerParam = encodeContainerParam(petContainerParam)
+        val encodedContainerParam = encodeContainerParam(containerParam)
 
         val mvcResult = mockMvc.perform(
-            get(uriTemplate)
-                .queryParam("containerParam", encodedPetContainerParam),
-        ).andExpect(request().asyncStarted())
+            get("/aggregated-data-profiles/pet-household")
+                .queryParam("containerParam", encodedContainerParam),
+        )
+            .andExpect(request().asyncStarted())
             .andReturn()
 
         mockMvc.perform(asyncDispatch(mvcResult))
+            .andDo(MockMvcResultHandlers.print()) // logs final response
             .andExpect(status().isOk)
             .andExpect(
                 content().json(
-                    """[
-                        "Bello",
-                        "Minoes",
-                        "Pip",
-                        "Binky",
-                        "Pukkie",
-                        "Tijger",
-                        "Snuffie",
-                        "Pluis",
-                        "Blikkie",
-                        "Dikkie"
-                    ]""",
+                    """{
+                        "owner": "Eva",
+                        "pets": [
+                            "Binky",
+                            "Blikkie"
+                        ]
+                    }""",
                 ),
             )
-            .andReturn()
     }
 
     @Test
