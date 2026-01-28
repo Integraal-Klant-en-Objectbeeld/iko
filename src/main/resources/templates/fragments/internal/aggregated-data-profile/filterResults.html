@@ -16,33 +16,31 @@
 
 <th:block th:fragment="profile-filter-results">
     <cds-table-body id="search-results">
-        <cds-table-row
-            th:if="${(connectorInstanceCount ?: 0) == 0}"
-            class="not-clickable"
-        >
+        <cds-table-row th:if="${!creationAllowed}" class="not-clickable">
             <cds-table-cell colspan="2" class="app--table-cell-empty">
                 <div class="app--empty-notice">
                     <img
                         th:src="@{/assets/emptystate-error.svg}"
-                        alt="No connector instances configured"
+                        alt="No connector instances or endpoints configured"
                         class="app--empty-notice__icon"
                         width="80"
                         height="80"
                     />
                     <div class="app--empty-notice__content">
                         <p class="app--empty-notice__title">
-                            No connector instances configured
+                            Connector setup incomplete
                         </p>
                         <p class="app--empty-notice__description">
-                            Configure at least one connector instance to create
-                            or view Aggregated Data Profiles.
+                            Configure at least one connector instance and one
+                            endpoint before creating or viewing Aggregated Data
+                            Profiles.
                         </p>
                     </div>
                 </div>
             </cds-table-cell>
         </cds-table-row>
         <cds-table-row
-            th:if="${(connectorInstanceCount ?: 0) > 0 and #lists.isEmpty(aggregatedDataProfiles)}"
+            th:if="${creationAllowed and #lists.isEmpty(aggregatedDataProfiles)}"
             class="not-clickable"
         >
             <cds-table-cell colspan="2" class="app--table-cell-empty">

@@ -103,17 +103,19 @@ class AggregatedDataProfileController(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val page = aggregatedDataProfileRepository.findAllBy(pageable)
-        val connectorInstanceCount = connectorInstanceRepository.findAll().size
+        val connectorInstancesCount = connectorInstanceRepository.findAll().size
+        val endpointsCount = connectorEndpointRepository.findAll().size
+        val creationAllowed = connectorInstancesCount > 0 && endpointsCount > 0
         return if (isHxRequest) {
             ModelAndView("$BASE_FRAGMENT_ADP/list").apply {
-                addObject("connectorInstanceCount", connectorInstanceCount)
+                addObject("creationAllowed", creationAllowed)
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
             }
         } else {
             ModelAndView("$BASE_FRAGMENT_ADP/listPage").apply {
-                addObject("connectorInstanceCount", connectorInstanceCount)
+                addObject("creationAllowed", creationAllowed)
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -131,12 +133,14 @@ class AggregatedDataProfileController(
     ): ModelAndView {
         val page = aggregatedDataProfileRepository.findAll(pageable)
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
+        val endpointsCount = connectorEndpointRepository.findAll().size
+        val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
         val list =
             ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
-                addObject("connectorInstanceCount", connectorInstanceCount)
+                addObject("creationAllowed", creationAllowed)
                 addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                 addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
             }
@@ -156,6 +160,9 @@ class AggregatedDataProfileController(
                 aggregatedDataProfileRepository.findAllByName(query.trim(), pageable)
             }
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
+        val endpointsCount = connectorEndpointRepository.findAll().size
+
+        val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
 
         if (isHxRequest) {
             val searchResults =
@@ -163,7 +170,7 @@ class AggregatedDataProfileController(
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
-                    addObject("connectorInstanceCount", connectorInstanceCount)
+                    addObject("creationAllowed", creationAllowed)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                     addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
                 }
@@ -172,7 +179,7 @@ class AggregatedDataProfileController(
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
-                    addObject("connectorInstanceCount", connectorInstanceCount)
+                    addObject("creationAllowed", creationAllowed)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                     addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
                 }
@@ -186,7 +193,7 @@ class AggregatedDataProfileController(
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
-                    addObject("connectorInstanceCount", connectorInstanceCount)
+                    addObject("creationAllowed", creationAllowed)
                     addObject("menuItems", menuItems)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                     addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))

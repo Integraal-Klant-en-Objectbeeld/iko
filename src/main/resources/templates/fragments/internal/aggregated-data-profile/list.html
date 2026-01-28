@@ -44,7 +44,7 @@
                 <cds-button
                     hx-get="/admin/aggregated-data-profiles/create"
                     hx-target="#modal-container"
-                    th:attr="disabled=${connectorInstanceCount < 1} ? 'disabled' : null"
+                    th:attr="disabled=${!creationAllowed} ? 'disabled' : null"
                 >
                     Add new 'Aggregated Data Profile'
                     <svg
@@ -68,7 +68,7 @@
 
         <!-- Header -->
         <cds-table-head
-            th:if="${(connectorInstanceCount ?: 0) > 0 and !#lists.isEmpty(aggregatedDataProfiles)}"
+            th:if="${creationAllowed and !#lists.isEmpty(aggregatedDataProfiles)}"
         >
             <cds-table-header-row>
                 <cds-table-header-cell

@@ -23,7 +23,7 @@
                                   totalPages=${page.totalPages},
                                   total-items=${page.totalElements},
                                   page-size=${page.size},
-                                  disabled=${(connectorInstanceCount ?: 0) == 0} ? 'disabled' : null"
+                                  disabled=${!creationAllowed} ? 'disabled' : null"
         hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
         hx-get="/admin/aggregated-data-profiles/filter"
         hx-target="#search-results"
