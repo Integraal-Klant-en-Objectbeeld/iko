@@ -213,6 +213,7 @@ class ConnectorController(
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
         return list(isHxRequest)
     }

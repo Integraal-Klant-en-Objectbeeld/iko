@@ -44,6 +44,7 @@
                 <cds-button
                     hx-get="/admin/aggregated-data-profiles/create"
                     hx-target="#modal-container"
+                    th:attr="disabled=${connectorInstanceCount < 1} ? 'disabled' : null"
                 >
                     Add new 'Aggregated Data Profile'
                     <svg
@@ -66,7 +67,9 @@
         </cds-table-toolbar>
 
         <!-- Header -->
-        <cds-table-head>
+        <cds-table-head
+            th:if="${(connectorInstanceCount ?: 0) > 0 and !#lists.isEmpty(aggregatedDataProfiles)}"
+        >
             <cds-table-header-row>
                 <cds-table-header-cell
                     is-sortable
@@ -76,7 +79,6 @@
                     hx-swap="outerHTML"
                     hx-push-url="false"
                     hx-trigger="cds-table-header-cell-sort"
-                    hx-on:cds-table-header-cell-sort="console.log('sort event', event, ({ none: '', ascending: 'asc', descending: 'desc' }[event.detail.sortDirection] ?? ''))"
                     hx-vals="js:{
                         sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
                         size: document.querySelector('#pagination-container').__pageSize,

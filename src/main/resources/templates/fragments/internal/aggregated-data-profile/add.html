@@ -29,16 +29,19 @@
             id="form-group"
             th:fragment="adp-add-form"
             name="form-group"
+            class="adp-add-form"
         >
-            <cds-stack gap="7">
-                <cds-text-input
-                    name="name"
-                    label="Name"
-                    th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage},
-                                         value=${form?.name}"
-                >
-                </cds-text-input>
+            <div class="form-column single-column no-stack">
+                <div class="field-block">
+                    <cds-text-input
+                        name="name"
+                        label="Name"
+                        th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                             invalid-text=${errors?.getFieldError('name')?.defaultMessage},
+                                             value=${form?.name}"
+                    >
+                    </cds-text-input>
+                </div>
                 <div class="form-row">
                     <div class="form-col">
                         <cds-select
@@ -48,9 +51,9 @@
                             hx-trigger="cds-select-selected"
                             hx-target="#connector-endpoints"
                             th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
-                                         invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
-                                         value=${form?.connectorInstanceId != null ? form.connectorInstanceId : connectorInstances.first?.id}
-                                        "
+                                             invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
+                                             value=${form?.connectorInstanceId != null ? form.connectorInstanceId : connectorInstances.first?.id}
+                                            "
                         >
                             <cds-select-item
                                 th:each="instance : ${connectorInstances}"
@@ -73,8 +76,8 @@
                                 label-text="Select an connector endpoint"
                                 name="connectorEndpointId"
                                 th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
-                                         invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
-                                         value=${form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints.first?.id}"
+                                             invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
+                                             value=${form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints.first?.id}"
                             >
                                 <cds-select-item
                                     th:each="endpoint : ${connectorEndpoints}"
@@ -86,23 +89,43 @@
                         </div>
                     </div>
                 </div>
-                <!-- Add Aggregated Data Profile form -->
-                <cds-text-input
-                    name="roles"
-                    label="Roles"
-                    required="true"
-                    th:attr="invalid=${errors?.getFieldError('roles') != null} ? 'true' : null,
-                                         invalid-text=${errors?.getFieldError('roles')?.defaultMessage},
-                                         value=${form?.roles}"
-                >
-                </cds-text-input>
+                <div class="field-block">
+                    <cds-text-input
+                        name="roles"
+                        label="Roles"
+                        required="true"
+                        th:attr="invalid=${errors?.getFieldError('roles') != null} ? 'true' : null,
+                                             invalid-text=${errors?.getFieldError('roles')?.defaultMessage},
+                                             value=${form?.roles}"
+                    >
+                    </cds-text-input>
+                </div>
 
                 <cds-form-item
                     th:attr="invalid=${errors?.getFieldError('endpointTransform') != null} ? 'true' : null"
                 >
-                    <label for="endpointTransformCodeAdd"
-                        >Endpoint Transform</label
-                    >
+                    <label for="endpointTransformCodeAdd">
+                        <cds-toggletip
+                            alignment="right"
+                            alignment-axis-offset="0"
+                        >
+                            Endpoint Transform
+                            <p slot="body-text">
+                                Enter a valid JQ expression that returns a
+                                Map/object. The resulting key/value pairs are
+                                applied as headers on the selected connector
+                                endpoint call. Available context: `.idParam`,
+                                `.sortParams`, `.filterParams`.
+                            </p>
+                            <cds-link
+                                target="_blank"
+                                href="https://jqlang.org/manual/"
+                                slot="actions"
+                            >
+                                JQ Manual
+                            </cds-link>
+                        </cds-toggletip>
+                    </label>
                     <textarea
                         id="endpointTransformCodeAdd"
                         name="endpointTransform"
@@ -126,7 +149,26 @@
                 <cds-form-item
                     th:attr="invalid=${errors?.getFieldError('resultTransform') != null} ? 'true' : null"
                 >
-                    <label for="resultTransformCodeAdd">Result Transform</label>
+                    <label for="resultTransformCodeAdd">
+                        <cds-toggletip
+                            alignment="right"
+                            alignment-axis-offset="0"
+                        >
+                            Result Transform
+                            <p slot="body-text">
+                                Apply a JQ transform on the result of the adp.
+                                Use this to manipulate the result before it is
+                                returned as a response to the client.
+                            </p>
+                            <cds-link
+                                target="_blank"
+                                href="https://jqlang.org/manual/"
+                                slot="actions"
+                            >
+                                JQ Manual
+                            </cds-link>
+                        </cds-toggletip>
+                    </label>
                     <textarea
                         id="resultTransformCodeAdd"
                         name="resultTransform"
@@ -146,7 +188,7 @@
                         th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                     ></div>
                 </cds-form-item>
-            </cds-stack>
+            </div>
 
             <div
                 id="monaco-error-add"
@@ -157,10 +199,6 @@
                     th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"
                 ></span>
             </div>
-            <span class="sub-text"
-                >A valid JQ expression learn at
-                https://jqlang.org/tutorial/</span
-            >
         </cds-form-group>
     </cds-modal-body>
     <cds-modal-footer>

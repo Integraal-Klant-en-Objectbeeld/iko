@@ -175,12 +175,14 @@
                                             >
                                                 Endpoint Transform
                                                 <p slot="body-text">
-                                                    Apply a transform on the
-                                                    outgoing endpoint exchange.
-                                                    This can be used to map
-                                                    container parameters from
-                                                    the ADP input to the
-                                                    connector endpoint.
+                                                    Provide a valid JQ
+                                                    expression that returns a
+                                                    Map/object. The resulting
+                                                    headers are added to the
+                                                    selected connector endpoint
+                                                    request. Available context:
+                                                    `.idParam`, `.sortParams`,
+                                                    `.filterParams`.
                                                 </p>
                                                 <cds-link
                                                     target="_blank"
