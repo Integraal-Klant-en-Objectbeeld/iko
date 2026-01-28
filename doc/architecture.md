@@ -20,19 +20,17 @@ IKO is a data aggregation platform that fetches data from multiple external gove
 |  (JWT tokens)  | JWT  |   (Spring Boot)   |      |   (Flyway)       |
 +----------------+      +--------+----------+      +------------------+
                                  |
-                        Apache Camel Routes
+                 Apache Camel Routes loaded dynamically from ADPs/Connectors
                                  |
               +------------------+------------------+
               |                  |                  |
-     +--------v---+    +--------v---+    +---------v--+
-     |  BRP       |    |  OpenZaak  |    |  Objects   |
-     |  (Personen)|    |  (Zaken)   |    |  API       |
-     +------------+    +------------+    +------------+
+     +--------v---+    +--------v---+    +---------v------------+
+     |  ADP1      |    |  ADP2      |    |  Connector-Endpoint  |
+     +------------+    +------------+    +----------------------+
               |                  |
-     +--------v---+    +--------v---+
-     |  BAG       |    |  OpenKlant |
-     |  (Adressen)|    |            |
-     +------------+    +------------+
+     +--------v-----+    +--------v-----+
+     |  Connector A |    |  Connector B |
+     +--------------+    +--------------+
 ```
 
 ## Application Layers
