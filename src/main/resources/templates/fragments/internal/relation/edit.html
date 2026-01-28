@@ -99,10 +99,12 @@
                     <cds-toggletip alignment="right" alignment-axis-offset="0">
                         Endpoint parameter Mapping Transform
                         <p slot="body-text">
-                            Apply a transform on the outgoing endpoint exchange.
-                            This can be used to map soruce and container
-                            parameters from the relation input to the connector
-                            endpoint.
+                            Provide valid JQ that returns a Map/object or a List
+                            of Maps. The resulting key/value pairs are applied
+                            as headers on the selected connector endpoint
+                            request. Available context: `.idParam`,
+                            `.sortParams`, `.filterParams`, `.source` (parent
+                            result).
                         </p>
                         <cds-link
                             target="_blank"

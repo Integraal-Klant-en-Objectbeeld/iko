@@ -318,6 +318,32 @@ cds-tile {
     }
 }
 
+.form-column.single-column.no-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow: visible;
+}
+
+.form-column.single-column .form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-column.single-column .form-col {
+    flex: 1;
+    min-width: 220px;
+}
+
+.field-block {
+    width: 100%;
+}
+
+cds-form-group.adp-add-form cds-form-item {
+    overflow: visible;
+}
+
 @media (max-width: 1200px) {
     #detail-grid {
         flex-direction: column;
@@ -325,6 +351,10 @@ cds-tile {
 }
 
 /* Datagrid */
+cds-table {
+    width: 100%;
+}
+
 cds-table-header-cell.col-width-30 {
     width: 30%;
 }
@@ -351,6 +381,45 @@ cds-table-row > .app--table-cell-actions {
 
 cds-table-row cds-tooltip-content {
     display: none;
+}
+
+.app--table-cell-empty {
+    padding: var(--cds-spacing-06) var(--cds-spacing-07);
+    text-align: center;
+}
+
+.app--empty-notice {
+    display: flex;
+    gap: var(--cds-spacing-04);
+    justify-content: center;
+    align-items: center;
+    inline-size: 100%;
+    color: var(--cds-text-primary, #161616);
+}
+
+.app--empty-notice__icon {
+    min-width: 4rem;
+    min-height: 4rem;
+}
+
+.app--empty-notice__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cds-spacing-02);
+    align-items: center;
+}
+
+.app--empty-notice__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+}
+
+.app--empty-notice__description {
+    margin: 0;
+    color: var(--cds-text-secondary, #525252);
+    line-height: 1.25rem;
 }
 
 /* Buttons */

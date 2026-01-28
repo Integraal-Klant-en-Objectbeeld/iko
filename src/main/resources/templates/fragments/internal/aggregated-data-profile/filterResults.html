@@ -16,6 +16,53 @@
 
 <th:block th:fragment="profile-filter-results">
     <cds-table-body id="search-results">
+        <cds-table-row th:if="${!creationAllowed}" class="not-clickable">
+            <cds-table-cell colspan="2" class="app--table-cell-empty">
+                <div class="app--empty-notice">
+                    <img
+                        th:src="@{/assets/emptystate-error.svg}"
+                        alt="No connector instances or endpoints configured"
+                        class="app--empty-notice__icon"
+                        width="80"
+                        height="80"
+                    />
+                    <div class="app--empty-notice__content">
+                        <p class="app--empty-notice__title">
+                            Connector setup incomplete
+                        </p>
+                        <p class="app--empty-notice__description">
+                            Configure at least one connector instance and one
+                            endpoint before creating or viewing Aggregated Data
+                            Profiles.
+                        </p>
+                    </div>
+                </div>
+            </cds-table-cell>
+        </cds-table-row>
+        <cds-table-row
+            th:if="${creationAllowed and #lists.isEmpty(aggregatedDataProfiles)}"
+            class="not-clickable"
+        >
+            <cds-table-cell colspan="2" class="app--table-cell-empty">
+                <div class="app--empty-notice">
+                    <img
+                        th:src="@{/assets/emptystate-error.svg}"
+                        alt="No Aggregated Data Profiles configured"
+                        class="app--empty-notice__icon"
+                        width="80"
+                        height="80"
+                    />
+                    <div class="app--empty-notice__content">
+                        <p class="app--empty-notice__title">
+                            No Aggregated Data Profiles configured
+                        </p>
+                        <p class="app--empty-notice__description">
+                            Try adjusting your search or create a new profile.
+                        </p>
+                    </div>
+                </div>
+            </cds-table-cell>
+        </cds-table-row>
         <cds-table-row
             th:each="aggregatedDataProfile : ${aggregatedDataProfiles}"
             th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id}},
@@ -52,7 +99,7 @@
                     <span slot="tooltip-content"> Options </span>
                     <cds-overflow-menu-body flipped="">
                         <cds-overflow-menu-item
-                            hx-confirm="Are you sure you want to delete this Aggregated data profiles?"
+                            hx-confirm="Are you sure you want to delete this Aggregated Data Profile?"
                             th:hx-delete="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}|}"
                             hx-swap="outerHTML"
                             hx-target="#search-results"
