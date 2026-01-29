@@ -29,6 +29,19 @@ import java.util.UUID
 interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile, UUID> {
     fun findByName(name: String): AggregatedDataProfile?
 
+    // Version-aware queries
+    fun findByNameAndIsActiveTrue(name: String): AggregatedDataProfile?
+
+    @Query("SELECT a FROM AggregatedDataProfile a WHERE a.name = :name AND a.version.value = :version")
+    fun findByNameAndVersion(
+        @Param("name") name: String,
+        @Param("version") version: String,
+    ): AggregatedDataProfile?
+
+    fun findAllByNameOrderByVersionDesc(name: String): List<AggregatedDataProfile>
+
+    fun findAllByIsActiveTrue(): List<AggregatedDataProfile>
+
     @Query(
         """
         SELECT  adp.id
@@ -62,8 +75,29 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         pageable: Pageable,
     ): Page<AggregatedDataProfileListItem>
 
+    @Query(
+        """
+        SELECT  adp.id as id
+        ,       adp.name as name
+        ,       adp.version as version
+        ,       adp.is_active as isActive
+        FROM    aggregated_data_profile adp
+        WHERE   adp.name = :name
+        ORDER BY adp.version DESC
+        """,
+        nativeQuery = true,
+    )
+    fun findVersionsByName(@Param("name") name: String): List<AggregatedDataProfileVersionProjection>
+
     interface AggregatedDataProfileListItem {
         val id: String
         val name: String
+    }
+
+    interface AggregatedDataProfileVersionProjection {
+        val id: UUID
+        val name: String
+        val version: String
+        val isActive: Boolean
     }
 }

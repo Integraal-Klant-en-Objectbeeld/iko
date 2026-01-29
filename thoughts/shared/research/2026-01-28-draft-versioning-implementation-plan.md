@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: complete
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phases 1, 2, 3 COMPLETED: Route groups, ConnectorService, ValidConnectorCode, name immutability, DB migration, Version embeddable, domain model updates"
+last_updated_note: "Phases 1-4 COMPLETED: Route groups, ConnectorService, ValidConnectorCode, name immutability, DB migration, Version embeddable, domain model updates, repository version methods"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -868,9 +868,9 @@ fun copyForNewConnector(newConnectorId: UUID): ConnectorInstance {
 }
 ```
 
-## Phase 4: Repository Changes
+## Phase 4: Repository Changes ✅ COMPLETED
 
-### 4.1 Update AggregatedDataProfileRepository
+### 4.1 Update AggregatedDataProfileRepository ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/repository/AggregatedDataProfileRepository.kt`
 
@@ -903,7 +903,7 @@ data class AggregatedDataProfileVersionProjection(
 )
 ```
 
-### 4.2 Update ConnectorRepository
+### 4.2 Update ConnectorRepository ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/connectors/repository/ConnectorRepository.kt`
 
