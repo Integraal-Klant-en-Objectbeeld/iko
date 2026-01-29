@@ -98,13 +98,13 @@ class AggregatedDataProfileTest {
     }
 
     @Test
-    fun `handle updates profile from edit form`() {
+    fun `handle updates profile from edit form but preserves name`() {
         val profile = createProfile()
+        val originalName = profile.name
         val newConnectorInstanceId = UUID.randomUUID()
         val newConnectorEndpointId = UUID.randomUUID()
         val form = AggregatedDataProfileEditForm(
             id = profile.id,
-            name = "updated-name",
             roles = "ROLE_UPDATED",
             connectorInstanceId = newConnectorInstanceId,
             connectorEndpointId = newConnectorEndpointId,
@@ -116,7 +116,8 @@ class AggregatedDataProfileTest {
 
         profile.handle(form)
 
-        assertThat(profile.name).isEqualTo("updated-name")
+        // Name should remain unchanged (immutable after creation)
+        assertThat(profile.name).isEqualTo(originalName)
         assertThat(profile.roles.value).isEqualTo("ROLE_UPDATED")
         assertThat(profile.connectorInstanceId).isEqualTo(newConnectorInstanceId)
         assertThat(profile.connectorEndpointId).isEqualTo(newConnectorEndpointId)

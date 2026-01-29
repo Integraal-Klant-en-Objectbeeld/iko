@@ -44,11 +44,10 @@
                                                 th:value="${form.id}"
                                             />
                                             <cds-text-input
-                                                name="name"
                                                 label="Name"
-                                                th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                                                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage},
-                                                                         value=${form.name}"
+                                                th:value="${aggregatedDataProfile.name}"
+                                                disabled
+                                                helper-text="Name cannot be changed after creation"
                                             >
                                             </cds-text-input>
 

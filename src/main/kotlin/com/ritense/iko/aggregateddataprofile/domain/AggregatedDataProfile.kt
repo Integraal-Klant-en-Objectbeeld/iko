@@ -72,7 +72,7 @@ class AggregatedDataProfile(
 ) {
 
     fun handle(request: AggregatedDataProfileEditForm) {
-        this.name = request.name
+        // Note: name is immutable after creation (not included in edit form)
         this.roles = Roles(request.roles)
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
