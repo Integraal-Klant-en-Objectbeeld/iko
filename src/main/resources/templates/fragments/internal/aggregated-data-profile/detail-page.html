@@ -31,7 +31,14 @@
                     th:replace="~{layout-internal :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}} })}"
                 ></div>
                 <div
-                    th:replace="~{layout-internal :: page-header (title=${aggregatedDataProfile.name})}"
+                    th:replace="~{layout-internal :: page-header-versioned (
+                        title=${aggregatedDataProfile.name},
+                        versions=${versions},
+                        currentVersionId=${aggregatedDataProfile.id},
+                        entityId=${aggregatedDataProfile.id},
+                        entityType='aggregated-data-profile',
+                        isCurrentVersionActive=${aggregatedDataProfile.isActive}
+                    )}"
                 ></div>
                 <cds-tabs value="general" type="contained">
                     <cds-tab

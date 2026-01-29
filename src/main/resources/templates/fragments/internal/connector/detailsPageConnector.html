@@ -27,7 +27,14 @@
                     th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"
                 ></div>
                 <div
-                    th:replace="~{layout-internal :: page-header (pageName='Connector', title=${connector.name}, subtext=${connector.tag})}"
+                    th:replace="~{layout-internal :: page-header-versioned (
+                        title=${connector.name},
+                        versions=${versions},
+                        currentVersionId=${connector.id},
+                        entityId=${connector.id},
+                        entityType='connector',
+                        isCurrentVersionActive=${connector.isActive}
+                    )}"
                 ></div>
 
                 <cds-layout>

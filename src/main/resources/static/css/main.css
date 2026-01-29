@@ -512,3 +512,37 @@ cds-form-item {
     width: 100%;
     box-sizing: border-box;
 }
+
+/* Versioned Page Header */
+.page-header-versioned {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cds-spacing-03);
+    margin-bottom: var(--cds-spacing-05);
+}
+
+.page-header-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--cds-spacing-03);
+}
+
+.page-header-title-row .page-title {
+    margin-bottom: 0;
+}
+
+.page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--cds-spacing-03);
+}
+
+.page-header-actions cds-dropdown {
+    min-width: 150px;
+}
+
+.page-header-actions cds-dropdown::part(trigger-button) {
+    min-height: 2rem;
+}

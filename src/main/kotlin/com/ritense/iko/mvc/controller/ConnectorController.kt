@@ -25,6 +25,7 @@ import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
 import com.ritense.iko.connectors.service.ConnectorService
+import com.ritense.iko.mvc.model.CreateVersionForm
 import com.ritense.iko.mvc.model.connector.ConnectorCreateForm
 import com.ritense.iko.mvc.model.connector.ConnectorEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorEndpointConfigForm
@@ -103,6 +104,7 @@ class ConnectorController(
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
         val instances = connectorInstanceRepository.findByConnector(connector)
         val endpoints = connectorEndpointRepository.findByConnector(connector)
+        val versions = connectorRepository.findVersionsByTag(connector.tag)
 
         return ModelAndView(
             "fragments/internal/connector/detailsPageConnector" +
@@ -114,6 +116,7 @@ class ConnectorController(
                 "connector" to connector,
                 "instances" to instances,
                 "endpoints" to endpoints,
+                "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
                 "email" to SecurityContextHelper.getUserPropertyByKey("email"),
             ),
@@ -652,6 +655,72 @@ class ConnectorController(
                 "configValue" to value,
             ),
         )
+    }
+
+    @GetMapping("/{id}/versions/create")
+    fun createVersionModal(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+        return ModelAndView("fragments/internal/version-modal :: create-version-modal").apply {
+            addObject("entityType", "connector")
+            addObject("entityId", id)
+            addObject("entityName", connector.name)
+            addObject("currentVersion", connector.version.value)
+            addObject("form", CreateVersionForm())
+        }
+    }
+
+    @PostMapping("/{id}/versions")
+    fun createVersion(
+        @PathVariable id: UUID,
+        @Valid @ModelAttribute form: CreateVersionForm,
+        bindingResult: BindingResult,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("fragments/internal/version-modal :: form").apply {
+                addObject("entityType", "connector")
+                addObject("entityId", id)
+                addObject("entityName", connector.name)
+                addObject("currentVersion", connector.version.value)
+                addObject("form", form)
+                addObject("errors", bindingResult)
+            }
+        }
+
+        return try {
+            val newConnector = connectorService.createNewVersion(id, form.version)
+
+            httpServletResponse.setHeader("HX-Trigger", "close-modal")
+            httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${newConnector.id}")
+            httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+            httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+
+            details(newConnector.id, isHxRequest)
+        } catch (e: IllegalArgumentException) {
+            bindingResult.rejectValue("version", "duplicate", e.message ?: "Version already exists")
+            ModelAndView("fragments/internal/version-modal :: form").apply {
+                addObject("entityType", "connector")
+                addObject("entityId", id)
+                addObject("entityName", connector.name)
+                addObject("currentVersion", connector.version.value)
+                addObject("form", form)
+                addObject("errors", bindingResult)
+            }
+        }
+    }
+
+    @PostMapping("/{id}/activate")
+    fun activateVersion(
+        @PathVariable id: UUID,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        connectorService.activateVersion(id)
+        return details(id, isHxRequest)
     }
 
     companion object {

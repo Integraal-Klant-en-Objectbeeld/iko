@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: in-progress
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phases 1-6 COMPLETED. Remaining: Phase 7 (Admin UI), Phase 8 (Remove auto-reload), Phase 9 (CSS)"
+last_updated_note: "Phases 1-7 COMPLETED (including CSS from Phase 9). Remaining: Phase 8 (Remove auto-reload)"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -24,9 +24,9 @@ last_updated_note: "Phases 1-6 COMPLETED. Remaining: Phase 7 (Admin UI), Phase 8
 | Phase 4 | ✅ COMPLETED | Repository version query methods |
 | Phase 5 | ✅ COMPLETED | Service layer (activateVersion, createNewVersion) |
 | Phase 6 | ✅ COMPLETED | TestController lazy loading for non-active versions |
-| Phase 7 | ⏳ PENDING | Admin UI (version dropdown, create version modal, activate button) |
+| Phase 7 | ✅ COMPLETED | Admin UI (version dropdown, create version modal, activate button) |
 | Phase 8 | ⏳ PENDING | Remove automatic route loading on create/edit |
-| Phase 9 | ⏳ PENDING | CSS styles for versioned page header |
+| Phase 9 | ✅ COMPLETED | CSS styles for versioned page header |
 
 ### Key Files Modified (Phases 1-6)
 

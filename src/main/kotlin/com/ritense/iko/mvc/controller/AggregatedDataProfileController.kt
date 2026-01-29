@@ -30,6 +30,7 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
 import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileAddForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
+import com.ritense.iko.mvc.model.CreateVersionForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Relation
@@ -74,6 +75,7 @@ class AggregatedDataProfileController(
         val endpoints = connectorEndpointRepository.findByConnector(instance.connector)
         val availableSources = sources(aggregatedDataProfile)
         val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
+        val versions = aggregatedDataProfileRepository.findVersionsByName(aggregatedDataProfile.name)
 
         return ModelAndView(
             "$BASE_FRAGMENT_ADP/detail-page" +
@@ -90,6 +92,7 @@ class AggregatedDataProfileController(
                 "connectorEndpoints" to endpoints,
                 "sources" to availableSources,
                 "isCached" to isCached,
+                "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
                 "email" to SecurityContextHelper.getUserPropertyByKey("email"),
             ),
@@ -501,6 +504,72 @@ class AggregatedDataProfileController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         return details(id, true)
+    }
+
+    @GetMapping("/aggregated-data-profiles/{id}/versions/create")
+    fun createVersionModal(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val profile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        return ModelAndView("fragments/internal/version-modal :: create-version-modal").apply {
+            addObject("entityType", "aggregated-data-profile")
+            addObject("entityId", id)
+            addObject("entityName", profile.name)
+            addObject("currentVersion", profile.version.value)
+            addObject("form", CreateVersionForm())
+        }
+    }
+
+    @PostMapping("/aggregated-data-profiles/{id}/versions")
+    fun createVersion(
+        @PathVariable id: UUID,
+        @Valid @ModelAttribute form: CreateVersionForm,
+        bindingResult: BindingResult,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        val profile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("fragments/internal/version-modal :: form").apply {
+                addObject("entityType", "aggregated-data-profile")
+                addObject("entityId", id)
+                addObject("entityName", profile.name)
+                addObject("currentVersion", profile.version.value)
+                addObject("form", form)
+                addObject("errors", bindingResult)
+            }
+        }
+
+        return try {
+            val newProfile = aggregatedDataProfileService.createNewVersion(id, form.version)
+
+            httpServletResponse.setHeader("HX-Trigger", "close-modal")
+            httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${newProfile.id}")
+            httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+            httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+
+            details(newProfile.id, isHxRequest)
+        } catch (e: IllegalArgumentException) {
+            bindingResult.rejectValue("version", "duplicate", e.message ?: "Version already exists")
+            ModelAndView("fragments/internal/version-modal :: form").apply {
+                addObject("entityType", "aggregated-data-profile")
+                addObject("entityId", id)
+                addObject("entityName", profile.name)
+                addObject("currentVersion", profile.version.value)
+                addObject("form", form)
+                addObject("errors", bindingResult)
+            }
+        }
+    }
+
+    @PostMapping("/aggregated-data-profiles/{id}/activate")
+    fun activateVersion(
+        @PathVariable id: UUID,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        aggregatedDataProfileService.activateVersion(id)
+        return details(id, isHxRequest)
     }
 
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations
