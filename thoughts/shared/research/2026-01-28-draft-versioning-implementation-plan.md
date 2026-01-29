@@ -7,8 +7,9 @@ repository: iko
 topic: "Implementation Plan: Draft Versioning System"
 tags: [implementation-plan, versioning, aggregated-data-profile, connector, camel, semver]
 status: complete
-last_updated: 2026-01-28
+last_updated: 2026-01-29
 last_updated_by: Claude
+last_updated_note: "Phase 3.0: Version is now an @Embeddable class with validation in constructor, similar to Transform"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -26,51 +27,586 @@ This plan describes how to implement a draft/versioning system for AggregatedDat
 
 **Option 1: Version field on domain entity** - Add `version: String` (semver format "1.0.0") and `isActive: Boolean` to ADP and Connector entities. Each version is a separate row in the database with the same logical "name" but different version.
 
-## Phase 1: Bug Fixes
+## Phase 1: Route Group Implementation
 
-### 1.1 Fix Route Removal Bug in AggregatedDataProfileService
+Instead of explicitly tracking and removing individual route IDs, we use Camel's **route groups** feature. Each ADP and Connector gets a group name based on its entity ID. When removing routes, we simply find all routes in that group and remove them - no need to track individual route ID suffixes.
+
+### 1.1 Add Route Groups to AggregatedDataProfileRouteBuilder
+
+**File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/camel/AggregatedDataProfileRouteBuilder.kt`
+
+**Current Problem**: Routes are created with various suffixes (`_root`, `_endpoint_transform`, `_multicast`, `_map`, `_array`, `_loop`) but `removeRoutes()` tries to remove with wrong suffixes (`_direct`).
+
+**Solution**: Add `.group()` to all routes with the ADP ID as the group name.
+
+**Changes to `configure()` method (lines 68-103)**:
+
+```kotlin
+// profile root route entrypoint
+from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
+    .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS
+    .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+    .routeDescription("[ADP Root]")
+    // ... rest of route ...
+
+from("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+    .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS
+    .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+    // ... rest of route ...
+
+// In the multicast block (lines 127-140):
+var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
+    .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS
+    .multicast(MapAggregator)
+    // ...
+```
+
+**Changes to `buildRelationRoute()` method (lines 143-265)**:
+
+All relation routes should also use the **ADP's group** (not the relation's ID), so they're removed together with the parent ADP:
+
+```kotlin
+from("direct:relation_${currentRelation.id}")
+    .routeId("relation_${currentRelation.id}_root")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS - uses parent ADP ID
+    .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+    // ...
+
+from("direct:relation_${currentRelation.id}_map")
+    .routeId("relation_${currentRelation.id}_map")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS
+    .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+    // ...
+
+from("direct:relation_${currentRelation.id}_array")
+    .routeId("relation_${currentRelation.id}_array")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS
+    .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+    // ...
+
+from("direct:relation_${currentRelation.id}_loop")
+    .routeId("relation_${currentRelation.id}_loop")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS
+    .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+    // ...
+
+// For nested relation multicast (lines 251-264):
+var multicast = from("direct:multicast_${currentRelation.id}")
+    .routeId("relation_${currentRelation.id}_multicast")
+    .group("adp_${aggregatedDataProfile.id}")  // ADD THIS
+    .multicast(MapAggregator)
+    // ...
+```
+
+### 1.2 Simplify Route Removal in AggregatedDataProfileService
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/service/AggregatedDataProfileService.kt`
 
-**Current Bug (lines 51-59)**:
+**Current Code (lines 51-59)** - buggy, doesn't remove all routes:
 ```kotlin
 fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-    removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_direct")  // WRONG
+    removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_direct")  // WRONG suffix
     removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
     aggregatedDataProfile.relations.forEach { relation ->
-        removeRoute("relation_${relation.id}_direct")  // WRONG
+        removeRoute("relation_${relation.id}_direct")  // WRONG suffix
         removeRoute("relation_${relation.id}_multicast")
     }
 }
 ```
 
-**Routes NOT being removed**:
-- `aggregated_data_profile_{id}_root` (created at AggregatedDataProfileRouteBuilder.kt:69)
-- `aggregated_data_profile_{id}_endpoint_transform` (created at line 105)
-- `relation_{id}_root` (created at line 157)
-- `relation_{id}_map` (created at line 184)
-- `relation_{id}_array` (created at line 197)
-- `relation_{id}_loop` (created at line 220)
-
-**Fix**: Update `removeRoutes()` to remove all actual route IDs:
-
+**New Code** - uses route groups:
 ```kotlin
 fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-    removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_root")
-    removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
-    removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
-
-    aggregatedDataProfile.relations.forEach { relation ->
-        removeRoute("relation_${relation.id}_root")
-        removeRoute("relation_${relation.id}_map")
-        removeRoute("relation_${relation.id}_array")
-        removeRoute("relation_${relation.id}_loop")
-        removeRoute("relation_${relation.id}_multicast")
+    val groupName = "adp_${aggregatedDataProfile.id}"
+    camelContext.getRoutesByGroup(groupName).forEach { route ->
+        camelContext.routeController.stopRoute(route.id)
+        camelContext.removeRoute(route.id)
     }
 }
 ```
 
-## Phase 2: Database Schema Changes
+This is simpler, correct, and automatically handles any new route types added in the future.
+
+### 1.3 Create ConnectorService and Consolidate Route Loading
+
+**Current Problem**:
+1. Connector route loading code is duplicated in `ConnectorConfiguration.kt` (startup) and `ConnectorController.kt` (create/edit)
+2. Routes loaded from YAML have no group, making them impossible to remove without parsing YAML to find route IDs
+
+**Solution**:
+1. Create a `ConnectorService` that centralizes all connector route operations
+2. Use Camel's `RoutesLoader.findRoutesBuilders()` to parse YAML into `RouteDefinition` objects
+3. Modify `RouteDefinition.setGroup()` before loading into CamelContext
+4. This avoids YAML string manipulation and uses Camel's native API
+
+**File**: `src/main/kotlin/com/ritense/iko/connectors/service/ConnectorService.kt` (new file)
+
+```kotlin
+@Service
+internal class ConnectorService(
+    private val connectorRepository: ConnectorRepository,
+    private val camelContext: CamelContext,
+) {
+    private val logger = KotlinLogging.logger {}
+
+    /**
+     * Loads connector routes into CamelContext with group set for easy removal.
+     * Uses Camel's RouteDefinition API instead of YAML string manipulation.
+     *
+     * Pattern: Parse YAML → Modify RouteDefinitions → Add via addRoutes()
+     * This matches the existing AggregatedDataProfileService pattern.
+     */
+    fun loadConnectorRoutes(connector: Connector) {
+        val groupName = "connector_${connector.id}"
+
+        // Step 1: Create resource from YAML (filename must end in .yaml)
+        val resource = ResourceHelper.fromString(
+            "${connector.tag}.yaml",
+            connector.connectorCode
+        )
+
+        // Step 2: Parse YAML to RoutesBuilder objects WITHOUT loading into context
+        val loader = PluginHelper.getRoutesLoader(camelContext)
+        val builders = loader.findRoutesBuilders(listOf(resource))
+
+        // Step 3: For each builder, configure it, modify route definitions, then add to context
+        builders.forEach { builder ->
+            val routeBuilder = builder as RouteBuilder
+            routeBuilder.setCamelContext(camelContext)
+            routeBuilder.configure()
+
+            // Set group on each route definition BEFORE adding to context
+            routeBuilder.routeCollection.routes.forEach { routeDef ->
+                routeDef.group(groupName)
+            }
+
+            // Add routes using standard CamelContext.addRoutes() - same pattern as AggregatedDataProfileService
+            camelContext.addRoutes(routeBuilder)
+        }
+
+        logger.info { "Loaded ${builders.size} route builder(s) for connector ${connector.tag} with group $groupName" }
+    }
+
+    /**
+     * Validates connector YAML by attempting to parse it.
+     * Returns true if valid, throws exception with details if invalid.
+     */
+    fun validateConnectorCode(connectorCode: String, tag: String): Boolean {
+        val resource = ResourceHelper.fromString("$tag.yaml", connectorCode)
+        val loader = PluginHelper.getRoutesLoader(camelContext)
+
+        // This will throw if YAML is invalid
+        val builders = loader.findRoutesBuilders(listOf(resource))
+
+        // Validate by calling configure() without adding to context
+        builders.forEach { builder ->
+            val routeBuilder = builder as RouteBuilder
+            routeBuilder.setCamelContext(camelContext)
+            routeBuilder.configure()
+        }
+
+        return true
+    }
+
+    /**
+     * Removes all routes belonging to a connector using route groups.
+     */
+    fun removeConnectorRoutes(connector: Connector) {
+        val groupName = "connector_${connector.id}"
+        camelContext.getRoutesByGroup(groupName).forEach { route ->
+            camelContext.routeController.stopRoute(route.id)
+            camelContext.removeRoute(route.id)
+        }
+        logger.info { "Removed routes for connector ${connector.tag} (group: $groupName)" }
+    }
+}
+```
+
+**Note**: This uses `camelContext.addRoutes(routeBuilder)` which is the same pattern used in `AggregatedDataProfileService.addRoutes()` (line 62-70). The route definitions are modified (group set) before the RouteBuilder is added to the context.
+
+### 1.4 Update ConnectorConfiguration to Use ConnectorService
+
+**File**: `src/main/kotlin/com/ritense/iko/connectors/autoconfiguration/ConnectorConfiguration.kt`
+
+**Remove** the `loadAllConnectorsAtStartup()` method (lines 78-98) and replace with delegation to ConnectorService:
+
+```kotlin
+@Configuration
+class ConnectorConfiguration(
+    val connectorRepository: ConnectorRepository,
+    val connectorService: ConnectorService,  // ADD dependency
+) {
+    // ... existing @Bean methods ...
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
+        connectorRepository.findAll().forEach { connector ->
+            try {
+                connectorService.loadConnectorRoutes(connector)
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to load connector ${connector.tag}" }
+            }
+        }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
+}
+```
+
+### 1.5 Create ValidConnectorCode Annotation and Validator
+
+Instead of manual try/catch in the controller, create a custom validation annotation like `ValidTransform`. This integrates with Spring's `@Valid` annotation for cleaner code.
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/validation/ValidConnectorCode.kt` (new file)
+
+```kotlin
+package com.ritense.iko.mvc.model.validation
+
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
+
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [ValidConnectorCodeValidator::class])
+annotation class ValidConnectorCode(
+    val message: String = "Invalid connector code",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = [],
+)
+```
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/validation/ValidConnectorCodeValidator.kt` (new file)
+
+```kotlin
+package com.ritense.iko.mvc.model.validation
+
+import com.ritense.iko.connectors.service.ConnectorService
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+
+class ValidConnectorCodeValidator(
+    private val connectorService: ConnectorService,
+) : ConstraintValidator<ValidConnectorCode, String> {
+
+    override fun isValid(
+        connectorCode: String?,
+        context: ConstraintValidatorContext,
+    ): Boolean {
+        if (connectorCode.isNullOrBlank()) return true // let @NotBlank handle this
+
+        return try {
+            // Use a placeholder tag for validation - the tag doesn't affect YAML parsing
+            connectorService.validateConnectorCode(connectorCode, "validation-check")
+            true
+        } catch (e: Exception) {
+            context.disableDefaultConstraintViolation()
+            context
+                .buildConstraintViolationWithTemplate("Invalid connector code: ${e.message}")
+                .addConstraintViolation()
+            false
+        }
+    }
+}
+```
+
+### 1.6 Update Form Classes with ValidConnectorCode Annotation
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/connector/ConnectorCreateForm.kt`
+
+```kotlin
+package com.ritense.iko.mvc.model.connector
+
+import com.ritense.iko.mvc.model.validation.ValidConnectorCode
+import jakarta.validation.constraints.NotBlank
+
+data class ConnectorCreateForm(
+    @field:NotBlank(message = "Please provide a name.")
+    val name: String,
+    @field:NotBlank(message = "Please provide a reference.")
+    val reference: String,
+    @field:NotBlank(message = "Please provide a connector code.")
+    @field:ValidConnectorCode  // ADD THIS
+    val connectorCode: String,
+)
+```
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/connector/ConnectorEditForm.kt`
+
+```kotlin
+package com.ritense.iko.mvc.model.connector
+
+import com.ritense.iko.mvc.model.validation.ValidConnectorCode
+import jakarta.validation.constraints.NotBlank
+
+data class ConnectorEditForm(
+    @field:NotBlank(message = "Please provide a connector code.")
+    @field:ValidConnectorCode  // ADD THIS
+    val connectorCode: String,
+)
+```
+
+### 1.7 Update ConnectorController to Remove Manual Validation
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/controller/ConnectorController.kt`
+
+**Remove** the `camelContext` dependency and manual try/catch validation blocks. The `@Valid` annotation on form parameters will now trigger `ValidConnectorCodeValidator` automatically via `bindingResult.hasErrors()`.
+
+```kotlin
+@Controller
+@RequestMapping("/admin/connectors")
+class ConnectorController(
+    val connectorRepository: ConnectorRepository,
+    val connectorInstanceRepository: ConnectorInstanceRepository,
+    val connectorEndpointRepository: ConnectorEndpointRepository,
+    val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
+    // REMOVE: val camelContext: CamelContext,
+) {
+    // In editConnector() - REMOVE lines 162-176 (try/catch block)
+    // The @Valid @ModelAttribute form: ConnectorEditForm handles validation
+    @PutMapping("/{id}")
+    fun editConnector(
+        @PathVariable id: UUID,
+        @Valid @ModelAttribute form: ConnectorEditForm,
+        bindingResult: BindingResult,
+        httpServletResponse: HttpServletResponse,
+    ): Any {
+        val connector = connectorRepository.findById(id).orElseThrow()
+
+        if (bindingResult.hasErrors()) {
+            return ModelAndView(
+                "fragments/internal/connector/detailsPageConnector :: connector-code",
+                mapOf(
+                    "connector" to connector,
+                    "errors" to bindingResult,
+                ),
+            )
+        }
+
+        connector.connectorCode = form.connectorCode
+        connectorRepository.save(connector)
+
+        // Note: Don't load routes here - versioning will handle activation
+
+        httpServletResponse.setHeader("HX-Retarget", "#connector-code")
+        httpServletResponse.setHeader("HX-Trigger", "close-modal")
+        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+
+        return ModelAndView(
+            "fragments/internal/connector/detailsPageConnector :: connector-code",
+            mapOf("connector" to connector),
+        )
+    }
+
+    // In createConnector() - REMOVE lines 246-263 (try/catch block)
+    // The @Valid @ModelAttribute form: ConnectorCreateForm handles validation
+    @PostMapping("")
+    fun createConnector(
+        @Valid @ModelAttribute form: ConnectorCreateForm,
+        bindingResult: BindingResult,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        if (bindingResult.hasErrors()) {
+            return ModelAndView(
+                "fragments/internal/connector/formCreateConnector :: form",
+                mapOf(
+                    "connector" to form,
+                    "errors" to bindingResult,
+                ),
+            )
+        }
+
+        val connector = Connector(
+            id = UUID.randomUUID(),
+            name = form.name,
+            tag = form.reference,
+            connectorCode = form.connectorCode,
+        )
+        connectorRepository.save(connector)
+
+        // Note: Don't load routes here - versioning will handle activation
+
+        httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
+        httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+        httpServletResponse.setHeader("HX-Trigger", "close-modal")
+
+        return details(connector.id, isHxRequest)
+    }
+}
+```
+
+### 1.8 Update Templates to Display Validation Errors
+
+**File**: `src/main/resources/templates/fragments/internal/connector/detailsPageConnector.html`
+
+Update the `connector-code` fragment (around line 97-121) to display validation errors:
+
+```html
+<div
+    id="connector-code"
+    style="margin: 0.5em"
+    th:fragment="connector-code"
+>
+    <textarea
+        id="connectorCode"
+        name="connectorCode"
+        th:text="${connector?.connectorCode}"
+        hidden
+    ></textarea>
+
+    <!-- Monaco container -->
+    <div
+        id="connector-editor"
+        data-monaco
+        data-language="yaml"
+        data-textarea="#connectorCode"
+        data-readonly="true"
+        th:data-initial="${connector.connectorCode}"
+        class="monaco-editor-style-full-height"
+    ></div>
+
+    <!-- Error display for validation errors -->
+    <div
+        id="monaco-error"
+        class="cds--form-requirement"
+        th:if="${errors?.getFieldError('connectorCode') != null}"
+        th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
+    ></div>
+</div>
+```
+
+**File**: `src/main/resources/templates/fragments/internal/connector/formCreateConnector.html`
+
+The template already has error binding (lines 82-86) - no changes needed. It already displays `errors?.getFieldError('connectorCode')?.defaultMessage`.
+
+### 1.10 Summary of Refactoring
+
+| Before | After |
+|--------|-------|
+| `ConnectorConfiguration.loadAllConnectorsAtStartup()` - direct Camel calls | Delegates to `ConnectorService.loadConnectorRoutes()` |
+| `ConnectorController.editConnector()` - manual try/catch validation | `@ValidConnectorCode` annotation + `bindingResult.hasErrors()` |
+| `ConnectorController.createConnector()` - manual try/catch validation | `@ValidConnectorCode` annotation + `bindingResult.hasErrors()` |
+| No route groups | All routes get `group("connector_{id}")` automatically |
+| Cannot remove connector routes cleanly | `ConnectorService.removeConnectorRoutes()` uses `getRoutesByGroup()` |
+| Error returned as HTTP 422 plain text | Error bound to form field, displayed in template |
+
+**Benefits of custom validation annotation:**
+1. **Consistent pattern**: Same as `ValidTransform` for JQ expressions
+2. **Declarative**: Validation defined on form class, not in controller
+3. **Automatic binding**: Errors automatically appear in `bindingResult`
+4. **Template integration**: Errors displayed via `errors?.getFieldError('connectorCode')`
+5. **Reusable**: Can be used on any field containing connector YAML
+
+**Benefits of using RouteDefinition API over YAML manipulation:**
+1. **Type-safe**: Work with Camel's native RouteDefinition objects
+2. **No string parsing**: Avoid regex/JSON manipulation of YAML
+3. **Validation included**: `findRoutesBuilders()` validates YAML syntax
+4. **Future-proof**: Uses official Camel API, not workarounds
+5. **Efficient**: Single parse, no serialize/deserialize cycle
+
+### Summary of Route Group Pattern
+
+| Entity Type | Group Name Pattern | Example |
+|-------------|-------------------|---------|
+| AggregatedDataProfile | `adp_{adp.id}` | `adp_550e8400-e29b-41d4-a716-446655440000` |
+| Connector | `connector_{connector.id}` | `connector_660f9500-f39c-52e5-b827-557766551111` |
+
+**Benefits**:
+1. **Simple removal**: One call to `getRoutesByGroup()` finds all related routes
+2. **Future-proof**: Adding new route types doesn't require updating removal code
+3. **No tracking needed**: Don't need to track relation IDs or route suffixes
+4. **Consistent pattern**: Same approach for ADP and Connector
+
+## Phase 2: Database Schema Changes and Naming Constraints
+
+### 2.0 Disable ADP Name Changes After Creation
+
+**Rationale**: With versioning, the ADP `name` becomes a logical identifier that groups all versions together. Allowing name changes after creation would cause:
+- Confusion about which versions belong together
+- Potential orphaned routes still using the old name
+- API endpoint inconsistency (`/aggregated-data-profiles/{name}` would change)
+- Version history fragmentation
+
+**Current State**: The `AggregatedDataProfileEditForm` includes a `name` field with `@UniqueAggregatedDataProfileCheck` validation, allowing renames as long as the new name is unique or unchanged.
+
+**Solution**: Remove the `name` field from the edit form entirely. The name is immutable after creation.
+
+#### 2.0.1 Update AggregatedDataProfileEditForm
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/AggregatedDataProfileEditForm.kt`
+
+Remove the `name` field and the `UniqueAggregatedDataProfile` interface:
+
+```kotlin
+// REMOVE: @UniqueAggregatedDataProfileCheck
+data class AggregatedDataProfileEditForm(
+    val id: UUID,
+    // REMOVE: override val name: String,
+    @field:NotBlank(message = "Please provide roles.")
+    @field:Pattern(
+        regexp = ROLES_PATTERN,
+        message = "Roles must be a comma-separated list of values (e.g., ROLE_ADMIN,ROLE_USER).",
+    )
+    val roles: String,
+    val connectorInstanceId: UUID,
+    val connectorEndpointId: UUID,
+    @field:ValidTransform
+    @field:NotBlank(message = "Please provide a transform expression.")
+    val endpointTransform: String,
+    @field:ValidTransform
+    @field:NotBlank(message = "Please provide a transform expression.")
+    val resultTransform: String,
+    val cacheEnabled: Boolean,
+    @field:Min(value = 0)
+    val cacheTimeToLive: Int,
+) // REMOVE: : UniqueAggregatedDataProfile
+```
+
+#### 2.0.2 Update AggregatedDataProfileController Edit Method
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/controller/AggregatedDataProfileController.kt`
+
+In the `edit()` method, remove the line that updates the name:
+
+```kotlin
+// REMOVE: aggregatedDataProfile.name = form.name
+```
+
+#### 2.0.3 Update Edit Form Template
+
+**File**: `src/main/resources/templates/fragments/internal/aggregated-data-profile/formEditADP.html`
+
+Either:
+1. Remove the name input field entirely, OR
+2. Make it read-only/disabled to show the name without allowing edits:
+
+```html
+<!-- Option 2: Show name as read-only -->
+<cds-text-input
+    label="Name"
+    th:value="${aggregatedDataProfile.name}"
+    disabled
+    helper-text="Name cannot be changed after creation">
+</cds-text-input>
+```
+
+#### 2.0.4 Keep UniqueAggregatedDataProfileCheck for Creation Only
+
+The `@UniqueAggregatedDataProfileCheck` annotation remains on `AggregatedDataProfileAddForm` for validating new ADP names during creation. It can be removed from `AggregatedDataProfileEditForm` since the name field is removed.
+
+**Summary of Changes**:
+| File | Change |
+|------|--------|
+| `AggregatedDataProfileEditForm.kt` | Remove `name` field, remove `UniqueAggregatedDataProfile` interface, remove `@UniqueAggregatedDataProfileCheck` |
+| `AggregatedDataProfileController.kt` | Remove `aggregatedDataProfile.name = form.name` in edit method |
+| `formEditADP.html` | Remove or disable name input field |
+| `AggregatedDataProfileAddForm.kt` | No changes - keeps `@UniqueAggregatedDataProfileCheck` for creation |
 
 ### 2.1 Migration: Add Version Columns
 
@@ -117,34 +653,129 @@ CREATE UNIQUE INDEX idx_connector_tag_active ON connector (tag)
 
 ## Phase 3: Domain Model Changes
 
+### 3.0 Create Version Embeddable Class
+
+Create an embeddable `Version` class similar to `Transform`, with semver validation in the constructor. This pattern ensures validation happens at domain construction time, regardless of how the object is created.
+
+**File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/domain/Version.kt` (new file)
+
+```kotlin
+package com.ritense.iko.aggregateddataprofile.domain
+
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
+
+@Embeddable
+class Version(
+    @Column(name = "version")
+    val value: String,
+) {
+    init {
+        validate(value)
+    }
+
+    companion object {
+        // Semver regex: major.minor.patch (e.g., 1.0.0, 2.1.3)
+        private val SEMVER_PATTERN = Regex("""^\d+\.\d+\.\d+$""")
+
+        fun validate(version: String) {
+            require(SEMVER_PATTERN.matches(version)) {
+                "Version must be in semver format (e.g., 1.0.0), got: $version"
+            }
+        }
+
+        /**
+         * Check if a version string is valid without throwing an exception.
+         * Useful for validators.
+         */
+        fun isValid(version: String?): Boolean {
+            if (version.isNullOrBlank()) return false
+            return SEMVER_PATTERN.matches(version)
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Version
+        return value == other.value
+    }
+
+    override fun hashCode(): Int = value.hashCode()
+
+    override fun toString(): String = value
+}
+```
+
+### 3.0.1 Create ValidSemver Annotation for MVC Validation
+
+Create a validation annotation that uses `Version.isValid()` for form validation, following the same pattern as `ValidTransform`.
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/validation/ValidSemver.kt` (new file)
+
+```kotlin
+package com.ritense.iko.mvc.model.validation
+
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
+
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [ValidSemverValidator::class])
+annotation class ValidSemver(
+    val message: String = "Version must be in semver format (e.g., 1.0.0)",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = [],
+)
+```
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/validation/ValidSemverValidator.kt` (new file)
+
+```kotlin
+package com.ritense.iko.mvc.model.validation
+
+import com.ritense.iko.aggregateddataprofile.domain.Version
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+
+class ValidSemverValidator : ConstraintValidator<ValidSemver, String> {
+
+    override fun isValid(
+        version: String?,
+        context: ConstraintValidatorContext,
+    ): Boolean {
+        if (version.isNullOrBlank()) return true // let @NotBlank handle empty values
+        return Version.isValid(version)
+    }
+}
+```
+
+**Usage**: The `Version` class validates at domain construction. The `@ValidSemver` annotation validates at the MVC layer to provide user-friendly error messages before attempting domain object creation.
+
 ### 3.1 Update AggregatedDataProfile Entity
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/domain/AggregatedDataProfile.kt`
 
-Add fields:
+Add fields using the embedded `Version` class:
 ```kotlin
-@Column(name = "version", nullable = false)
-val version: String = "1.0.0",
+@Embedded
+val version: Version = Version("1.0.0"),
 
 @Column(name = "is_active", nullable = false)
-var isActive: Boolean = true,
+var isActive: Boolean = false,
 ```
 
-Add validation for semver format in constructor or via custom validator.
+**Note**: `isActive` defaults to `false` because new versions (including the initial version) should not be active until explicitly activated. This ensures routes are only loaded when the user intentionally activates a version.
 
 Add method to create a new version:
 ```kotlin
 fun createNewVersion(newVersion: String): AggregatedDataProfile {
-    // Validate semver format
-    require(newVersion.matches(Regex("""^\d+\.\d+\.\d+$"""))) {
-        "Version must be in semver format (e.g., 1.0.0)"
-    }
-
-    // Create new ADP with same data but new ID, version, and inactive
+    // Validation happens in Version constructor
     return AggregatedDataProfile(
         id = UUID.randomUUID(),
         name = this.name,
-        version = newVersion,
+        version = Version(newVersion),
         isActive = false,
         connectorInstanceId = this.connectorInstanceId,
         connectorEndpointId = this.connectorEndpointId,
@@ -184,27 +815,26 @@ fun copyForNewVersion(newAdpId: UUID): Relation {
 
 **File**: `src/main/kotlin/com/ritense/iko/connectors/domain/Connector.kt`
 
-Add fields:
+Add fields using the embedded `Version` class:
 ```kotlin
-@Column(name = "version", nullable = false)
-val version: String = "1.0.0",
+@Embedded
+val version: Version = Version("1.0.0"),
 
 @Column(name = "is_active", nullable = false)
-var isActive: Boolean = true,
+var isActive: Boolean = false,
 ```
+
+**Note**: Same as ADP - `isActive` defaults to `false` so connector routes are only loaded when explicitly activated.
 
 Add method to create new version:
 ```kotlin
 fun createNewVersion(newVersion: String): Connector {
-    require(newVersion.matches(Regex("""^\d+\.\d+\.\d+$"""))) {
-        "Version must be in semver format (e.g., 1.0.0)"
-    }
-
+    // Validation happens in Version constructor
     return Connector(
         id = UUID.randomUUID(),
         name = this.name,
         tag = this.tag,
-        version = newVersion,
+        version = Version(newVersion),
         isActive = false,
         connectorCode = this.connectorCode
     )
@@ -361,9 +991,11 @@ fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile 
 
 **Remove reloadRoutes() calls from edit methods** - Editing should not reload routes. Only activateVersion() loads routes.
 
-### 5.2 Create ConnectorService
+### 5.2 Extend ConnectorService with Versioning Methods
 
-**File**: `src/main/kotlin/com/ritense/iko/connectors/service/ConnectorService.kt` (new file)
+**File**: `src/main/kotlin/com/ritense/iko/connectors/service/ConnectorService.kt`
+
+The `ConnectorService` was created in Phase 1.3 with route loading/removal. Now extend it with versioning methods:
 
 ```kotlin
 @Service
@@ -376,22 +1008,8 @@ internal class ConnectorService(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    @EventListener(ApplicationReadyEvent::class)
-    fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
-        connectorRepository.findAllByIsActiveTrue().forEach { connector ->
-            loadConnectorRoutes(connector)
-        }
-    }
-
-    fun loadConnectorRoutes(connector: Connector) {
-        val resource = ResourceHelper.fromBytes("${connector.tag}.yaml", connector.connectorCode.toByteArray())
-        PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
-    }
-
-    fun removeConnectorRoutes(connector: Connector) {
-        // Parse YAML to find route IDs and remove them
-        // This is more complex as connector YAML can define multiple routes
-    }
+    // loadConnectorRoutes(), validateConnectorCode(), removeConnectorRoutes()
+    // ... already defined in Phase 1.3 ...
 
     @Transactional
     fun activateVersion(id: UUID) {
@@ -595,15 +1213,26 @@ Create new page header with version dropdown:
         <cds-modal-body>
             <form
                 th:hx-post="@{|/admin/${entityType}s/${entityId}/versions|}"
-                hx-target="#view-panel">
+                hx-target="#modal-container"
+                hx-swap="innerHTML">
                 <cds-text-input
                     name="version"
                     label="Version"
                     placeholder="e.g., 1.1.0"
                     helper-text="Use semantic versioning (major.minor.patch)"
+                    th:value="${form?.version}"
+                    th:invalid="${errors?.hasFieldErrors('version')}"
                     required>
                 </cds-text-input>
-                <p class="cds--label">Current version: <span th:text="${currentVersion}"></span></p>
+                <!-- Validation error display -->
+                <div
+                    class="cds--form-requirement"
+                    th:if="${errors?.getFieldError('version') != null}"
+                    th:text="${errors?.getFieldError('version')?.defaultMessage}">
+                </div>
+                <p class="cds--label" style="margin-top: var(--cds-spacing-05);">
+                    Current version: <span th:text="${currentVersion}"></span>
+                </p>
             </form>
         </cds-modal-body>
         <cds-modal-footer>
@@ -636,7 +1265,26 @@ Replace page header:
 
 Replace page header with versioned variant (same pattern as ADP).
 
-### 7.5 Update Controllers
+### 7.5 Create Version Form Class
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/CreateVersionForm.kt` (new file)
+
+A reusable form class for creating new versions, used by both ADP and Connector controllers:
+
+```kotlin
+package com.ritense.iko.mvc.model
+
+import com.ritense.iko.mvc.model.validation.ValidSemver
+import jakarta.validation.constraints.NotBlank
+
+data class CreateVersionForm(
+    @field:NotBlank(message = "Please provide a version.")
+    @field:ValidSemver
+    val version: String,
+)
+```
+
+### 7.6 Update Controllers
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/controller/AggregatedDataProfileController.kt`
 
@@ -667,6 +1315,7 @@ fun createVersionModal(@PathVariable id: UUID): ModelAndView {
         addObject("entityType", "aggregated-data-profile")
         addObject("entityId", id)
         addObject("currentVersion", profile.version)
+        addObject("form", CreateVersionForm(""))
     }
 }
 
@@ -674,11 +1323,24 @@ fun createVersionModal(@PathVariable id: UUID): ModelAndView {
 @PostMapping("/aggregated-data-profiles/{id}/versions")
 fun createVersion(
     @PathVariable id: UUID,
-    @RequestParam version: String,
+    @Valid @ModelAttribute form: CreateVersionForm,
+    bindingResult: BindingResult,
     @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     httpServletResponse: HttpServletResponse,
 ): ModelAndView {
-    val newProfile = aggregatedDataProfileService.createNewVersion(id, version)
+    val profile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+
+    if (bindingResult.hasErrors()) {
+        return ModelAndView("fragments/internal/version-modal :: create-version-modal").apply {
+            addObject("entityType", "aggregated-data-profile")
+            addObject("entityId", id)
+            addObject("currentVersion", profile.version)
+            addObject("form", form)
+            addObject("errors", bindingResult)
+        }
+    }
+
+    val newProfile = aggregatedDataProfileService.createNewVersion(id, form.version)
 
     httpServletResponse.setHeader("HX-Trigger", "close-modal")
     httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${newProfile.id}")
@@ -693,6 +1355,63 @@ fun activateVersion(
     @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
 ): ModelAndView {
     aggregatedDataProfileService.activateVersion(id)
+    return details(id, isHxRequest)
+}
+```
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/controller/ConnectorController.kt`
+
+Add similar endpoints for Connector versioning (same pattern as ADP):
+
+```kotlin
+// Show create version modal
+@GetMapping("/connectors/{id}/versions/create")
+fun createVersionModal(@PathVariable id: UUID): ModelAndView {
+    val connector = connectorRepository.findById(id).orElseThrow()
+    return ModelAndView("fragments/internal/version-modal :: create-version-modal").apply {
+        addObject("entityType", "connector")
+        addObject("entityId", id)
+        addObject("currentVersion", connector.version)
+        addObject("form", CreateVersionForm(""))
+    }
+}
+
+// Create new version
+@PostMapping("/connectors/{id}/versions")
+fun createVersion(
+    @PathVariable id: UUID,
+    @Valid @ModelAttribute form: CreateVersionForm,
+    bindingResult: BindingResult,
+    @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    httpServletResponse: HttpServletResponse,
+): ModelAndView {
+    val connector = connectorRepository.findById(id).orElseThrow()
+
+    if (bindingResult.hasErrors()) {
+        return ModelAndView("fragments/internal/version-modal :: create-version-modal").apply {
+            addObject("entityType", "connector")
+            addObject("entityId", id)
+            addObject("currentVersion", connector.version)
+            addObject("form", form)
+            addObject("errors", bindingResult)
+        }
+    }
+
+    val newConnector = connectorService.createNewVersion(id, form.version)
+
+    httpServletResponse.setHeader("HX-Trigger", "close-modal")
+    httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${newConnector.id}")
+
+    return details(newConnector.id, isHxRequest)
+}
+
+// Activate version
+@PostMapping("/connectors/{id}/activate")
+fun activateVersion(
+    @PathVariable id: UUID,
+    @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+): ModelAndView {
+    connectorService.activateVersion(id)
     return details(id, isHxRequest)
 }
 ```
@@ -796,13 +1515,14 @@ Add styles for versioned page header:
 ## Implementation Order
 
 1. **Phase 1**: Fix route removal bug (critical, independent)
-2. **Phase 2**: Database migration (foundation for all other changes)
-3. **Phase 3**: Domain model changes (depends on Phase 2)
-4. **Phase 4**: Repository changes (depends on Phase 3)
-5. **Phase 5**: Service layer changes (depends on Phase 4)
-6. **Phase 6**: API version override (depends on Phase 5)
-7. **Phase 7**: Admin UI (depends on Phase 5)
-8. **Phase 8**: Remove auto-reload (depends on Phase 5)
+2. **Phase 2.0**: Disable ADP name changes (can be done independently, prepares for versioning)
+3. **Phase 2.1**: Database migration (foundation for all other changes)
+4. **Phase 3**: Domain model changes (depends on Phase 2.1)
+5. **Phase 4**: Repository changes (depends on Phase 3)
+6. **Phase 5**: Service layer changes (depends on Phase 4)
+7. **Phase 6**: API version override (depends on Phase 5)
+8. **Phase 7**: Admin UI (depends on Phase 5)
+9. **Phase 8**: Remove auto-reload (depends on Phase 5)
 9. **Phase 9**: CSS (depends on Phase 7)
 
 ## Testing Considerations
