@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: complete
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phase 5.1: Extended tree example with 3-level deep nesting (R2→R5/R6, R4→R7) and algorithm walkthrough"
+last_updated_note: "Resolved open decisions: no semver ordering validation, no individual version deletion, no max versions, debug logging for lifecycle changes"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -20,7 +20,7 @@ This plan describes how to implement a draft/versioning system for AggregatedDat
 - Editing does not affect currently running routes until explicitly activated
 - Versions use semantic versioning (semver)
 - Only one version is active at a time per entity
-- A query parameter can override the active version for testing
+- Non-active versions can be tested via the Preview tab (lazy loading in TestController)
 - Relations and ConnectorInstances are duplicated per version (not shared)
 
 ## Strategy
@@ -1158,73 +1158,175 @@ internal class ConnectorService(
 }
 ```
 
-## Phase 6: API Changes for Version Override
+## Phase 6: Lazy Loading for Testing Non-Active Versions
 
-### 6.1 Update AggregatedDataProfileRoute
+Instead of adding version override to the REST API, we enable testing non-active ADP versions via the TestController (Preview tab in the admin UI). The version is passed from the currently viewed ADP detail page.
 
-**File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/camel/AggregatedDataProfileRoute.kt`
+### 6.1 Update TestAggregatedDataProfileForm
 
-Add version query parameter:
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/TestAggregatedDataProfileForm.kt`
+
+Add `version` field to identify which ADP version to test:
+
 ```kotlin
-private val versionParam = RestParamConfigurationDefinition()
-    .name("version")
-    .type(RestParamType.query)
-    .description("Override version (for testing)")
-    .required(false)
-
-rest("/aggregated-data-profiles")
-    .get("/{adp_profileName}")
-    .routeId("get-aggregated-data-profile-rest-entrypoint")
-    .param(profileNamePathParam)
-    .param(versionParam)
-    .param(idParam)
-    .param(containerParamsParam)
-    .to("direct:aggregated-data-profile-container-params")
+data class TestAggregatedDataProfileForm(
+    @field:NotBlank(message = "Please provide a valid json object.")
+    val endpointTransformContext: String,
+    @field:NotBlank(message = "Please provide a transform expression.")
+    @field:ValidTransform
+    val resultTransform: String,
+    val name: String,
+    val version: String,  // ADD: Version of the ADP being tested
+)
 ```
 
-Update profile lookup (lines 96-104):
-```kotlin
-from("direct:aggregated-data-profile-rest-continuation")
-    // ... existing variable setup ...
-    .process { exchange ->
-        val profileName = exchange.getVariable("profile", String::class.java)
-        val versionOverride = exchange.getIn().getHeader("version", String::class.java)
+### 6.2 Update debug.html Template
 
-        val aggregatedDataProfile = if (versionOverride != null) {
-            // Use specific version if query param provided
-            aggregatedDataProfileRepository.findByNameAndVersion(profileName, versionOverride)
-                ?: throw AggregatedDataProfileNotFound(profileName, versionOverride)
-        } else {
-            // Use active version
-            aggregatedDataProfileRepository.findByNameAndIsActiveTrue(profileName)
-                ?: throw AggregatedDataProfileNotFound(profileName)
+**File**: `src/main/resources/templates/fragments/internal/aggregated-data-profile/debug.html`
+
+Add hidden `version` input that gets its value from the currently viewed ADP:
+
+```html
+<input
+    type="hidden"
+    id="name"
+    name="name"
+    th:value="${aggregatedDataProfile.name}"
+/>
+<input
+    type="hidden"
+    id="version"
+    name="version"
+    th:value="${aggregatedDataProfile.version.value}"
+/>
+```
+
+Update `hx-include` to include the version field:
+
+```html
+<cds-button
+    kind="primary"
+    hx-post="/admin/aggregated-data-profiles/debug"
+    hx-target="#profile-debug"
+    hx-swap="outerHTML"
+    hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name'], [id='version']"
+    ...
+>
+```
+
+### 6.3 Update TestController with Lazy Loading and Route Suspension
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/controller/TestController.kt`
+
+Add `AggregatedDataProfileService` dependency and implement lazy route loading with suspension after test. On Camel 4.x, we suspend (stop) routes rather than removing them, and resume if already suspended:
+
+```kotlin
+@Controller
+@RequestMapping("/admin")
+class TestController(
+    private val producerTemplate: ProducerTemplate,
+    private val camelContext: CamelContext,
+    private val objectMapper: ObjectMapper,
+    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,  // ADD
+    private val aggregatedDataProfileService: AggregatedDataProfileService,        // ADD
+) {
+    @PostMapping(
+        path = ["/aggregated-data-profiles/debug"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+    )
+    fun test(
+        @Valid @ModelAttribute form: TestAggregatedDataProfileForm,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        // Lookup the ADP by name and version
+        val aggregatedDataProfile = aggregatedDataProfileRepository
+            .findByNameAndVersion(form.name, form.version)
+            ?: throw AggregatedDataProfileNotFound(form.name, form.version)
+
+        // For non-active versions, we need to ensure routes are available for testing
+        val needsTemporaryRoutes = !aggregatedDataProfile.isActive
+        if (needsTemporaryRoutes) {
+            ensureRoutesAvailable(aggregatedDataProfile)
         }
 
-        exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+        try {
+            // ... existing test logic (producerTemplate.send, etc.) ...
+
+            return ModelAndView(...)  // return test results
+        } finally {
+            // Suspend routes after testing if they were loaded temporarily
+            if (needsTemporaryRoutes) {
+                suspendRoutes(aggregatedDataProfile)
+            }
+        }
     }
-    .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
-```
 
-**Important**: Non-active versions won't have routes loaded. Two options:
-1. **Lazy loading**: Load route on-demand when version override requested
-2. **Always load**: Load all versions' routes at startup (memory impact)
-
-**Recommendation**: Lazy loading with caching:
-```kotlin
-.process { exchange ->
-    val aggregatedDataProfile = // ... lookup as above
-
-    // If not active, ensure route is loaded
-    if (!aggregatedDataProfile.isActive) {
+    /**
+     * Ensures routes are available for testing.
+     * - If routes don't exist: register them
+     * - If routes exist but are stopped: resume them
+     * - If routes are already running: do nothing
+     */
+    private fun ensureRoutesAvailable(aggregatedDataProfile: AggregatedDataProfile) {
         val routeId = "aggregated_data_profile_${aggregatedDataProfile.id}_root"
-        if (camelContext.getRoute(routeId) == null) {
-            camelContext.addRoutes(AggregatedDataProfileRouteBuilder(aggregatedDataProfile, ...))
+        val existingRoute = camelContext.getRoute(routeId)
+
+        if (existingRoute == null) {
+            // Routes not registered yet - add them
+            aggregatedDataProfileService.addRoutes(aggregatedDataProfile)
+        } else {
+            // Routes exist - check if they need to be resumed
+            val routeController = camelContext.routeController
+            val status = routeController.getRouteStatus(routeId)
+            if (status.isStopped || status.isSuspended) {
+                // Resume all routes in the ADP's group
+                val groupName = "adp_${aggregatedDataProfile.id}"
+                camelContext.getRoutesByGroup(groupName).forEach { route ->
+                    routeController.resumeRoute(route.id)
+                }
+            }
         }
     }
 
-    exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+    /**
+     * Suspends (stops) routes after testing.
+     * Routes remain registered but inactive, avoiding re-registration overhead on next test.
+     */
+    private fun suspendRoutes(aggregatedDataProfile: AggregatedDataProfile) {
+        val groupName = "adp_${aggregatedDataProfile.id}"
+        val routeController = camelContext.routeController
+        camelContext.getRoutesByGroup(groupName).forEach { route ->
+            routeController.suspendRoute(route.id)
+        }
+    }
 }
 ```
+
+**Key behaviors:**
+1. **Active versions**: Routes are already loaded and running at startup, no action needed
+2. **Non-active versions (first test)**: Routes are registered and started
+3. **Non-active versions (subsequent tests)**: Routes are resumed from suspended state (faster than re-registering)
+4. **After test**: Routes are suspended but remain registered in CamelContext
+5. **Never activates**: The `isActive` flag is never modified - this is purely for testing
+6. **Clean up on error**: The `finally` block ensures routes are suspended even if the test fails
+
+**Camel 4.x Route States:**
+- `Started` - Route is running and processing exchanges
+- `Stopped` - Route is not running, can be started/resumed
+- `Suspended` - Route is paused, can be resumed (preserves inflight exchanges)
+
+**Benefits of suspend/resume over remove/add:**
+- Faster: No route parsing and registration overhead on subsequent tests
+- Safer: Route definitions remain validated and ready
+- Memory efficient: Suspended routes use minimal resources
+- Consistent: Routes maintain their configuration across test runs
+
+This approach is preferred over API version override because:
+- Testing is only needed in the admin UI, not the production API
+- Avoids complexity of version parameter in REST endpoints
+- Routes are loaded on-demand and suspended after use
+- The currently viewed version in the UI naturally becomes the test target
+- Subsequent tests of the same version are faster (resume vs re-register)
 
 ## Phase 7: Admin UI Changes
 
@@ -1595,10 +1697,10 @@ Add styles for versioned page header:
 4. **Phase 3**: Domain model changes (depends on Phase 2.1)
 5. **Phase 4**: Repository changes (depends on Phase 3)
 6. **Phase 5**: Service layer changes (depends on Phase 4)
-7. **Phase 6**: API version override (depends on Phase 5)
+7. **Phase 6**: TestController lazy loading (depends on Phase 5)
 8. **Phase 7**: Admin UI (depends on Phase 5)
 9. **Phase 8**: Remove auto-reload (depends on Phase 5)
-9. **Phase 9**: CSS (depends on Phase 7)
+10. **Phase 9**: CSS (depends on Phase 7)
 
 ## Testing Considerations
 
@@ -1606,15 +1708,15 @@ Add styles for versioned page header:
 2. **Integration tests** for:
    - Creating new versions
    - Activating versions
-   - Version override query parameter
+   - Lazy loading via TestController for non-active versions
    - Only one active version per name constraint
 3. **UI tests** for version dropdown and modal
 4. **Migration test** with existing data
 
-## Open Decisions
+## Decisions
 
-1. **Semver validation**: Should we validate that new versions are greater than existing versions?
-2. **Version deletion**: Can versions be deleted? What happens to relations/instances?
-3. **Cascade on version delete**: When deleting a version, should its relations be deleted?
-4. **Max versions**: Should there be a limit on number of versions?
-5. **Audit trail**: Should we track when versions are activated/deactivated?
+1. **Semver validation**: No validation that new versions are greater than existing versions. Any valid semver is allowed.
+2. **Version deletion**: Individual versions cannot be deleted. Only the entire entity (all versions) can be deleted.
+3. **Cascade on version delete**: N/A - individual version deletion is not supported.
+4. **Max versions**: No limit on number of versions.
+5. **Audit trail**: Use debug-level logging for every lifecycle change of a Connector/ADP (creation, activation, deactivation, route suspend/resume).
