@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: complete
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phases 1-5 COMPLETED: Route groups, ConnectorService, name immutability, DB migration, domain models, repositories, service layer versioning (activateVersion, createNewVersion)"
+last_updated_note: "Phases 1-6 COMPLETED: Route groups, ConnectorService, name immutability, DB migration, domain models, repositories, service layer, TestController lazy loading for non-active versions"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -1166,11 +1166,11 @@ internal class ConnectorService(
 }
 ```
 
-## Phase 6: Lazy Loading for Testing Non-Active Versions
+## Phase 6: Lazy Loading for Testing Non-Active Versions ✅ COMPLETED
 
 Instead of adding version override to the REST API, we enable testing non-active ADP versions via the TestController (Preview tab in the admin UI). The version is passed from the currently viewed ADP detail page.
 
-### 6.1 Update TestAggregatedDataProfileForm
+### 6.1 Update TestAggregatedDataProfileForm ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/model/TestAggregatedDataProfileForm.kt`
 
@@ -1188,7 +1188,7 @@ data class TestAggregatedDataProfileForm(
 )
 ```
 
-### 6.2 Update debug.html Template
+### 6.2 Update debug.html Template ✅
 
 **File**: `src/main/resources/templates/fragments/internal/aggregated-data-profile/debug.html`
 
@@ -1222,7 +1222,7 @@ Update `hx-include` to include the version field:
 >
 ```
 
-### 6.3 Update TestController with Lazy Loading and Route Suspension
+### 6.3 Update TestController with Lazy Loading and Route Suspension ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/controller/TestController.kt`
 

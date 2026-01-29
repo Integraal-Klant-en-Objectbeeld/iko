@@ -17,6 +17,9 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
@@ -24,6 +27,7 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.apache.camel.CamelContext
@@ -44,7 +48,10 @@ class TestController(
     private val producerTemplate: ProducerTemplate,
     private val camelContext: CamelContext,
     private val objectMapper: ObjectMapper,
+    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+    private val aggregatedDataProfileService: AggregatedDataProfileService,
 ) {
+    private val logger = KotlinLogging.logger {}
     @PostMapping(
         path = ["/aggregated-data-profiles/debug"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
@@ -53,6 +60,31 @@ class TestController(
         @Valid @ModelAttribute form: TestAggregatedDataProfileForm,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
+        // Lookup the ADP by name and version
+        val aggregatedDataProfile = aggregatedDataProfileRepository
+            .findByNameAndVersion(form.name, form.version)
+            ?: throw NoSuchElementException("AggregatedDataProfile not found: ${form.name} v${form.version}")
+
+        // For non-active versions, we need to ensure routes are available for testing
+        val needsTemporaryRoutes = !aggregatedDataProfile.isActive
+        if (needsTemporaryRoutes) {
+            ensureRoutesAvailable(aggregatedDataProfile)
+        }
+
+        try {
+            return executeTest(form, aggregatedDataProfile)
+        } finally {
+            // Suspend routes after testing if they were loaded temporarily
+            if (needsTemporaryRoutes) {
+                suspendRoutes(aggregatedDataProfile)
+            }
+        }
+    }
+
+    private fun executeTest(
+        form: TestAggregatedDataProfileForm,
+        aggregatedDataProfile: AggregatedDataProfile,
+    ): ModelAndView {
         val tracer = camelContext.camelContextExtension.getContextPlugin(BacklogTracer::class.java)
         requireNotNull(tracer) { "BacklogTracer plugin not found in CamelContext" }
         val ikoTraceId = UUID.randomUUID().toString()
@@ -60,8 +92,8 @@ class TestController(
         tracer.traceFilter = "\${variable.$IKO_TRACE_ID_VARIABLE} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
-        // Run ADP
-        val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
+        // Run ADP - use the specific ADP's route, not the name-based lookup
+        val adpEndpointUri = "direct:aggregated_data_profile_${aggregatedDataProfile.id}"
         val headers =
             mapOf(
                 ADP_PROFILE_NAME_PARAM_HEADER to form.name,
@@ -98,6 +130,48 @@ class TestController(
             addObject("testResult", result)
             addObject("traces", traces)
             addObject("exception", exception)
+        }
+    }
+
+    /**
+     * Ensures routes are available for testing.
+     * - If routes don't exist: register them
+     * - If routes exist but are stopped: resume them
+     * - If routes are already running: do nothing
+     */
+    private fun ensureRoutesAvailable(aggregatedDataProfile: AggregatedDataProfile) {
+        val routeId = "aggregated_data_profile_${aggregatedDataProfile.id}_root"
+        val existingRoute = camelContext.getRoute(routeId)
+
+        if (existingRoute == null) {
+            // Routes not registered yet - add them
+            logger.debug { "Adding routes for non-active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+            aggregatedDataProfileService.addRoutes(aggregatedDataProfile)
+        } else {
+            // Routes exist - check if they need to be resumed
+            val routeController = camelContext.routeController
+            val status = routeController.getRouteStatus(routeId)
+            if (status.isStopped || status.isSuspended) {
+                // Resume all routes in the ADP's group
+                logger.debug { "Resuming routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+                val groupName = "adp_${aggregatedDataProfile.id}"
+                camelContext.getRoutesByGroup(groupName).forEach { route ->
+                    routeController.resumeRoute(route.id)
+                }
+            }
+        }
+    }
+
+    /**
+     * Suspends (stops) routes after testing.
+     * Routes remain registered but inactive, avoiding re-registration overhead on next test.
+     */
+    private fun suspendRoutes(aggregatedDataProfile: AggregatedDataProfile) {
+        val groupName = "adp_${aggregatedDataProfile.id}"
+        val routeController = camelContext.routeController
+        logger.debug { "Suspending routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+        camelContext.getRoutesByGroup(groupName).forEach { route ->
+            routeController.suspendRoute(route.id)
         }
     }
 }
