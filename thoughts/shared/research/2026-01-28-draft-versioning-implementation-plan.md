@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: complete
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phases 1-4 COMPLETED: Route groups, ConnectorService, ValidConnectorCode, name immutability, DB migration, Version embeddable, domain model updates, repository version methods"
+last_updated_note: "Phases 1-5 COMPLETED: Route groups, ConnectorService, name immutability, DB migration, domain models, repositories, service layer versioning (activateVersion, createNewVersion)"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -918,9 +918,9 @@ fun findAllByIsActiveTrue(): List<Connector>
 fun findVersionsByTag(tag: String): List<ConnectorVersionProjection>
 ```
 
-## Phase 5: Service Layer Changes
+## Phase 5: Service Layer Changes ✅ COMPLETED
 
-### 5.1 Update AggregatedDataProfileService
+### 5.1 Update AggregatedDataProfileService ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/service/AggregatedDataProfileService.kt`
 
@@ -1069,7 +1069,7 @@ fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile 
 
 **Remove reloadRoutes() calls from edit methods** - Editing should not reload routes. Only activateVersion() loads routes.
 
-### 5.2 Extend ConnectorService with Versioning Methods
+### 5.2 Extend ConnectorService with Versioning Methods ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/connectors/service/ConnectorService.kt`
 

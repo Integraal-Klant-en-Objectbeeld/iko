@@ -76,11 +76,13 @@ class ConnectorConfiguration(
 
     @EventListener(ApplicationReadyEvent::class)
     fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
-        connectorRepository.findAll().forEach { connector ->
+        // Only load active connectors at startup
+        connectorRepository.findAllByIsActiveTrue().forEach { connector ->
             try {
                 connectorService.loadConnectorRoutes(connector)
+                logger.debug { "Loaded routes for active connector: ${connector.tag} v${connector.version}" }
             } catch (e: Exception) {
-                logger.error(e) { "Failed to load connector ${connector.tag}" }
+                logger.error(e) { "Failed to load connector ${connector.tag} v${connector.version}" }
             }
         }
     }

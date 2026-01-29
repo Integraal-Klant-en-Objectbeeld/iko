@@ -17,6 +17,11 @@
 package com.ritense.iko.connectors.service
 
 import com.ritense.iko.connectors.domain.Connector
+import com.ritense.iko.connectors.domain.ConnectorEndpoint
+import com.ritense.iko.connectors.domain.ConnectorEndpointRole
+import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
+import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
+import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
@@ -24,10 +29,15 @@ import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.support.PluginHelper
 import org.apache.camel.support.ResourceHelper
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 class ConnectorService(
     private val connectorRepository: ConnectorRepository,
+    private val connectorInstanceRepository: ConnectorInstanceRepository,
+    private val connectorEndpointRepository: ConnectorEndpointRepository,
+    private val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
     private val camelContext: CamelContext,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -101,5 +111,98 @@ class ConnectorService(
             camelContext.removeRoute(route.id)
         }
         logger.debug { "Removed routes for connector ${connector.tag} (group: $groupName)" }
+    }
+
+    /**
+     * Activates a specific version of a Connector.
+     * Deactivates any currently active version and loads routes for the new active version.
+     */
+    @Transactional
+    fun activateVersion(id: UUID) {
+        val connectorToActivate = connectorRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Connector not found: $id") }
+
+        // Prevent reactivation of already active version
+        if (connectorToActivate.isActive) {
+            logger.debug { "Connector ${connectorToActivate.tag} v${connectorToActivate.version} is already active" }
+            return
+        }
+
+        // Find and deactivate currently active version
+        val currentActive = connectorRepository.findByTagAndIsActiveTrue(connectorToActivate.tag)
+        if (currentActive != null) {
+            logger.debug { "Deactivating Connector ${currentActive.tag} v${currentActive.version}" }
+            removeConnectorRoutes(currentActive)
+            currentActive.isActive = false
+            connectorRepository.save(currentActive)
+        }
+
+        // Activate new version
+        connectorToActivate.isActive = true
+        connectorRepository.save(connectorToActivate)
+        loadConnectorRoutes(connectorToActivate)
+        logger.debug { "Activated Connector ${connectorToActivate.tag} v${connectorToActivate.version}" }
+    }
+
+    /**
+     * Creates a new version of a Connector by copying it and all its endpoints, instances, and roles.
+     * The new version starts as inactive.
+     */
+    @Transactional
+    fun createNewVersion(sourceId: UUID, newVersion: String): Connector {
+        val source = connectorRepository.findById(sourceId)
+            .orElseThrow { NoSuchElementException("Connector not found: $sourceId") }
+
+        // Check version doesn't already exist
+        if (connectorRepository.findByTagAndVersion(source.tag, newVersion) != null) {
+            throw IllegalArgumentException("Version $newVersion already exists for ${source.tag}")
+        }
+
+        // Create new connector
+        val newConnector = source.createNewVersion(newVersion)
+        connectorRepository.save(newConnector)
+
+        // Copy endpoints and build name -> new endpoint mapping
+        val endpoints = connectorEndpointRepository.findByConnector(source)
+        val endpointMapping = mutableMapOf<String, ConnectorEndpoint>()
+        endpoints.forEach { endpoint ->
+            val newEndpoint = ConnectorEndpoint(
+                id = UUID.randomUUID(),
+                connector = newConnector,
+                name = endpoint.name,
+                operation = endpoint.operation,
+            )
+            connectorEndpointRepository.save(newEndpoint)
+            endpointMapping[endpoint.name] = newEndpoint
+        }
+
+        // Copy instances and their roles
+        val instances = connectorInstanceRepository.findByConnector(source)
+        instances.forEach { instance ->
+            val newInstance = instance.copyForNewConnector(newConnector)
+            connectorInstanceRepository.save(newInstance)
+
+            // Copy endpoint roles for this instance
+            val roles = connectorEndpointRoleRepository.findAllByConnectorInstance(instance)
+            roles.forEach { role ->
+                // Map old endpoint to new endpoint by name
+                val newEndpoint = endpointMapping[role.connectorEndpoint.name]
+                if (newEndpoint != null) {
+                    val newRole = ConnectorEndpointRole.create(
+                        connectorInstance = newInstance,
+                        connectorEndpoint = newEndpoint,
+                        role = role.role,
+                    )
+                    connectorEndpointRoleRepository.save(newRole)
+                }
+            }
+        }
+
+        logger.debug {
+            "Created new version ${newConnector.tag} v${newConnector.version} " +
+                "with ${endpoints.size} endpoints and ${instances.size} instances"
+        }
+
+        return newConnector
     }
 }
