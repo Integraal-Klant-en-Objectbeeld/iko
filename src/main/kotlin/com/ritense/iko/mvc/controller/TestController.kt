@@ -52,6 +52,7 @@ class TestController(
     private val aggregatedDataProfileService: AggregatedDataProfileService,
 ) {
     private val logger = KotlinLogging.logger {}
+
     @PostMapping(
         path = ["/aggregated-data-profiles/debug"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],

@@ -6,13 +6,61 @@ branch: main
 repository: iko
 topic: "Implementation Plan: Draft Versioning System"
 tags: [implementation-plan, versioning, aggregated-data-profile, connector, camel, semver]
-status: complete
+status: in-progress
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phases 1-6 COMPLETED: Route groups, ConnectorService, name immutability, DB migration, domain models, repositories, service layer, TestController lazy loading for non-active versions"
+last_updated_note: "Phases 1-6 COMPLETED. Remaining: Phase 7 (Admin UI), Phase 8 (Remove auto-reload), Phase 9 (CSS)"
 ---
 
 # Implementation Plan: Draft Versioning System
+
+## Progress Summary
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 1 | ✅ COMPLETED | Route groups for ADP and Connector |
+| Phase 2 | ✅ COMPLETED | ADP name immutability, DB migration |
+| Phase 3 | ✅ COMPLETED | Version embeddable, domain model updates |
+| Phase 4 | ✅ COMPLETED | Repository version query methods |
+| Phase 5 | ✅ COMPLETED | Service layer (activateVersion, createNewVersion) |
+| Phase 6 | ✅ COMPLETED | TestController lazy loading for non-active versions |
+| Phase 7 | ⏳ PENDING | Admin UI (version dropdown, create version modal, activate button) |
+| Phase 8 | ⏳ PENDING | Remove automatic route loading on create/edit |
+| Phase 9 | ⏳ PENDING | CSS styles for versioned page header |
+
+### Key Files Modified (Phases 1-6)
+
+**Domain:**
+- `AggregatedDataProfile.kt` - Added `version`, `isActive`, `createNewVersion()`
+- `Relation.kt` - Added `copyForNewVersion()`
+- `Connector.kt` - Added `version`, `isActive`, `createNewVersion()`
+- `ConnectorInstance.kt` - Added `copyForNewConnector()`
+- `Version.kt` (new) - Embeddable with semver validation
+
+**Repositories:**
+- `AggregatedDataProfileRepository.kt` - Version query methods
+- `ConnectorRepository.kt` - Version query methods
+- `ConnectorEndpointRepository.kt` - Added `findByConnectorAndName()`
+
+**Services:**
+- `AggregatedDataProfileService.kt` - `activateVersion()`, `createNewVersion()`, startup loads only active
+- `ConnectorService.kt` - `activateVersion()`, `createNewVersion()`
+- `ConnectorConfiguration.kt` - Startup loads only active connectors
+
+**Controllers:**
+- `TestController.kt` - Lazy route loading/suspension for non-active versions
+
+**MVC/Validation:**
+- `AggregatedDataProfileEditForm.kt` - Removed `name` field
+- `TestAggregatedDataProfileForm.kt` - Added `version` field
+- `ValidSemver.kt`, `ValidSemverValidator.kt` (new)
+
+**Templates:**
+- `edit.html` - Name field now disabled
+- `debug.html` - Added version input, updated hx-include
+
+**Database:**
+- `V2026.01.29.1__add_versioning.sql` - Version and is_active columns
 
 ## Overview
 
