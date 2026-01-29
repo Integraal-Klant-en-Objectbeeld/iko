@@ -146,7 +146,7 @@ Notes and gotchas:
 ---
 
 ### More documentation
-You can find more documentation and release notes [here](./doc/README.md)
+You can find more documentation [here](./doc/README.md)
 
 ### Crypto
 IKO uses AES encryption for config storage of connectors. 

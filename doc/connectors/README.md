@@ -8,7 +8,7 @@ Connectors are Apache Camel route definitions that allow IKO to connect to exter
 
 A connector defines *how* to communicate with an external system. It contains a YAML-based Camel route definition (`connectorCode`) that describes HTTP configuration, header mapping, authentication, and parameter handling.
 
-The current connectors are:
+This list contains common connector configuration examples:
 
 - [BAG](./bag.md) -- Basisregistratie Adressen en Gebouwen (addresses and buildings)
 - [BRP](./haalcentraal-brp.md) -- Haal Centraal BRP (persons registry)

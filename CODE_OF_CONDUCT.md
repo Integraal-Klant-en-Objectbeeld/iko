@@ -23,7 +23,7 @@ Examples of unacceptable behavior by participants include:
 *   Conduct which could reasonably be considered inappropriate for the forum in
     which it occurs.
 
-All Valtimo public spaces are meant for professional interactions, and any behavior which could reasonably be considered inappropriate in a professional setting is unacceptable.
+All Iko public spaces are meant for professional interactions, and any behavior which could reasonably be considered inappropriate in a professional setting is unacceptable.
 
 ## Our Responsibilities
 
@@ -33,7 +33,7 @@ Ritense has the right and responsibility to remove, edit, or reject comments, co
 
 ## Scope
 
-This Code of Conduct applies to all content on Github.com/valtimo-platform, https://docs.valtimo.nl/, https://www.valtimo.nl/, https://forum.valtimo.nl/, Slack and or any other official Valtimo web presence allowing for community interactions, as well as at all official Valtimo events, whether offline or online.
+This Code of Conduct applies to all content on https://github.com/Integraal-Klant-en-Objectbeeld/iko, Slack and or any other official Iko web presence allowing for community interactions, as well as at all official Iko events, whether offline or online.
 
 ## Conflict Resolution
 
