@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: complete
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phase 1 COMPLETED: Route groups, ConnectorService, ValidConnectorCode annotation, template error display fixes"
+last_updated_note: "Phases 1, 2, 3 COMPLETED: Route groups, ConnectorService, ValidConnectorCode, name immutability, DB migration, Version embeddable, domain model updates"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -531,9 +531,9 @@ The template already has error binding (lines 82-86) - no changes needed. It alr
 3. **No tracking needed**: Don't need to track relation IDs or route suffixes
 4. **Consistent pattern**: Same approach for ADP and Connector
 
-## Phase 2: Database Schema Changes and Naming Constraints
+## Phase 2: Database Schema Changes and Naming Constraints ✅ COMPLETED
 
-### 2.0 Disable ADP Name Changes After Creation
+### 2.0 Disable ADP Name Changes After Creation ✅
 
 **Rationale**: With versioning, the ADP `name` becomes a logical identifier that groups all versions together. Allowing name changes after creation would cause:
 - Confusion about which versions belong together
@@ -616,7 +616,7 @@ The `@UniqueAggregatedDataProfileCheck` annotation remains on `AggregatedDataPro
 | `formEditADP.html` | Remove or disable name input field |
 | `AggregatedDataProfileAddForm.kt` | No changes - keeps `@UniqueAggregatedDataProfileCheck` for creation |
 
-### 2.1 Migration: Add Version Columns
+### 2.1 Migration: Add Version Columns ✅
 
 **File**: `src/main/resources/db/migration/V2026.01.28.1__add_versioning.sql`
 
@@ -659,9 +659,9 @@ CREATE UNIQUE INDEX idx_connector_tag_active ON connector (tag)
     WHERE is_active = TRUE;
 ```
 
-## Phase 3: Domain Model Changes
+## Phase 3: Domain Model Changes ✅ COMPLETED
 
-### 3.0 Create Version Embeddable Class
+### 3.0 Create Version Embeddable Class ✅
 
 Create an embeddable `Version` class similar to `Transform`, with semver validation in the constructor. This pattern ensures validation happens at domain construction time, regardless of how the object is created.
 
@@ -715,7 +715,7 @@ class Version(
 }
 ```
 
-### 3.0.1 Create ValidSemver Annotation for MVC Validation
+### 3.0.1 Create ValidSemver Annotation for MVC Validation ✅
 
 Create a validation annotation that uses `Version.isValid()` for form validation, following the same pattern as `ValidTransform`.
 
@@ -761,7 +761,7 @@ class ValidSemverValidator : ConstraintValidator<ValidSemver, String> {
 
 **Usage**: The `Version` class validates at domain construction. The `@ValidSemver` annotation validates at the MVC layer to provide user-friendly error messages before attempting domain object creation.
 
-### 3.1 Update AggregatedDataProfile Entity
+### 3.1 Update AggregatedDataProfile Entity ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/domain/AggregatedDataProfile.kt`
 
@@ -796,7 +796,7 @@ fun createNewVersion(newVersion: String): AggregatedDataProfile {
 }
 ```
 
-### 3.2 Update Relation Entity
+### 3.2 Update Relation Entity ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/domain/Relation.kt`
 
@@ -819,7 +819,7 @@ fun copyForNewVersion(newAdpId: UUID): Relation {
 }
 ```
 
-### 3.3 Update Connector Entity
+### 3.3 Update Connector Entity ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/connectors/domain/Connector.kt`
 
@@ -849,7 +849,7 @@ fun createNewVersion(newVersion: String): Connector {
 }
 ```
 
-### 3.4 Update ConnectorInstance Entity
+### 3.4 Update ConnectorInstance Entity ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/connectors/domain/ConnectorInstance.kt`
 

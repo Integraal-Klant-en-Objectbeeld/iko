@@ -35,14 +35,20 @@ import java.util.UUID
 @Entity
 @Table(
     name = "aggregated_data_profile",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["id", "name"])],
+    uniqueConstraints = [UniqueConstraint(columnNames = ["name", "version"])],
 )
 class AggregatedDataProfile(
     @Id
     val id: UUID,
 
-    @Column(name = "name", unique = true)
+    @Column(name = "name")
     var name: String,
+
+    @Embedded
+    val version: Version = Version("1.0.0"),
+
+    @Column(name = "is_active", nullable = false)
+    var isActive: Boolean = false,
 
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
@@ -139,6 +145,24 @@ class AggregatedDataProfile(
     fun relationsOf(id: UUID): List<Relation> = relations.filter {
         it.sourceId == id
     }
+
+    /**
+     * Creates a new version of this AggregatedDataProfile.
+     * Relations are NOT copied here - they must be copied separately with ID remapping.
+     */
+    fun createNewVersion(newVersion: String): AggregatedDataProfile = AggregatedDataProfile(
+        id = UUID.randomUUID(),
+        name = this.name,
+        version = Version(newVersion),
+        isActive = false,
+        connectorInstanceId = this.connectorInstanceId,
+        connectorEndpointId = this.connectorEndpointId,
+        endpointTransform = this.endpointTransform,
+        resultTransform = this.resultTransform,
+        roles = this.roles,
+        aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
+        relations = mutableListOf(),
+    )
 
     companion object {
         fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile = AggregatedDataProfile(

@@ -45,4 +45,20 @@ class Relation(
     var resultTransform: Transform,
     @Embedded
     var relationCacheSettings: RelationCacheSettings,
-)
+) {
+    /**
+     * Creates a copy of this relation for a new ADP version.
+     * Note: sourceId is set to null and must be remapped after all relations are copied.
+     */
+    fun copyForNewVersion(newAdp: AggregatedDataProfile): Relation = Relation(
+        id = UUID.randomUUID(),
+        aggregatedDataProfile = newAdp,
+        propertyName = this.propertyName,
+        sourceId = null, // Will be remapped after all relations are copied
+        endpointTransform = this.endpointTransform,
+        connectorInstanceId = this.connectorInstanceId,
+        connectorEndpointId = this.connectorEndpointId,
+        resultTransform = this.resultTransform,
+        relationCacheSettings = this.relationCacheSettings,
+    )
+}

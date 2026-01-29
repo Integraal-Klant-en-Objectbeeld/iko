@@ -16,14 +16,20 @@
 
 package com.ritense.iko.connectors.domain
 
+import com.ritense.iko.aggregateddataprofile.domain.Version
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.util.UUID
 
 @Entity
-@Table(name = "connector")
+@Table(
+    name = "connector",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["tag", "version"])],
+)
 class Connector(
     @Id
     var id: UUID,
@@ -31,6 +37,23 @@ class Connector(
     var name: String,
     @Column(name = "tag")
     var tag: String,
+    @Embedded
+    val version: Version = Version("1.0.0"),
+    @Column(name = "is_active", nullable = false)
+    var isActive: Boolean = false,
     @Column(name = "connector_code")
     var connectorCode: String,
-)
+) {
+    /**
+     * Creates a new version of this Connector.
+     * Endpoints and instances are NOT copied here - they must be copied separately.
+     */
+    fun createNewVersion(newVersion: String): Connector = Connector(
+        id = UUID.randomUUID(),
+        name = this.name,
+        tag = this.tag,
+        version = Version(newVersion),
+        isActive = false,
+        connectorCode = this.connectorCode,
+    )
+}
