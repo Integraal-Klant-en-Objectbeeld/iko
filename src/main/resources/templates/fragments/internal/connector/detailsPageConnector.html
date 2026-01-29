@@ -114,10 +114,15 @@
                                 data-textarea="#connectorCode"
                                 data-readonly="true"
                                 th:data-initial="${connector.connectorCode}"
-                                class="monaco-editor-style-full-height"
+                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-editor-style-full-height monaco-editor-error' : 'monaco-editor-style-full-height'"
                             ></div>
 
-                            <div id="monaco-error" class="monaco-error"></div>
+                            <div
+                                id="monaco-error"
+                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'cds--form-requirement' : 'monaco-error'"
+                                th:if="${errors?.getFieldError('connectorCode') != null}"
+                                th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
+                            ></div>
                         </div>
                     </div>
 

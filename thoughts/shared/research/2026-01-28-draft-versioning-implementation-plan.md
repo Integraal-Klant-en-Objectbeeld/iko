@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: complete
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Resolved open decisions: no semver ordering validation, no individual version deletion, no max versions, debug logging for lifecycle changes"
+last_updated_note: "Phase 1 COMPLETED: Route groups, ConnectorService, ValidConnectorCode annotation, template error display fixes"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -27,11 +27,11 @@ This plan describes how to implement a draft/versioning system for AggregatedDat
 
 **Option 1: Version field on domain entity** - Add `version: String` (semver format "1.0.0") and `isActive: Boolean` to ADP and Connector entities. Each version is a separate row in the database with the same logical "name" but different version.
 
-## Phase 1: Route Group Implementation
+## Phase 1: Route Group Implementation ✅ COMPLETED
 
 Instead of explicitly tracking and removing individual route IDs, we use Camel's **route groups** feature. Each ADP and Connector gets a group name based on its entity ID. When removing routes, we simply find all routes in that group and remove them - no need to track individual route ID suffixes.
 
-### 1.1 Add Route Groups to AggregatedDataProfileRouteBuilder
+### 1.1 Add Route Groups to AggregatedDataProfileRouteBuilder ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/camel/AggregatedDataProfileRouteBuilder.kt`
 
@@ -101,7 +101,7 @@ var multicast = from("direct:multicast_${currentRelation.id}")
     // ...
 ```
 
-### 1.2 Simplify Route Removal in AggregatedDataProfileService
+### 1.2 Simplify Route Removal in AggregatedDataProfileService ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/service/AggregatedDataProfileService.kt`
 
@@ -130,7 +130,7 @@ fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
 
 This is simpler, correct, and automatically handles any new route types added in the future.
 
-### 1.3 Create ConnectorService and Consolidate Route Loading
+### 1.3 Create ConnectorService and Consolidate Route Loading ✅
 
 **Current Problem**:
 1. Connector route loading code is duplicated in `ConnectorConfiguration.kt` (startup) and `ConnectorController.kt` (create/edit)
@@ -227,7 +227,7 @@ internal class ConnectorService(
 
 **Note**: This uses `camelContext.addRoutes(routeBuilder)` which is the same pattern used in `AggregatedDataProfileService.addRoutes()` (line 62-70). The route definitions are modified (group set) before the RouteBuilder is added to the context.
 
-### 1.4 Update ConnectorConfiguration to Use ConnectorService
+### 1.4 Update ConnectorConfiguration to Use ConnectorService ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/connectors/autoconfiguration/ConnectorConfiguration.kt`
 
@@ -258,7 +258,7 @@ class ConnectorConfiguration(
 }
 ```
 
-### 1.5 Create ValidConnectorCode Annotation and Validator
+### 1.5 Create ValidConnectorCode Annotation and Validator ✅
 
 Instead of manual try/catch in the controller, create a custom validation annotation like `ValidTransform`. This integrates with Spring's `@Valid` annotation for cleaner code.
 
@@ -315,7 +315,7 @@ class ValidConnectorCodeValidator(
 }
 ```
 
-### 1.6 Update Form Classes with ValidConnectorCode Annotation
+### 1.6 Update Form Classes with ValidConnectorCode Annotation ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/model/connector/ConnectorCreateForm.kt`
 
@@ -351,11 +351,19 @@ data class ConnectorEditForm(
 )
 ```
 
-### 1.7 Update ConnectorController to Remove Manual Validation
+### 1.7 Update ConnectorController to Remove Manual Validation ✅
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/controller/ConnectorController.kt`
 
 **Remove** the `camelContext` dependency and manual try/catch validation blocks. The `@Valid` annotation on form parameters will now trigger `ValidConnectorCodeValidator` automatically via `bindingResult.hasErrors()`.
+
+### 1.8 Update Templates to Display Validation Errors ✅
+
+**Files**:
+- `src/main/resources/templates/fragments/internal/connector/formCreateConnector.html`
+- `src/main/resources/templates/fragments/internal/connector/detailsPageConnector.html`
+
+Added conditional `monaco-editor-error` class to Monaco editor divs and error message display using `cds--form-requirement` class, following the same pattern used in other Monaco editors in the codebase.
 
 ```kotlin
 @Controller

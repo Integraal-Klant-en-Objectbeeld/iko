@@ -64,9 +64,12 @@ class AggregatedDataProfileRouteBuilder(
             .resultType(JsonNode::class.java)
             .end()
 
+        val groupName = "adp_${aggregatedDataProfile.id}"
+
         // profile root route entrypoint
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
+            .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[ADP Root]")
             .setVariable(
@@ -103,6 +106,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
             .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+            .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, endpointTransformExpression)
             .routeDescription("[ADP Endpoint Transform]")
@@ -126,12 +130,13 @@ class AggregatedDataProfileRouteBuilder(
         if (level1Relations.isNotEmpty()) {
             var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
                 .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
+                .group(groupName)
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
             level1Relations.forEach { relation ->
                 // build route for child relation
-                buildRelationRoute(relation)
+                buildRelationRoute(relation, groupName)
                 // invoke relation route as multicast
                 multicast = multicast.to("direct:relation_${relation.id}")
             }
@@ -140,7 +145,7 @@ class AggregatedDataProfileRouteBuilder(
         }
     }
 
-    private fun buildRelationRoute(currentRelation: Relation) {
+    private fun buildRelationRoute(currentRelation: Relation, groupName: String) {
         val relations = currentRelation.aggregatedDataProfile.relationsOf(currentRelation.id)
         val connectorInstance = connectorInstanceRepository.findById(currentRelation.connectorInstanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
@@ -155,6 +160,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}")
             .routeId("relation_${currentRelation.id}_root")
+            .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${aggregatedDataProfile.name}] <-- [${currentRelation.propertyName}]")
             .removeHeaders("*")
@@ -182,6 +188,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_map")
             .routeId("relation_${currentRelation.id}_map")
+            .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("Endpoint mapping (Map): [${currentRelation.propertyName}]")
             .process {
@@ -195,6 +202,7 @@ class AggregatedDataProfileRouteBuilder(
 
         from("direct:relation_${currentRelation.id}_array")
             .routeId("relation_${currentRelation.id}_array")
+            .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("Endpoint mapping (List): [${currentRelation.propertyName}]")
             .split(
@@ -218,6 +226,7 @@ class AggregatedDataProfileRouteBuilder(
         // Executes each relation route
         from("direct:relation_${currentRelation.id}_loop")
             .routeId("relation_${currentRelation.id}_loop")
+            .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${currentRelation.propertyName}] --> Endpoint")
             .unmarshal().json()
@@ -251,12 +260,13 @@ class AggregatedDataProfileRouteBuilder(
             // create new multicast processor
             var multicast = from("direct:multicast_${currentRelation.id}")
                 .routeId("relation_${currentRelation.id}_multicast")
+                .group(groupName)
                 .multicast(MapAggregator)
                 .parallelProcessing()
 
             relations.forEach { relation ->
                 // build route for child relation
-                buildRelationRoute(relation)
+                buildRelationRoute(relation, groupName)
                 // invoke relation route as multicast
                 multicast = multicast.to("direct:relation_${relation.id}")
             }

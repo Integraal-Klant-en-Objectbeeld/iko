@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.mvc.model.connector
+package com.ritense.iko.mvc.model.validation
 
-import com.ritense.iko.mvc.model.validation.ValidConnectorCode
-import jakarta.validation.constraints.NotBlank
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
 
-data class ConnectorEditForm(
-    @field:NotBlank(message = "Please provide a connector code.")
-    @field:ValidConnectorCode
-    val connectorCode: String,
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [ValidConnectorCodeValidator::class])
+annotation class ValidConnectorCode(
+    val message: String = "Invalid connector code",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = [],
 )

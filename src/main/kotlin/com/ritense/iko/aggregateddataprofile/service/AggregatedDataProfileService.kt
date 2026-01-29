@@ -49,12 +49,10 @@ class AggregatedDataProfileService(
     }
 
     fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-        removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
-        removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
-
-        aggregatedDataProfile.relations.forEach { relation ->
-            removeRoute("relation_${relation.id}_direct")
-            removeRoute("relation_${relation.id}_multicast")
+        val groupName = "adp_${aggregatedDataProfile.id}"
+        camelContext.getRoutesByGroup(groupName).forEach { route ->
+            camelContext.routeController.stopRoute(route.id)
+            camelContext.removeRoute(route.id)
         }
     }
 
@@ -73,10 +71,5 @@ class AggregatedDataProfileService(
     fun reloadRoutes(aggregatedDataProfile: AggregatedDataProfile) {
         removeRoutes(aggregatedDataProfile)
         addRoutes(aggregatedDataProfile)
-    }
-
-    private fun removeRoute(id: String) {
-        camelContext.routeController.stopRoute(id)
-        camelContext.removeRoute(id)
     }
 }
