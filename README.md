@@ -1,4 +1,8 @@
+<img src="iko-logo-wide.png" alt="Iko Logo">
+
 ### Integraal Klant & Objectbeeld (IKO)
+
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square)  
 
 IKO is a Kotlin/Spring Boot application that uses Apache Camel to integrate with external systems via connectors. It ships with an admin UI and a Docker-based local environment.
 
