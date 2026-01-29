@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: complete
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phase 3.0: Version is now an @Embeddable class with validation in constructor, similar to Transform"
+last_updated_note: "Phase 5.1: Extended tree example with 3-level deep nesting (R2→R5/R6, R4→R7) and algorithm walkthrough"
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -933,9 +933,14 @@ fun activateVersion(id: UUID) {
     val profileToActivate = aggregatedDataProfileRepository.findById(id)
         .orElseThrow { AggregatedDataProfileNotFound(id) }
 
+    // Prevent reactivation of already active version
+    if (profileToActivate.isActive) {
+        return // Already active, nothing to do
+    }
+
     // Find and deactivate currently active version
     val currentActive = aggregatedDataProfileRepository.findByNameAndIsActiveTrue(profileToActivate.name)
-    if (currentActive != null && currentActive.id != id) {
+    if (currentActive != null) {
         removeRoutes(currentActive)
         currentActive.isActive = false
         aggregatedDataProfileRepository.save(currentActive)
@@ -949,6 +954,71 @@ fun activateVersion(id: UUID) {
 ```
 
 **Add method to create new version**:
+
+Relations form a tree structure where:
+- Level 1 relations have `sourceId` pointing to the ADP's ID
+- Nested relations have `sourceId` pointing to their parent relation's ID
+
+When copying relations, we must:
+1. Create new IDs for all relations
+2. Remap `sourceId` references to point to the new IDs
+3. Preserve the tree structure
+
+```
+Original tree:                    Copied tree:
+ADP (id: A)                       ADP (id: A')
+├── Relation (id: R1)             ├── Relation (id: R1')
+│   ├── Relation (id: R2)         │   ├── Relation (id: R2')
+│   │   ├── Relation (id: R5)     │   │   ├── Relation (id: R5')
+│   │   └── Relation (id: R6)     │   │   └── Relation (id: R6')
+│   └── Relation (id: R3)         │   └── Relation (id: R3')
+└── Relation (id: R4)             └── Relation (id: R4')
+    └── Relation (id: R7)             └── Relation (id: R7')
+
+Flat list in source.relations:
+[R1, R2, R3, R4, R5, R6, R7]  (order may vary)
+
+sourceId mappings (original):     sourceId mappings (copied):
+R1.sourceId = A                   R1'.sourceId = A'
+R2.sourceId = R1                  R2'.sourceId = R1'
+R3.sourceId = R1                  R3'.sourceId = R1'
+R4.sourceId = A                   R4'.sourceId = A'
+R5.sourceId = R2                  R5'.sourceId = R2'
+R6.sourceId = R2                  R6'.sourceId = R2'
+R7.sourceId = R4                  R7'.sourceId = R4'
+```
+
+**Algorithm walkthrough:**
+
+```
+Input: source.relations = [R1, R2, R3, R4, R5, R6, R7]
+
+Step 1: Initialize idMapping with ADP mapping
+  idMapping = { A → A' }
+
+Step 2: First pass - copy all relations and build ID mapping
+  Copy R1 → R1' (new UUID), idMapping = { A → A', R1 → R1' }
+  Copy R2 → R2' (new UUID), idMapping = { A → A', R1 → R1', R2 → R2' }
+  Copy R3 → R3' (new UUID), idMapping = { A → A', R1 → R1', R2 → R2', R3 → R3' }
+  Copy R4 → R4' (new UUID), idMapping = { A → A', R1 → R1', R2 → R2', R3 → R3', R4 → R4' }
+  Copy R5 → R5' (new UUID), idMapping = { ..., R5 → R5' }
+  Copy R6 → R6' (new UUID), idMapping = { ..., R6 → R6' }
+  Copy R7 → R7' (new UUID), idMapping = { ..., R7 → R7' }
+
+  All new relations have sourceId = null at this point.
+
+Step 3: Second pass - remap sourceId using idMapping
+  R1'.sourceId = idMapping[R1.sourceId] = idMapping[A] = A'   ✓
+  R2'.sourceId = idMapping[R2.sourceId] = idMapping[R1] = R1' ✓
+  R3'.sourceId = idMapping[R3.sourceId] = idMapping[R1] = R1' ✓
+  R4'.sourceId = idMapping[R4.sourceId] = idMapping[A] = A'   ✓
+  R5'.sourceId = idMapping[R5.sourceId] = idMapping[R2] = R2' ✓
+  R6'.sourceId = idMapping[R6.sourceId] = idMapping[R2] = R2' ✓
+  R7'.sourceId = idMapping[R7.sourceId] = idMapping[R4] = R4' ✓
+
+Result: Complete tree copy with all sourceId references correctly remapped.
+```
+
 ```kotlin
 @Transactional
 fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile {
@@ -960,31 +1030,31 @@ fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile 
         throw VersionAlreadyExists(source.name, newVersion)
     }
 
-    // Create new ADP
+    // Create new ADP (without relations)
     val newAdp = source.createNewVersion(newVersion)
     aggregatedDataProfileRepository.save(newAdp)
 
-    // Deep copy relations with ID mapping for parent-child relationships
-    val oldToNewRelationIds = mutableMapOf<UUID, UUID>()
+    // Build ID mapping: old ID -> new ID
+    // Include the ADP ID mapping for level 1 relations
+    val idMapping = mutableMapOf<UUID, UUID>()
+    idMapping[source.id] = newAdp.id
+
+    // First pass: copy all relations and build ID mapping
     val newRelations = source.relations.map { oldRelation ->
         val newRelation = oldRelation.copyForNewVersion(newAdp.id)
-        oldToNewRelationIds[oldRelation.id] = newRelation.id
-        newRelation
+        idMapping[oldRelation.id] = newRelation.id
+        oldRelation to newRelation
     }
 
-    // Remap sourceId references
-    newRelations.forEach { newRelation ->
-        val originalRelation = source.relations.find {
-            oldToNewRelationIds[it.id] == newRelation.id
-        }
-        if (originalRelation?.sourceId != null && originalRelation.sourceId != source.id) {
-            newRelation.sourceId = oldToNewRelationIds[originalRelation.sourceId]
-        } else if (originalRelation?.sourceId == source.id) {
-            newRelation.sourceId = newAdp.id
-        }
+    // Second pass: remap sourceId using the ID mapping
+    newRelations.forEach { (oldRelation, newRelation) ->
+        // sourceId points to either the ADP or a parent relation
+        // Use the mapping to get the new ID
+        newRelation.sourceId = idMapping[oldRelation.sourceId]
     }
 
-    newAdp.relations.addAll(newRelations)
+    // Add all copied relations to the new ADP
+    newAdp.relations.addAll(newRelations.map { it.second })
     return aggregatedDataProfileRepository.save(newAdp)
 }
 ```
@@ -1016,9 +1086,14 @@ internal class ConnectorService(
         val connectorToActivate = connectorRepository.findById(id)
             .orElseThrow { ConnectorNotFound(id) }
 
+        // Prevent reactivation of already active version
+        if (connectorToActivate.isActive) {
+            return // Already active, nothing to do
+        }
+
         // Find and deactivate current active
         val currentActive = connectorRepository.findByTagAndIsActiveTrue(connectorToActivate.tag)
-        if (currentActive != null && currentActive.id != id) {
+        if (currentActive != null) {
             removeConnectorRoutes(currentActive)
             currentActive.isActive = false
             connectorRepository.save(currentActive)
