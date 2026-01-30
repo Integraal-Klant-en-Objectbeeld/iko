@@ -80,7 +80,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         SELECT  adp.id as id
         ,       adp.name as name
         ,       adp.version.value as version
-        ,       adp.isActive as isActive
+        ,       adp.isActive as active
         FROM    AggregatedDataProfile adp
         WHERE   adp.name = :name
         ORDER BY adp.version.value DESC
@@ -97,6 +97,6 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         val id: UUID
         val name: String
         val version: String
-        val isActive: Boolean
+        val active: Boolean
     }
 }

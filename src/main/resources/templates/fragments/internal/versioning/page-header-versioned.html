@@ -21,55 +21,79 @@
         <th:block th:fragment="page-header-versioned">
             <div id="page-header-versioned" class="detail-page-header">
                 <div class="page-header-title-row">
-                    <h2 class="page-title cds--type-heading-03">
-                        <span th:text="${title}"></span>
-                        <span
-                            class="page-title-version"
-                            th:text="${currentVersion ?: ''}"
-                        ></span>
-                        <cds-tag
-                            th:if="${isActiveVersion}"
-                            type="green"
-                            size="sm"
-                        >
-                            Active
-                        </cds-tag>
-                    </h2>
-                    <div class="page-header-actions">
-                        <cds-dropdown
-                            th:id="|${title}-version-select|"
-                            label="Version"
-                            th:value="${entityId}"
-                            title-text=""
-                            size="sm"
-                        >
-                            <cds-dropdown-item
-                                th:each="version : ${versions}"
-                                th:value="${version.id}"
-                                th:text="${version.version}"
-                                th:hx-get="@{|/admin/${entityType}s/${version.id}|}"
-                                hx-target="#view-panel"
-                                hx-push-url="true"
+                    <div class="page-header-title">
+                        <h2 class="page-title cds--type-heading-03">
+                            <span th:text="${title}"></span>
+                        </h2>
+                        <div class="page-title-version-select">
+                            <cds-dropdown
+                                th:id="|${title}-version-select|"
+                                label="Version"
+                                th:value="${entityId}"
+                                title-text=""
+                                size="sm"
                             >
-                            </cds-dropdown-item>
-                        </cds-dropdown>
-                        <cds-button
-                            kind="tertiary"
-                            size="sm"
-                            th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
-                            hx-target="#modal-container"
+                                <cds-dropdown-item
+                                    th:each="version : ${versions}"
+                                    th:value="${version.id}"
+                                    th:hx-get="@{|/admin/${entityType}s/${version.id}|}"
+                                    hx-target="#view-panel"
+                                    hx-push-url="true"
+                                >
+                                    <div class="page-title-version-item">
+                                        <span th:text="${version.version}"></span>
+                                        <cds-tag
+                                            th:if="${version.active}"
+                                            type="green"
+                                            size="sm"
+                                        >
+                                            Active
+                                        </cds-tag>
+                                    </div>
+                                </cds-dropdown-item>
+                            </cds-dropdown>
+                        </div>
+                    </div>
+                    <div class="page-header-actions">
+                        <cds-overflow-menu
+                            class="page-header-overflow"
+                            enter-delay-ms="3000"
+                            leave-delay-ms="0"
+                            close-on-activation
                         >
-                            New Version
-                        </cds-button>
-                        <cds-button
-                            th:if="${!isActiveVersion}"
-                            kind="primary"
-                            size="sm"
-                            th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
-                            hx-target="#view-panel"
-                        >
-                            Activate
-                        </cds-button>
+                                <svg
+                                    focusable="false"
+                                    preserveAspectRatio="xMidYMid meet"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="currentColor"
+                                    class="cds--overflow-menu__icon"
+                                    slot="icon"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 32 32"
+                                    aria-hidden="true"
+                                >
+                                    <circle cx="16" cy="8" r="2"></circle>
+                                    <circle cx="16" cy="16" r="2"></circle>
+                                    <circle cx="16" cy="24" r="2"></circle>
+                                </svg>
+
+                            <cds-overflow-menu-body flipped="">
+                                <cds-overflow-menu-item
+                                    th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
+                                    hx-target="#modal-container"
+                                >
+                                    New Version
+                                </cds-overflow-menu-item>
+                                <cds-overflow-menu-item
+                                    th:disabled="${isActiveVersion}"
+                                    th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
+                                    hx-target="#view-panel"
+                                >
+                                    Activate
+                                </cds-overflow-menu-item>
+                            </cds-overflow-menu-body>
+                        </cds-overflow-menu>
                     </div>
                 </div>
             </div>
