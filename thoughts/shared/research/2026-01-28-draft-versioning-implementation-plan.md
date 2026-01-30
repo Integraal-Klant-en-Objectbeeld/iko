@@ -6,10 +6,10 @@ branch: main
 repository: iko
 topic: "Implementation Plan: Draft Versioning System"
 tags: [implementation-plan, versioning, aggregated-data-profile, connector, camel, semver]
-status: in-progress
+status: completed
 last_updated: 2026-01-29
 last_updated_by: Claude
-last_updated_note: "Phases 1-7 COMPLETED (including CSS from Phase 9). Remaining: Phase 8 (Remove auto-reload)"
+last_updated_note: "ALL PHASES COMPLETED (1-9). Draft versioning system fully implemented."
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -25,7 +25,7 @@ last_updated_note: "Phases 1-7 COMPLETED (including CSS from Phase 9). Remaining
 | Phase 5 | ✅ COMPLETED | Service layer (activateVersion, createNewVersion) |
 | Phase 6 | ✅ COMPLETED | TestController lazy loading for non-active versions |
 | Phase 7 | ✅ COMPLETED | Admin UI (version dropdown, create version modal, activate button) |
-| Phase 8 | ⏳ PENDING | Remove automatic route loading on create/edit |
+| Phase 8 | ✅ COMPLETED | Remove automatic route loading on create/edit |
 | Phase 9 | ✅ COMPLETED | CSS styles for versioned page header |
 
 ### Key Files Modified (Phases 1-6)

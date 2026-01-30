@@ -229,7 +229,7 @@ class ConnectorController(
             )
 
         connectorRepository.save(connector)
-        connectorService.loadConnectorRoutes(connector)
+        // Routes are not loaded here - user must explicitly activate the version
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")

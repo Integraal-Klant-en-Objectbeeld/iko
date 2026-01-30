@@ -251,7 +251,7 @@ class AggregatedDataProfileController(
         }
         val aggregatedDataProfile = AggregatedDataProfile.create(form)
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
-        aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
+        // Routes are not loaded here - user must explicitly activate the version
 
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
@@ -285,8 +285,8 @@ class AggregatedDataProfileController(
             return modelAndView
         }
         aggregatedDataProfile.handle(form)
-        aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        // Routes are not reloaded here - changes only apply when the version is activated
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
@@ -339,8 +339,8 @@ class AggregatedDataProfileController(
         }
 
         aggregatedDataProfile.addRelation(form)
-        aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        // Routes are not reloaded here - changes only apply when the version is activated
 
         val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
@@ -405,8 +405,8 @@ class AggregatedDataProfileController(
             return listOf(modelAndView)
         }
         aggregatedDataProfile.changeRelation(form)
-        aggregatedDataProfileService.reloadRoutes(aggregatedDataProfile)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        // Routes are not reloaded here - changes only apply when the version is activated
 
         val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
@@ -441,13 +441,10 @@ class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
-        form.run {
-            aggregatedDataProfile.let {
-                it.removeRelation(form)
-                aggregatedDataProfileService.reloadRoutes(it)
-                aggregatedDataProfileRepository.save(it)
-            }
-        }
+        aggregatedDataProfile.removeRelation(form)
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        // Routes are not reloaded here - changes only apply when the version is activated
+
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("form", AggregatedDataProfileEditForm.from(aggregatedDataProfile))
