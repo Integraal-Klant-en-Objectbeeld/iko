@@ -79,13 +79,12 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         """
         SELECT  adp.id as id
         ,       adp.name as name
-        ,       adp.version as version
-        ,       adp.is_active as isActive
-        FROM    aggregated_data_profile adp
+        ,       adp.version.value as version
+        ,       adp.isActive as isActive
+        FROM    AggregatedDataProfile adp
         WHERE   adp.name = :name
-        ORDER BY adp.version DESC
+        ORDER BY adp.version.value DESC
         """,
-        nativeQuery = true,
     )
     fun findVersionsByName(@Param("name") name: String): List<AggregatedDataProfileVersionProjection>
 

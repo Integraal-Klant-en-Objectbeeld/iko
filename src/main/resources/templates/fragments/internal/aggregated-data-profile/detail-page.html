@@ -31,12 +31,12 @@
                     th:replace="~{layout-internal :: breadcrumb (${ {{'Aggregated Data Profiles', '/admin/aggregated-data-profiles'}} })}"
                 ></div>
                 <div
-                    th:replace="~{layout-internal :: page-header-versioned (
+                    th:replace="~{fragments/internal/versioning/page-header-versioned :: page-header-versioned (
                         title=${aggregatedDataProfile.name},
-                        versions=${versions},
-                        currentVersionId=${aggregatedDataProfile.id},
                         entityId=${aggregatedDataProfile.id},
                         entityType='aggregated-data-profile',
+                        currentVersionId=${aggregatedDataProfile.id},
+                        versions=${versions},
                         isCurrentVersionActive=${aggregatedDataProfile.isActive}
                     )}"
                 ></div>

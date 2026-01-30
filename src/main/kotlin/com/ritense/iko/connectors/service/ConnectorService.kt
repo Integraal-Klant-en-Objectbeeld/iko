@@ -134,7 +134,7 @@ class ConnectorService(
             logger.debug { "Deactivating Connector ${currentActive.tag} v${currentActive.version}" }
             removeConnectorRoutes(currentActive)
             currentActive.isActive = false
-            connectorRepository.save(currentActive)
+            connectorRepository.saveAndFlush(currentActive)
         }
 
         // Activate new version

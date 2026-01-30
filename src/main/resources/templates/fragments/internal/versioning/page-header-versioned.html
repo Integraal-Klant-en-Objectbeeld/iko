@@ -1,0 +1,74 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <!--/* Reusable versioned page header for entities with version support (ADP, Connector) */-->
+        <th:block th:fragment="page-header-versioned">
+            <div id="page-header-versioned" class="page-header-versioned">
+                <div class="page-header-title-row">
+                    <h2 class="page-title cds--type-heading-03">
+                        <span th:text="${title}"></span>
+                    </h2>
+                    <div class="page-header-actions">
+                        <cds-dropdown
+                            th:id="|version-dropdown-${entityId}|"
+                            label="Version"
+                            th:value="${currentVersionId}"
+                            title-text=""
+                            size="sm"
+                        >
+                            <cds-dropdown-item
+                                th:each="version : ${versions}"
+                                th:value="${version.id}"
+                                th:text="${version.version + (version.id == currentVersionId ? ' (Selected)' : '')}"
+                                th:hx-get="@{|/admin/${entityType}s/${version.id}|}"
+                                hx-target="#view-panel"
+                                hx-push-url="true"
+                            >
+                            </cds-dropdown-item>
+                        </cds-dropdown>
+                        <cds-button
+                            kind="tertiary"
+                            size="sm"
+                            th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
+                            hx-target="#modal-container"
+                        >
+                            New Version
+                        </cds-button>
+                        <cds-button
+                            th:if="${!isCurrentVersionActive}"
+                            kind="primary"
+                            size="sm"
+                            th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
+                            hx-target="#view-panel"
+                        >
+                            Activate
+                        </cds-button>
+                        <cds-tag
+                            th:if="${isCurrentVersionActive}"
+                            type="green"
+                            size="sm"
+                        >
+                            Active
+                        </cds-tag>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>

@@ -662,7 +662,7 @@ class ConnectorController(
         @PathVariable id: UUID,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
-        return ModelAndView("fragments/internal/version-modal :: create-version-modal").apply {
+        return ModelAndView("fragments/internal/versioning/create-version-modal :: create-version-modal").apply {
             addObject("entityType", "connector")
             addObject("entityId", id)
             addObject("entityName", connector.name)
@@ -682,7 +682,7 @@ class ConnectorController(
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
         if (bindingResult.hasErrors()) {
-            return ModelAndView("fragments/internal/version-modal :: form").apply {
+            return ModelAndView("fragments/internal/versioning/create-version-modal :: form").apply {
                 addObject("entityType", "connector")
                 addObject("entityId", id)
                 addObject("entityName", connector.name)
@@ -703,7 +703,7 @@ class ConnectorController(
             details(newConnector.id, isHxRequest)
         } catch (e: IllegalArgumentException) {
             bindingResult.rejectValue("version", "duplicate", e.message ?: "Version already exists")
-            ModelAndView("fragments/internal/version-modal :: form").apply {
+            ModelAndView("fragments/internal/versioning/create-version-modal :: form").apply {
                 addObject("entityType", "connector")
                 addObject("entityId", id)
                 addObject("entityName", connector.name)

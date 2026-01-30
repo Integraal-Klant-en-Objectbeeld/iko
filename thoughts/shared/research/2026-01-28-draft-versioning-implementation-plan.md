@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: completed
 last_updated: 2026-01-30
 last_updated_by: Claude
-last_updated_note: "ALL PHASES COMPLETED (1-9). Fixed: duplicate tag migration, @Service annotation for CGLIB proxy, template fragment visibility (th:block)."
+last_updated_note: "Phase 7 COMPLETED: th:replace invocations in detail-page.html and detailsPageConnector.html now pass required parameters (title, entityId, entityType, currentVersionId, versions, isCurrentVersionActive) from existing scope variables."
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -24,7 +24,7 @@ last_updated_note: "ALL PHASES COMPLETED (1-9). Fixed: duplicate tag migration, 
 | Phase 4 | ✅ COMPLETED | Repository version query methods |
 | Phase 5 | ✅ COMPLETED | Service layer (activateVersion, createNewVersion) |
 | Phase 6 | ✅ COMPLETED | TestController lazy loading for non-active versions |
-| Phase 7 | ✅ COMPLETED | Admin UI (version dropdown, create version modal, activate button) |
+| Phase 7 | ✅ COMPLETED | Admin UI - th:replace invocations pass required parameters from existing scope |
 | Phase 8 | ✅ COMPLETED | Remove automatic route loading on create/edit |
 | Phase 9 | ✅ COMPLETED | CSS styles for versioned page header |
 
@@ -60,7 +60,10 @@ last_updated_note: "ALL PHASES COMPLETED (1-9). Fixed: duplicate tag migration, 
 - `ValidSemver.kt`, `ValidSemverValidator.kt` (new)
 
 **Templates:**
-- `layout-internal.html` - Fixed `page-header-versioned` fragment to use `th:block` (prevents rendering on non-versioned pages)
+- `layout-internal.html` - ✅ Removed `page-header-versioned` fragment (was lines 326-380)
+- `page-header-versioned.html` (new) - ✅ Created at `fragments/internal/versioning/`
+- `detail-page.html` - ✅ `th:replace` passes all required parameters (title, entityId, entityType, currentVersionId, versions, isCurrentVersionActive)
+- `detailsPageConnector.html` - ✅ `th:replace` passes all required parameters (title, entityId, entityType, currentVersionId, versions, isCurrentVersionActive)
 - `edit.html` - Name field now disabled
 - `debug.html` - Added version input, updated hx-include
 
@@ -1469,121 +1472,297 @@ This approach is preferred over API version override because:
 
 ## Phase 7: Admin UI Changes
 
-### 7.1 Update Page Header Fragment
+### 7.1 Remove Versioning Fragment from layout-internal.html (REFINED)
 
 **File**: `src/main/resources/templates/layout-internal.html`
 
-Create new page header with version dropdown:
+**CRITICAL FIX**: The `page-header-versioned` fragment must be **REMOVED** from `layout-internal.html` entirely. Versioning components do not belong in the shared layout file because:
+1. Fragments defined inside `details` get rendered on the home page where versioning variables are not provided
+2. Versioning is specific to ADP and Connector entities only
+3. Layout files should contain only shared, non-entity-specific components
+
+**Action**: Delete the entire `page-header-versioned` fragment block (lines 326-380) from `layout-internal.html`.
+
 ```html
-<th:block th:fragment="page-header-versioned (title, versions, currentVersion, entityId, entityType)">
-    <div class="page-header-versioned">
-        <div class="page-header-title-row">
-            <h2 class="cds--type-heading-03" th:text="${title}"></h2>
-            <div class="page-header-actions">
-                <cds-dropdown
-                    th:id="|version-dropdown-${entityId}|"
-                    label="Version"
-                    th:value="${currentVersion}"
-                    hx-trigger="cds-dropdown-selected"
-                    th:hx-get="@{|/admin/${entityType}s/by-version|}"
-                    hx-target="#view-panel"
-                    hx-push-url="true">
-                    <cds-dropdown-item
-                        th:each="v : ${versions}"
-                        th:value="${v.id}"
-                        th:text="|${v.version}${v.isActive ? ' (Active)' : ''}|">
-                    </cds-dropdown-item>
-                </cds-dropdown>
-                <cds-button
-                    kind="tertiary"
-                    size="sm"
-                    th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
-                    hx-target="#modal-container">
-                    New Version
-                </cds-button>
-                <cds-button
-                    th:if="${!isCurrentVersionActive}"
-                    kind="primary"
-                    size="sm"
-                    th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
-                    hx-target="#view-panel">
-                    Activate
-                </cds-button>
-            </div>
-        </div>
-    </div>
+<!-- DELETE THIS ENTIRE BLOCK from layout-internal.html -->
+<!--/* Versioned page header fragment - only used via th:replace, not rendered here */-->
+<th:block th:fragment="page-header-versioned">
+    ...
 </th:block>
 ```
 
-### 7.2 Create Version Modal Template
+### 7.1.1 Create Standalone Versioned Page Header Template ✅ COMPLETED
 
-**File**: `src/main/resources/templates/fragments/internal/version-modal.html`
+**File**: `src/main/resources/templates/fragments/internal/versioning/page-header-versioned.html`
+
+This standalone template file keeps versioning components isolated and reusable across ADP and Connector detail pages.
 
 ```html
-<th:block th:fragment="create-version-modal (entityType, entityId, currentVersion)">
-    <cds-modal id="create-version-modal" open>
-        <cds-modal-header>
-            <cds-modal-close-button></cds-modal-close-button>
-            <cds-modal-heading>Create New Version</cds-modal-heading>
-        </cds-modal-header>
-        <cds-modal-body>
-            <form
-                th:hx-post="@{|/admin/${entityType}s/${entityId}/versions|}"
-                hx-target="#modal-container"
-                hx-swap="innerHTML">
-                <cds-text-input
-                    name="version"
-                    label="Version"
-                    placeholder="e.g., 1.1.0"
-                    helper-text="Use semantic versioning (major.minor.patch)"
-                    th:value="${form?.version}"
-                    th:invalid="${errors?.hasFieldErrors('version')}"
-                    required>
-                </cds-text-input>
-                <!-- Validation error display -->
-                <div
-                    class="cds--form-requirement"
-                    th:if="${errors?.getFieldError('version') != null}"
-                    th:text="${errors?.getFieldError('version')?.defaultMessage}">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <!--/* Reusable versioned page header for entities with version support (ADP, Connector) */-->
+        <th:block th:fragment="page-header-versioned">
+            <div id="page-header-versioned" class="page-header-versioned">
+                <div class="page-header-title-row">
+                    <h2 class="page-title cds--type-heading-03">
+                        <span th:text="${title}"></span>
+                    </h2>
+                    <div class="page-header-actions">
+                        <cds-dropdown
+                            th:id="|version-dropdown-${entityId}|"
+                            label="Version"
+                            th:value="${currentVersionId}"
+                            title-text=""
+                            size="sm"
+                        >
+                            <cds-dropdown-item
+                                th:each="version : ${versions}"
+                                th:value="${version.id}"
+                                th:text="${version.version + (version.id == currentVersionId ? ' (Current)' : '')}"
+                                th:hx-get="@{|/admin/${entityType}s/${version.id}|}"
+                                hx-target="#view-panel"
+                                hx-push-url="true"
+                            >
+                            </cds-dropdown-item>
+                        </cds-dropdown>
+                        <cds-button
+                            kind="tertiary"
+                            size="sm"
+                            th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
+                            hx-target="#modal-container"
+                        >
+                            New Version
+                        </cds-button>
+                        <cds-button
+                            th:if="${!isCurrentVersionActive}"
+                            kind="primary"
+                            size="sm"
+                            th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
+                            hx-target="#view-panel"
+                        >
+                            Activate
+                        </cds-button>
+                        <cds-tag
+                            th:if="${isCurrentVersionActive}"
+                            type="green"
+                            size="sm"
+                        >
+                            Active
+                        </cds-tag>
+                    </div>
                 </div>
-                <p class="cds--label" style="margin-top: var(--cds-spacing-05);">
-                    Current version: <span th:text="${currentVersion}"></span>
-                </p>
-            </form>
-        </cds-modal-body>
-        <cds-modal-footer>
-            <cds-modal-footer-button kind="secondary" data-modal-close>Cancel</cds-modal-footer-button>
-            <cds-modal-footer-button kind="primary" type="submit">Create</cds-modal-footer-button>
-        </cds-modal-footer>
-    </cds-modal>
-</th:block>
+            </div>
+        </th:block>
+    </body>
+</html>
 ```
+
+**Key implementation changes from original plan:**
+
+| Aspect | Original Plan | Actual Implementation |
+|--------|--------------|----------------------|
+| Loop variable | `v` | `version` (more readable) |
+| Dropdown suffix | `${v.isActive ? ' (Active)' : ''}` | `${version.id == currentVersionId ? ' (Current)' : ''}` |
+| Suffix meaning | Shows which version is globally active | Shows which version you're currently viewing |
+
+**Design decision**: The "(Current)" suffix indicates the currently **viewed** version (based on ID match), not the globally **active** version. This is intentional because:
+1. The "Active" tag already clearly shows activation status
+2. Users need to know which version they're viewing in the dropdown
+3. Multiple versions could theoretically be viewed in quick succession
+
+**Required model attributes** (must be provided by controllers):
+- `title` - Entity name to display
+- `entityId` - Current entity UUID
+- `entityType` - Either `'aggregated-data-profile'` or `'connector'`
+- `currentVersionId` - Current entity UUID (for dropdown selection)
+- `versions` - List of version projections with `id`, `version`, `isActive`
+- `isCurrentVersionActive` - Boolean for showing Activate button vs Active tag
+
+**Entities that should use this template**:
+- `AggregatedDataProfile` detail page (`detail-page.html`)
+- `Connector` detail page (`detailsPageConnector.html`)
+
+**Entities/pages that should NOT use this template**:
+- Home page
+- List pages (ADP list, Connector list)
+- Relation pages (relations don't have independent versioning)
+- ConnectorInstance pages (instances belong to a connector version)
+- ConnectorEndpoint pages (endpoints belong to a connector version)
+
+### 7.2 Create Version Modal Template ✅ COMPLETED
+
+**File**: `src/main/resources/templates/fragments/internal/versioning/create-version-modal.html`
+
+**Note**: File renamed from `version-modal.html` to `create-version-modal.html` and moved into the `versioning/` subdirectory.
+
+The modal uses **OOB (Out-of-Band) swapping** for form validation errors, which allows the form to be replaced in-place without closing the modal. This provides better UX than full modal replacement.
+
+```html
+<cds-modal
+    id="active-modal"
+    th:fragment="create-version-modal"
+    prevent-close-on-click-outside="true"
+    size="sm"
+    open="true"
+>
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-heading>Create New Version</cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <th:block th:fragment="form">
+            <cds-form-group
+                id="version-form-group"
+                hx-swap-oob="true"
+                name="version-form-group"
+            >
+                <cds-stack gap="5">
+                    <p class="cds--label">
+                        Creating a new version of
+                        <strong th:text="${entityName}"></strong>
+                    </p>
+                    <p class="cds--label">
+                        Current version:
+                        <strong th:text="${currentVersion}"></strong>
+                    </p>
+                    <cds-text-input
+                        name="version"
+                        size="lg"
+                        th:value="${form?.version}"
+                        th:attr="
+                            invalid=${errors?.getFieldError('version') != null} ? 'true' : null,
+                            invalid-text=${errors?.getFieldError('version')?.defaultMessage}
+                        "
+                        required=""
+                        label="New Version"
+                        placeholder="e.g., 1.1.0"
+                        helper-text="Use semantic versioning (major.minor.patch)"
+                    >
+                    </cds-text-input>
+                </cds-stack>
+            </cds-form-group>
+        </th:block>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button
+            data-modal-close=""
+            type="button"
+            kind="secondary"
+        >
+            Cancel
+        </cds-modal-footer-button>
+        <cds-modal-footer-button
+            type="submit"
+            th:hx-post="@{|/admin/${entityType}s/${entityId}/versions|}"
+            hx-target="#version-form-group"
+            hx-include="#version-form-group *"
+        >
+            Create Version
+        </cds-modal-footer-button>
+    </cds-modal-footer>
+</cds-modal>
+```
+
+**Key implementation details:**
+
+| Feature | Implementation |
+|---------|----------------|
+| OOB Swapping | `hx-swap-oob="true"` on form group allows in-place updates |
+| Modal persistence | `prevent-close-on-click-outside="true"` prevents accidental closure |
+| Form target | `hx-target="#version-form-group"` targets just the form, not whole modal |
+| Error display | `th:attr` with conditional `invalid` and `invalid-text` attributes |
+| Layout | `cds-stack` with `gap="5"` for consistent spacing |
+
+**Required model attributes** (must be provided by controllers):
+- `entityType` - `'aggregated-data-profile'` or `'connector'`
+- `entityId` - UUID of the entity
+- `entityName` - Display name of the entity (shown in modal header)
+- `currentVersion` - Current version string (e.g., `"1.0.0"`)
+- `form` - `CreateVersionForm` instance (can be empty `CreateVersionForm()`)
+- `errors` - Optional `BindingResult` for validation errors
 
 ### 7.3 Update ADP Detail Page
 
 **File**: `src/main/resources/templates/fragments/internal/aggregated-data-profile/detail-page.html`
 
-Replace page header:
+Update the page header reference to use the new standalone versioning template and pass required parameters from existing scope variables:
+
+**Current** (no parameters passed):
 ```html
-<th:block th:insert="~{layout-internal :: page-header-versioned(
-    title=${aggregatedDataProfile.name},
-    versions=${versions},
-    currentVersion=${aggregatedDataProfile.version},
-    entityId=${aggregatedDataProfile.id},
-    entityType='aggregated-data-profile',
-    isCurrentVersionActive=${aggregatedDataProfile.isActive}
-)}"/>
+<div
+    th:replace="~{fragments/internal/versioning/page-header-versioned :: page-header-versioned}"
+></div>
 ```
+
+**Fixed** (parameters passed explicitly from existing scope):
+```html
+<div
+    th:replace="~{fragments/internal/versioning/page-header-versioned :: page-header-versioned (
+        title=${aggregatedDataProfile.name},
+        entityId=${aggregatedDataProfile.id},
+        entityType='aggregated-data-profile',
+        currentVersionId=${aggregatedDataProfile.id},
+        versions=${versions},
+        isCurrentVersionActive=${aggregatedDataProfile.isActive}
+    )}"
+></div>
+```
+
+**Parameter mapping from existing scope**:
+| Fragment Parameter | Source in Template Scope |
+|--------------------|--------------------------|
+| `title` | `aggregatedDataProfile.name` |
+| `entityId` | `aggregatedDataProfile.id` |
+| `entityType` | `'aggregated-data-profile'` (literal string) |
+| `currentVersionId` | `aggregatedDataProfile.id` |
+| `versions` | `versions` (already provided by controller) |
+| `isCurrentVersionActive` | `aggregatedDataProfile.isActive` |
+
+**Note**: The `AggregatedDataProfileController.details()` method provides `aggregatedDataProfile` and `versions` in the model. The other parameters are derived from these existing values.
 
 ### 7.4 Update Connector Detail Page
 
 **File**: `src/main/resources/templates/fragments/internal/connector/detailsPageConnector.html`
 
-Replace page header with versioned variant (same pattern as ADP).
+Update the page header reference to use the new standalone versioning template and pass required parameters from existing scope variables:
 
-### 7.5 Create Version Form Class
+**Current** (no parameters passed):
+```html
+<div
+    th:replace="~{fragments/internal/versioning/page-header-versioned :: page-header-versioned}"
+></div>
+```
 
-**File**: `src/main/kotlin/com/ritense/iko/mvc/model/CreateVersionForm.kt` (new file)
+**Fixed** (parameters passed explicitly from existing scope):
+```html
+<div
+    th:replace="~{fragments/internal/versioning/page-header-versioned :: page-header-versioned (
+        title=${connector.name},
+        entityId=${connector.id},
+        entityType='connector',
+        currentVersionId=${connector.id},
+        versions=${versions},
+        isCurrentVersionActive=${connector.isActive}
+    )}"
+></div>
+```
+
+**Parameter mapping from existing scope**:
+| Fragment Parameter | Source in Template Scope |
+|--------------------|--------------------------|
+| `title` | `connector.name` |
+| `entityId` | `connector.id` |
+| `entityType` | `'connector'` (literal string) |
+| `currentVersionId` | `connector.id` |
+| `versions` | `versions` (already provided by controller) |
+| `isCurrentVersionActive` | `connector.isActive` |
+
+**Note**: The `ConnectorController.details()` method provides `connector` and `versions` in the model. The other parameters are derived from these existing values.
+
+### 7.5 Create Version Form Class ✅ COMPLETED
+
+**File**: `src/main/kotlin/com/ritense/iko/mvc/model/CreateVersionForm.kt`
 
 A reusable form class for creating new versions, used by both ADP and Connector controllers:
 
@@ -1596,8 +1775,13 @@ import jakarta.validation.constraints.NotBlank
 data class CreateVersionForm(
     @field:NotBlank(message = "Please provide a version.")
     @field:ValidSemver
-    val version: String,
+    val version: String = "",
 )
+```
+
+**Note**: The form has a default empty string for `version` to allow instantiation with `CreateVersionForm()` when displaying the modal initially. This is used in controllers like:
+```kotlin
+addObject("form", CreateVersionForm())
 ```
 
 ### 7.6 Update Controllers

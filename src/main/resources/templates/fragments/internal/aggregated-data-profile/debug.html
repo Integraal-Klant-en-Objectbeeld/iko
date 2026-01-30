@@ -50,13 +50,13 @@
                             type="hidden"
                             id="name"
                             name="name"
-                            th:value="${form?.name != null ? form.name : aggregatedDataProfile.name}"
+                            th:value="${aggregatedDataProfile.name}"
                         />
                         <input
                             type="hidden"
                             id="version"
                             name="version"
-                            th:value="${form?.version != null ? form.version : aggregatedDataProfile.version.value}"
+                            th:value="${aggregatedDataProfile.version.value}"
                         />
                         <input
                             type="hidden"
@@ -163,7 +163,6 @@
                                 data-theme="lightgray-theme"
                                 class="monaco-editor-style"
                             ></div>
-
                             <div
                                 id="error"
                                 class="monaco-error show"

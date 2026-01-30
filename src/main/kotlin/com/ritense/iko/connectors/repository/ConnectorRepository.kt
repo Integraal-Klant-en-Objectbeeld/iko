@@ -41,13 +41,12 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         SELECT  c.id as id
         ,       c.name as name
         ,       c.tag as tag
-        ,       c.version as version
-        ,       c.is_active as isActive
-        FROM    connector c
+        ,       c.version.value as version
+        ,       c.isActive as isActive
+        FROM    Connector c
         WHERE   c.tag = :tag
-        ORDER BY c.version DESC
+        ORDER BY c.version.value DESC
         """,
-        nativeQuery = true,
     )
     fun findVersionsByTag(@Param("tag") tag: String): List<ConnectorVersionProjection>
 

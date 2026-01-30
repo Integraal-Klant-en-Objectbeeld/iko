@@ -508,7 +508,7 @@ internal class AggregatedDataProfileController(
         @PathVariable id: UUID,
     ): ModelAndView {
         val profile = aggregatedDataProfileRepository.findById(id).orElseThrow()
-        return ModelAndView("fragments/internal/version-modal :: create-version-modal").apply {
+        return ModelAndView("fragments/internal/versioning/create-version-modal :: create-version-modal").apply {
             addObject("entityType", "aggregated-data-profile")
             addObject("entityId", id)
             addObject("entityName", profile.name)
@@ -528,7 +528,7 @@ internal class AggregatedDataProfileController(
         val profile = aggregatedDataProfileRepository.findById(id).orElseThrow()
 
         if (bindingResult.hasErrors()) {
-            return ModelAndView("fragments/internal/version-modal :: form").apply {
+            return ModelAndView("fragments/internal/versioning/create-version-modal :: form").apply {
                 addObject("entityType", "aggregated-data-profile")
                 addObject("entityId", id)
                 addObject("entityName", profile.name)
@@ -549,7 +549,7 @@ internal class AggregatedDataProfileController(
             details(newProfile.id, isHxRequest)
         } catch (e: IllegalArgumentException) {
             bindingResult.rejectValue("version", "duplicate", e.message ?: "Version already exists")
-            ModelAndView("fragments/internal/version-modal :: form").apply {
+            ModelAndView("fragments/internal/versioning/create-version-modal :: form").apply {
                 addObject("entityType", "aggregated-data-profile")
                 addObject("entityId", id)
                 addObject("entityName", profile.name)
