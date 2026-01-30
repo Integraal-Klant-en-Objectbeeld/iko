@@ -58,7 +58,7 @@ import java.util.UUID
 
 @Controller
 @RequestMapping("/admin")
-class AggregatedDataProfileController(
+internal class AggregatedDataProfileController(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val aggregatedDataProfileService: AggregatedDataProfileService,
     private val connectorInstanceRepository: ConnectorInstanceRepository,

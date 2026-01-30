@@ -20,31 +20,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
-import com.ritense.iko.cache.processor.CacheProcessor
-import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
-import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
-import org.apache.camel.CamelContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
 class AggregatedDataProfileConfiguration {
-
-    @Bean
-    fun aggregatedDataProfileService(
-        camelContext: CamelContext,
-        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-        connectorEndpointRepository: ConnectorEndpointRepository,
-        connectorInstanceRepository: ConnectorInstanceRepository,
-        ikoCacheProcessor: CacheProcessor,
-    ) = AggregatedDataProfileService(
-        camelContext,
-        aggregatedDataProfileRepository,
-        connectorEndpointRepository,
-        connectorInstanceRepository,
-        ikoCacheProcessor,
-    )
 
     @Bean
     fun aggregatedDataProfileRoute(

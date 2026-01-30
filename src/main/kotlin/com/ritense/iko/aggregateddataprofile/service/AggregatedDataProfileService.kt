@@ -26,10 +26,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-class AggregatedDataProfileService(
+@Service
+internal class AggregatedDataProfileService(
     private val camelContext: CamelContext,
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,

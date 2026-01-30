@@ -44,7 +44,7 @@ import java.util.UUID
 
 @Controller
 @RequestMapping("/admin")
-class TestController(
+internal class TestController(
     private val producerTemplate: ProducerTemplate,
     private val camelContext: CamelContext,
     private val objectMapper: ObjectMapper,

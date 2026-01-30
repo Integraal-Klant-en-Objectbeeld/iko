@@ -7,9 +7,9 @@ repository: iko
 topic: "Implementation Plan: Draft Versioning System"
 tags: [implementation-plan, versioning, aggregated-data-profile, connector, camel, semver]
 status: completed
-last_updated: 2026-01-29
+last_updated: 2026-01-30
 last_updated_by: Claude
-last_updated_note: "ALL PHASES COMPLETED (1-9). Draft versioning system fully implemented."
+last_updated_note: "ALL PHASES COMPLETED (1-9). Phase 2 migration fixed to handle duplicate connector tags. AggregatedDataProfileService converted to @Service annotation for proper CGLIB proxying."
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -19,7 +19,7 @@ last_updated_note: "ALL PHASES COMPLETED (1-9). Draft versioning system fully im
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 1 | ✅ COMPLETED | Route groups for ADP and Connector |
-| Phase 2 | ✅ COMPLETED | ADP name immutability, DB migration |
+| Phase 2 | ✅ COMPLETED | ADP name immutability, DB migration (handles duplicate tags) |
 | Phase 3 | ✅ COMPLETED | Version embeddable, domain model updates |
 | Phase 4 | ✅ COMPLETED | Repository version query methods |
 | Phase 5 | ✅ COMPLETED | Service layer (activateVersion, createNewVersion) |
@@ -43,12 +43,16 @@ last_updated_note: "ALL PHASES COMPLETED (1-9). Draft versioning system fully im
 - `ConnectorEndpointRepository.kt` - Added `findByConnectorAndName()`
 
 **Services:**
-- `AggregatedDataProfileService.kt` - `activateVersion()`, `createNewVersion()`, startup loads only active
+- `AggregatedDataProfileService.kt` - `activateVersion()`, `createNewVersion()`, startup loads only active, converted to `@Service` annotation (was `@Bean` factory)
 - `ConnectorService.kt` - `activateVersion()`, `createNewVersion()`
 - `ConnectorConfiguration.kt` - Startup loads only active connectors
 
+**Configuration:**
+- `AggregatedDataProfileConfiguration.kt` - Removed `@Bean aggregatedDataProfileService()` (now uses `@Service` on class)
+
 **Controllers:**
-- `TestController.kt` - Lazy route loading/suspension for non-active versions
+- `AggregatedDataProfileController.kt` - Changed to `internal` visibility
+- `TestController.kt` - Lazy route loading/suspension for non-active versions, changed to `internal` visibility
 
 **MVC/Validation:**
 - `AggregatedDataProfileEditForm.kt` - Removed `name` field
@@ -664,11 +668,67 @@ The `@UniqueAggregatedDataProfileCheck` annotation remains on `AggregatedDataPro
 | `formEditADP.html` | Remove or disable name input field |
 | `AggregatedDataProfileAddForm.kt` | No changes - keeps `@UniqueAggregatedDataProfileCheck` for creation |
 
-### 2.1 Migration: Add Version Columns ✅
+### 2.1 Migration: Add Version Columns ✅ COMPLETED
 
-**File**: `src/main/resources/db/migration/V2026.01.28.1__add_versioning.sql`
+**Important**: The original migration assumed that `connector.tag` was unique, but this is NOT the case. There are duplicate tags in the existing data. The migration must handle this by renaming duplicate tags before creating the unique constraint.
+
+**File**: `src/main/resources/db/migration/V2026.01.29.1__add_versioning.sql`
 
 ```sql
+-- ============================================================================
+-- STEP 1: Handle duplicate connector tags BEFORE adding version columns
+-- ============================================================================
+-- The tag column was not unique, so duplicates may exist.
+-- We rename duplicates by appending a suffix: tag_2, tag_3, etc.
+-- The first occurrence (by id) keeps the original tag name.
+
+-- Create a temporary table to identify duplicates and assign new names
+WITH ranked_connectors AS (
+    SELECT
+        id,
+        tag,
+        ROW_NUMBER() OVER (PARTITION BY tag ORDER BY id) as rn
+    FROM connector
+),
+duplicates_to_rename AS (
+    SELECT
+        id,
+        tag,
+        tag || '_' || rn as new_tag
+    FROM ranked_connectors
+    WHERE rn > 1
+)
+UPDATE connector c
+SET tag = d.new_tag
+FROM duplicates_to_rename d
+WHERE c.id = d.id;
+
+-- Also update the connector name to reflect the tag change (optional but recommended)
+-- This keeps name and tag in sync for renamed connectors
+WITH ranked_connectors AS (
+    SELECT
+        id,
+        tag,
+        name,
+        ROW_NUMBER() OVER (PARTITION BY tag ORDER BY id) as rn
+    FROM connector
+),
+duplicates_to_rename AS (
+    SELECT
+        id,
+        name || ' (duplicate ' || rn || ')' as new_name
+    FROM ranked_connectors
+    WHERE rn > 1
+)
+UPDATE connector c
+SET name = d.new_name
+FROM duplicates_to_rename d
+WHERE c.id = d.id;
+
+-- ============================================================================
+-- STEP 2: Add version and is_active columns
+-- ============================================================================
+
 -- Add version and is_active columns to aggregated_data_profile
 ALTER TABLE aggregated_data_profile ADD COLUMN version VARCHAR(50) NOT NULL DEFAULT '1.0.0';
 ALTER TABLE aggregated_data_profile ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
@@ -677,28 +737,30 @@ ALTER TABLE aggregated_data_profile ADD COLUMN is_active BOOLEAN NOT NULL DEFAUL
 ALTER TABLE connector ADD COLUMN version VARCHAR(50) NOT NULL DEFAULT '1.0.0';
 ALTER TABLE connector ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
 
--- Add version column to relation (for identifying which ADP version it belongs to)
--- Relations are duplicated per version, not shared
-ALTER TABLE relation ADD COLUMN adp_version VARCHAR(50) NOT NULL DEFAULT '1.0.0';
+-- ============================================================================
+-- STEP 3: Create unique constraints
+-- ============================================================================
 
--- Add version column to connector_instance (for identifying which Connector version it belongs to)
-ALTER TABLE connector_instance ADD COLUMN connector_version VARCHAR(50) NOT NULL DEFAULT '1.0.0';
-
--- Drop existing unique constraint on name (ADP)
-ALTER TABLE aggregated_data_profile DROP CONSTRAINT IF EXISTS aggregated_data_profile_name_key;
+-- Drop existing unique constraint on name (ADP) if it exists
+ALTER TABLE aggregated_data_profile DROP CONSTRAINT IF EXISTS uq_profile_name;
 
 -- Create new unique constraint on name + version combination
 ALTER TABLE aggregated_data_profile ADD CONSTRAINT aggregated_data_profile_name_version_unique
     UNIQUE (name, version);
 
--- Drop existing unique constraint on tag (Connector)
+-- Drop existing unique constraint on tag (Connector) if it exists
 ALTER TABLE connector DROP CONSTRAINT IF EXISTS connector_tag_key;
 
 -- Create new unique constraint on tag + version combination
 ALTER TABLE connector ADD CONSTRAINT connector_tag_version_unique
     UNIQUE (tag, version);
 
+-- ============================================================================
+-- STEP 4: Create partial unique indexes for active versions
+-- ============================================================================
+
 -- Only one version can be active per name (ADP)
+-- Partial unique index: ensures only one is_active=true per name
 CREATE UNIQUE INDEX idx_adp_name_active ON aggregated_data_profile (name)
     WHERE is_active = TRUE;
 
@@ -706,6 +768,26 @@ CREATE UNIQUE INDEX idx_adp_name_active ON aggregated_data_profile (name)
 CREATE UNIQUE INDEX idx_connector_tag_active ON connector (tag)
     WHERE is_active = TRUE;
 ```
+
+**What the migration does:**
+
+1. **Identifies duplicate tags** using `ROW_NUMBER()` partitioned by tag, ordered by id
+2. **Renames duplicates** by appending `_2`, `_3`, etc. to the tag (e.g., `d` → `d_2`, `d_3`)
+3. **Updates connector names** to indicate they were duplicates (optional cleanup)
+4. **Adds version columns** with default `'1.0.0'`
+5. **Creates unique constraints** on `(tag, version)` - now safe because tags are unique
+
+**Example transformation:**
+
+| Before | After |
+|--------|-------|
+| `tag: d, name: Connector D` | `tag: d, name: Connector D` (first occurrence, unchanged) |
+| `tag: d, name: Another D` | `tag: d_2, name: Another D (duplicate 2)` |
+| `tag: d, name: Third D` | `tag: d_3, name: Third D (duplicate 3)` |
+
+**Note**: After migration, administrators should review connectors with `_2`, `_3` suffixes and either:
+- Delete them if they were accidental duplicates
+- Rename them to meaningful unique tags
 
 ## Phase 3: Domain Model Changes ✅ COMPLETED
 

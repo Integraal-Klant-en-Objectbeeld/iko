@@ -322,60 +322,63 @@
                         </h2>
                     </div>
 
-                    <div
-                        id="page-header-versioned"
-                        th:fragment="page-header-versioned"
-                        class="page-header-versioned"
-                    >
-                        <div class="page-header-title-row">
-                            <h2 class="page-title cds--type-heading-03">
-                                <span th:text="${title}"></span>
-                            </h2>
-                            <div class="page-header-actions">
-                                <cds-dropdown
-                                    th:id="|version-dropdown-${entityId}|"
-                                    label="Version"
-                                    th:value="${currentVersionId}"
-                                    title-text=""
-                                    size="sm"
-                                >
-                                    <cds-dropdown-item
-                                        th:each="v : ${versions}"
-                                        th:value="${v.id}"
-                                        th:text="|${v.version}${v.isActive ? ' (Active)' : ''}|"
-                                        th:hx-get="@{|/admin/${entityType}s/${v.id}|}"
-                                        hx-target="#view-panel"
-                                        hx-push-url="true"
+                    <!--/* Versioned page header fragment - only used via th:replace, not rendered here */-->
+                    <th:block th:fragment="page-header-versioned">
+                        <div
+                            id="page-header-versioned"
+                            class="page-header-versioned"
+                        >
+                            <div class="page-header-title-row">
+                                <h2 class="page-title cds--type-heading-03">
+                                    <span th:text="${title}"></span>
+                                </h2>
+                                <div class="page-header-actions">
+                                    <cds-dropdown
+                                        th:id="|version-dropdown-${entityId}|"
+                                        label="Version"
+                                        th:value="${currentVersionId}"
+                                        title-text=""
+                                        size="sm"
                                     >
-                                    </cds-dropdown-item>
-                                </cds-dropdown>
-                                <cds-button
-                                    kind="tertiary"
-                                    size="sm"
-                                    th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
-                                    hx-target="#modal-container"
-                                >
-                                    New Version
-                                </cds-button>
-                                <cds-button
-                                    th:if="${!isCurrentVersionActive}"
-                                    kind="primary"
-                                    size="sm"
-                                    th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
-                                    hx-target="#view-panel"
-                                >
-                                    Activate
-                                </cds-button>
-                                <cds-tag
-                                    th:if="${isCurrentVersionActive}"
-                                    type="green"
-                                    size="sm"
-                                >
-                                    Active
-                                </cds-tag>
+                                        <cds-dropdown-item
+                                            th:each="v : ${versions}"
+                                            th:value="${v.id}"
+                                            th:text="|${v.version}${v.isActive ? ' (Active)' : ''}|"
+                                            th:hx-get="@{|/admin/${entityType}s/${v.id}|}"
+                                            hx-target="#view-panel"
+                                            hx-push-url="true"
+                                        >
+                                        </cds-dropdown-item>
+                                    </cds-dropdown>
+                                    <cds-button
+                                        kind="tertiary"
+                                        size="sm"
+                                        th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
+                                        hx-target="#modal-container"
+                                    >
+                                        New Version
+                                    </cds-button>
+                                    <cds-button
+                                        th:if="${!isCurrentVersionActive}"
+                                        kind="primary"
+                                        size="sm"
+                                        th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
+                                        hx-target="#view-panel"
+                                    >
+                                        Activate
+                                    </cds-button>
+                                    <cds-tag
+                                        th:if="${isCurrentVersionActive}"
+                                        type="green"
+                                        size="sm"
+                                    >
+                                        Active
+                                    </cds-tag>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </th:block>
+
                     <h4>Welcome to IKO</h4>
                     <img
                         class="page-landing__illo"
