@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: completed
 last_updated: 2026-01-30
 last_updated_by: Claude
-last_updated_note: "ALL PHASES COMPLETED (1-9). Phase 2 migration fixed to handle duplicate connector tags. AggregatedDataProfileService converted to @Service annotation for proper CGLIB proxying."
+last_updated_note: "ALL PHASES COMPLETED (1-9). Fixed: duplicate tag migration, @Service annotation for CGLIB proxy, template fragment visibility (th:block)."
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -60,6 +60,7 @@ last_updated_note: "ALL PHASES COMPLETED (1-9). Phase 2 migration fixed to handl
 - `ValidSemver.kt`, `ValidSemverValidator.kt` (new)
 
 **Templates:**
+- `layout-internal.html` - Fixed `page-header-versioned` fragment to use `th:block` (prevents rendering on non-versioned pages)
 - `edit.html` - Name field now disabled
 - `debug.html` - Added version input, updated hx-include
 
