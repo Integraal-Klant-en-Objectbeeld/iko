@@ -31,9 +31,9 @@
                         title=${connector.name},
                         entityId=${connector.id},
                         entityType='connector',
-                        currentVersionId=${connector.id},
-                        versions=${versions},
-                        isCurrentVersionActive=${connector.isActive}
+                        currentVersion=${connector.version.value},
+                        isActiveVersion=${connector.isActive},
+                        versions=${versions}
                     )}"
                 ></div>
 

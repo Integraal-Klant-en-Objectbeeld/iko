@@ -19,23 +19,34 @@
     <body>
         <!--/* Reusable versioned page header for entities with version support (ADP, Connector) */-->
         <th:block th:fragment="page-header-versioned">
-            <div id="page-header-versioned" class="page-header-versioned">
+            <div id="page-header-versioned" class="detail-page-header">
                 <div class="page-header-title-row">
                     <h2 class="page-title cds--type-heading-03">
                         <span th:text="${title}"></span>
+                        <span
+                            class="page-title-version"
+                            th:text="${currentVersion ?: ''}"
+                        ></span>
+                        <cds-tag
+                            th:if="${isActiveVersion}"
+                            type="green"
+                            size="sm"
+                        >
+                            Active
+                        </cds-tag>
                     </h2>
                     <div class="page-header-actions">
                         <cds-dropdown
-                            th:id="|version-dropdown-${entityId}|"
+                            th:id="|${title}-version-select|"
                             label="Version"
-                            th:value="${currentVersionId}"
+                            th:value="${entityId}"
                             title-text=""
                             size="sm"
                         >
                             <cds-dropdown-item
                                 th:each="version : ${versions}"
                                 th:value="${version.id}"
-                                th:text="${version.version + (version.id == currentVersionId ? ' (Selected)' : '')}"
+                                th:text="${version.version}"
                                 th:hx-get="@{|/admin/${entityType}s/${version.id}|}"
                                 hx-target="#view-panel"
                                 hx-push-url="true"
@@ -51,7 +62,7 @@
                             New Version
                         </cds-button>
                         <cds-button
-                            th:if="${!isCurrentVersionActive}"
+                            th:if="${!isActiveVersion}"
                             kind="primary"
                             size="sm"
                             th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
@@ -59,13 +70,6 @@
                         >
                             Activate
                         </cds-button>
-                        <cds-tag
-                            th:if="${isCurrentVersionActive}"
-                            type="green"
-                            size="sm"
-                        >
-                            Active
-                        </cds-tag>
                     </div>
                 </div>
             </div>

@@ -9,7 +9,7 @@ tags: [implementation-plan, versioning, aggregated-data-profile, connector, came
 status: completed
 last_updated: 2026-01-30
 last_updated_by: Claude
-last_updated_note: "Phase 7 COMPLETED: th:replace invocations in detail-page.html and detailsPageConnector.html now pass required parameters (title, entityId, entityType, currentVersionId, versions, isCurrentVersionActive) from existing scope variables."
+last_updated_note: "Phase 7 COMPLETED: th:replace invocations in detail-page.html and detailsPageConnector.html now pass required parameters (title, entityId, entityType, currentVersionId, versions, isActiveVersion) from existing scope variables."
 ---
 
 # Implementation Plan: Draft Versioning System
@@ -62,8 +62,8 @@ last_updated_note: "Phase 7 COMPLETED: th:replace invocations in detail-page.htm
 **Templates:**
 - `layout-internal.html` - ✅ Removed `page-header-versioned` fragment (was lines 326-380)
 - `page-header-versioned.html` (new) - ✅ Created at `fragments/internal/versioning/`
-- `detail-page.html` - ✅ `th:replace` passes all required parameters (title, entityId, entityType, currentVersionId, versions, isCurrentVersionActive)
-- `detailsPageConnector.html` - ✅ `th:replace` passes all required parameters (title, entityId, entityType, currentVersionId, versions, isCurrentVersionActive)
+- `detail-page.html` - ✅ `th:replace` passes all required parameters (title, entityId, entityType, currentVersionId, versions, isActiveVersion)
+- `detailsPageConnector.html` - ✅ `th:replace` passes all required parameters (title, entityId, entityType, currentVersionId, versions, isActiveVersion)
 - `edit.html` - Name field now disabled
 - `debug.html` - Added version input, updated hx-include
 
@@ -1535,7 +1535,7 @@ This standalone template file keeps versioning components isolated and reusable 
                             New Version
                         </cds-button>
                         <cds-button
-                            th:if="${!isCurrentVersionActive}"
+                            th:if="${!isActiveVersion}"
                             kind="primary"
                             size="sm"
                             th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
@@ -1544,7 +1544,7 @@ This standalone template file keeps versioning components isolated and reusable 
                             Activate
                         </cds-button>
                         <cds-tag
-                            th:if="${isCurrentVersionActive}"
+                            th:if="${isActiveVersion}"
                             type="green"
                             size="sm"
                         >
@@ -1577,7 +1577,7 @@ This standalone template file keeps versioning components isolated and reusable 
 - `entityType` - Either `'aggregated-data-profile'` or `'connector'`
 - `currentVersionId` - Current entity UUID (for dropdown selection)
 - `versions` - List of version projections with `id`, `version`, `isActive`
-- `isCurrentVersionActive` - Boolean for showing Activate button vs Active tag
+- `isActiveVersion` - Boolean for showing Activate button vs Active tag
 
 **Entities that should use this template**:
 - `AggregatedDataProfile` detail page (`detail-page.html`)
@@ -1704,7 +1704,7 @@ Update the page header reference to use the new standalone versioning template a
         entityType='aggregated-data-profile',
         currentVersionId=${aggregatedDataProfile.id},
         versions=${versions},
-        isCurrentVersionActive=${aggregatedDataProfile.isActive}
+        isActiveVersion=${aggregatedDataProfile.isActive}
     )}"
 ></div>
 ```
@@ -1717,7 +1717,7 @@ Update the page header reference to use the new standalone versioning template a
 | `entityType` | `'aggregated-data-profile'` (literal string) |
 | `currentVersionId` | `aggregatedDataProfile.id` |
 | `versions` | `versions` (already provided by controller) |
-| `isCurrentVersionActive` | `aggregatedDataProfile.isActive` |
+| `isActiveVersion` | `aggregatedDataProfile.isActive` |
 
 **Note**: The `AggregatedDataProfileController.details()` method provides `aggregatedDataProfile` and `versions` in the model. The other parameters are derived from these existing values.
 
@@ -1743,7 +1743,7 @@ Update the page header reference to use the new standalone versioning template a
         entityType='connector',
         currentVersionId=${connector.id},
         versions=${versions},
-        isCurrentVersionActive=${connector.isActive}
+        isActiveVersion=${connector.isActive}
     )}"
 ></div>
 ```
@@ -1756,7 +1756,7 @@ Update the page header reference to use the new standalone versioning template a
 | `entityType` | `'connector'` (literal string) |
 | `currentVersionId` | `connector.id` |
 | `versions` | `versions` (already provided by controller) |
-| `isCurrentVersionActive` | `connector.isActive` |
+| `isActiveVersion` | `connector.isActive` |
 
 **Note**: The `ConnectorController.details()` method provides `connector` and `versions` in the model. The other parameters are derived from these existing values.
 
@@ -1926,7 +1926,7 @@ fun details(...): ModelAndView {
     return ModelAndView(...).apply {
         // ... existing objects ...
         addObject("versions", versions)
-        addObject("isCurrentVersionActive", aggregatedDataProfile.isActive)
+        addObject("isActiveVersion", aggregatedDataProfile.isActive)
     }
 }
 ```

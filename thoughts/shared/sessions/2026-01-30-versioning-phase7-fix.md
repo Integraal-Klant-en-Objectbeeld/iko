@@ -22,7 +22,7 @@ The versioned page header fragment (`fragments/internal/versioning/page-header-v
 - `entityType` - `'aggregated-data-profile'` or `'connector'`
 - `currentVersionId` - UUID for dropdown selection
 - `versions` - List of version projections
-- `isCurrentVersionActive` - Boolean
+- `isActiveVersion` - Boolean
 
 Both detail pages were calling the fragment without parameters:
 ```html
@@ -41,7 +41,7 @@ Updated the implementation plan (Phase 7.3 and 7.4) to show the correct syntax f
     entityType='aggregated-data-profile',
     currentVersionId=${aggregatedDataProfile.id},
     versions=${versions},
-    isCurrentVersionActive=${aggregatedDataProfile.isActive}
+    isActiveVersion=${aggregatedDataProfile.isActive}
 )}"></div>
 ```
 
@@ -53,7 +53,7 @@ Updated the implementation plan (Phase 7.3 and 7.4) to show the correct syntax f
     entityType='connector',
     currentVersionId=${connector.id},
     versions=${versions},
-    isCurrentVersionActive=${connector.isActive}
+    isActiveVersion=${connector.isActive}
 )}"></div>
 ```
 

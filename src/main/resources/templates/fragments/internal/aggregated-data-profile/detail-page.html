@@ -35,9 +35,9 @@
                         title=${aggregatedDataProfile.name},
                         entityId=${aggregatedDataProfile.id},
                         entityType='aggregated-data-profile',
-                        currentVersionId=${aggregatedDataProfile.id},
-                        versions=${versions},
-                        isCurrentVersionActive=${aggregatedDataProfile.isActive}
+                        currentVersion=${aggregatedDataProfile.version.value},
+                        isActiveVersion=${aggregatedDataProfile.isActive},
+                        versions=${versions}
                     )}"
                 ></div>
                 <cds-tabs value="general" type="contained">

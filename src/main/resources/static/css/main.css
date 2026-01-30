@@ -514,6 +514,10 @@ cds-form-item {
 }
 
 /* Versioned Page Header */
+.detail-page-header {
+    margin: var(--cds-spacing-07) 0;
+}
+
 .page-header-versioned {
     display: flex;
     flex-direction: column;
@@ -530,7 +534,16 @@ cds-form-item {
 }
 
 .page-header-title-row .page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--cds-spacing-03);
     margin-bottom: 0;
+}
+
+.page-header-title-row .page-title .page-title-version {
+    font-size: var(--cds-body-compact-01-font-size);
+    font-weight: 400;
+    color: var(--cds-text-secondary);
 }
 
 .page-header-actions {
