@@ -41,7 +41,9 @@
                                     hx-push-url="true"
                                 >
                                     <div class="page-title-version-item">
-                                        <span th:text="${version.version}"></span>
+                                        <span
+                                            th:text="${version.version}"
+                                        ></span>
                                         <cds-tag
                                             th:if="${version.active}"
                                             type="green"

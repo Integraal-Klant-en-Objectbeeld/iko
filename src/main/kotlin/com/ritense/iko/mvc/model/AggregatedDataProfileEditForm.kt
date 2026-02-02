@@ -52,7 +52,7 @@ data class AggregatedDataProfileEditForm(
     @field:Min(value = 0)
     val cacheTimeToLive: Int,
     val version: Version,
-): UniqueAggregatedDataProfile {
+) : UniqueAggregatedDataProfile {
 
     companion object {
         fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileEditForm(
