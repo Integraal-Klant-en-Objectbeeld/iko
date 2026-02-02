@@ -102,7 +102,7 @@ internal class AggregatedDataProfileService(
             logger.debug { "Deactivating ADP ${currentActive.name} v${currentActive.version}" }
             removeRoutes(currentActive)
             currentActive.isActive = false
-            aggregatedDataProfileRepository.save(currentActive)
+            aggregatedDataProfileRepository.saveAndFlush(currentActive)
         }
 
         // Activate new version
