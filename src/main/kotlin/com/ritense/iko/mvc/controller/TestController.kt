@@ -22,6 +22,7 @@ import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRep
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_VERSION_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
@@ -93,13 +94,13 @@ internal class TestController(
         tracer.traceFilter = "\${variable.$IKO_TRACE_ID_VARIABLE} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
-        // Run ADP
-        // TODO: new version based endpoint needed for adp test
-        val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
+        // Dry Run ADP
+        val adpEndpointUri = "direct:aggregated-data-profile-dry-run"
         val headers =
             mapOf(
-                ADP_PROFILE_NAME_PARAM_HEADER to form.name,
                 IKO_TRACE_ID_VARIABLE to ikoTraceId,
+                ADP_PROFILE_NAME_PARAM_HEADER to form.name,
+                ADP_VERSION_PARAM_HEADER to form.version,
                 ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER to objectMapper.readTree(form.endpointTransformContext),
             )
         var result: String? = null

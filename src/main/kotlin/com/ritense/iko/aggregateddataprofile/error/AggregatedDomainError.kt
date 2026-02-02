@@ -35,7 +35,8 @@ class AggregatedDataProfileAccessDenied(
 
 class AggregatedDataProfileNotFound(
     name: String,
-) : AggregatedDataProfileDomainError("ADP with name: $name, not found")
+    version: String? = null,
+) : AggregatedDataProfileDomainError("ADP with name: $name ${ version?.let { "and version: $it" }} was not found")
 
 class AggregatedDataProfileQueryParametersError(
     vararg parameters: String,

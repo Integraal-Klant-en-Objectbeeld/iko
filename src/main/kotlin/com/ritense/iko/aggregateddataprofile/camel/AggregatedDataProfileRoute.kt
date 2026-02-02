@@ -23,6 +23,7 @@ import com.ritense.iko.camel.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_VERSION_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
@@ -75,21 +76,36 @@ class AggregatedDataProfileRoute(
             .param(profileNamePathParam)
             .param(idParam)
             .param(containerParamsParam)
-            .to("direct:aggregated-data-profile-container-params")
-
-        from("direct:aggregated-data-profile-container-params")
-            .routeId("aggregated-data-profile-container-params")
-            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .process {
-                containerParamsProcessor.process(exchange = it)
-            }
             .to("direct:aggregated_data_profile_rest_continuation")
+
+        from("direct:aggregated-data-profile-dry-run")
+            .routeId("aggregated-data-profile-dry-run")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+            .to("direct:aggregated-data-profile-container-params")
+            .setVariable("profileName", header(ADP_PROFILE_NAME_PARAM_HEADER))
+            .setVariable("profileVersion", header(ADP_VERSION_PARAM_HEADER))
+            .setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
+            .setVariable(IKO_TRACE_ID_VARIABLE, header(IKO_TRACE_ID_VARIABLE))
+            .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
+            .removeHeaders("adp_*")
+            .process { exchange ->
+                val aggregatedDataProfileName = exchange.getVariable("profileName", String::class.java)
+                val aggregatedDataProfileVersion = exchange.getVariable("profileVersion", String::class.java)
+                val aggregatedDataProfile =
+                    aggregatedDataProfileRepository
+                        .findByNameAndVersion(aggregatedDataProfileName, aggregatedDataProfileVersion)
+                        ?: throw AggregatedDataProfileNotFound(aggregatedDataProfileName)
+
+                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
+            }
+            .routeDescription("ADP Dry Run")
+            .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
 
         from("direct:aggregated_data_profile_rest_continuation")
             .routeId("aggregated-data-profile-rest-continuation")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+            .to("direct:aggregated-data-profile-container-params")
             .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
-            .setVariable(IKO_TRACE_ID_VARIABLE, header(IKO_TRACE_ID_VARIABLE))
             .setVariable("profile", header(ADP_PROFILE_NAME_PARAM_HEADER))
             .setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
             .removeHeaders("adp_*")
@@ -104,5 +120,12 @@ class AggregatedDataProfileRoute(
             }
             .routeDescription("REST consumer --> ADP entrypoint")
             .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
+
+        from("direct:aggregated-data-profile-container-params")
+            .routeId("aggregated-data-profile-container-params")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+            .process {
+                containerParamsProcessor.process(exchange = it)
+            }
     }
 }
