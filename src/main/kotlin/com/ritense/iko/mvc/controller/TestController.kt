@@ -94,6 +94,7 @@ internal class TestController(
         tracer.clear() // Clean history first
 
         // Run ADP
+        // TODO: new version based endpoint needed for adp test
         val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
         val headers =
             mapOf(
