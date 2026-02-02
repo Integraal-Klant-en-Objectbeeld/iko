@@ -93,8 +93,8 @@ internal class TestController(
         tracer.traceFilter = "\${variable.$IKO_TRACE_ID_VARIABLE} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
-        // Run ADP - use the specific ADP's route, not the name-based lookup
-        val adpEndpointUri = "direct:aggregated_data_profile_${aggregatedDataProfile.id}"
+        // Run ADP
+        val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
         val headers =
             mapOf(
                 ADP_PROFILE_NAME_PARAM_HEADER to form.name,

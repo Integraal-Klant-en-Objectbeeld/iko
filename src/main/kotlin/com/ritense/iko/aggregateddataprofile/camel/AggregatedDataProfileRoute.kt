@@ -95,7 +95,7 @@ class AggregatedDataProfileRoute(
             .removeHeaders("adp_*")
             .process { exchange ->
                 val aggregatedDataProfileName = exchange.getVariable("profile", String::class.java)
-                val aggregatedDataProfile = aggregatedDataProfileRepository.findByName(aggregatedDataProfileName)
+                val aggregatedDataProfile = aggregatedDataProfileRepository.findByNameAndIsActiveTrue(aggregatedDataProfileName)
                 if (aggregatedDataProfile == null) {
                     throw AggregatedDataProfileNotFound(aggregatedDataProfileName)
                 } else {
