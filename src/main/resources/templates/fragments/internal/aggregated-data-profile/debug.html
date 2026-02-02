@@ -50,13 +50,13 @@
                             type="hidden"
                             id="name"
                             name="name"
-                            th:value="${aggregatedDataProfile.name}"
+                            th:value="${form?.name != null ? form.name : aggregatedDataProfile.name}"
                         />
                         <input
                             type="hidden"
                             id="version"
                             name="version"
-                            th:value="${aggregatedDataProfile.version.value}"
+                            th:value="${form?.version != null ? form.version : aggregatedDataProfile.version.value}"
                         />
                         <input
                             type="hidden"

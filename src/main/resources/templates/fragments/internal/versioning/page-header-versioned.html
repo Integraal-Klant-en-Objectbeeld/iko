@@ -55,45 +55,27 @@
                         </div>
                     </div>
                     <div class="page-header-actions">
-                        <cds-overflow-menu
-                            class="page-header-overflow"
-                            enter-delay-ms="3000"
-                            leave-delay-ms="0"
-                            close-on-activation
+                        <cds-menu-button
+                            label="Version"
+                            kind="tertiary"
+                            menu-alignment="bottom"
+                            menu-background-token="layer"
+                            size="md"
                         >
-                                <svg
-                                    focusable="false"
-                                    preserveAspectRatio="xMidYMid meet"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor"
-                                    class="cds--overflow-menu__icon"
-                                    slot="icon"
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 32 32"
-                                    aria-hidden="true"
-                                >
-                                    <circle cx="16" cy="8" r="2"></circle>
-                                    <circle cx="16" cy="16" r="2"></circle>
-                                    <circle cx="16" cy="24" r="2"></circle>
-                                </svg>
-
-                            <cds-overflow-menu-body flipped="">
-                                <cds-overflow-menu-item
+                            <cds-menu>
+                                <cds-menu-item
+                                    label="Create New Version"
                                     th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
                                     hx-target="#modal-container"
-                                >
-                                    New Version
-                                </cds-overflow-menu-item>
-                                <cds-overflow-menu-item
+                                ></cds-menu-item>
+                                <cds-menu-item
+                                    label="Activate Version"
                                     th:disabled="${isActiveVersion}"
                                     th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
                                     hx-target="#view-panel"
-                                >
-                                    Activate
-                                </cds-overflow-menu-item>
-                            </cds-overflow-menu-body>
-                        </cds-overflow-menu>
+                                ></cds-menu-item>
+                            </cds-menu>
+                        </cds-menu-button>
                     </div>
                 </div>
             </div>

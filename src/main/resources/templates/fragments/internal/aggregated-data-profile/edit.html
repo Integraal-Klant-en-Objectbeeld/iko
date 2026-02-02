@@ -43,6 +43,16 @@
                                                 name="id"
                                                 th:value="${form.id}"
                                             />
+                                            <input
+                                                type="hidden"
+                                                name="name"
+                                                th:value="${aggregatedDataProfile.name}"
+                                            />
+                                            <input
+                                                type="hidden"
+                                                name="version"
+                                                th:value="${form.version}"
+                                            />
                                             <cds-text-input
                                                 label="Name"
                                                 th:value="${aggregatedDataProfile.name}"
