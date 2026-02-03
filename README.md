@@ -60,8 +60,7 @@ Notes:
 - Main config: `src/main/resources/application.yml`
     - Disables OSIV (`spring.jpa.open-in-view=false`)
     - Camel YAML routes path: `classpath:camel/*.yaml`
-    - Security: OAuth2 client for admin and JWT resource server; authorities from claim `resource_access.iko.roles`
-- Connector properties are under `iko.connectors.*` and can be provided via environment variables. See `.env.template` for examples.
+    - Security: OAuth2/OIDC login for admin (roles claim + required admin roles configurable via `iko.security.admin.rolesClaim` / `iko.security.admin.authorities`) and JWT resource server for APIs (authorities from claim `resource_access.iko.roles`)
 
 ---
 

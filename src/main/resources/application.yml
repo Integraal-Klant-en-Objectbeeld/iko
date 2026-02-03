@@ -118,5 +118,9 @@ camel:
         trace-pattern: "*"
 
 iko:
+    security:
+        admin:
+            rolesClaim: "roles"
+            authorities: "ROLE_ADMIN, ROLE_WT_BEHEER"
     crypto:
         key: # ENV var

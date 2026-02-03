@@ -41,7 +41,7 @@ Three ordered Spring Security filter chains handle authentication:
 
 1. **Actuator chain** (highest precedence): Protects `/actuator/**`. Health and info endpoints are public; all others require `ROLE_ADMIN`. Uses JWT (stateless).
 2. **API chain**: Protects `/endpoints/**` and `/aggregated-data-profiles/**`. Requires JWT bearer tokens. Authorities extracted from the `resource_access.iko.roles` JWT claim.
-3. **Admin UI chain** (lowest precedence): Protects `/admin/**`. Uses OAuth2/OIDC login flow via Keycloak (session-based). Requires `ROLE_ADMIN`.
+3. **Admin UI chain** (lowest precedence): Protects `/admin/**`. Uses OAuth2/OIDC login flow via Keycloak (session-based). Requires at least one configured admin authority (see `iko.security.admin.authorities`; roles are read from the ID token claim configured via `iko.security.admin.rolesClaim`).
 
 See [security.md](./security.md) for detailed configuration.
 
