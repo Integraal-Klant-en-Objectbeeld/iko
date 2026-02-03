@@ -78,6 +78,7 @@ class AggregatedDataProfileRouteBuilder(
             )
             .to("direct:auth")
             .to("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+            .setVariable("connectorId", constant(connectorInstance.connector.id))
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
