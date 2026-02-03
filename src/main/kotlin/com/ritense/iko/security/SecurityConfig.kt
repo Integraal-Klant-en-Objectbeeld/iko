@@ -112,6 +112,8 @@ class SecurityConfig {
     fun adminSecurityFilterChain(
         http: HttpSecurity,
         oidcClientInitiatedLogoutSuccessHandler: OidcClientInitiatedLogoutSuccessHandler,
+        @Value("\${iko.security.admin.rolesClaim:roles}") adminRolesClaim: String,
+        @Value("\${iko.security.admin.authorities:ROLE_ADMIN}") adminAuthorities: Array<String>,
     ): SecurityFilterChain {
         http
             .securityMatcher("/admin/**", "/oauth2/**", "/login/**", "/logout/**")
@@ -120,10 +122,8 @@ class SecurityConfig {
                     user.oidcUserService(OidcUserService().apply { setRetrieveUserInfo { true } })
                     user.userAuthoritiesMapper { authorities ->
                         authorities
-                            .filter { it::class == OidcUserAuthority::class }
-                            .map { oidcUserAuthority -> oidcUserAuthority as OidcUserAuthority }
-                            .map { oidcUserAuthority -> oidcUserAuthority.idToken }
-                            .flatMap { oidcIdToken -> oidcIdToken.getClaimAsStringList("roles") }
+                            .mapNotNull { (it as? OidcUserAuthority)?.idToken }
+                            .flatMap { oidcIdToken -> oidcIdToken.getClaimAsStringList(adminRolesClaim) }
                             .map { SimpleGrantedAuthority(it) }
                     }
                 }
@@ -135,7 +135,7 @@ class SecurityConfig {
             }.authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers("/admin/**")
-                    .hasAnyAuthority("ROLE_ADMIN")
+                    .hasAnyAuthority(*adminAuthorities)
                     .requestMatchers("/oauth2/**", "/login/**", "/logout")
                     .permitAll()
             }.csrf {

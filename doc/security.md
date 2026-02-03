@@ -19,9 +19,34 @@ IKO configures three ordered Spring Security filter chains in `SecurityConfig.kt
 
 ### JWT Token Structuur
 
-Beide methodes maken gebruik van tokens waarin gebruikersrollen zijn opgenomen. Een geldig token bevat een `roles` claim die de toegestane gebruikersrollen weergeeft.
+IKO gebruikt rollen/authorities uit tokens voor zowel het adminpaneel als de JWT-secured endpoints, maar **niet uit dezelfde token/claim**.
 
-Voor toegang tot het adminpaneel is bijvoorbeeld de rol `ROLE_ADMIN` vereist.
+#### Admin UI (OAuth2/OIDC)
+
+Voor toegang tot `/admin/**` logt een gebruiker in via OIDC. De applicatie leest rollen uit de **ID token** claim die is geconfigureerd via:
+
+- `iko.security.admin.rolesClaim` (default: `roles`) — claimnaam met een **String list** van rollen
+- `iko.security.admin.authorities` (default: `ROLE_ADMIN`) — één of meerdere rollen (comma-separated) die toegang geven tot `/admin/**`
+
+Voorbeeldconfiguratie:
+
+```yaml
+iko:
+  security:
+    admin:
+      rolesClaim: "roles"
+      authorities: "ROLE_ADMIN, ROLE_WT_BEHEER"
+```
+
+Belangrijk:
+- Rollen worden 1-op-1 omgezet naar `SimpleGrantedAuthority` (er wordt geen extra prefix toegevoegd).
+- De claim moet een lijst van strings zijn (bijv. `["ROLE_ADMIN", "ROLE_WT_BEHEER"]`) in de **ID token**.
+
+#### API + Actuator (JWT resource server)
+
+Voor `/endpoints/**`, `/aggregated-data-profiles/**` en `/actuator/**` wordt een **JWT bearer token** gebruikt. Rollen/authorities worden uit de JWT gehaald met Spring's `authorities-claim-name` (SpEL path) en `authority-prefix`.
+
+Voorbeeld van de relevante claimstructuur:
 
 ```json
 {
@@ -83,7 +108,7 @@ Deze endpoints zijn vrij toegankelijk en vereisen geen authenticatie:
 
 ### Adminpaneel
 
-Deze endpoints zijn beveiligd via OAuth2 login. Alleen gebruikers met `ROLE_ADMIN` kunnen deze bereiken:
+Deze endpoints zijn beveiligd via OAuth2/OIDC login. Gebruikers hebben minimaal één van de geconfigureerde admin-authorities nodig (zie `iko.security.admin.authorities`):
 
 ```
 /admin/**

@@ -22,7 +22,7 @@ Query parameters are passed through to the primary endpoint via Camel headers.
 
 ## Admin UI (OAuth2-secured)
 
-All admin endpoints require OAuth2 login with `ROLE_ADMIN`. Controllers are HTMX-aware: requests with `HX-Request: true` header receive Thymeleaf fragments; all other requests receive full pages with the master layout.
+All admin endpoints require OAuth2/OIDC login with at least one configured admin authority (default: `ROLE_ADMIN`, configurable via `iko.security.admin.authorities`). Roles are read from the OIDC **ID token** claim configured via `iko.security.admin.rolesClaim` (default: `roles`). Controllers are HTMX-aware: requests with `HX-Request: true` header receive Thymeleaf fragments; all other requests receive full pages with the master layout.
 
 ### Home
 
