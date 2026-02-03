@@ -101,10 +101,12 @@ class AggregatedDataProfileTest {
     fun `handle updates profile from edit form but preserves name`() {
         val profile = createProfile()
         val originalName = profile.name
+        val originalVersion = profile.version
         val newConnectorInstanceId = UUID.randomUUID()
         val newConnectorEndpointId = UUID.randomUUID()
         val form = AggregatedDataProfileEditForm(
             id = profile.id,
+            name = "updated-name",
             roles = "ROLE_UPDATED",
             connectorInstanceId = newConnectorInstanceId,
             connectorEndpointId = newConnectorEndpointId,
@@ -112,12 +114,14 @@ class AggregatedDataProfileTest {
             resultTransform = ".result",
             cacheEnabled = true,
             cacheTimeToLive = 3600,
+            version = Version("2.0.0"),
         )
 
         profile.handle(form)
 
-        // Name should remain unchanged (immutable after creation)
+        // Name and version should remain unchanged (immutable after creation)
         assertThat(profile.name).isEqualTo(originalName)
+        assertThat(profile.version).isEqualTo(originalVersion)
         assertThat(profile.roles.value).isEqualTo("ROLE_UPDATED")
         assertThat(profile.connectorInstanceId).isEqualTo(newConnectorInstanceId)
         assertThat(profile.connectorEndpointId).isEqualTo(newConnectorEndpointId)
@@ -350,5 +354,6 @@ class AggregatedDataProfileTest {
         resultTransform = Transform("."),
         roles = Roles("ROLE_TEST"),
         aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+        version = Version("1.0.0"),
     )
 }

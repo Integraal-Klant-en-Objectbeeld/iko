@@ -39,7 +39,7 @@ class ConnectorConfiguration(
     val connectorService: ConnectorService,
 ) {
     @Bean
-    fun endpoint() = Endpoint()
+    fun endpoint(connectorRepository: ConnectorRepository) = Endpoint(connectorRepository)
 
     @Bean
     fun endpointAuth(
