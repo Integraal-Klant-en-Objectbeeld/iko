@@ -71,10 +71,16 @@
                                     hx-target="#modal-container"
                                 ></cds-menu-item>
                                 <cds-menu-item
+                                    th:if="${!isActiveVersion}"
                                     label="Activate Version"
-                                    th:disabled="${isActiveVersion}"
                                     th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
                                     hx-target="#view-panel"
+                                ></cds-menu-item>
+                                <cds-menu-item
+                                    th:if="${isActiveVersion}"
+                                    label="Activate Version"
+                                    disabled
+                                    aria-disabled="true"
                                 ></cds-menu-item>
                             </cds-menu>
                         </cds-menu-button>

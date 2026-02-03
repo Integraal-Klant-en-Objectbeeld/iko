@@ -42,7 +42,7 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         ,       c.name as name
         ,       c.tag as tag
         ,       c.version.value as version
-        ,       c.isActive as isActive
+        ,       c.isActive as active
         FROM    Connector c
         WHERE   c.tag = :tag
         ORDER BY c.version.value DESC
@@ -55,6 +55,6 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         val name: String
         val tag: String
         val version: String
-        val isActive: Boolean
+        val active: Boolean
     }
 }
