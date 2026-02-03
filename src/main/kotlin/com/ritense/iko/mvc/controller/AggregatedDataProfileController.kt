@@ -105,7 +105,7 @@ internal class AggregatedDataProfileController(
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val page = aggregatedDataProfileRepository.findAllBy(pageable)
+        val page = aggregatedDataProfileRepository.findAllByIsActiveTrue(pageable)
         val connectorInstancesCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstancesCount > 0 && endpointsCount > 0

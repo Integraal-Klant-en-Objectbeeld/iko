@@ -73,7 +73,7 @@ class ConnectorController(
     fun list(
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val connectors = connectorRepository.findAll()
+        val connectors = connectorRepository.findAllByIsActiveTrue()
 
         return ModelAndView(
             "fragments/internal/connector/listPageConnectors" +

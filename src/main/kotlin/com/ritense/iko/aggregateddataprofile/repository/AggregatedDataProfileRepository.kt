@@ -41,6 +41,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
     fun findAllByNameOrderByVersionDesc(name: String): List<AggregatedDataProfile>
 
     fun findAllByIsActiveTrue(): List<AggregatedDataProfile>
+    fun findAllByIsActiveTrue(pageable: Pageable = Pageable.unpaged()): Page<AggregatedDataProfile>
 
     @Query(
         """
