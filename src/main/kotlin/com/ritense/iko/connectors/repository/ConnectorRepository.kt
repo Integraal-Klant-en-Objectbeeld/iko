@@ -23,7 +23,6 @@ import org.springframework.data.repository.query.Param
 import java.util.UUID
 
 interface ConnectorRepository : JpaRepository<Connector, UUID> {
-    // Version-aware queries
     fun findByTagAndIsActiveTrue(tag: String): Connector?
 
     @Query("SELECT c FROM Connector c WHERE c.tag = :tag AND c.version.value = :version")

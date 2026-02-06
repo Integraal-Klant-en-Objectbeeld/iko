@@ -40,7 +40,6 @@ class ConnectorService(
     private val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
     private val camelContext: CamelContext,
 ) {
-    private val logger = KotlinLogging.logger {}
 
     /**
      * Loads connector routes into CamelContext with group set for easy removal.
@@ -204,5 +203,9 @@ class ConnectorService(
         }
 
         return newConnector
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }

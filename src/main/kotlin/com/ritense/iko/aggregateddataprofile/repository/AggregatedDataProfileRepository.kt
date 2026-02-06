@@ -29,7 +29,6 @@ import java.util.UUID
 interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile, UUID> {
     fun findByName(name: String): AggregatedDataProfile?
 
-    // Version-aware queries
     fun findByNameAndIsActiveTrue(name: String): AggregatedDataProfile?
 
     @Query("SELECT a FROM AggregatedDataProfile a WHERE a.name = :name AND a.version.value = :version")

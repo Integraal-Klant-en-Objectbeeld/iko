@@ -52,8 +52,6 @@ internal class TestController(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val aggregatedDataProfileService: AggregatedDataProfileService,
 ) {
-    private val logger = KotlinLogging.logger {}
-
     @PostMapping(
         path = ["/aggregated-data-profiles/debug"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
@@ -136,5 +134,9 @@ internal class TestController(
             addObject("traces", traces)
             addObject("exception", exception)
         }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }

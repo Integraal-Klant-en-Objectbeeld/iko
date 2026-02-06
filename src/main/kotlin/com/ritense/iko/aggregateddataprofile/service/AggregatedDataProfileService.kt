@@ -38,7 +38,6 @@ internal class AggregatedDataProfileService(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val ikoCacheProcessor: CacheProcessor,
 ) {
-    private val logger = KotlinLogging.logger {}
 
     @EventListener(ApplicationReadyEvent::class)
     fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
@@ -147,5 +146,9 @@ internal class AggregatedDataProfileService(
         logger.debug { "Created new version ${newAdp.name} v${newAdp.version} with ${newAdp.relations.size} relations" }
 
         return aggregatedDataProfileRepository.save(newAdp)
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }
