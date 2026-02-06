@@ -67,18 +67,20 @@ internal class TestController(
             .findByNameAndVersion(form.name, form.version)
             ?: throw NoSuchElementException("AggregatedDataProfile not found: ${form.name} v${form.version}")
 
-        // For non-active versions, we need to ensure routes are available for testing
-        val needsTemporaryRoutes = !aggregatedDataProfile.isActive
-        if (needsTemporaryRoutes) {
-            ensureRoutesAvailable(aggregatedDataProfile)
+        // For non-active versions, we load fresh routes just for this test run
+        val adpInactive = !aggregatedDataProfile.isActive
+        if (adpInactive) {
+            logger.debug { "Loading temporary routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
         }
 
         try {
             return executeTest(form, aggregatedDataProfile)
         } finally {
-            // Suspend routes after testing if they were loaded temporarily
-            if (needsTemporaryRoutes) {
-                suspendRoutes(aggregatedDataProfile)
+            // Remove temporary routes after testing
+            if (adpInactive) {
+                logger.debug { "Removing temporary routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+                aggregatedDataProfileService.removeRoute(aggregatedDataProfile)
             }
         }
     }
@@ -94,8 +96,8 @@ internal class TestController(
         tracer.traceFilter = "\${variable.$IKO_TRACE_ID_VARIABLE} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
-        // Dry Run ADP
-        val adpEndpointUri = "direct:aggregated-data-profile-dry-run"
+        // Test Run ADP
+        val adpEndpointUri = "direct:aggregated-data-profile-test-run"
         val headers =
             mapOf(
                 IKO_TRACE_ID_VARIABLE to ikoTraceId,
@@ -133,48 +135,6 @@ internal class TestController(
             addObject("testResult", result)
             addObject("traces", traces)
             addObject("exception", exception)
-        }
-    }
-
-    /**
-     * Ensures routes are available for testing.
-     * - If routes don't exist: register them
-     * - If routes exist but are stopped: resume them
-     * - If routes are already running: do nothing
-     */
-    private fun ensureRoutesAvailable(aggregatedDataProfile: AggregatedDataProfile) {
-        val routeId = "aggregated_data_profile_${aggregatedDataProfile.id}_root"
-        val existingRoute = camelContext.getRoute(routeId)
-
-        if (existingRoute == null) {
-            // Routes not registered yet - add them
-            logger.debug { "Adding routes for non-active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
-            aggregatedDataProfileService.addRoutes(aggregatedDataProfile)
-        } else {
-            // Routes exist - check if they need to be resumed
-            val routeController = camelContext.routeController
-            val status = routeController.getRouteStatus(routeId)
-            if (status.isStopped || status.isSuspended) {
-                // Resume all routes in the ADP's group
-                logger.debug { "Resuming routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
-                val groupName = "adp_${aggregatedDataProfile.id}"
-                camelContext.getRoutesByGroup(groupName).forEach { route ->
-                    routeController.resumeRoute(route.id)
-                }
-            }
-        }
-    }
-
-    /**
-     * Suspends (stops) routes after testing.
-     * Routes remain registered but inactive, avoiding re-registration overhead on next test.
-     */
-    private fun suspendRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-        val groupName = "adp_${aggregatedDataProfile.id}"
-        val routeController = camelContext.routeController
-        logger.debug { "Suspending routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
-        camelContext.getRoutesByGroup(groupName).forEach { route ->
-            routeController.suspendRoute(route.id)
         }
     }
 }

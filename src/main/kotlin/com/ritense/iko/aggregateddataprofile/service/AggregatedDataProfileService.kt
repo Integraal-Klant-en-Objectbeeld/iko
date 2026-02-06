@@ -44,19 +44,12 @@ internal class AggregatedDataProfileService(
     fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
         // Only load active profiles at startup
         aggregatedDataProfileRepository.findAllByIsActiveTrue().forEach { aggregatedDataProfile ->
-            val adpRoute = AggregatedDataProfileRouteBuilder(
-                camelContext,
-                aggregatedDataProfile,
-                connectorInstanceRepository,
-                connectorEndpointRepository,
-                ikoCacheProcessor,
-            )
-            camelContext.addRoutes(adpRoute)
+            loadRoute(aggregatedDataProfile)
             logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
         }
     }
 
-    fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
+    fun removeRoute(aggregatedDataProfile: AggregatedDataProfile) {
         val groupName = "adp_${aggregatedDataProfile.id}"
         camelContext.getRoutesByGroup(groupName).forEach { route ->
             camelContext.routeController.stopRoute(route.id)
@@ -64,7 +57,7 @@ internal class AggregatedDataProfileService(
         }
     }
 
-    fun addRoutes(aggregatedDataProfile: AggregatedDataProfile) {
+    fun loadRoute(aggregatedDataProfile: AggregatedDataProfile) {
         camelContext.addRoutes(
             AggregatedDataProfileRouteBuilder(
                 camelContext,
@@ -76,9 +69,9 @@ internal class AggregatedDataProfileService(
         )
     }
 
-    fun reloadRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-        removeRoutes(aggregatedDataProfile)
-        addRoutes(aggregatedDataProfile)
+    fun reloadRoute(aggregatedDataProfile: AggregatedDataProfile) {
+        removeRoute(aggregatedDataProfile)
+        loadRoute(aggregatedDataProfile)
     }
 
     /**
@@ -100,7 +93,7 @@ internal class AggregatedDataProfileService(
         val currentActive = aggregatedDataProfileRepository.findByNameAndIsActiveTrue(profileToActivate.name)
         if (currentActive != null) {
             logger.debug { "Deactivating ADP ${currentActive.name} v${currentActive.version}" }
-            removeRoutes(currentActive)
+            removeRoute(currentActive)
             currentActive.isActive = false
             aggregatedDataProfileRepository.saveAndFlush(currentActive)
         }
@@ -108,7 +101,7 @@ internal class AggregatedDataProfileService(
         // Activate new version
         profileToActivate.isActive = true
         aggregatedDataProfileRepository.save(profileToActivate)
-        addRoutes(profileToActivate)
+        loadRoute(profileToActivate)
         logger.debug { "Activated ADP ${profileToActivate.name} v${profileToActivate.version}" }
     }
 

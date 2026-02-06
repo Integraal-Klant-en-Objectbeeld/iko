@@ -340,7 +340,9 @@ internal class AggregatedDataProfileController(
 
         aggregatedDataProfile.addRelation(form)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
-        // Routes are not reloaded here - changes only apply when the version is activated
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
 
         val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
@@ -406,7 +408,9 @@ internal class AggregatedDataProfileController(
         }
         aggregatedDataProfile.changeRelation(form)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
-        // Routes are not reloaded here - changes only apply when the version is activated
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
 
         val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
@@ -443,7 +447,9 @@ internal class AggregatedDataProfileController(
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
         aggregatedDataProfile.removeRelation(form)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
-        // Routes are not reloaded here - changes only apply when the version is activated
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
 
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
@@ -467,7 +473,7 @@ internal class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
-        aggregatedDataProfileService.removeRoutes(aggregatedDataProfile)
+        aggregatedDataProfileService.removeRoute(aggregatedDataProfile)
         aggregatedDataProfileRepository.delete(aggregatedDataProfile)
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles")

@@ -16,7 +16,6 @@
 
 package com.ritense.iko.connectors.domain
 
-import com.ritense.iko.aggregateddataprofile.domain.Version
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity

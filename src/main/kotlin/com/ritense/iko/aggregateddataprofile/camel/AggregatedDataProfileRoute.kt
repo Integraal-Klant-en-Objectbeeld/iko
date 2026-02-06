@@ -16,65 +16,19 @@
 
 package com.ritense.iko.aggregateddataprofile.camel
 
-import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
-import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
-import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_ID_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
-import com.ritense.iko.camel.IkoConstants.Headers.ADP_VERSION_PARAM_HEADER
-import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
-import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
-import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.ParamDefinition
 import org.apache.camel.model.rest.RestParamType
 
 class AggregatedDataProfileRoute(
-    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val containerParamsProcessor: ContainerParamsProcessor,
 ) : RouteBuilder() {
     override fun configure() {
-        routeTemplate("aggregated-data-profile-entrypoint")
-            .templateParameter("fromUri")
-            .templateParameter("routeId")
-            .templateParameter("routeDescription")
-            .templateParameter("dryRun", "false")
-            .from("{{fromUri}}")
-            .routeId("{{routeId}}")
-            .routeDescription("{{routeDescription}}")
-            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .setProperty("adpDryRun", constant("{{dryRun}}"))
-            .to("direct:aggregated-data-profile-container-params")
-            .setVariable("profileName", header(ADP_PROFILE_NAME_PARAM_HEADER))
-            .setVariable("profileVersion", header(ADP_VERSION_PARAM_HEADER))
-            .setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
-            .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
-            .removeHeaders("adp_*")
-            .process { exchange ->
-                val isDryRun = exchange.getProperty("adpDryRun", Boolean::class.java)
-                val aggregatedDataProfileName = exchange.getVariable("profileName", String::class.java)
-                val aggregatedDataProfileVersion = exchange.getVariable("profileVersion", String::class.java)
-                val aggregatedDataProfile =
-                    when (isDryRun) {
-                        true -> {
-                            exchange.setVariable(IKO_TRACE_ID_VARIABLE, exchange.`in`.getHeader(IKO_TRACE_ID_VARIABLE))
-
-                            aggregatedDataProfileRepository
-                                .findByNameAndVersion(aggregatedDataProfileName, aggregatedDataProfileVersion)
-                        }
-
-                        else ->
-                            aggregatedDataProfileRepository
-                                .findByNameAndIsActiveTrue(aggregatedDataProfileName)
-                    } ?: throw AggregatedDataProfileNotFound(aggregatedDataProfileName)
-
-                exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
-            }
-            .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
-
         val profileNamePathParam = ParamDefinition()
             .type(RestParamType.path)
             .name(ADP_PROFILE_NAME_PARAM_HEADER)
@@ -117,16 +71,16 @@ class AggregatedDataProfileRoute(
             .to("direct:aggregated_data_profile_rest_continuation")
 
         templatedRoute("aggregated-data-profile-entrypoint")
-            .parameter("fromUri", "direct:aggregated-data-profile-dry-run")
-            .parameter("routeId", "aggregated-data-profile-dry-run")
-            .parameter("routeDescription", "ADP Dry Run")
-            .parameter("dryRun", "true")
+            .parameter("fromUri", "direct:aggregated-data-profile-test-run")
+            .parameter("routeId", "aggregated-data-profile-test-run")
+            .parameter("routeDescription", "ADP Test Run")
+            .parameter("testRun", "true")
 
         templatedRoute("aggregated-data-profile-entrypoint")
             .parameter("fromUri", "direct:aggregated_data_profile_rest_continuation")
             .parameter("routeId", "aggregated-data-profile-rest-continuation")
             .parameter("routeDescription", "REST consumer --> ADP entrypoint")
-            .parameter("dryRun", "false")
+            .parameter("testRun", "false")
 
         from("direct:aggregated-data-profile-container-params")
             .routeId("aggregated-data-profile-container-params")
