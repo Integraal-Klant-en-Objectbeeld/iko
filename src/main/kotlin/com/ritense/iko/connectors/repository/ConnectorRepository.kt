@@ -18,6 +18,42 @@ package com.ritense.iko.connectors.repository
 
 import com.ritense.iko.connectors.domain.Connector
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.UUID
 
-interface ConnectorRepository : JpaRepository<Connector, UUID>
+interface ConnectorRepository : JpaRepository<Connector, UUID> {
+    fun findByTagAndIsActiveTrue(tag: String): Connector?
+
+    @Query("SELECT c FROM Connector c WHERE c.tag = :tag AND c.version.value = :version")
+    fun findByTagAndVersion(
+        @Param("tag") tag: String,
+        @Param("version") version: String,
+    ): Connector?
+
+    fun findAllByTagOrderByVersionDesc(tag: String): List<Connector>
+
+    fun findAllByIsActiveTrue(): List<Connector>
+
+    @Query(
+        """
+        SELECT  c.id as id
+        ,       c.name as name
+        ,       c.tag as tag
+        ,       c.version.value as version
+        ,       c.isActive as active
+        FROM    Connector c
+        WHERE   c.tag = :tag
+        ORDER BY c.version.value DESC
+        """,
+    )
+    fun findVersionsByTag(@Param("tag") tag: String): List<ConnectorVersionProjection>
+
+    interface ConnectorVersionProjection {
+        val id: UUID
+        val name: String
+        val tag: String
+        val version: String
+        val active: Boolean
+    }
+}

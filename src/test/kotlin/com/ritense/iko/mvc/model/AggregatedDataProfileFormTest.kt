@@ -51,7 +51,7 @@ class AggregatedDataProfileFormTest {
     }
 
     @Test
-    fun `edit form can be created from aggregated data profile`() {
+    fun `edit form can be created from aggregated data profile without name`() {
         val profile = AggregatedDataProfile(
             id = UUID.randomUUID(),
             name = "pets",
@@ -69,7 +69,7 @@ class AggregatedDataProfileFormTest {
         val form = AggregatedDataProfileEditForm.from(profile)
 
         assertThat(form.id).isEqualTo(profile.id)
-        assertThat(form.name).isEqualTo("pets")
+        // Note: name is not included in edit form (immutable after creation)
         assertThat(form.roles).isEqualTo("ROLE_ADMIN")
         assertThat(form.endpointTransform).isEqualTo(".")
         assertThat(form.resultTransform).isEqualTo(".")

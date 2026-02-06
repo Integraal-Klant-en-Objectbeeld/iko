@@ -68,7 +68,10 @@
                         th:each="instance: ${connectorInstances}"
                         th:value="${instance.id}"
                     >
-                        (<span th:text="${instance.connector.name}"></span>)
+                        (<span
+                            th:text="${instance.connector.name + ' ' + instance.connector.version.value}"
+                        ></span
+                        >)
                         <span th:text="${instance.name}"></span>
                     </cds-select-item>
                 </cds-select>

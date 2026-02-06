@@ -51,4 +51,16 @@ class ConnectorInstance(
         joinColumns = [JoinColumn(name = "connector_instance_id")],
     )
     var config: Map<String, String>,
-)
+) {
+    /**
+     * Creates a copy of this instance for a new Connector version.
+     * Note: connector must be set by the caller after creation.
+     */
+    fun copyForNewConnector(newConnector: Connector): ConnectorInstance = ConnectorInstance(
+        id = UUID.randomUUID(),
+        name = this.name,
+        connector = newConnector,
+        tag = this.tag,
+        config = this.config.toMap(), // Create a copy of the config map
+    )
+}

@@ -43,12 +43,21 @@
                                                 name="id"
                                                 th:value="${form.id}"
                                             />
-                                            <cds-text-input
+                                            <input
+                                                type="hidden"
                                                 name="name"
+                                                th:value="${aggregatedDataProfile.name}"
+                                            />
+                                            <input
+                                                type="hidden"
+                                                name="version"
+                                                th:value="${form.version}"
+                                            />
+                                            <cds-text-input
                                                 label="Name"
-                                                th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
-                                                                         invalid-text=${errors?.getFieldError('name')?.defaultMessage},
-                                                                         value=${form.name}"
+                                                th:value="${aggregatedDataProfile.name}"
+                                                disabled
+                                                helper-text="Name cannot be changed after creation"
                                             >
                                             </cds-text-input>
 
@@ -70,7 +79,7 @@
                                                             th:value="${instance.id}"
                                                         >
                                                             (<span
-                                                                th:text="${instance.connector.name}"
+                                                                th:text="${instance.connector.name + ' ' + instance.connector.version.value}"
                                                             ></span
                                                             >)
                                                             <span

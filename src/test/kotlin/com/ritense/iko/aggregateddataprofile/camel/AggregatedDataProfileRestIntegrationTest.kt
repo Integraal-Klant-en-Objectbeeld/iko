@@ -122,7 +122,7 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
         mockMvc.perform(asyncDispatch(result))
             .andDo(print()) // logs final response
             .andExpect(status().isNotFound)
-            .andExpect(content().string(containsString("ADP with name: non-existing, not found")))
+            .andExpect(content().string(containsString("ADP with name: non-existing was not found")))
     }
 
     @Test

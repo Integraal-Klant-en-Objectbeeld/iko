@@ -1,0 +1,92 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <!--/* Reusable versioned page header for entities with version support (ADP, Connector) */-->
+        <th:block th:fragment="page-header-versioned">
+            <div id="page-header-versioned" class="detail-page-header">
+                <div class="page-header-title-row">
+                    <div class="page-header-title">
+                        <h2 class="page-title cds--type-heading-03">
+                            <span th:text="${title}"></span>
+                        </h2>
+                        <div class="page-title-version-select">
+                            <cds-dropdown
+                                th:id="|${title}-version-select|"
+                                label="Version"
+                                th:value="${entityId}"
+                                title-text=""
+                                size="md"
+                            >
+                                <cds-dropdown-item
+                                    th:each="version : ${versions}"
+                                    th:value="${version.id}"
+                                    th:hx-get="@{|/admin/${entityType}s/${version.id}|}"
+                                    hx-target="#view-panel"
+                                    hx-push-url="true"
+                                >
+                                    <div class="page-title-version-item">
+                                        <span
+                                            th:text="${version.version}"
+                                        ></span>
+                                        <cds-tag
+                                            th:if="${version.active}"
+                                            type="green"
+                                            size="sm"
+                                        >
+                                            Active
+                                        </cds-tag>
+                                    </div>
+                                </cds-dropdown-item>
+                            </cds-dropdown>
+                        </div>
+                    </div>
+                    <div class="page-header-actions">
+                        <cds-menu-button
+                            label="Version"
+                            kind="tertiary"
+                            menu-alignment="bottom"
+                            menu-background-token="layer"
+                            size="md"
+                        >
+                            <cds-menu>
+                                <cds-menu-item
+                                    label="Create New Version"
+                                    th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"
+                                    hx-target="#modal-container"
+                                ></cds-menu-item>
+                                <cds-menu-item
+                                    th:if="${!isActiveVersion}"
+                                    label="Activate Version"
+                                    th:hx-post="@{|/admin/${entityType}s/${entityId}/activate|}"
+                                    hx-target="#view-panel"
+                                ></cds-menu-item>
+                                <cds-menu-item
+                                    th:if="${isActiveVersion}"
+                                    label="Activate Version"
+                                    disabled
+                                    aria-disabled="true"
+                                ></cds-menu-item>
+                            </cds-menu>
+                        </cds-menu-button>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>
