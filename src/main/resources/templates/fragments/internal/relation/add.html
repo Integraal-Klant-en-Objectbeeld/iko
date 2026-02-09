@@ -83,7 +83,7 @@
                     label-text="Select an connector endpoint"
                     size="lg"
                     name="connectorEndpointId"
-                    th:value="${form != null ? form.connectorEndpointId : connectorEndpoints.first.id}"
+                    th:value="${#lists.isEmpty(connectorEndpoints) ? '' : (form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints[0].id)}"
                     th:attr="
                                 invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage}"

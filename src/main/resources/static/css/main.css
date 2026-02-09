@@ -340,7 +340,7 @@ cds-tile {
     width: 100%;
 }
 
-cds-form-group.adp-add-form cds-form-item {
+cds-form.adp-add-form cds-form-item {
     overflow: visible;
 }
 

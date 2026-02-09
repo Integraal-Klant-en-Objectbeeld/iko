@@ -28,6 +28,7 @@
                             hx-put="/admin/aggregated-data-profiles"
                             hx-target="#profile-edit"
                             hx-swap="outerHTML"
+                            hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
                         >
                             <cds-form-group
                                 id="form-group"
@@ -46,7 +47,7 @@
                                             <input
                                                 type="hidden"
                                                 name="name"
-                                                th:value="${aggregatedDataProfile.name}"
+                                                th:value="${form?.name != null ? form.name : aggregatedDataProfile?.name}"
                                             />
                                             <input
                                                 type="hidden"
@@ -55,7 +56,7 @@
                                             />
                                             <cds-text-input
                                                 label="Name"
-                                                th:value="${aggregatedDataProfile.name}"
+                                                th:value="${form?.name != null ? form.name : aggregatedDataProfile?.name}"
                                                 disabled
                                                 helper-text="Name cannot be changed after creation"
                                             >
@@ -68,9 +69,9 @@
                                                         label-text="Select an connector instance"
                                                         hx-get="/admin/aggregated-data-profiles/create/endpoints"
                                                         hx-trigger="cds-select-selected"
-                                                        hx-target="#connector-endpoints"
-                                                        th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
-                                                                 invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
+                                                        hx-target="#formEndpoints"
+                                                        th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null or (errors != null and #lists.isEmpty(connectorEndpoints))} ? 'true' : null,
+                                                                 invalid-text=${(errors != null and #lists.isEmpty(connectorEndpoints)) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorInstanceId')?.defaultMessage},
                                                                  value=${form.connectorInstanceId}
                                                                 "
                                                     >
@@ -96,9 +97,9 @@
                                                         <cds-select
                                                             label-text="Select an connector endpoint"
                                                             name="connectorEndpointId"
-                                                            th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
-                                                                     invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
-                                                                     value=${form.connectorEndpointId}"
+                                                            th:attr="invalid=${#lists.isEmpty(connectorEndpoints) or errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
+                                                                     invalid-text=${#lists.isEmpty(connectorEndpoints) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorEndpointId')?.defaultMessage},
+                                                                     value=${#lists.isEmpty(connectorEndpoints) ? '' : form?.connectorEndpointId}"
                                                         >
                                                             <cds-select-item
                                                                 th:each="endpoint : ${connectorEndpoints}"

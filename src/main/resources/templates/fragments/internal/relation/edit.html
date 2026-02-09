@@ -22,34 +22,34 @@
     >
         <div class="form-column">
             <cds-form-item>
-                    <cds-dropdown
-                        name="sourceId"
-                        size="lg"
-                        style="width: 100%"
-                        helper-text=""
-                        title-text="From"
-                        label="Select a from"
-                        required
-                        th:attr="
+                <cds-dropdown
+                    name="sourceId"
+                    size="lg"
+                    style="width: 100%"
+                    helper-text=""
+                    title-text="From"
+                    label="Select a from"
+                    required
+                    th:attr="
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
                                 value=${form?.sourceId}"
+                >
+                    <cds-dropdown-item
+                        th:value="${form.aggregatedDataProfileId}"
+                        disabled
                     >
-                        <cds-dropdown-item
-                            th:value="${form.aggregatedDataProfileId}"
-                            disabled
-                        >
-                            Profile root
-                        </cds-dropdown-item>
-                        <cds-dropdown-item
-                            th:each="source : ${sources}"
-                            th:value="${source.id}"
-                        >
-                            <span
-                                th:text="'Relation (' +${source.name} +')'"
-                            ></span>
-                        </cds-dropdown-item>
-                    </cds-dropdown>
+                        Profile root
+                    </cds-dropdown-item>
+                    <cds-dropdown-item
+                        th:each="source : ${sources}"
+                        th:value="${source.id}"
+                    >
+                        <span
+                            th:text="'Relation (' +${source.name} +')'"
+                        ></span>
+                    </cds-dropdown-item>
+                </cds-dropdown>
             </cds-form-item>
             <cds-form-item>
                 <cds-select

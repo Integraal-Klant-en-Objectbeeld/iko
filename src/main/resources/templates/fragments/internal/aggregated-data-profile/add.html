@@ -25,10 +25,9 @@
         <cds-modal-heading>Add Aggregated Data Profile</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
-        <cds-form-group
-            id="form-group"
+        <cds-form
+            id="adp-add-form"
             th:fragment="adp-add-form"
-            name="form-group"
             class="adp-add-form"
         >
             <div class="form-column single-column no-stack">
@@ -36,6 +35,7 @@
                     <cds-text-input
                         name="name"
                         label="Name"
+                        required
                         th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('name')?.defaultMessage},
                                              value=${form?.name}"
@@ -47,12 +47,13 @@
                         <cds-select
                             name="connectorInstanceId"
                             label-text="Select an connector instance"
+                            required
                             hx-get="/admin/aggregated-data-profiles/create/endpoints"
                             hx-trigger="cds-select-selected"
                             hx-target="#connector-endpoints"
                             th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('connectorInstanceId')?.defaultMessage},
-                                             value=${form?.connectorInstanceId != null ? form.connectorInstanceId : connectorInstances.first?.id}
+                                             value=${form?.connectorInstanceId != null ? form.connectorInstanceId : (#lists.isEmpty(connectorInstances) ? '' : connectorInstances[0].id)}
                                             "
                         >
                             <cds-select-item
@@ -75,9 +76,10 @@
                             <cds-select
                                 label-text="Select an connector endpoint"
                                 name="connectorEndpointId"
-                                th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
-                                             invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage},
-                                             value=${form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints.first?.id}"
+                                required
+                                th:value="${#lists.isEmpty(connectorEndpoints) ? '' : (form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints[0].id)}"
+                                th:attr="invalid=${#lists.isEmpty(connectorEndpoints) or errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
+                                         invalid-text=${#lists.isEmpty(connectorEndpoints) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorEndpointId')?.defaultMessage}"
                             >
                                 <cds-select-item
                                     th:each="endpoint : ${connectorEndpoints}"
@@ -93,7 +95,7 @@
                     <cds-text-input
                         name="roles"
                         label="Roles"
-                        required="true"
+                        required
                         th:attr="invalid=${errors?.getFieldError('roles') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('roles')?.defaultMessage},
                                              value=${form?.roles}"
@@ -129,7 +131,8 @@
                     <textarea
                         id="endpointTransformCodeAdd"
                         name="endpointTransform"
-                        th:text="."
+                        required
+                        th:text="'{}'"
                         hidden
                     >
                     </textarea>
@@ -140,10 +143,19 @@
                         data-monaco
                         data-language="jq"
                         data-textarea="#endpointTransformCodeAdd"
-                        th:data-initial="."
+                        th:data-initial="'{}'"
                         data-theme="lightgray-theme"
                         th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                     ></div>
+                    <div
+                        id="endpoint-transform-monaco-error-add"
+                        th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                    >
+                        <span
+                            th:if="${errors?.getFieldError('endpointTransform') != null}"
+                            th:text="${errors?.getFieldError('endpointTransform')?.defaultMessage}"
+                        ></span>
+                    </div>
                 </cds-form-item>
 
                 <cds-form-item
@@ -172,6 +184,7 @@
                     <textarea
                         id="resultTransformCodeAdd"
                         name="resultTransform"
+                        required
                         th:text="."
                         hidden
                     >
@@ -187,19 +200,18 @@
                         data-theme="lightgray-theme"
                         th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                     ></div>
+                    <div
+                        id="result-transform-monaco-error-add"
+                        th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                    >
+                        <span
+                            th:if="${errors?.getFieldError('resultTransform') != null}"
+                            th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"
+                        ></span>
+                    </div>
                 </cds-form-item>
             </div>
-
-            <div
-                id="monaco-error-add"
-                th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
-            >
-                <span
-                    th:if="${errors?.getFieldError('resultTransform') != null}"
-                    th:text="${errors?.getFieldError('resultTransform')?.defaultMessage}"
-                ></span>
-            </div>
-        </cds-form-group>
+        </cds-form>
     </cds-modal-body>
     <cds-modal-footer>
         <cds-modal-footer-button
@@ -212,9 +224,11 @@
         <cds-modal-footer-button
             type="submit"
             hx-post="/admin/aggregated-data-profiles"
-            hx-target="#form-group"
-            hx-swap="outerHTML"
-            hx-include="#form-group [name]"
+            hx-target="#adp-add-form"
+            hx-swap="innerHTML"
+            hx-include="#adp-add-form [name]"
+            hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+            form="adp-add-form"
         >
             Save
         </cds-modal-footer-button>
