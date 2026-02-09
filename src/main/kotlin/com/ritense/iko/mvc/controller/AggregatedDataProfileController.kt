@@ -226,6 +226,28 @@ internal class AggregatedDataProfileController(
         }
     }
 
+    @GetMapping("/aggregated-data-profiles/relations/add/endpoints")
+    fun relationAddEndpoints(
+        @RequestParam connectorInstanceId: UUID,
+    ): ModelAndView {
+        val connector = connectorInstanceRepository.getReferenceById(connectorInstanceId)
+        val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
+        return ModelAndView("$BASE_FRAGMENT_RELATION/add :: connectorEndpoints").apply {
+            addObject("connectorEndpoints", endpoints)
+        }
+    }
+
+    @GetMapping("/aggregated-data-profiles/relations/edit/endpoints")
+    fun relationEditEndpoints(
+        @RequestParam connectorInstanceId: UUID,
+    ): ModelAndView {
+        val connector = connectorInstanceRepository.getReferenceById(connectorInstanceId)
+        val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
+        return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: connectorEndpoints").apply {
+            addObject("connectorEndpoints", endpoints)
+        }
+    }
+
     @PostMapping(
         path = ["/aggregated-data-profiles"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],

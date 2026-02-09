@@ -96,7 +96,7 @@ class AggregatedDataProfile(
                 sourceId = form.sourceId,
                 resultTransform = Transform(form.resultTransform),
                 endpointTransform = RelationEndpointTransform(form.sourceToEndpointMapping),
-                connectorEndpointId = form.connectorEndpointId,
+                connectorEndpointId = form.connectorEndpointId!!,
                 connectorInstanceId = form.connectorInstanceId,
                 propertyName = form.propertyName,
                 relationCacheSettings = RelationCacheSettings(),
