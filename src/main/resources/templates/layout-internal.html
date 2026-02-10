@@ -66,7 +66,7 @@
 
         <!-- Dynamically load Carbon Web Components -->
         <script type="module">
-            const VERSION = window.CARBON_CDN_VERSION || "v2.44.0";
+            const VERSION = window.CARBON_CDN_VERSION || "v2.47.0";
 
             const components = [
                 "accordion",
@@ -89,6 +89,8 @@
                 "link",
                 "list",
                 "loading",
+                "menu",
+                "menu-button",
                 "modal",
                 "multi-select",
                 "notification",
@@ -321,6 +323,7 @@
                             <span th:text="${title}"></span>
                         </h2>
                     </div>
+
                     <h4>Welcome to IKO</h4>
                     <img
                         class="page-landing__illo"

@@ -71,7 +71,7 @@
                             th:attr="data-initial=${connector?.connectorCode}"
                             data-textarea="#connectorCodeField"
                             data-theme="lightgray-theme"
-                            class="monaco-editor-style"
+                            th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                         ></div>
                         <textarea
                             id="connectorCodeField"

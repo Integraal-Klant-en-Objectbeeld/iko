@@ -17,7 +17,7 @@
 <th:block th:fragment="profile-filter-results">
     <cds-table-body id="search-results">
         <cds-table-row th:if="${!creationAllowed}" class="not-clickable">
-            <cds-table-cell colspan="2" class="app--table-cell-empty">
+            <cds-table-cell colspan="3" class="app--table-cell-empty">
                 <div class="app--empty-notice">
                     <img
                         th:src="@{/assets/emptystate-error.svg}"
@@ -43,7 +43,7 @@
             th:if="${creationAllowed and #lists.isEmpty(aggregatedDataProfiles)}"
             class="not-clickable"
         >
-            <cds-table-cell colspan="2" class="app--table-cell-empty">
+            <cds-table-cell colspan="3" class="app--table-cell-empty">
                 <div class="app--empty-notice">
                     <img
                         th:src="@{/assets/emptystate-error.svg}"
@@ -72,6 +72,9 @@
         >
             <cds-table-cell
                 th:text="${aggregatedDataProfile.name}"
+            ></cds-table-cell>
+            <cds-table-cell
+                th:text="${aggregatedDataProfile.version}"
             ></cds-table-cell>
             <cds-table-cell class="app--table-cell-actions">
                 <cds-overflow-menu

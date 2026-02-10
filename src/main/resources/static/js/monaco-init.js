@@ -177,8 +177,13 @@ require.config({
         document.querySelectorAll("[data-monaco]").forEach(initMonaco);
     });
 
-    // Init after HTMX swaps
+    // Init after HTMX swaps and error swaps (if allowed by beforeSwap)
     document.addEventListener("htmx:afterSwap", () => {
+        document.querySelectorAll("[data-monaco]").forEach(initMonaco);
+    });
+
+    // If HTMX skips swapping on error, re-render editors to avoid blank Monaco containers.
+    document.addEventListener("htmx:responseError", () => {
         document.querySelectorAll("[data-monaco]").forEach(initMonaco);
     });
 

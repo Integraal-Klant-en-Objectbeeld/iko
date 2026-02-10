@@ -16,6 +16,7 @@
 
 package com.ritense.iko.mvc.model.connector
 
+import com.ritense.iko.mvc.model.validation.ValidConnectorCode
 import jakarta.validation.constraints.NotBlank
 
 data class ConnectorCreateForm(
@@ -24,5 +25,6 @@ data class ConnectorCreateForm(
     @field:NotBlank(message = "Please provide a reference.")
     val reference: String,
     @field:NotBlank(message = "Please provide a connector code.")
+    @field:ValidConnectorCode
     val connectorCode: String,
 )

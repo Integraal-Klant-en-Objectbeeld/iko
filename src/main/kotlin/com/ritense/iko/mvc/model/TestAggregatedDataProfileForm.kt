@@ -26,4 +26,5 @@ data class TestAggregatedDataProfileForm(
     @field:ValidTransform
     val resultTransform: String,
     val name: String,
+    val version: String, // Version of the ADP being tested
 )

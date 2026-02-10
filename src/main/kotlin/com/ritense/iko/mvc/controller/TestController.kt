@@ -17,13 +17,18 @@
 package com.ritense.iko.mvc.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_VERSION_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.apache.camel.CamelContext
@@ -40,10 +45,12 @@ import java.util.UUID
 
 @Controller
 @RequestMapping("/admin")
-class TestController(
+internal class TestController(
     private val producerTemplate: ProducerTemplate,
     private val camelContext: CamelContext,
     private val objectMapper: ObjectMapper,
+    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+    private val aggregatedDataProfileService: AggregatedDataProfileService,
 ) {
     @PostMapping(
         path = ["/aggregated-data-profiles/debug"],
@@ -53,6 +60,33 @@ class TestController(
         @Valid @ModelAttribute form: TestAggregatedDataProfileForm,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
+        // Lookup the ADP by name and version
+        val aggregatedDataProfile = aggregatedDataProfileRepository
+            .findByNameAndVersion(form.name, form.version)
+            ?: throw NoSuchElementException("AggregatedDataProfile not found: ${form.name} v${form.version}")
+
+        // For non-active versions, we load fresh routes just for this test run
+        val adpInactive = !aggregatedDataProfile.isActive
+        if (adpInactive) {
+            logger.debug { "Loading temporary routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
+
+        try {
+            return executeTest(form, aggregatedDataProfile)
+        } finally {
+            // Remove temporary routes after testing
+            if (adpInactive) {
+                logger.debug { "Removing temporary routes for ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+                aggregatedDataProfileService.removeRoute(aggregatedDataProfile)
+            }
+        }
+    }
+
+    private fun executeTest(
+        form: TestAggregatedDataProfileForm,
+        aggregatedDataProfile: AggregatedDataProfile,
+    ): ModelAndView {
         val tracer = camelContext.camelContextExtension.getContextPlugin(BacklogTracer::class.java)
         requireNotNull(tracer) { "BacklogTracer plugin not found in CamelContext" }
         val ikoTraceId = UUID.randomUUID().toString()
@@ -60,12 +94,13 @@ class TestController(
         tracer.traceFilter = "\${variable.$IKO_TRACE_ID_VARIABLE} == '$ikoTraceId'"
         tracer.clear() // Clean history first
 
-        // Run ADP
-        val adpEndpointUri = "direct:aggregated_data_profile_rest_continuation"
+        // Test Run ADP
+        val adpEndpointUri = "direct:aggregated-data-profile-test-run"
         val headers =
             mapOf(
-                ADP_PROFILE_NAME_PARAM_HEADER to form.name,
                 IKO_TRACE_ID_VARIABLE to ikoTraceId,
+                ADP_PROFILE_NAME_PARAM_HEADER to form.name,
+                ADP_VERSION_PARAM_HEADER to form.version,
                 ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER to objectMapper.readTree(form.endpointTransformContext),
             )
         var result: String? = null
@@ -99,5 +134,9 @@ class TestController(
             addObject("traces", traces)
             addObject("exception", exception)
         }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }

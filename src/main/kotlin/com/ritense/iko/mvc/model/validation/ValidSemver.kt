@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.mvc.model.connector
+package com.ritense.iko.mvc.model.validation
 
-import com.ritense.iko.mvc.model.validation.ValidConnectorCode
-import jakarta.validation.constraints.NotBlank
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
 
-data class ConnectorEditForm(
-    @field:NotBlank(message = "Please provide a connector code.")
-    @field:ValidConnectorCode
-    val connectorCode: String,
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [ValidSemverValidator::class])
+annotation class ValidSemver(
+    val message: String = "Version must be in semver format (e.g., 1.0.0)",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = [],
 )

@@ -30,6 +30,7 @@ class TestAggregatedDataProfileFormTest {
             endpointTransformContext = "{}",
             resultTransform = ".",
             name = "pets",
+            version = "1.0.0",
         )
 
         val violations = validator.validate(form)
@@ -43,6 +44,7 @@ class TestAggregatedDataProfileFormTest {
             endpointTransformContext = " ",
             resultTransform = "",
             name = "pets",
+            version = "1.0.0",
         )
 
         val violations = validator.validate(form)

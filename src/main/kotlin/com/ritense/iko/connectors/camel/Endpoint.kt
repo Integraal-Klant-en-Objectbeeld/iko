@@ -18,9 +18,12 @@ package com.ritense.iko.connectors.camel
 
 import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
+import com.ritense.iko.connectors.repository.ConnectorRepository
 import org.apache.camel.builder.RouteBuilder
 
-class Endpoint : RouteBuilder() {
+class Endpoint(
+    private val connectorRepository: ConnectorRepository,
+) : RouteBuilder() {
     override fun configure() {
         rest("/endpoints")
             .get("/{iko_connector}/{iko_config}/{iko_operation}")
@@ -34,6 +37,12 @@ class Endpoint : RouteBuilder() {
             .setVariable("connector", header("iko_connector"))
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
+            .process { exchange ->
+                val connectorTag = exchange.getVariable("connector", String::class.java)
+                val connectorId = connectorRepository.findByTagAndIsActiveTrue(connectorTag)
+
+                exchange.setVariable("connectorId", connectorId)
+            }
             .removeHeaders("iko_*")
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.endpoint("auth"))
@@ -50,6 +59,12 @@ class Endpoint : RouteBuilder() {
             .setVariable("config", header("iko_config"))
             .setVariable("operation", header("iko_operation"))
             .setVariable("id", header("id"))
+            .process { exchange ->
+                val connectorTag = exchange.getVariable("connector", String::class.java)
+                val connectorId = connectorRepository.findByTagAndIsActiveTrue(connectorTag)
+
+                exchange.setVariable("connectorId", connectorId)
+            }
             .removeHeaders("iko_*")
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.endpoint("auth"))
