@@ -41,7 +41,6 @@ internal class AggregatedDataProfileService(
 
     @EventListener(ApplicationReadyEvent::class)
     fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
-        // Only load active profiles at startup
         aggregatedDataProfileRepository.findAllByIsActiveTrue().forEach { aggregatedDataProfile ->
             loadRoute(aggregatedDataProfile)
             logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
