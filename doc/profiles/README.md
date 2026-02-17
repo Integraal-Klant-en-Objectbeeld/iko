@@ -65,7 +65,7 @@ You can also create an array in the `source endpoint mapping` with help of the `
 
 ## Execution Flow
 
-When a profile is requested via `GET /aggregated-data-profiles/{name}`:
+When a profile is requested via `GET /aggregated-data-profiles/{name}?id={externalId}`:
 
 1. The JWT token is validated and roles are checked against the profile's required roles.
 2. The primary endpoint is called via its Camel route.
