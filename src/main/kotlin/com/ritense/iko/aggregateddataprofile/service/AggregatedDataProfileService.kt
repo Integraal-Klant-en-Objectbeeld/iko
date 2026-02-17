@@ -22,11 +22,16 @@ import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRep
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
-class AggregatedDataProfileService(
+@Service
+internal class AggregatedDataProfileService(
     private val camelContext: CamelContext,
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
@@ -36,29 +41,21 @@ class AggregatedDataProfileService(
 
     @EventListener(ApplicationReadyEvent::class)
     fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
-        aggregatedDataProfileRepository.findAll().forEach { aggregatedDataProfile ->
-            val adpRoute = AggregatedDataProfileRouteBuilder(
-                camelContext,
-                aggregatedDataProfile,
-                connectorInstanceRepository,
-                connectorEndpointRepository,
-                ikoCacheProcessor,
-            )
-            camelContext.addRoutes(adpRoute)
+        aggregatedDataProfileRepository.findAllByIsActiveTrue().forEach { aggregatedDataProfile ->
+            loadRoute(aggregatedDataProfile)
+            logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
         }
     }
 
-    fun removeRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-        removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_direct")
-        removeRoute("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
-
-        aggregatedDataProfile.relations.forEach { relation ->
-            removeRoute("relation_${relation.id}_direct")
-            removeRoute("relation_${relation.id}_multicast")
+    fun removeRoute(aggregatedDataProfile: AggregatedDataProfile) {
+        val groupName = "adp_${aggregatedDataProfile.id}"
+        camelContext.getRoutesByGroup(groupName).forEach { route ->
+            camelContext.routeController.stopRoute(route.id)
+            camelContext.removeRoute(route.id)
         }
     }
 
-    fun addRoutes(aggregatedDataProfile: AggregatedDataProfile) {
+    fun loadRoute(aggregatedDataProfile: AggregatedDataProfile) {
         camelContext.addRoutes(
             AggregatedDataProfileRouteBuilder(
                 camelContext,
@@ -70,13 +67,87 @@ class AggregatedDataProfileService(
         )
     }
 
-    fun reloadRoutes(aggregatedDataProfile: AggregatedDataProfile) {
-        removeRoutes(aggregatedDataProfile)
-        addRoutes(aggregatedDataProfile)
+    fun reloadRoute(aggregatedDataProfile: AggregatedDataProfile) {
+        removeRoute(aggregatedDataProfile)
+        loadRoute(aggregatedDataProfile)
     }
 
-    private fun removeRoute(id: String) {
-        camelContext.routeController.stopRoute(id)
-        camelContext.removeRoute(id)
+    /**
+     * Activates a specific version of an AggregatedDataProfile.
+     * Deactivates any currently active version and loads routes for the new active version.
+     */
+    @Transactional
+    fun activateVersion(id: UUID) {
+        val profileToActivate = aggregatedDataProfileRepository.findById(id)
+            .orElseThrow { NoSuchElementException("AggregatedDataProfile not found: $id") }
+
+        // Prevent reactivation of already active version
+        if (profileToActivate.isActive) {
+            logger.debug { "ADP ${profileToActivate.name} v${profileToActivate.version} is already active" }
+            return
+        }
+
+        // Find and deactivate currently active version
+        val currentActive = aggregatedDataProfileRepository.findByNameAndIsActiveTrue(profileToActivate.name)
+        if (currentActive != null) {
+            logger.debug { "Deactivating ADP ${currentActive.name} v${currentActive.version}" }
+            removeRoute(currentActive)
+            currentActive.isActive = false
+            aggregatedDataProfileRepository.saveAndFlush(currentActive)
+        }
+
+        // Activate new version
+        profileToActivate.isActive = true
+        aggregatedDataProfileRepository.save(profileToActivate)
+        loadRoute(profileToActivate)
+        logger.debug { "Activated ADP ${profileToActivate.name} v${profileToActivate.version}" }
+    }
+
+    /**
+     * Creates a new version of an AggregatedDataProfile by copying it and all its relations.
+     * The new version starts as inactive.
+     */
+    @Transactional
+    fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile {
+        val source = aggregatedDataProfileRepository.findById(sourceId)
+            .orElseThrow { NoSuchElementException("AggregatedDataProfile not found: $sourceId") }
+
+        // Check version doesn't already exist
+        if (aggregatedDataProfileRepository.findByNameAndVersion(source.name, newVersion) != null) {
+            throw IllegalArgumentException("Version $newVersion already exists for ${source.name}")
+        }
+
+        // Create new ADP (without relations)
+        val newAdp = source.createNewVersion(newVersion)
+        aggregatedDataProfileRepository.save(newAdp)
+
+        // Build ID mapping: old ID -> new ID
+        // Include the ADP ID mapping for level 1 relations
+        val idMapping = mutableMapOf<UUID, UUID>()
+        idMapping[source.id] = newAdp.id
+
+        // First pass: copy all relations and build ID mapping
+        val newRelations = source.relations.map { oldRelation ->
+            val newRelation = oldRelation.copyForNewVersion(newAdp)
+            idMapping[oldRelation.id] = newRelation.id
+            oldRelation to newRelation
+        }
+
+        // Second pass: remap sourceId using the ID mapping
+        newRelations.forEach { (oldRelation, newRelation) ->
+            // sourceId points to either the ADP or a parent relation
+            // Use the mapping to get the new ID
+            newRelation.sourceId = oldRelation.sourceId?.let { idMapping[it] }
+        }
+
+        // Add all copied relations to the new ADP
+        newAdp.relations.addAll(newRelations.map { it.second })
+        logger.debug { "Created new version ${newAdp.name} v${newAdp.version} with ${newAdp.relations.size} relations" }
+
+        return aggregatedDataProfileRepository.save(newAdp)
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }

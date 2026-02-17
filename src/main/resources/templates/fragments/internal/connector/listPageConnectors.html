@@ -67,6 +67,9 @@
                             <cds-table-header-cell class="col-width-30">
                                 Reference
                             </cds-table-header-cell>
+                            <cds-table-header-cell class="col-width-15">
+                                Version
+                            </cds-table-header-cell>
                             <cds-table-header-cell> </cds-table-header-cell>
                         </cds-table-header-row>
                     </cds-table-head>
@@ -85,6 +88,9 @@
                             ></cds-table-cell>
                             <cds-table-cell
                                 th:text="${connector.tag}"
+                            ></cds-table-cell>
+                            <cds-table-cell
+                                th:text="${connector.version.value}"
                             ></cds-table-cell>
                             <cds-table-cell class="app--table-cell-actions">
                                 <cds-overflow-menu

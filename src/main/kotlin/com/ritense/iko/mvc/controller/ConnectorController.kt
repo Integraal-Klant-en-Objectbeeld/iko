@@ -24,6 +24,8 @@ import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
+import com.ritense.iko.connectors.service.ConnectorService
+import com.ritense.iko.mvc.model.CreateVersionForm
 import com.ritense.iko.mvc.model.connector.ConnectorCreateForm
 import com.ritense.iko.mvc.model.connector.ConnectorEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorEndpointConfigForm
@@ -31,17 +33,10 @@ import com.ritense.iko.mvc.model.connector.ConnectorInstanceConfigEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
 import com.ritense.iko.security.SecurityContextHelper
-import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
-import org.apache.camel.CamelContext
-import org.apache.camel.support.PluginHelper
-import org.apache.camel.support.ResourceHelper
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
-import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -66,7 +61,7 @@ class ConnectorController(
     val connectorInstanceRepository: ConnectorInstanceRepository,
     val connectorEndpointRepository: ConnectorEndpointRepository,
     val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
-    val camelContext: CamelContext,
+    val connectorService: ConnectorService,
 ) {
     /**
      * Displays an overview of all connectors.  The list is rendered in a
@@ -78,7 +73,7 @@ class ConnectorController(
     fun list(
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val connectors = connectorRepository.findAll()
+        val connectors = connectorRepository.findAllByIsActiveTrue()
 
         return ModelAndView(
             "fragments/internal/connector/listPageConnectors" +
@@ -109,6 +104,7 @@ class ConnectorController(
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
         val instances = connectorInstanceRepository.findByConnector(connector)
         val endpoints = connectorEndpointRepository.findByConnector(connector)
+        val versions = connectorRepository.findVersionsByTag(connector.tag)
 
         return ModelAndView(
             "fragments/internal/connector/detailsPageConnector" +
@@ -120,6 +116,7 @@ class ConnectorController(
                 "connector" to connector,
                 "instances" to instances,
                 "endpoints" to endpoints,
+                "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
                 "email" to SecurityContextHelper.getUserPropertyByKey("email"),
             ),
@@ -147,32 +144,20 @@ class ConnectorController(
         @Valid @ModelAttribute form: ConnectorEditForm,
         bindingResult: BindingResult,
         httpServletResponse: HttpServletResponse,
-    ): Any {
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+
         if (bindingResult.hasErrors()) {
+            httpServletResponse.setHeader("HX-Retarget", "#connector-code")
+            httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+
             return ModelAndView(
-                "fragments/internal/connector/formEditConnectorCode :: form",
+                "fragments/internal/connector/detailsPageConnector :: connector-code",
                 mapOf(
                     "connector" to form,
                     "errors" to bindingResult,
                 ),
             )
-        }
-        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
-
-        try {
-            val resource =
-                ResourceHelper.fromBytes(
-                    "${connector.tag}.yaml",
-                    form.connectorCode.toByteArray(),
-                )
-            PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
-        } catch (e: Exception) {
-            httpServletResponse.setHeader("HX-Reswap", "none")
-
-            return ResponseEntity
-                .status(422)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("Not valid connector code")
         }
 
         connector.connectorCode = form.connectorCode
@@ -243,26 +228,8 @@ class ConnectorController(
                 connectorCode = form.connectorCode,
             )
 
-        try {
-            val resource =
-                ResourceHelper.fromBytes(
-                    "${connector.tag}.yaml",
-                    connector.connectorCode.toByteArray(),
-                )
-            PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
-        } catch (e: Exception) {
-            logger.error(e) { "failed to load connector code" }
-            bindingResult.addError(FieldError("connectorEditForm", "connectorCode", "Not valid connector code"))
-            return ModelAndView(
-                "fragments/internal/connector/formCreateConnector :: form",
-                mapOf(
-                    "connector" to form,
-                    "errors" to bindingResult,
-                ),
-            )
-        }
-
         connectorRepository.save(connector)
+        // Routes are not loaded here - user must explicitly activate the version
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
@@ -690,9 +657,73 @@ class ConnectorController(
         )
     }
 
-    companion object {
-        private val logger = KotlinLogging.logger {}
+    @GetMapping("/{id}/versions/create")
+    fun createVersionModal(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+        return ModelAndView("fragments/internal/versioning/create-version-modal :: create-version-modal").apply {
+            addObject("entityType", "connector")
+            addObject("entityId", id)
+            addObject("entityName", connector.name)
+            addObject("currentVersion", connector.version.value)
+            addObject("form", CreateVersionForm())
+        }
+    }
 
+    @PostMapping("/{id}/versions")
+    fun createVersion(
+        @PathVariable id: UUID,
+        @Valid @ModelAttribute form: CreateVersionForm,
+        bindingResult: BindingResult,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("fragments/internal/versioning/create-version-modal :: form").apply {
+                addObject("entityType", "connector")
+                addObject("entityId", id)
+                addObject("entityName", connector.name)
+                addObject("currentVersion", connector.version.value)
+                addObject("form", form)
+                addObject("errors", bindingResult)
+            }
+        }
+
+        return try {
+            val newConnector = connectorService.createNewVersion(id, form.version)
+
+            httpServletResponse.setHeader("HX-Trigger", "close-modal")
+            httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${newConnector.id}")
+            httpServletResponse.setHeader("HX-Retarget", "#view-panel")
+            httpServletResponse.setHeader("HX-Reswap", "innerHTML")
+
+            details(newConnector.id, isHxRequest)
+        } catch (e: IllegalArgumentException) {
+            bindingResult.rejectValue("version", "duplicate", e.message ?: "Version already exists")
+            ModelAndView("fragments/internal/versioning/create-version-modal :: form").apply {
+                addObject("entityType", "connector")
+                addObject("entityId", id)
+                addObject("entityName", connector.name)
+                addObject("currentVersion", connector.version.value)
+                addObject("form", form)
+                addObject("errors", bindingResult)
+            }
+        }
+    }
+
+    @PostMapping("/{id}/activate")
+    fun activateVersion(
+        @PathVariable id: UUID,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        connectorService.activateVersion(id)
+        return details(id, isHxRequest)
+    }
+
+    companion object {
         fun hxRequest(
             isHxRequest: Boolean,
             template: String,

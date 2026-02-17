@@ -15,9 +15,8 @@
  -->
 
 <div th:fragment="relation-add" id="relation-add">
-    <cds-form-group
-        id="form-group-relation"
-        name="form-group"
+    <cds-form
+        id="relation-add-form"
         class="cds-theme-zone-white"
         data-carbon-theme="white"
     >
@@ -68,7 +67,10 @@
                         th:each="instance: ${connectorInstances}"
                         th:value="${instance.id}"
                     >
-                        (<span th:text="${instance.connector.name}"></span>)
+                        (<span
+                            th:text="${instance.connector.name + ' ' + instance.connector.version.value}"
+                        ></span
+                        >)
                         <span th:text="${instance.name}"></span>
                     </cds-select-item>
                 </cds-select>
@@ -81,7 +83,7 @@
                     label-text="Select an connector endpoint"
                     size="lg"
                     name="connectorEndpointId"
-                    th:value="${form != null ? form.connectorEndpointId : connectorEndpoints.first.id}"
+                    th:value="${#lists.isEmpty(connectorEndpoints) ? '' : (form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints[0].id)}"
                     th:attr="
                                 invalid=${errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('connectorEndpointId')?.defaultMessage}"
@@ -206,34 +208,35 @@
                 th:value="${aggregatedDataProfileId}"
             />
         </div>
-    </cds-form-group>
 
-    <div class="relation-button-bar">
-        <cds-button
-            hx-post="/admin/relations"
-            hx-include="#form-group-relation *"
-            hx-target="#relation-add"
-            hx-swap="outerHTML"
-        >
-            Save
-            <svg
-                slot="icon"
-                focusable="false"
-                preserveAspectRatio="xMidYMid meet"
-                fill="currentColor"
-                width="16"
-                height="16"
-                viewBox="0 0 32 32"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
+        <div class="relation-button-bar">
+            <cds-button
+                hx-post="/admin/relations"
+                hx-include="#relation-add-form *"
+                hx-target="#relation-add"
+                hx-swap="outerHTML"
+                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
             >
-                <path
-                    d="M27.71,9.29l-5-5A1,1,0,0,0,22,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V10A1,1,0,0,0,27.71,9.29ZM12,6h8v4H12Zm8,20H12V18h8Zm2,0V18a2,2,0,0,0-2-2H12a2,2,0,0,0-2,2v8H6V6h4v4a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V6.41l4,4V26Z"
-                ></path>
-                <title>Save</title>
-            </svg>
-        </cds-button>
-    </div>
+                Save
+                <svg
+                    slot="icon"
+                    focusable="false"
+                    preserveAspectRatio="xMidYMid meet"
+                    fill="currentColor"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 32 32"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        d="M27.71,9.29l-5-5A1,1,0,0,0,22,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V10A1,1,0,0,0,27.71,9.29ZM12,6h8v4H12Zm8,20H12V18h8Zm2,0V18a2,2,0,0,0-2-2H12a2,2,0,0,0-2,2v8H6V6h4v4a2,2,0,0,0,2,2h8a2,2,0,0,0,2-2V6.41l4,4V26Z"
+                    ></path>
+                    <title>Save</title>
+                </svg>
+            </cds-button>
+        </div>
+    </cds-form>
 </div>
 <span id="selected-relation-name" hx-swap-oob="true" class="tile-title"
     >New relation</span

@@ -1,0 +1,79 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<cds-modal
+    id="active-modal"
+    th:fragment="create-version-modal"
+    prevent-close-on-click-outside="true"
+    size="sm"
+    open="true"
+>
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-heading>Create New Version</cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <th:block th:fragment="form">
+            <cds-form-group
+                id="version-form-group"
+                hx-swap-oob="true"
+                name="version-form-group"
+            >
+                <cds-stack gap="5">
+                    <p class="cds--label">
+                        Creating a new version of
+                        <strong th:text="${entityName}"></strong>
+                    </p>
+                    <p class="cds--label">
+                        Current version:
+                        <strong th:text="${currentVersion}"></strong>
+                    </p>
+                    <cds-text-input
+                        name="version"
+                        size="lg"
+                        th:value="${form?.version}"
+                        th:attr="
+                            invalid=${errors?.getFieldError('version') != null} ? 'true' : null,
+                            invalid-text=${errors?.getFieldError('version')?.defaultMessage}
+                        "
+                        required=""
+                        label="New Version"
+                        placeholder="e.g., 1.1.0"
+                        helper-text="Use semantic versioning (major.minor.patch)"
+                    >
+                    </cds-text-input>
+                </cds-stack>
+            </cds-form-group>
+        </th:block>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button
+            data-modal-close=""
+            type="button"
+            kind="secondary"
+        >
+            Cancel
+        </cds-modal-footer-button>
+        <cds-modal-footer-button
+            type="submit"
+            th:hx-post="@{|/admin/${entityType}s/${entityId}/versions|}"
+            hx-target="#version-form-group"
+            hx-include="#version-form-group *"
+        >
+            Create Version
+        </cds-modal-footer-button>
+    </cds-modal-footer>
+</cds-modal>

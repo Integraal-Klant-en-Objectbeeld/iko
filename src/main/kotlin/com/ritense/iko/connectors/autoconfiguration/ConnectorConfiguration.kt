@@ -26,10 +26,8 @@ import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
+import com.ritense.iko.connectors.service.ConnectorService
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.apache.camel.CamelContext
-import org.apache.camel.support.PluginHelper
-import org.apache.camel.support.ResourceHelper
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -38,9 +36,10 @@ import org.springframework.context.event.EventListener
 @Configuration
 class ConnectorConfiguration(
     val connectorRepository: ConnectorRepository,
+    val connectorService: ConnectorService,
 ) {
     @Bean
-    fun endpoint() = Endpoint()
+    fun endpoint(connectorRepository: ConnectorRepository) = Endpoint(connectorRepository)
 
     @Bean
     fun endpointAuth(
@@ -75,26 +74,17 @@ class ConnectorConfiguration(
     @Bean
     fun ikoTransform() = Transform()
 
-    @EventListener(
-        ApplicationReadyEvent::class,
-    )
+    @EventListener(ApplicationReadyEvent::class)
     fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
-        val camelContext = event.applicationContext.getBean("camelContext") as CamelContext
-
-        connectorRepository
-            .findAll()
-            .forEach {
-                try {
-                    val resource =
-                        ResourceHelper.fromBytes(
-                            "${it.tag}.yaml",
-                            it.connectorCode.toByteArray(),
-                        )
-                    PluginHelper.getRoutesLoader(camelContext).loadRoutes(resource)
-                } catch (e: Exception) {
-                    logger.error(e) { "Failed to load connector ${it.tag}" }
-                }
+        // Only load active connectors at startup
+        connectorRepository.findAllByIsActiveTrue().forEach { connector ->
+            try {
+                connectorService.loadConnectorRoutes(connector)
+                logger.debug { "Loaded routes for active connector: ${connector.tag} v${connector.version}" }
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to load connector ${connector.tag} v${connector.version}" }
             }
+        }
     }
 
     companion object {
