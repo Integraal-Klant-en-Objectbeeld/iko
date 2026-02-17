@@ -50,7 +50,13 @@
                             type="hidden"
                             id="name"
                             name="name"
-                            th:value="${form.name}"
+                            th:value="${form?.name != null ? form.name : aggregatedDataProfile.name}"
+                        />
+                        <input
+                            type="hidden"
+                            id="version"
+                            name="version"
+                            th:value="${form?.version != null ? form.version : aggregatedDataProfile.version.value}"
                         />
                         <input
                             type="hidden"
@@ -130,7 +136,7 @@
                                 hx-post="/admin/aggregated-data-profiles/debug"
                                 hx-target="#profile-debug"
                                 hx-swap="outerHTML"
-                                hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name']"
+                                hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name'], [id='version']"
                                 hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
                                 style="margin-top: 1rem"
                             >
@@ -144,7 +150,7 @@
                                 id="query"
                                 name="query"
                                 hidden
-                                th:attr="value=${form.resultTransform}"
+                                th:attr="value=${form?.resultTransform != null ? form.resultTransform : aggregatedDataProfile.resultTransform.expression}"
                             >
                             </textarea>
 
@@ -153,11 +159,10 @@
                                 data-monaco
                                 data-language="jq"
                                 data-textarea="#query"
-                                th:data-initial="${form.resultTransform}"
+                                th:data-initial="${form?.resultTransform != null ? form.resultTransform : aggregatedDataProfile.resultTransform.expression}"
                                 data-theme="lightgray-theme"
                                 class="monaco-editor-style"
                             ></div>
-
                             <div
                                 id="error"
                                 class="monaco-error show"

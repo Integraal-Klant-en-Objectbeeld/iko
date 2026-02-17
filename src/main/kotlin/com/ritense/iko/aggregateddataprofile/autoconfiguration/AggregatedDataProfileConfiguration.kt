@@ -18,13 +18,9 @@ package com.ritense.iko.aggregateddataprofile.autoconfiguration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
+import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileTemplatesRouteBuilder
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
-import com.ritense.iko.cache.processor.CacheProcessor
-import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
-import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
-import org.apache.camel.CamelContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -32,27 +28,17 @@ import org.springframework.context.annotation.Configuration
 class AggregatedDataProfileConfiguration {
 
     @Bean
-    fun aggregatedDataProfileService(
-        camelContext: CamelContext,
-        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-        connectorEndpointRepository: ConnectorEndpointRepository,
-        connectorInstanceRepository: ConnectorInstanceRepository,
-        ikoCacheProcessor: CacheProcessor,
-    ) = AggregatedDataProfileService(
-        camelContext,
-        aggregatedDataProfileRepository,
-        connectorEndpointRepository,
-        connectorInstanceRepository,
-        ikoCacheProcessor,
+    fun aggregatedDataProfileRoute(
+        containerParamsProcessor: ContainerParamsProcessor,
+    ) = AggregatedDataProfileRoute(
+        containerParamsProcessor,
     )
 
     @Bean
-    fun aggregatedDataProfileRoute(
-        containerParamsProcessor: ContainerParamsProcessor,
+    fun aggregatedDataProfileTemplatesRouteBuilder(
         aggregatedDataProfileRepository: AggregatedDataProfileRepository,
-    ) = AggregatedDataProfileRoute(
+    ) = AggregatedDataProfileTemplatesRouteBuilder(
         aggregatedDataProfileRepository,
-        containerParamsProcessor,
     )
 
     @Bean

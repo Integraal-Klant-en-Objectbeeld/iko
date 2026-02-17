@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.mvc.model.connector
+package com.ritense.iko.mvc.model.validation
 
-import com.ritense.iko.mvc.model.validation.ValidConnectorCode
-import jakarta.validation.constraints.NotBlank
+import com.ritense.iko.aggregateddataprofile.domain.Version
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
 
-data class ConnectorEditForm(
-    @field:NotBlank(message = "Please provide a connector code.")
-    @field:ValidConnectorCode
-    val connectorCode: String,
-)
+class ValidSemverValidator : ConstraintValidator<ValidSemver, String> {
+
+    override fun isValid(
+        version: String?,
+        context: ConstraintValidatorContext,
+    ): Boolean {
+        if (version.isNullOrBlank()) return true // let @NotBlank handle empty values
+        return Version.isValid(version)
+    }
+}

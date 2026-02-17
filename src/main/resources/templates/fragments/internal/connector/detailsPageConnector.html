@@ -27,7 +27,14 @@
                     th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"
                 ></div>
                 <div
-                    th:replace="~{layout-internal :: page-header (pageName='Connector', title=${connector.name}, subtext=${connector.tag})}"
+                    th:replace="~{fragments/internal/versioning/page-header-versioned :: page-header-versioned (
+                        title=${connector.name},
+                        entityId=${connector.id},
+                        entityType='connector',
+                        currentVersion=${connector.version.value},
+                        isActiveVersion=${connector.isActive},
+                        versions=${versions}
+                    )}"
                 ></div>
 
                 <cds-layout>
@@ -114,10 +121,15 @@
                                 data-textarea="#connectorCode"
                                 data-readonly="true"
                                 th:data-initial="${connector.connectorCode}"
-                                class="monaco-editor-style-full-height"
+                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-editor-style-full-height monaco-editor-error' : 'monaco-editor-style-full-height'"
                             ></div>
 
-                            <div id="monaco-error" class="monaco-error"></div>
+                            <div
+                                id="monaco-error"
+                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'cds--form-requirement' : 'monaco-error'"
+                                th:if="${errors?.getFieldError('connectorCode') != null}"
+                                th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
+                            ></div>
                         </div>
                     </div>
 

@@ -19,6 +19,7 @@ package com.ritense.iko.camel
 object IkoConstants {
     object Headers {
         const val ADP_PROFILE_NAME_PARAM_HEADER = "adp_profileName"
+        const val ADP_VERSION_PARAM_HEADER = "adp_version"
         const val ADP_CONTAINER_PARAM_HEADER = "containerParam"
         const val ADP_ID_PARAM_HEADER = "id"
         const val ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER = "adp_endpointTransformContext"
