@@ -1,0 +1,20 @@
+name: Restrict PRs to main
+
+on:
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    check-source-branch:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check source branch is rc/**
+              run: |
+                  echo "Base branch: ${{ github.base_ref }}"
+                  echo "Head branch: ${{ github.head_ref }}"
+
+                  if [[ "${{ github.head_ref }}" != rc/* ]]; then
+                    echo "Only branches matching 'rc/**' (rc/*) can open PRs to main."
+                    exit 1
+                  fi

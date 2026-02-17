@@ -12,7 +12,34 @@ These endpoints require a valid JWT bearer token with the appropriate roles.
 |---|---|---|---|
 | `GET` | `/aggregated-data-profiles/{name}` | JWT (profile role) | Execute a profile and return aggregated data |
 
-Query parameters are passed through to the primary endpoint via Camel headers.
+**Query parameters:**
+
+| Parameter | Required | Description |
+|---|---|---|
+| `id` | No | External identifier to pass into the endpoint transform context (e.g., BSN, zaak ID). Available in JQ transforms as `.idParam`. |
+| `containerParam` | No | Base64-encoded JSON with pagination, sorting, and filter parameters. Can be repeated for multiple containers. See [ContainerParam](#containerparam-format) below. |
+
+#### ContainerParam format
+
+The `containerParam` query parameter accepts a Base64-encoded JSON object with the following structure:
+
+```json
+{
+  "containerId": "zaken",
+  "pageable": {
+    "pageNumber": "0",
+    "pageSize": "10",
+    "sort": {
+      "orders": [{ "property": "identificatie", "direction": "ASC" }]
+    }
+  },
+  "filters": {
+    "zaaktype": "https://example.com/catalogi/api/zaaktypen/..."
+  }
+}
+```
+
+Available in JQ transforms as `.sortParams` and `.filterParams`.
 
 ### Endpoints
 
