@@ -70,7 +70,7 @@ Key headers and variables used throughout Camel routes:
 
 1. **Actuator** (`/actuator/**`): Health/info public, rest requires `ROLE_ADMIN`. JWT stateless.
 2. **API** (`/endpoints/**`, `/aggregated-data-profiles/**`): JWT bearer tokens. Authorities from `resource_access.iko.roles` claim.
-3. **Admin UI** (`/admin/**`): OAuth2/OIDC via Keycloak. Requires `ROLE_ADMIN`. CSRF disabled.
+3. **Admin UI** (`/admin/**`): OAuth2/OIDC via Keycloak. Requires at least one configured admin authority (`iko.security.admin.authorities`); roles are read from the OIDC ID token claim configured via `iko.security.admin.rolesClaim`. CSRF disabled.
 
 ## Coding Conventions
 
