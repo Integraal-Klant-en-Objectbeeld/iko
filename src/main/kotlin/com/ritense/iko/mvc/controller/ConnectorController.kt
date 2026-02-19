@@ -226,10 +226,11 @@ class ConnectorController(
                 name = form.name,
                 tag = form.reference,
                 connectorCode = form.connectorCode,
+                isActive = true,
             )
 
         connectorRepository.save(connector)
-        // Routes are not loaded here - user must explicitly activate the version
+        connectorService.loadConnectorRoutes(connector)
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")

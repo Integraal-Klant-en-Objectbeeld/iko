@@ -273,7 +273,7 @@ internal class AggregatedDataProfileController(
         }
         val aggregatedDataProfile = AggregatedDataProfile.create(form)
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
-        // Routes are not loaded here - user must explicitly activate the version
+        aggregatedDataProfileService.loadRoute(aggregatedDataProfile)
 
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
