@@ -1,3 +1,5 @@
+name: iko
+
 services:
     postgres:
         container_name: iko-postgres
@@ -8,6 +10,7 @@ services:
             - POSTGRES_USER=iko-admin
         ports:
             - "5432:5432"
+
     haalcentraal-personen:
         container_name: iko-haalcentraal-personen
         image: ghcr.io/brp-api/personen-mock:2.2.1
@@ -16,6 +19,7 @@ services:
             - ASPNETCORE_URLS=http://+:5010
         ports:
             - "5010:5010"
+
     openzaak:
         image: openzaak/open-zaak:1.20.0
         container_name: iko-openzaak
