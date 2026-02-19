@@ -167,6 +167,7 @@ class AggregatedDataProfile(
         fun create(form: AggregatedDataProfileAddForm): AggregatedDataProfile = AggregatedDataProfile(
             id = UUID.randomUUID(),
             name = form.name,
+            isActive = true,
             roles = Roles(form.roles),
             connectorInstanceId = form.connectorInstanceId,
             connectorEndpointId = form.connectorEndpointId,

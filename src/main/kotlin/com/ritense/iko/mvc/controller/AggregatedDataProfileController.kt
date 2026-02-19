@@ -272,7 +272,6 @@ internal class AggregatedDataProfileController(
             return modelAndView
         }
         val aggregatedDataProfile = AggregatedDataProfile.create(form)
-        aggregatedDataProfile.isActive = true
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
         aggregatedDataProfileService.loadRoute(aggregatedDataProfile)
 

@@ -312,7 +312,7 @@ class AggregatedDataProfileTest {
     }
 
     @Test
-    fun `create returns profile with isActive false`() {
+    fun `create returns profile with isActive true`() {
         val form = AggregatedDataProfileAddForm(
             name = "pets",
             roles = "ROLE_ADMIN",
@@ -324,7 +324,7 @@ class AggregatedDataProfileTest {
 
         val profile = AggregatedDataProfile.create(form)
 
-        assertThat(profile.isActive).isFalse()
+        assertThat(profile.isActive).isTrue()
     }
 
     @Test
