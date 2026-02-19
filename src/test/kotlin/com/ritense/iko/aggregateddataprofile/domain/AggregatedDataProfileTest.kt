@@ -312,6 +312,36 @@ class AggregatedDataProfileTest {
     }
 
     @Test
+    fun `create returns profile with isActive false`() {
+        val form = AggregatedDataProfileAddForm(
+            name = "pets",
+            roles = "ROLE_ADMIN",
+            endpointTransform = ".",
+            resultTransform = ".",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+        )
+
+        val profile = AggregatedDataProfile.create(form)
+
+        assertThat(profile.isActive).isFalse()
+    }
+
+    @Test
+    fun `createNewVersion returns profile with isActive false`() {
+        val profile = createProfile()
+        profile.isActive = true
+
+        val newVersion = profile.createNewVersion("2.0.0")
+
+        assertThat(newVersion.isActive).isFalse()
+        assertThat(newVersion.version.value).isEqualTo("2.0.0")
+        assertThat(newVersion.name).isEqualTo(profile.name)
+        assertThat(newVersion.id).isNotEqualTo(profile.id)
+        assertThat(newVersion.relations).isEmpty()
+    }
+
+    @Test
     fun `relationsOf returns relations that match source id`() {
         val profile = createProfile()
         val targetId = UUID.randomUUID()
