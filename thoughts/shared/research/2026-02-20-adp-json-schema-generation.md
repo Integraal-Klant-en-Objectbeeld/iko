@@ -577,3 +577,9 @@ patterns, mirroring the existing data endpoint structure.
    against a mock `endpointTransformContext` (with `source` populated from the parent mock) and
    check whether the result is an `ArrayNode` or `ObjectNode`. The same branching logic from
    `AggregatedDataProfileRouteBuilder.kt:179-188` applies.
+
+9. **Non-OpenAPI connectors**: If the `ConnectorInstance` config does not contain a
+   `specificationUri` key, or if the connector is not of the `camel-rest-openapi` type, schema
+   generation is **skipped silently** for that ADP. The `jsonschema` column remains `null` and
+   no error is raised. This handles connectors that integrate via other mechanisms (e.g., custom
+   Camel DSL without `rest-openapi`).
