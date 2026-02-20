@@ -76,8 +76,6 @@ When implemented, an operator can:
 - **No schema generation for non-OpenAPI connectors**: if `specificationUri` is absent from
   `ConnectorInstance.config` (i.e. the connector does not use `camel-rest-openapi`), schema
   generation is silently skipped and `jsonschema` remains `null`. This is not treated as an error.
-- Only level-1 relations' children are handled by the recursive mock generator, matching the
-  `buildRelationRoute` recursion in the route builder. No artificial depth limit is imposed.
 
 ---
 
@@ -511,6 +509,7 @@ internal class AdpSchemaService(
             ?: return null  // relation connector has no OpenAPI spec — propagate null upward
         val children = relation.aggregatedDataProfile.relationsOf(relation.id)
         val composedInput = composeInput(connectorMock, children, relation.aggregatedDataProfile)
+            ?: return null  // a nested child connector has no OpenAPI spec — propagate null upward
         return applyTransform(relation.resultTransform.expression, composedInput)
     }
 
