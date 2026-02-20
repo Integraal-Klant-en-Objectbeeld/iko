@@ -1,8 +1,8 @@
 name: iko
 
 services:
-    postgres:
-        container_name: iko-postgres
+    iko-database:
+        container_name: iko-database
         image: 'postgres:latest'
         environment:
             - POSTGRES_DB=iko-db
@@ -10,6 +10,66 @@ services:
             - POSTGRES_USER=iko-admin
         ports:
             - "5432:5432"
+
+    # Redis cache for the IKO application
+    iko-redis:
+        container_name: iko-redis
+        image: redis:8.4.0-alpine
+        ports:
+            - "6379:6379"
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+    iko:
+        container_name: iko
+        build: .
+        ports:
+            - "8080:8080"
+        env_file:
+            - .env
+            - .env-override.env
+        depends_on:
+            - iko-redis
+
+    keycloak:
+        container_name: iko-keycloak
+        depends_on:
+            - keycloak-database
+        image: quay.io/keycloak/keycloak:24.0.1
+        ports:
+            - "8082:8082"
+        environment:
+            KEYCLOAK_ADMIN: admin
+            KEYCLOAK_ADMIN_PASSWORD: admin
+            KC_DB: postgres
+            KC_DB_URL: jdbc:postgresql://keycloak-database/keycloak
+            KC_DB_USERNAME: keycloak
+            KC_DB_PASSWORD: keycloak
+            KC_FEATURES: token-exchange,admin-fine-grained-authz
+            KC_HTTP_RELATIVE_PATH: /auth
+            PROXY_ADDRESS_FORWARDING: true
+            KC_HTTP_ENABLED: true
+            KC_HTTPS_ENABLED: false
+        volumes:
+            - ./imports/keycloak:/opt/keycloak/data/import
+        command: "start-dev --import-realm --http-port=8082 --hostname keycloak --http-enabled=false"
+
+    keycloak-database:
+        container_name: iko-keycloak-database
+        image: postgres:15
+        ports:
+            - "5439:5432"
+        environment:
+            POSTGRES_USER: keycloak
+            POSTGRES_PASSWORD: keycloak
+        labels:
+            org.springframework.boot.ignore: true
+
+    # data providers
 
     haalcentraal-personen:
         container_name: iko-haalcentraal-personen
@@ -194,61 +254,3 @@ services:
             timeout: 5s
             retries: 3
             start_period: 5s
-
-    keycloak:
-        container_name: iko-keycloak
-        depends_on:
-            - keycloak-database
-        image: quay.io/keycloak/keycloak:24.0.1
-        ports:
-            - "8082:8082"
-        environment:
-            KEYCLOAK_ADMIN: admin
-            KEYCLOAK_ADMIN_PASSWORD: admin
-            KC_DB: postgres
-            KC_DB_URL: jdbc:postgresql://keycloak-database/keycloak
-            KC_DB_USERNAME: keycloak
-            KC_DB_PASSWORD: keycloak
-            KC_FEATURES: token-exchange,admin-fine-grained-authz
-            KC_HTTP_RELATIVE_PATH: /auth
-            PROXY_ADDRESS_FORWARDING: true
-            KC_HTTP_ENABLED: true
-            KC_HTTPS_ENABLED: false
-        volumes:
-            - ./imports/keycloak:/opt/keycloak/data/import
-        command: "start-dev --import-realm --http-port=8082 --hostname keycloak --http-enabled=false"
-
-    keycloak-database:
-        image: postgres:15
-        container_name: iko-keycloak-database
-        ports:
-            - "5439:5432"
-        environment:
-            POSTGRES_USER: keycloak
-            POSTGRES_PASSWORD: keycloak
-        labels:
-            org.springframework.boot.ignore: true
-
-    # Redis cache for the IKO application
-    iko-redis:
-        image: redis:8.4.0-alpine
-        ports:
-            - "6379:6379"
-        container_name: iko-redis
-        healthcheck:
-            test: [ "CMD", "redis-cli", "ping" ]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 5s
-
-    iko:
-        build: .
-        container_name: iko
-        ports:
-            - "8080:8080"
-        env_file:
-            - .env
-            - .env-override.env
-        depends_on:
-            - iko-redis
