@@ -73,6 +73,9 @@ When implemented, an operator can:
   ADP (out of scope per research decision 6).
 - No partial JQ-to-JSON-Schema static analysis — runtime execution only.
 - No OpenAPI spec caching (loading is synchronous and on the async thread; may be added later).
+- **No schema generation for non-OpenAPI connectors**: if `specificationUri` is absent from
+  `ConnectorInstance.config` (i.e. the connector does not use `camel-rest-openapi`), schema
+  generation is silently skipped and `jsonschema` remains `null`. This is not treated as an error.
 - Only level-1 relations' children are handled by the recursive mock generator, matching the
   `buildRelationRoute` recursion in the route builder. No artificial depth limit is imposed.
 
@@ -444,7 +447,14 @@ internal class AdpSchemaService(
     fun onSchemaInvalidated(event: AdpSchemaInvalidatedEvent) {
         val adp = aggregatedDataProfileRepository.findById(event.adpId).orElse(null) ?: return
         try {
-            adp.jsonschema = generateSchema(adp)
+            val schema = generateSchema(adp)
+            if (schema == null) {
+                // Connector does not expose an OpenAPI spec — schema generation not applicable.
+                // jsonschema stays null; this is not an error condition.
+                logger.debug { "Schema generation skipped for ADP '${adp.name}' (${adp.id}): connector has no specificationUri" }
+                return
+            }
+            adp.jsonschema = schema
             aggregatedDataProfileRepository.save(adp)
             logger.info { "Schema generated for ADP '${adp.name}' (${adp.id})" }
         } catch (e: Exception) {
@@ -458,7 +468,12 @@ internal class AdpSchemaService(
     fun generateAndSave(adpId: UUID) {
         val adp = aggregatedDataProfileRepository.findById(adpId)
             .orElseThrow { NoSuchElementException("ADP not found: $adpId") }
-        adp.jsonschema = generateSchema(adp)
+        val schema = generateSchema(adp)
+        if (schema == null) {
+            logger.info { "Schema generation skipped for ADP '${adp.name}' (${adp.id}): connector has no specificationUri" }
+            return
+        }
+        adp.jsonschema = schema
         aggregatedDataProfileRepository.save(adp)
         logger.info { "Schema regenerated for ADP '${adp.name}' (${adp.id})" }
     }
@@ -472,19 +487,28 @@ internal class AdpSchemaService(
      *   - Executes the ADP's resultTransform JQ against the composed input
      *   - Infers a JSON Schema from the output
      */
-    fun generateSchema(adp: AggregatedDataProfile): String {
+    /**
+     * Returns null when the ADP's connector instance does not have `specificationUri`
+     * in its config (i.e. it is not a camel-rest-openapi connector). Schema generation
+     * is not applicable in that case and callers should leave `jsonschema` as null.
+     */
+    fun generateSchema(adp: AggregatedDataProfile): String? {
         val adpMock = generateConnectorMock(adp.connectorInstanceId, adp.connectorEndpointId)
+            ?: return null  // connector does not expose an OpenAPI spec — skip silently
         val composedInput = composeInput(adpMock, adp.level1Relations(), adp)
+            ?: return null  // a relation connector does not expose an OpenAPI spec — skip silently
         val result = applyTransform(adp.resultTransform.expression, composedInput)
         return jsonSchemaInferrer.infer(result)
     }
 
     /**
      * Recursively generates mock + applies resultTransform for a Relation node.
+     * Returns null if the relation's connector has no specificationUri.
      * Mirrors buildRelationRoute().
      */
-    private fun generateRelationResult(relation: Relation): JsonNode {
+    private fun generateRelationResult(relation: Relation): JsonNode? {
         val connectorMock = generateConnectorMock(relation.connectorInstanceId, relation.connectorEndpointId)
+            ?: return null  // relation connector has no OpenAPI spec — propagate null upward
         val children = relation.aggregatedDataProfile.relationsOf(relation.id)
         val composedInput = composeInput(connectorMock, children, relation.aggregatedDataProfile)
         return applyTransform(relation.resultTransform.expression, composedInput)
@@ -501,16 +525,21 @@ internal class AdpSchemaService(
      * @param children       Direct child relations of this entity
      * @param adp            The owning ADP (needed to resolve further nested children)
      */
+    /**
+     * Returns null if any child relation connector has no specificationUri.
+     * In that case, schema generation for the whole ADP is skipped.
+     */
     private fun composeInput(
         connectorMock: JsonNode,
         children: List<Relation>,
         adp: AggregatedDataProfile,
-    ): JsonNode {
+    ): JsonNode? {
         if (children.isEmpty()) return connectorMock
 
         val rightMap = mapper.createObjectNode()
         for (child in children) {
             val childResult = generateRelationResult(child)
+                ?: return null  // child connector has no OpenAPI spec — propagate null upward
             val isArrayMode = detectArrayMode(child.endpointTransform.expression, connectorMock)
             if (isArrayMode) {
                 rightMap.set<ArrayNode>(child.propertyName, mapper.createArrayNode().add(childResult))
@@ -525,13 +554,16 @@ internal class AdpSchemaService(
             }
     }
 
-    private fun generateConnectorMock(connectorInstanceId: UUID, connectorEndpointId: UUID): JsonNode {
+    /**
+     * Returns null when the connector instance has no `specificationUri` in its config,
+     * meaning it does not use camel-rest-openapi and schema generation is not applicable.
+     */
+    private fun generateConnectorMock(connectorInstanceId: UUID, connectorEndpointId: UUID): JsonNode? {
         val instance = connectorInstanceRepository.findById(connectorInstanceId)
             .orElseThrow { NoSuchElementException("ConnectorInstance not found: $connectorInstanceId") }
         val endpoint = connectorEndpointRepository.findById(connectorEndpointId)
             .orElseThrow { NoSuchElementException("ConnectorEndpoint not found: $connectorEndpointId") }
-        val specUri = instance.config["specificationUri"]
-            ?: error("No specificationUri in ConnectorInstance ${instance.id}")
+        val specUri = instance.config["specificationUri"] ?: return null
         val openApi = openApiMockGenerator.loadSpec(specUri)
         return openApiMockGenerator.generateMock(openApi, endpoint.operation)
     }
