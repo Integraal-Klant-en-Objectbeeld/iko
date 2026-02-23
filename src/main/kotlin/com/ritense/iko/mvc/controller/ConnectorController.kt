@@ -162,6 +162,9 @@ class ConnectorController(
 
         connector.connectorCode = form.connectorCode
         connectorRepository.save(connector)
+        if (connector.isActive) {
+            connectorService.reloadConnectorRoutes(connector)
+        }
 
         httpServletResponse.setHeader("HX-Retarget", "#connector-code")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
@@ -182,6 +185,10 @@ class ConnectorController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+
+        if (connector.isActive) {
+            connectorService.removeConnectorRoutes(connector)
+        }
 
         connectorEndpointRepository.findByConnector(connector).forEach { endpoint ->
             connectorEndpointRepository.delete(endpoint)
