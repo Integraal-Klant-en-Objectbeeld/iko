@@ -75,6 +75,9 @@ class AggregatedDataProfile(
 
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
+
+    @Column(name = "jsonschema")
+    var jsonschema: String? = null,
 ) {
 
     fun handle(request: AggregatedDataProfileEditForm) {

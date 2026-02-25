@@ -130,9 +130,9 @@ var jsonschema: String? = null,
 #### Automated Verification
 - [ ] Migration applies cleanly: `./gradlew flywayMigrate` (or via `./gradlew bootRun` on a clean
   DB)
-- [ ] `AggregatedDataProfile` compiles with the new field: `./gradlew compileKotlin`
-- [ ] Existing unit tests still pass: `./gradlew test`
-- [ ] Spotless formatting: `./gradlew spotlessApply && ./gradlew spotlessCheck`
+- [x] `AggregatedDataProfile` compiles with the new field: `./gradlew compileKotlin`
+- [x] Existing unit tests still pass: `./gradlew test`
+- [x] Spotless formatting: `./gradlew spotlessApply && ./gradlew spotlessCheck`
 
 #### Manual Verification
 - [ ] Editing an ADP in the admin UI and saving does not throw errors.
