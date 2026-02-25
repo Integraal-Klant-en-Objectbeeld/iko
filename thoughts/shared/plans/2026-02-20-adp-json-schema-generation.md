@@ -18,8 +18,9 @@ shape of the `resultTransform` output. The schema is derived by:
 4. Executing the ADP's `resultTransform` JQ expression against the composed mock
 5. Inferring a JSON Schema from the resulting `JsonNode`
 
-The schema is generated asynchronously after any edit that affects the transform output shape, and
-is exposed via a consumer-facing JWT-secured API endpoint and a read-only admin UI panel.
+The schema is generated synchronously during saves that affect the transform output shape, so any
+errors are immediately reflected to the caller. The schema is exposed via a consumer-facing
+JWT-secured API endpoint and a read-only admin UI panel.
 
 ---
 
@@ -33,8 +34,8 @@ is exposed via a consumer-facing JWT-secured API endpoint and a read-only admin 
   transitively from `camel-rest-openapi`.
 - `ConnectorInstance.config` is an AES-GCM-encrypted `Map<String, String>` where `specificationUri`
   holds the OpenAPI spec location (classpath or HTTP URL). JPA decrypts it on read.
-- No async infrastructure exists in the codebase; introducing `@EnableAsync` + `@Async` is the
-  minimum change needed.
+- Schema generation runs synchronously within the save transaction so errors propagate to the
+  caller. No async infrastructure is needed.
 - The Camel REST route for data delivery is at exactly 2 path segments
   (`/aggregated-data-profiles/{adp_profileName}`). A Spring MVC controller at
   `/aggregated-data-profiles/{name}/schema` (3 segments) does not conflict and is covered by the
@@ -49,10 +50,10 @@ is exposed via a consumer-facing JWT-secured API endpoint and a read-only admin 
 ## Desired End State
 
 When implemented, an operator can:
-1. Edit and save an ADP (transforms or relations).
-2. After a short async delay, a JSON Schema appears under the "Schema" tab on the detail page.
-3. A consumer can `GET /aggregated-data-profiles/{name}/schema` (JWT auth) to retrieve the schema.
-4. The admin can click "Regenerate Schema" to re-trigger generation manually (e.g. after a spec URL
+1. Edit and save an ADP (transforms or relations). The JSON Schema is immediately regenerated and
+   any errors are shown to the operator.
+2. A consumer can `GET /aggregated-data-profiles/{name}/schema` (JWT auth) to retrieve the schema.
+3. The admin can click "Regenerate Schema" to re-trigger generation manually (e.g. after a spec URL
    became reachable again).
 
 ### Verification
@@ -60,7 +61,7 @@ When implemented, an operator can:
   object after saving the ADP.
 - The schema accurately reflects the shape of a live call to
   `GET /aggregated-data-profiles/{name}`.
-- Editing transforms clears the old schema and triggers regeneration.
+- Editing transforms clears the old schema and regenerates it synchronously.
 
 ---
 
@@ -72,7 +73,7 @@ When implemented, an operator can:
 - No schema invalidation when `ConnectorInstance.specificationUri` changes independently of the
   ADP (out of scope per research decision 6).
 - No partial JQ-to-JSON-Schema static analysis — runtime execution only.
-- No OpenAPI spec caching (loading is synchronous and on the async thread; may be added later).
+- No OpenAPI spec caching (loading is synchronous within the save request; may be added later).
 - **No schema generation for non-OpenAPI connectors**: if `specificationUri` is absent from
   `ConnectorInstance.config` (i.e. the connector does not use `camel-rest-openapi`), schema
   generation is silently skipped and `jsonschema` remains `null`. This is not treated as an error.
@@ -86,7 +87,7 @@ Five ordered phases. Each phase produces a testable increment.
 ```
 Phase 1: DB + Domain      → new column, entity field, invalidation hook
 Phase 2: Schema Core      → mock generator, JQ executor, schema inferrer, orchestrator service
-Phase 3: Async Trigger    → Spring event + @Async integration, publish from controller
+Phase 3: Sync Trigger     → call schema service directly from controller after saves
 Phase 4: Consumer API     → JWT-secured GET endpoint
 Phase 5: Admin UI         → Schema tab, read-only Monaco editor, Regenerate button
 ```
@@ -188,7 +189,7 @@ Implement three focused classes and one orchestrating service in a new
 |---|---|
 | `OpenApiMockGenerator` | Load OpenAPI spec, walk response schema, produce a maximally broad `JsonNode` |
 | `JsonSchemaInferrer` | Walk a `JsonNode` tree, produce a JSON Schema string |
-| `AdpSchemaService` | Orchestrate mock generation (recursive), JQ execution, schema inference, persistence |
+| `AdpSchemaService` | Orchestrate mock generation (recursive), JQ execution, schema inference, persistence. Called synchronously from the controller so errors propagate. |
 
 #### 2.1 `OpenApiMockGenerator`
 
@@ -374,23 +375,7 @@ internal class JsonSchemaInferrer {
 }
 ```
 
-#### 2.3 `AdpSchemaInvalidatedEvent`
-
-**File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/event/AdpSchemaInvalidatedEvent.kt`
-
-```kotlin
-// Copyright (C) 2026 Ritense BV, the Netherlands.
-// ...
-
-package com.ritense.iko.aggregateddataprofile.event
-
-import org.springframework.context.ApplicationEvent
-import java.util.UUID
-
-class AdpSchemaInvalidatedEvent(source: Any, val adpId: UUID) : ApplicationEvent(source)
-```
-
-#### 2.4 `AdpSchemaService`
+#### 2.3 `AdpSchemaService`
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/schema/AdpSchemaService.kt`
 
@@ -410,7 +395,6 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
-import com.ritense.iko.aggregateddataprofile.event.AdpSchemaInvalidatedEvent
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -419,8 +403,6 @@ import net.thisptr.jackson.jq.BuiltinFunctionLoader
 import net.thisptr.jackson.jq.JsonQuery
 import net.thisptr.jackson.jq.Scope
 import net.thisptr.jackson.jq.Versions
-import org.springframework.context.event.EventListener
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -438,30 +420,11 @@ internal class AdpSchemaService(
         private val mapper = ObjectMapper()
     }
 
-    /** Async listener: triggered when transforms or relations change. */
-    @Async
-    @EventListener
-    @Transactional
-    fun onSchemaInvalidated(event: AdpSchemaInvalidatedEvent) {
-        val adp = aggregatedDataProfileRepository.findById(event.adpId).orElse(null) ?: return
-        try {
-            val schema = generateSchema(adp)
-            if (schema == null) {
-                // Connector does not expose an OpenAPI spec — schema generation not applicable.
-                // jsonschema stays null; this is not an error condition.
-                logger.debug { "Schema generation skipped for ADP '${adp.name}' (${adp.id}): connector has no specificationUri" }
-                return
-            }
-            adp.jsonschema = schema
-            aggregatedDataProfileRepository.save(adp)
-            logger.info { "Schema generated for ADP '${adp.name}' (${adp.id})" }
-        } catch (e: Exception) {
-            logger.error(e) { "Schema generation failed for ADP '${adp.name}' (${adp.id})" }
-            // jsonschema remains null; consumers receive 404 until next successful generation
-        }
-    }
-
-    /** Synchronous entry point — used by the admin UI "Regenerate" button. */
+    /**
+     * Synchronous entry point — generates and persists the schema for the given ADP.
+     * Called directly from the controller after saves. Exceptions propagate to the caller
+     * so errors can be reflected in the HTTP response.
+     */
     @Transactional
     fun generateAndSave(adpId: UUID) {
         val adp = aggregatedDataProfileRepository.findById(adpId)
@@ -473,7 +436,7 @@ internal class AdpSchemaService(
         }
         adp.jsonschema = schema
         aggregatedDataProfileRepository.save(adp)
-        logger.info { "Schema regenerated for ADP '${adp.name}' (${adp.id})" }
+        logger.info { "Schema generated for ADP '${adp.name}' (${adp.id})" }
     }
 
     /**
@@ -623,75 +586,51 @@ internal class AdpSchemaService(
 
 ---
 
-## Phase 3: Async Trigger Integration
+## Phase 3: Synchronous Trigger Integration
 
 ### Overview
-Enable Spring's async execution and publish `AdpSchemaInvalidatedEvent` from the controller
-after every save that potentially alters the transform output shape.
+Call `AdpSchemaService.generateAndSave()` directly from the controller after every save that
+potentially alters the transform output shape. Because the call is synchronous, any errors
+(unreachable spec URL, parse failures, JQ errors) propagate to the controller and can be
+reflected in the HTTP response.
 
 ### Changes Required
 
-#### 3.1 Enable Async
-
-Create a new configuration class (or add to an existing `@Configuration` if one exists at the
-application root level):
-
-**File**: `src/main/kotlin/com/ritense/iko/AsyncConfig.kt`
-
-```kotlin
-// Copyright (C) 2026 Ritense BV, the Netherlands.
-// ...
-
-package com.ritense.iko
-
-import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.EnableAsync
-
-@EnableAsync
-@Configuration
-internal class AsyncConfig
-```
-
-#### 3.2 `AggregatedDataProfileController` — inject publisher and publish events
+#### 3.1 `AggregatedDataProfileController` — inject service and call after saves
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/controller/AggregatedDataProfileController.kt`
 
-Add `ApplicationEventPublisher` to the constructor parameter list:
+Add `AdpSchemaService` to the constructor parameter list:
 
 ```kotlin
 internal class AggregatedDataProfileController(
     ...existing parameters...,
-    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val adpSchemaService: AdpSchemaService,
 )
 ```
 
-Publish after `edit()` saves (after line 310 `aggregatedDataProfileRepository.save(...)`):
+Call after `edit()` saves (after `aggregatedDataProfileRepository.save(...)`):
 
 ```kotlin
-applicationEventPublisher.publishEvent(
-    AdpSchemaInvalidatedEvent(this, aggregatedDataProfile.id)
-)
+adpSchemaService.generateAndSave(aggregatedDataProfile.id)
 ```
 
-Publish after `createRelation()` saves (after `aggregatedDataProfileRepository.save(...)` and
+Call after `createRelation()` saves (after `aggregatedDataProfileRepository.save(...)` and
 optional `reloadRoute()`):
 
 ```kotlin
-applicationEventPublisher.publishEvent(
-    AdpSchemaInvalidatedEvent(this, aggregatedDataProfile.id)
-)
+adpSchemaService.generateAndSave(aggregatedDataProfile.id)
 ```
 
-Publish after `editRelation()` saves — same pattern.
+Call after `editRelation()` saves — same pattern.
 
-Publish after `deleteRelation()` saves — same pattern.
+Call after `deleteRelation()` saves — same pattern.
 
-> **Note**: Events are published from the controller (after the repository save but before the
-> HTMX response is returned). The async listener picks up the event on a separate thread after
-> the HTTP response is sent. This means the schema column will be null for a brief period
-> after every save — which is the intended behaviour per research decision 2.
+> **Note**: Schema generation runs synchronously within the same request. If the OpenAPI spec
+> is unreachable or a JQ expression fails, the exception propagates to the controller's error
+> handling. The schema is always up-to-date when the HTTP response is returned.
 
-#### 3.3 Admin "Regenerate Schema" endpoint
+#### 3.2 Admin "Regenerate Schema" endpoint
 
 Add to `AggregatedDataProfileController`:
 
@@ -706,8 +645,6 @@ fun regenerateSchema(
 }
 ```
 
-Inject `adpSchemaService: AdpSchemaService` in the controller constructor.
-
 ### Success Criteria
 
 #### Automated Verification
@@ -716,15 +653,14 @@ Inject `adpSchemaService: AdpSchemaService` in the controller constructor.
 - [ ] `./gradlew spotlessApply && ./gradlew spotlessCheck`
 
 #### Manual Verification
-- [ ] Edit an ADP's `resultTransform`, save. After ~1–2 s, reload the detail page and confirm
-  the `jsonschema` column is populated (check via admin "Schema" tab once Phase 5 is done, or
-  verify in the DB directly).
-- [ ] Add, edit, or delete a relation. Confirm schema regenerates after the save.
-- [ ] Save an ADP whose `specificationUri` is unreachable. Confirm the application does not
-  crash, an error is logged, and `jsonschema` remains null.
+- [ ] Edit an ADP's `resultTransform`, save. The detail page immediately shows the generated
+  schema (check via admin "Schema" tab once Phase 5 is done, or verify in the DB directly).
+- [ ] Add, edit, or delete a relation. Confirm schema regenerates immediately after the save.
+- [ ] Save an ADP whose `specificationUri` is unreachable. Confirm the error is reflected to
+  the caller (e.g. error notification in the admin UI).
 
 **Implementation Note**: After completing this phase and all automated verification passes,
-confirm manually that the async trigger works before proceeding to Phase 4.
+confirm manually that the synchronous trigger works before proceeding to Phase 4.
 
 ---
 
@@ -925,9 +861,8 @@ const editor = monaco.editor.create(el, {
   "Regenerate Schema" button is present.
 - [ ] Click "Regenerate Schema". The panel refreshes and shows the generated JSON Schema in
   the read-only Monaco editor (JSON syntax highlighting, not editable).
-- [ ] After editing transforms and saving: the Schema tab shows "Schema not yet generated"
-  briefly, then the new schema appears after the async generation completes (requires page
-  refresh or polling).
+- [ ] After editing transforms and saving: the Schema tab immediately shows the newly generated
+  schema (no delay, no refresh needed).
 - [ ] The Monaco editor on the Schema tab cannot be edited (read-only).
 
 ---
@@ -940,7 +875,7 @@ const editor = monaco.editor.create(el, {
 |---|---|---|
 | `OpenApiMockGenerator` | `OpenApiMockGeneratorTest.kt` | Load `classpath:pet-api.yaml`, find operation, verify all properties present; handle missing operation (returns NullNode); handle `$ref`; handle `allOf` |
 | `JsonSchemaInferrer` | `JsonSchemaInferrerTest.kt` | Object node → `{type:object, properties:{...}}`; array → `{type:array, items:...}`; primitives; nested objects |
-| `AdpSchemaService` | `AdpSchemaServiceTest.kt` | No relations: resultTransform applied to connector mock; with relations: `{left,right}` composed; detect array mode; generation failure logged, jsonschema stays null |
+| `AdpSchemaService` | `AdpSchemaServiceTest.kt` | No relations: resultTransform applied to connector mock; with relations: `{left,right}` composed; detect array mode; generation failure throws exception |
 
 ### Integration Tests
 
@@ -953,8 +888,8 @@ const editor = monaco.editor.create(el, {
 1. Start the stack: `docker compose up -d && ./gradlew bootRun`
 2. Create a connector instance pointing to a running system with a valid `specificationUri`.
 3. Create an ADP using that connector instance, with a non-trivial `resultTransform` (e.g. `{id: .id, name: .name}`).
-4. Save the ADP. Wait ~2 s, refresh the detail page. Open the "Schema" tab — schema should be present.
-5. Edit the `resultTransform`. Save. Confirm the "Schema not yet generated" state appears.
+4. Save the ADP. The detail page immediately shows the generated schema under the "Schema" tab.
+5. Edit the `resultTransform`. Save. The schema is immediately regenerated.
 6. `curl -H "Authorization: Bearer <token>" http://localhost:8080/aggregated-data-profiles/{name}/schema` — confirms the consumer endpoint works.
 7. Test with a `specificationUri` pointing to an unreachable URL — confirm error is logged and the app continues working.
 
@@ -962,10 +897,12 @@ const editor = monaco.editor.create(el, {
 
 ## Performance Considerations
 
-- Schema generation is async and off the request thread — no user-visible latency added to saves.
-- OpenAPI specs are fetched synchronously on the async thread. If external systems are slow or
-  unavailable, the async thread pool may be blocked. A thread pool timeout (`spring.task.execution.pool.keep-alive`)
-  can be tuned if needed.
+- Schema generation runs synchronously within the save request. This adds latency to saves
+  (mainly from fetching the OpenAPI spec over HTTP). For most specs this is sub-second, but
+  unreachable or slow spec URLs will cause the save request to block until timeout. This is
+  intentional — errors must propagate to the caller.
+- If spec-fetch latency becomes a problem in practice, OpenAPI spec caching can be added later
+  without changing the synchronous contract.
 - JQ execution uses `Scope.newEmptyScope()` + `BuiltinFunctionLoader` per call; these are not
   thread-safe but are constructed fresh each invocation as per the existing `JQTest.kt` pattern.
 
@@ -975,9 +912,8 @@ const editor = monaco.editor.create(el, {
 
 - The migration adds a nullable `jsonschema` column. All existing rows will have `NULL` after
   migration — no data backfill needed.
-- After deployment, schemas will be generated the first time each active ADP is edited and saved.
-  Alternatively, a one-time admin action or startup hook could trigger generation for all active
-  ADPs; this is not included in scope.
+- After deployment, schemas will be generated the next time each active ADP is edited and saved,
+  or when an admin clicks "Regenerate Schema". A one-time bulk generation is not included in scope.
 
 ---
 
