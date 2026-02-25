@@ -100,6 +100,11 @@ class ConnectorService(
         return true
     }
 
+    fun reloadConnectorRoutes(connector: Connector) {
+        removeConnectorRoutes(connector)
+        loadConnectorRoutes(connector)
+    }
+
     /**
      * Removes all routes belonging to a connector using route groups.
      */

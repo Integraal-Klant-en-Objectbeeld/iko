@@ -308,7 +308,9 @@ internal class AggregatedDataProfileController(
         }
         aggregatedDataProfile.handle(form)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
-        // Routes are not reloaded here - changes only apply when the version is activated
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
