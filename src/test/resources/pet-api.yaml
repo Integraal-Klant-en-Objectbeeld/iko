@@ -126,7 +126,7 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/Pet'
 
-    components:
+components:
     schemas:
         Pet:
             type: object
