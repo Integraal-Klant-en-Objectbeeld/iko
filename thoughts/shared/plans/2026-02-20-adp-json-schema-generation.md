@@ -61,7 +61,9 @@ When implemented, an operator can:
   object after saving the ADP.
 - The schema accurately reflects the shape of a live call to
   `GET /aggregated-data-profiles/{name}`.
-- Editing transforms clears the old schema and regenerates it synchronously.
+- Editing `resultTransform` clears the old schema and regenerates it synchronously.
+- Relation changes (add/edit/delete) do **not** trigger schema regeneration.
+- Creating a new version carries over the existing schema from the source ADP.
 
 ---
 
@@ -82,14 +84,15 @@ When implemented, an operator can:
 
 ## Implementation Approach
 
-Five ordered phases. Each phase produces a testable increment.
+Six ordered phases. Each phase produces a testable increment.
 
 ```
-Phase 1: DB + Domain      → new column, entity field, invalidation hook
-Phase 2: Schema Core      → mock generator, JQ executor, schema inferrer, orchestrator service
-Phase 3: Sync Trigger     → call schema service directly from controller after saves
-Phase 4: Consumer API     → JWT-secured GET endpoint
-Phase 5: Admin UI         → Schema tab, read-only Monaco editor, Regenerate button
+Phase 1: DB + Domain          → new column as constructor param
+Phase 2: Version Carry-over   → pass jsonschema through createNewVersion constructor
+Phase 3: Schema Core          → mock generator, JQ executor, schema inferrer, orchestrator service
+Phase 4: Sync Trigger         → call schema service directly from controller after saves
+Phase 5: Consumer API         → JWT-secured GET endpoint
+Phase 6: Admin UI             → Schema tab, read-only Monaco editor, Regenerate button
 ```
 
 ---
@@ -97,7 +100,8 @@ Phase 5: Admin UI         → Schema tab, read-only Monaco editor, Regenerate bu
 ## Phase 1: Database Column + Domain Model
 
 ### Overview
-Add the `jsonschema TEXT` column and wire `AggregatedDataProfile` to track and clear it.
+Add the `jsonschema TEXT` column and the corresponding constructor parameter to
+`AggregatedDataProfile`.
 
 ### Changes Required
 
@@ -114,55 +118,11 @@ ALTER TABLE aggregated_data_profile
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/domain/AggregatedDataProfile.kt`
 
-Add the new nullable column field (after `aggregatedDataProfileCacheSetting`):
+Add `jsonschema` as a constructor parameter with default `null` (after `aggregatedDataProfileCacheSetting`):
 
 ```kotlin
 @Column(name = "jsonschema")
-var jsonschema: String? = null
-```
-
-Add a `clearSchema()` domain method:
-
-```kotlin
-fun clearSchema() {
-    jsonschema = null
-}
-```
-
-Call `clearSchema()` inside `handle()` so that any edit to transforms or connector selection
-invalidates the stored schema:
-
-```kotlin
-fun handle(request: AggregatedDataProfileEditForm) {
-    roles = Roles(request.roles)
-    connectorEndpointId = request.connectorEndpointId
-    connectorInstanceId = request.connectorInstanceId
-    endpointTransform = EndpointTransform(request.endpointTransform)
-    resultTransform = Transform(request.resultTransform)
-    aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(request.cacheEnabled, request.cacheTimeToLive)
-    clearSchema()  // ← add this
-}
-```
-
-Also call `clearSchema()` inside `addRelation()`, `changeRelation()`, and `removeRelation()`,
-since any relation change alters what `resultTransform` receives:
-
-```kotlin
-fun addRelation(form: AddRelationForm): Relation {
-    ...
-    clearSchema()
-    return relation
-}
-
-fun changeRelation(form: EditRelationForm) {
-    ...
-    clearSchema()
-}
-
-fun removeRelation(request: DeleteRelationForm) {
-    ...
-    clearSchema()
-}
+var jsonschema: String? = null,
 ```
 
 ### Success Criteria
@@ -179,7 +139,51 @@ fun removeRelation(request: DeleteRelationForm) {
 
 ---
 
-## Phase 2: Schema Generation Core
+## Phase 2: Version Carry-over
+
+### Overview
+Adapt `createNewVersion()` to pass `jsonschema` through the constructor so a new version inherits
+the schema from its source ADP.
+
+### Changes Required
+
+#### 2.1 `AggregatedDataProfile.createNewVersion()`
+
+**File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/domain/AggregatedDataProfile.kt`
+
+Add `jsonschema = this.jsonschema` to the `AggregatedDataProfile(...)` constructor call in
+`createNewVersion()`:
+
+```kotlin
+fun createNewVersion(newVersion: String): AggregatedDataProfile = AggregatedDataProfile(
+    id = UUID.randomUUID(),
+    name = this.name,
+    version = Version(newVersion),
+    isActive = false,
+    connectorInstanceId = this.connectorInstanceId,
+    connectorEndpointId = this.connectorEndpointId,
+    endpointTransform = this.endpointTransform,
+    resultTransform = this.resultTransform,
+    roles = this.roles,
+    aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
+    relations = mutableListOf(),
+    jsonschema = this.jsonschema,
+)
+```
+
+### Success Criteria
+
+#### Automated Verification
+- [ ] `./gradlew compileKotlin`
+- [ ] Existing unit tests still pass: `./gradlew test`
+- [ ] `./gradlew spotlessApply && ./gradlew spotlessCheck`
+
+#### Manual Verification
+- [ ] Creating a new version of an ADP carries over the `jsonschema` value from the source.
+
+---
+
+## Phase 3: Schema Generation Core
 
 ### Overview
 Implement three focused classes and one orchestrating service in a new
@@ -191,7 +195,7 @@ Implement three focused classes and one orchestrating service in a new
 | `JsonSchemaInferrer` | Walk a `JsonNode` tree, produce a JSON Schema string |
 | `AdpSchemaService` | Orchestrate mock generation (recursive), JQ execution, schema inference, persistence. Called synchronously from the controller so errors propagate. |
 
-#### 2.1 `OpenApiMockGenerator`
+#### 3.1 `OpenApiMockGenerator`
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/schema/OpenApiMockGenerator.kt`
 
@@ -319,7 +323,7 @@ internal class OpenApiMockGenerator {
 }
 ```
 
-#### 2.2 `JsonSchemaInferrer`
+#### 3.2 `JsonSchemaInferrer`
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/schema/JsonSchemaInferrer.kt`
 
@@ -375,7 +379,7 @@ internal class JsonSchemaInferrer {
 }
 ```
 
-#### 2.3 `AdpSchemaService`
+#### 3.3 `AdpSchemaService`
 
 **File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/schema/AdpSchemaService.kt`
 
@@ -582,21 +586,21 @@ internal class AdpSchemaService(
 - [ ] `./gradlew spotlessApply && ./gradlew spotlessCheck`
 
 #### Manual Verification
-- [ ] (Deferred to Phase 3 integration) Schema column is populated after save.
+- [ ] (Deferred to Phase 4 integration) Schema column is populated after save.
 
 ---
 
-## Phase 3: Synchronous Trigger Integration
+## Phase 4: Synchronous Trigger Integration
 
 ### Overview
-Call `AdpSchemaService.generateAndSave()` directly from the controller after every save that
-potentially alters the transform output shape. Because the call is synchronous, any errors
-(unreachable spec URL, parse failures, JQ errors) propagate to the controller and can be
-reflected in the HTTP response.
+Call `AdpSchemaService.generateAndSave()` directly from the controller after ADP edits that change
+the `resultTransform`. Because the call is synchronous, any errors (unreachable spec URL, parse
+failures, JQ errors) propagate to the controller and can be reflected in the HTTP response.
+Relation creates/edits/deletes do **not** trigger schema regeneration.
 
 ### Changes Required
 
-#### 3.1 `AggregatedDataProfileController` — inject service and call after saves
+#### 4.1 `AggregatedDataProfileController` — inject service and call after saves
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/controller/AggregatedDataProfileController.kt`
 
@@ -609,28 +613,26 @@ internal class AggregatedDataProfileController(
 )
 ```
 
-Call after `edit()` saves (after `aggregatedDataProfileRepository.save(...)`):
+Capture the previous `resultTransform` before calling `handle()`, then only regenerate when it
+actually changed:
 
 ```kotlin
-adpSchemaService.generateAndSave(aggregatedDataProfile.id)
+val previousResultTransform = aggregatedDataProfile.resultTransform.expression
+aggregatedDataProfile.handle(form)
+aggregatedDataProfileRepository.save(aggregatedDataProfile)
+// ... existing reloadRoute logic ...
+if (aggregatedDataProfile.resultTransform.expression != previousResultTransform) {
+    adpSchemaService.generateAndSave(aggregatedDataProfile.id)
+}
 ```
 
-Call after `createRelation()` saves (after `aggregatedDataProfileRepository.save(...)` and
-optional `reloadRoute()`):
+> **Note**: Schema generation is **not** triggered after `createRelation()`, `editRelation()`,
+> or `deleteRelation()`. Only `resultTransform` changes affect the schema.
+>
+> Schema generation runs synchronously within the same request. If the OpenAPI spec is unreachable
+> or a JQ expression fails, the exception propagates to the controller's error handling.
 
-```kotlin
-adpSchemaService.generateAndSave(aggregatedDataProfile.id)
-```
-
-Call after `editRelation()` saves — same pattern.
-
-Call after `deleteRelation()` saves — same pattern.
-
-> **Note**: Schema generation runs synchronously within the same request. If the OpenAPI spec
-> is unreachable or a JQ expression fails, the exception propagates to the controller's error
-> handling. The schema is always up-to-date when the HTTP response is returned.
-
-#### 3.2 Admin "Regenerate Schema" endpoint
+#### 4.2 Admin "Regenerate Schema" endpoint
 
 Add to `AggregatedDataProfileController`:
 
@@ -654,17 +656,19 @@ fun regenerateSchema(
 
 #### Manual Verification
 - [ ] Edit an ADP's `resultTransform`, save. The detail page immediately shows the generated
-  schema (check via admin "Schema" tab once Phase 5 is done, or verify in the DB directly).
-- [ ] Add, edit, or delete a relation. Confirm schema regenerates immediately after the save.
+  schema (check via admin "Schema" tab once Phase 6 is done, or verify in the DB directly).
+- [ ] Edit an ADP without changing `resultTransform` (e.g. change roles). Confirm schema is
+  **not** regenerated (stays the same, no extra latency).
+- [ ] Add, edit, or delete a relation. Confirm schema is **not** regenerated.
 - [ ] Save an ADP whose `specificationUri` is unreachable. Confirm the error is reflected to
   the caller (e.g. error notification in the admin UI).
 
 **Implementation Note**: After completing this phase and all automated verification passes,
-confirm manually that the synchronous trigger works before proceeding to Phase 4.
+confirm manually that the synchronous trigger works before proceeding to Phase 5.
 
 ---
 
-## Phase 4: Consumer API Endpoint
+## Phase 5: Consumer API Endpoint
 
 ### Overview
 Expose the stored schema via a new Spring MVC `@RestController` under the existing JWT-secured
@@ -672,7 +676,7 @@ Expose the stored schema via a new Spring MVC `@RestController` under the existi
 
 ### Changes Required
 
-#### 4.1 `AggregatedDataProfileSchemaController`
+#### 5.1 `AggregatedDataProfileSchemaController`
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/controller/AggregatedDataProfileSchemaController.kt`
 
@@ -731,11 +735,11 @@ internal class AggregatedDataProfileSchemaController(
 - [ ] Same call returns 404 for a profile whose schema is null (not yet generated).
 - [ ] The endpoint requires a valid JWT — unauthenticated request returns 401.
 
-**Implementation Note**: Pause here for manual confirmation before proceeding to Phase 5.
+**Implementation Note**: Pause here for manual confirmation before proceeding to Phase 6.
 
 ---
 
-## Phase 5: Admin UI — Schema Tab
+## Phase 6: Admin UI — Schema Tab
 
 ### Overview
 Add a "Schema" tab to the ADP detail page with a read-only Monaco editor and a "Regenerate Schema"
@@ -743,7 +747,7 @@ button.
 
 ### Changes Required
 
-#### 5.1 New Thymeleaf fragment: `schema-panel.html`
+#### 6.1 New Thymeleaf fragment: `schema-panel.html`
 
 **File**: `src/main/resources/templates/fragments/internal/aggregated-data-profile/schema-panel.html`
 
@@ -796,7 +800,7 @@ button.
 > `js/monaco-init.js` to set `readOnly: true` on the Monaco editor options when this attribute
 > is present. Add this handling to the existing Monaco initialisation logic.
 
-#### 5.2 Add "Schema" tab to `detail-page.html`
+#### 6.2 Add "Schema" tab to `detail-page.html`
 
 **File**: `src/main/resources/templates/fragments/internal/aggregated-data-profile/detail-page.html`
 
@@ -825,13 +829,13 @@ Add the corresponding panel after `#panel-preview`:
 </div>
 ```
 
-#### 5.3 Pass `aggregatedDataProfile` to model in `details()` controller method
+#### 6.3 Pass `aggregatedDataProfile` to model in `details()` controller method
 
 Verify (or ensure) that `aggregatedDataProfile` is already included in the `ModelAndView` model
 for the detail page — it is, as the existing "General" panel already reads `${aggregatedDataProfile.jsonschema}`
 will be available without further controller changes.
 
-#### 5.4 Read-only Monaco support in `monaco-init.js`
+#### 6.4 Read-only Monaco support in `monaco-init.js`
 
 **File**: `src/main/resources/static/js/monaco-init.js`
 
