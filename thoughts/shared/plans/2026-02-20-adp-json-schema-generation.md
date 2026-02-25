@@ -193,7 +193,7 @@ Implement three focused classes and one orchestrating service in a new
 |---|---|
 | `OpenApiMockGenerator` | Load OpenAPI spec, walk response schema, produce a maximally broad `JsonNode` |
 | `JsonSchemaInferrer` | Walk a `JsonNode` tree, produce a JSON Schema string |
-| `AdpSchemaService` | Orchestrate mock generation (recursive), JQ execution, schema inference, persistence. Called synchronously from the controller so errors propagate. |
+| `AggregatedDataProfileSchemaService` | Orchestrate mock generation (recursive), JQ execution, schema inference, persistence. Called synchronously from the controller so errors propagate. |
 
 #### 3.1 `OpenApiMockGenerator`
 
@@ -379,9 +379,9 @@ internal class JsonSchemaInferrer {
 }
 ```
 
-#### 3.3 `AdpSchemaService`
+#### 3.3 `AggregatedDataProfileSchemaService`
 
-**File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/schema/AdpSchemaService.kt`
+**File**: `src/main/kotlin/com/ritense/iko/aggregateddataprofile/schema/AggregatedDataProfileSchemaService.kt`
 
 The service mirrors the `buildRelationRoute` / ADP route builder logic but operates on in-memory
 mock data instead of live Camel exchanges.
@@ -412,7 +412,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Service
-internal class AdpSchemaService(
+internal class AggregatedDataProfileSchemaService(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
@@ -576,14 +576,14 @@ internal class AdpSchemaService(
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `./gradlew compileKotlin` — all new classes compile
-- [ ] Unit tests for `OpenApiMockGenerator` with the existing `pet-api.yaml` fixture:
+- [x] `./gradlew compileKotlin` — all new classes compile
+- [x] Unit tests for `OpenApiMockGenerator` with the existing `pet-api.yaml` fixture:
   `./gradlew test --tests "*.OpenApiMockGeneratorTest"`
-- [ ] Unit tests for `JsonSchemaInferrer`:
+- [x] Unit tests for `JsonSchemaInferrer`:
   `./gradlew test --tests "*.JsonSchemaInferrerTest"`
-- [ ] Unit tests for `AdpSchemaService.generateSchema()` using `MockWebServer` for the spec URL:
-  `./gradlew test --tests "*.AdpSchemaServiceTest"`
-- [ ] `./gradlew spotlessApply && ./gradlew spotlessCheck`
+- [x] Unit tests for `AggregatedDataProfileSchemaService.generateSchema()` using `MockWebServer` for the spec URL:
+  `./gradlew test --tests "*.AggregatedDataProfileSchemaServiceTest"`
+- [x] `./gradlew spotlessApply && ./gradlew spotlessCheck`
 
 #### Manual Verification
 - [ ] (Deferred to Phase 4 integration) Schema column is populated after save.
@@ -593,7 +593,7 @@ internal class AdpSchemaService(
 ## Phase 4: Synchronous Trigger Integration
 
 ### Overview
-Call `AdpSchemaService.generateAndSave()` directly from the controller after ADP edits that change
+Call `AggregatedDataProfileSchemaService.generateAndSave()` directly from the controller after ADP edits that change
 the `resultTransform`. Because the call is synchronous, any errors (unreachable spec URL, parse
 failures, JQ errors) propagate to the controller and can be reflected in the HTTP response.
 Relation creates/edits/deletes do **not** trigger schema regeneration.
@@ -604,12 +604,12 @@ Relation creates/edits/deletes do **not** trigger schema regeneration.
 
 **File**: `src/main/kotlin/com/ritense/iko/mvc/controller/AggregatedDataProfileController.kt`
 
-Add `AdpSchemaService` to the constructor parameter list:
+Add `AggregatedDataProfileSchemaService` to the constructor parameter list:
 
 ```kotlin
 internal class AggregatedDataProfileController(
     ...existing parameters...,
-    private val adpSchemaService: AdpSchemaService,
+    private val aggregatedDataProfileSchemaService: AggregatedDataProfileSchemaService,
 )
 ```
 
@@ -622,7 +622,7 @@ aggregatedDataProfile.handle(form)
 aggregatedDataProfileRepository.save(aggregatedDataProfile)
 // ... existing reloadRoute logic ...
 if (aggregatedDataProfile.resultTransform.expression != previousResultTransform) {
-    adpSchemaService.generateAndSave(aggregatedDataProfile.id)
+    aggregatedDataProfileSchemaService.generateAndSave(aggregatedDataProfile.id)
 }
 ```
 
@@ -642,7 +642,7 @@ fun regenerateSchema(
     @PathVariable id: UUID,
     @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
 ): ModelAndView {
-    adpSchemaService.generateAndSave(id)
+    aggregatedDataProfileSchemaService.generateAndSave(id)
     return details(id, isHxRequest)
 }
 ```
@@ -879,7 +879,7 @@ const editor = monaco.editor.create(el, {
 |---|---|---|
 | `OpenApiMockGenerator` | `OpenApiMockGeneratorTest.kt` | Load `classpath:pet-api.yaml`, find operation, verify all properties present; handle missing operation (returns NullNode); handle `$ref`; handle `allOf` |
 | `JsonSchemaInferrer` | `JsonSchemaInferrerTest.kt` | Object node → `{type:object, properties:{...}}`; array → `{type:array, items:...}`; primitives; nested objects |
-| `AdpSchemaService` | `AdpSchemaServiceTest.kt` | No relations: resultTransform applied to connector mock; with relations: `{left,right}` composed; detect array mode; generation failure throws exception |
+| `AggregatedDataProfileSchemaService` | `AggregatedDataProfileSchemaServiceTest.kt` | No relations: resultTransform applied to connector mock; with relations: `{left,right}` composed; detect array mode; generation failure throws exception |
 
 ### Integration Tests
 

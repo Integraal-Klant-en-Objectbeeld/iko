@@ -5,6 +5,7 @@ springDependencyManagement = "1.1.7"
 dockerCompose = "0.17.20"
 dotenv = "4.0.0"
 mockito = "5.17.0"
+mockitoKotlin = "5.4.0"
 camelSpringBoot = "4.17.0"
 thymeleafLayoutDialect = "3.4.0"
 jjwt = "0.12.6"
@@ -22,6 +23,7 @@ camel-spring-boot-dependencies = { group = "org.apache.camel.springboot", name =
 
 # Mockito Agent
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 
 # Camel
 camel-spring-boot = { group = "org.apache.camel.springboot", name = "camel-spring-boot" }

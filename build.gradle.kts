@@ -141,6 +141,7 @@ dependencies {
     testImplementation(libs.camel.test.junit5)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
+    testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockwebserver)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
