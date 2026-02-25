@@ -174,9 +174,9 @@ fun createNewVersion(newVersion: String): AggregatedDataProfile = AggregatedData
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `./gradlew compileKotlin`
-- [ ] Existing unit tests still pass: `./gradlew test`
-- [ ] `./gradlew spotlessApply && ./gradlew spotlessCheck`
+- [x] `./gradlew compileKotlin`
+- [x] Existing unit tests still pass: `./gradlew test`
+- [x] `./gradlew spotlessApply && ./gradlew spotlessCheck`
 
 #### Manual Verification
 - [ ] Creating a new version of an ADP carries over the `jsonschema` value from the source.

@@ -164,6 +164,7 @@ class AggregatedDataProfile(
         roles = this.roles,
         aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
         relations = mutableListOf(),
+        jsonschema = this.jsonschema,
     )
 
     companion object {
