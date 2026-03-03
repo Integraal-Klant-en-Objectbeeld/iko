@@ -138,15 +138,14 @@ internal class AggregatedDataProfileController(
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
-        val list =
-            ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
-                addObject("aggregatedDataProfiles", page.content)
-                addObject("page", page)
-                addObject("query", query)
-                addObject("creationAllowed", creationAllowed)
-                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
-                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
-            }
+        val list = ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
+            addObject("aggregatedDataProfiles", page.content)
+            addObject("page", page)
+            addObject("query", query)
+            addObject("creationAllowed", creationAllowed)
+            addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+            addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
+        }
         return list
     }
 
@@ -168,24 +167,22 @@ internal class AggregatedDataProfileController(
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
 
         if (isHxRequest) {
-            val searchResults =
-                ModelAndView("$BASE_FRAGMENT_ADP/filterResults").apply {
-                    addObject("aggregatedDataProfiles", page.content)
-                    addObject("page", page)
-                    addObject("query", query)
-                    addObject("creationAllowed", creationAllowed)
-                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
-                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
-                }
-            val pagination =
-                ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
-                    addObject("aggregatedDataProfiles", page.content)
-                    addObject("page", page)
-                    addObject("query", query)
-                    addObject("creationAllowed", creationAllowed)
-                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
-                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
-                }
+            val searchResults = ModelAndView("$BASE_FRAGMENT_ADP/filterResults").apply {
+                addObject("aggregatedDataProfiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("creationAllowed", creationAllowed)
+                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
+            }
+            val pagination = ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
+                addObject("aggregatedDataProfiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("creationAllowed", creationAllowed)
+                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
+            }
             return listOf(
                 searchResults,
                 pagination,
