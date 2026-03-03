@@ -55,7 +55,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import java.util.UUID
 
-@Controller("mvcAggregatedDataProfileController")
+@Controller
 @RequestMapping("/admin/aggregated-data-profiles")
 internal class AggregatedDataProfileController(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,

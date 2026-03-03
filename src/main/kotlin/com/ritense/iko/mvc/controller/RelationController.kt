@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 
-@Controller("mvcRelationController")
+@Controller
 @RequestMapping("/admin/relations")
 internal class RelationController(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,

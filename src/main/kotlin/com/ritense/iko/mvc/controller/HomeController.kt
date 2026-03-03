@@ -30,7 +30,7 @@ import org.springframework.web.servlet.ModelAndView
  * navigation items.  We replicate the original controller here and add a
  * new navigation entry for “Connectors”.
  */
-@Controller("mvcHomeController")
+@Controller
 @RequestMapping("/admin")
 internal class HomeController {
     @GetMapping
