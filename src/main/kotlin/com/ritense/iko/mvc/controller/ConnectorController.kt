@@ -54,7 +54,7 @@ import java.util.UUID
  * connector.  Connectors defined here represent the different external
  * services integrated into IKO (e.g., BAG, BRP, Open Zaak and the Objects API).
  */
-@Controller
+@Controller("mvcConnectorController")
 @RequestMapping("/admin/connectors")
 class ConnectorController(
     val connectorRepository: ConnectorRepository,
