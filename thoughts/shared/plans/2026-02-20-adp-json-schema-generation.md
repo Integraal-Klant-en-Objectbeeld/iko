@@ -722,11 +722,11 @@ internal class AggregatedDataProfileSchemaController(
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `./gradlew compileKotlin`
+- [x] `./gradlew compileKotlin`
 - [ ] Integration test: `GET /aggregated-data-profiles/{name}/schema` with a valid JWT returns
   the schema when one exists, 404 otherwise.
   `./gradlew integrationTest --tests "*.AggregatedDataProfileSchemaControllerIT"`
-- [ ] `./gradlew spotlessApply && ./gradlew spotlessCheck`
+- [x] `./gradlew spotlessApply && ./gradlew spotlessCheck`
 
 #### Manual Verification
 - [ ] `curl -H "Authorization: Bearer <token>" http://localhost:8080/aggregated-data-profiles/{name}/schema`

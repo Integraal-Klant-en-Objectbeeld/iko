@@ -11,6 +11,7 @@ These endpoints require a valid JWT bearer token with the appropriate roles.
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | `GET` | `/aggregated-data-profiles/{name}` | JWT (profile role) | Execute a profile and return aggregated data |
+| `GET` | `/aggregated-data-profiles/{name}/schema` | JWT (profile role) | Retrieve the generated JSON Schema for the active version of a profile. Returns 404 if the profile does not exist or has no schema. |
 
 **Query parameters:**
 
@@ -86,6 +87,12 @@ All admin endpoints require OAuth2/OIDC login with at least one configured admin
 |---|---|---|
 | `DELETE` | `/admin/aggregated-data-profiles/{id}/cache` | Evict profile cache |
 | `DELETE` | `/admin/aggregated-data-profiles/{id}/relation/{relationId}/cache` | Evict relation cache |
+
+### Schema Management
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/admin/aggregated-data-profiles/{id}/schema/regenerate` | Regenerate the JSON Schema for a profile. Returns the updated schema panel fragment. |
 
 ### Debug / Test
 
