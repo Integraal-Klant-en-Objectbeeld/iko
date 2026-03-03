@@ -18,12 +18,8 @@ package com.ritense.iko.aggregateddataprofile.camel
 
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER
-import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
-import com.ritense.iko.camel.IkoConstants.Headers.ADP_VERSION_PARAM_HEADER
-import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
-import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
-import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Headers
+import com.ritense.iko.camel.IkoConstants.Variables
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
@@ -45,18 +41,18 @@ class AggregatedDataProfileTemplatesRouteBuilder(
             .`when`(simple("\${exchangeProperty.testRun} == false"))
             .to("direct:aggregated-data-profile-container-params")
             .end()
-            .setVariable("profileName", header(ADP_PROFILE_NAME_PARAM_HEADER))
-            .setVariable("profileVersion", header(ADP_VERSION_PARAM_HEADER))
-            .setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
-            .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
+            .setVariable(Variables.PROFILE_NAME, header(Headers.ADP_PROFILE_NAME_PARAM_HEADER))
+            .setVariable(Variables.PROFILE_VERSION, header(Headers.ADP_VERSION_PARAM_HEADER))
+            .setVariable(Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
+            .setVariable(Variables.IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
             .removeHeaders("adp_*")
             .process { exchange ->
-                val aggregatedDataProfileName = exchange.getVariable("profileName", String::class.java)
-                val aggregatedDataProfileVersion = exchange.getVariable("profileVersion", String::class.java)
+                val aggregatedDataProfileName = exchange.getVariable(Variables.PROFILE_NAME, String::class.java)
+                val aggregatedDataProfileVersion = exchange.getVariable(Variables.PROFILE_VERSION, String::class.java)
                 val aggregatedDataProfile =
                     when (exchange.getProperty("testRun", Boolean::class.java)) {
                         true -> {
-                            exchange.setVariable(IKO_TRACE_ID_VARIABLE, exchange.`in`.getHeader(IKO_TRACE_ID_VARIABLE))
+                            exchange.setVariable(Variables.IKO_TRACE_ID_VARIABLE, exchange.`in`.getHeader(Variables.IKO_TRACE_ID_VARIABLE))
 
                             aggregatedDataProfileRepository
                                 .findByNameAndVersion(aggregatedDataProfileName, aggregatedDataProfileVersion)
