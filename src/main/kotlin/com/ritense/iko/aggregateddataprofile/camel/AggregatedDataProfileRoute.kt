@@ -16,6 +16,7 @@
 
 package com.ritense.iko.aggregateddataprofile.camel
 
+import com.ritense.iko.aggregateddataprofile.processor.AggregatedDataProfileSchemaProcessor
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_CONTAINER_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_ID_PARAM_HEADER
@@ -27,6 +28,7 @@ import org.apache.camel.model.rest.RestParamType
 
 class AggregatedDataProfileRoute(
     private val containerParamsProcessor: ContainerParamsProcessor,
+    private val aggregatedDataProfileSchemaProcessor: AggregatedDataProfileSchemaProcessor,
 ) : RouteBuilder() {
     override fun configure() {
         val profileNamePathParam = ParamDefinition()
@@ -54,6 +56,7 @@ class AggregatedDataProfileRoute(
                     "YXRhbG9naS9hcGkvemFha3R5cGVuL2IyNzU4MWM3LTMxMTMtNDE5NS1hZGM2LTkxNTY1MTNiOWUyZSIgfSB9",
             )
             .required(false)
+
         val idParam = ParamDefinition()
             .name(ADP_ID_PARAM_HEADER)
             .description("Id to use with ADPs that require one")
@@ -87,6 +90,25 @@ class AggregatedDataProfileRoute(
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process {
                 containerParamsProcessor.process(exchange = it)
+            }
+
+        rest("/aggregated-data-profiles")
+            .get("/{$ADP_PROFILE_NAME_PARAM_HEADER}/schema")
+            .description("Get JSON Schema for ADP")
+            .routeId("get-aggregated-data-profile-schema-rest-entrypoint")
+            .param(profileNamePathParam)
+            .produces("application/json")
+            .to("direct:aggregated_data_profile_schema")
+
+        from("direct:aggregated_data_profile_schema")
+            .routeId("aggregated-data-profile-schema")
+            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+            .process {
+                aggregatedDataProfileSchemaProcessor.resolveProfile(exchange = it)
+            }
+            .to("direct:auth")
+            .process {
+                aggregatedDataProfileSchemaProcessor.resolveSchema(exchange = it)
             }
     }
 }

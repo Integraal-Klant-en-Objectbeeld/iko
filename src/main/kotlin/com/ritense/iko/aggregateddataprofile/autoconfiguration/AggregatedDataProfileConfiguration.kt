@@ -19,6 +19,7 @@ package com.ritense.iko.aggregateddataprofile.autoconfiguration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileTemplatesRouteBuilder
+import com.ritense.iko.aggregateddataprofile.processor.AggregatedDataProfileSchemaProcessor
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import org.springframework.context.annotation.Bean
@@ -30,8 +31,10 @@ class AggregatedDataProfileConfiguration {
     @Bean
     fun aggregatedDataProfileRoute(
         containerParamsProcessor: ContainerParamsProcessor,
+        aggregatedDataProfileSchemaProcessor: AggregatedDataProfileSchemaProcessor,
     ) = AggregatedDataProfileRoute(
         containerParamsProcessor,
+        aggregatedDataProfileSchemaProcessor,
     )
 
     @Bean
@@ -45,4 +48,9 @@ class AggregatedDataProfileConfiguration {
     fun containerParamsProcessor(
         objectMapper: ObjectMapper,
     ) = ContainerParamsProcessor(objectMapper)
+
+    @Bean
+    fun aggregatedDataProfileSchemaProcessor(
+        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+    ) = AggregatedDataProfileSchemaProcessor(aggregatedDataProfileRepository)
 }

@@ -42,6 +42,11 @@ class AggregatedDataProfileQueryParametersError(
     vararg parameters: String,
 ) : AggregatedDataProfileDomainError("Query parameter(s) [${parameters.joinToString(", ")}] could not be parsed")
 
+class AggregatedDataProfileSchemaNotAvailable(
+    name: String,
+    version: String? = null,
+) : AggregatedDataProfileDomainError("ADP schema for name: $name${ version?.let { " and version: $it " } ?: " " }is not available")
+
 class TransformResultTypeUnsupportedError(
     type: String? = null,
 ) : AggregatedDataProfileDomainError(
