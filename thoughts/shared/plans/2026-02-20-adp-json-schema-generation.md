@@ -650,9 +650,9 @@ fun regenerateSchema(
 ### Success Criteria
 
 #### Automated Verification
-- [ ] `./gradlew compileKotlin`
-- [ ] `./gradlew test` — existing tests still pass
-- [ ] `./gradlew spotlessApply && ./gradlew spotlessCheck`
+- [x] `./gradlew compileKotlin`
+- [x] `./gradlew test` — existing tests still pass
+- [x] `./gradlew spotlessApply && ./gradlew spotlessCheck`
 
 #### Manual Verification
 - [ ] Edit an ADP's `resultTransform`, save. The detail page immediately shows the generated

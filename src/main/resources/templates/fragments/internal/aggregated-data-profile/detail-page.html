@@ -59,6 +59,12 @@
                         value="preview"
                         >Preview</cds-tab
                     >
+                    <cds-tab
+                        id="tab-schema"
+                        target="panel-schema"
+                        value="schema"
+                        >Schema</cds-tab
+                    >
                 </cds-tabs>
 
                 <div
@@ -88,6 +94,16 @@
                 >
                     <div
                         th:replace="~{fragments/internal/aggregated-data-profile/debug :: profile-debug}"
+                    ></div>
+                </div>
+
+                <div
+                    id="panel-schema"
+                    role="tabpanel"
+                    aria-labelledby="tab-schema"
+                >
+                    <div
+                        th:replace="~{fragments/internal/aggregated-data-profile/schema-panel :: schema-panel}"
                     ></div>
                 </div>
             </th:block>

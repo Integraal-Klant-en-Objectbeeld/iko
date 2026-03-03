@@ -18,6 +18,7 @@ package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.schema.AggregatedDataProfileSchemaService
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.cache.service.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -64,6 +65,7 @@ internal class AggregatedDataProfileController(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val cacheService: CacheService,
+    private val aggregatedDataProfileSchemaService: AggregatedDataProfileSchemaService,
 ) {
     @GetMapping("/aggregated-data-profiles/{id}")
     fun details(
@@ -306,10 +308,14 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
+        val previousResultTransform = aggregatedDataProfile.resultTransform.expression
         aggregatedDataProfile.handle(form)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
         if (aggregatedDataProfile.isActive) {
             aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
+        if (aggregatedDataProfile.resultTransform.expression != previousResultTransform) {
+            aggregatedDataProfileSchemaService.generateAndSave(aggregatedDataProfile.id)
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
@@ -587,6 +593,18 @@ internal class AggregatedDataProfileController(
                 addObject("form", form)
                 addObject("errors", bindingResult)
             }
+        }
+    }
+
+    @PostMapping("/aggregated-data-profiles/{id}/schema/regenerate")
+    @Transactional
+    fun regenerateSchema(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        aggregatedDataProfileSchemaService.generateAndSave(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
         }
     }
 

@@ -27,8 +27,10 @@ internal class JsonSchemaInferrer(
 ) {
 
     fun infer(root: JsonNode): String {
-        val schema = inferShape(root)
+        val inferred = inferShape(root)
+        val schema = mapper.createObjectNode()
         schema.put("\$schema", "https://json-schema.org/draft/2020-12/schema")
+        schema.setAll<ObjectNode>(inferred)
         return mapper.writeValueAsString(schema)
     }
 
