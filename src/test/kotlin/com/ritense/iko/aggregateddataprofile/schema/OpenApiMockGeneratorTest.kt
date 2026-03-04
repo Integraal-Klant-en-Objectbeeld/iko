@@ -82,6 +82,65 @@ class OpenApiMockGeneratorTest {
     }
 
     @Test
+    fun `generateMock resolves allOf-wrapped enum to string value`() {
+        val openApi = generator.loadSpec("classpath:pet-api.yaml")
+
+        val mock = generator.generateMock(openApi, "GetPetsWithEnum")
+
+        val pet = mock.get("results").first()
+        assertThat(pet.get("id").isInt).isTrue()
+        assertThat(pet.get("name").isTextual).isTrue()
+        assertThat(pet.get("gender").isTextual).isTrue()
+        assertThat(pet.get("gender").asText()).isEqualTo("female")
+        assertThat(pet.get("status").isTextual).isTrue()
+    }
+
+    @Test
+    fun `generateMock handles OpenAPI 3-1 scalar types`() {
+        val openApi = generator.loadSpec("classpath:openapi31-basic.yaml")
+
+        val mock = generator.generateMock(openApi, "GetItems")
+
+        assertThat(mock.isObject).isTrue()
+        assertThat(mock.get("id").isInt).isTrue()
+        assertThat(mock.get("name").isTextual).isTrue()
+        assertThat(mock.get("active").isBoolean).isTrue()
+        assertThat(mock.get("score").isNumber).isTrue()
+        assertThat(mock.get("tags").isArray).isTrue()
+        assertThat(mock.get("tags").first().isTextual).isTrue()
+    }
+
+    @Test
+    fun `generateMock resolves discriminator to first concrete subtype`() {
+        val openApi = generator.loadSpec("classpath:discriminator-spec.yaml")
+
+        val mock = generator.generateMock(openApi, "QueryPersons")
+
+        assertThat(mock.isObject).isTrue()
+        assertThat(mock.has("type")).isTrue()
+        assertThat(mock.get("type").isTextual).isTrue()
+        assertThat(mock.has("results")).isTrue()
+        assertThat(mock.get("results").isArray).isTrue()
+        val person = mock.get("results").first()
+        assertThat(person.has("id")).isTrue()
+        assertThat(person.has("name")).isTrue()
+    }
+
+    @Test
+    fun `generateMock resolves nested discriminator on Person birthDate`() {
+        val openApi = generator.loadSpec("classpath:discriminator-spec.yaml")
+
+        val mock = generator.generateMock(openApi, "QueryPersons")
+
+        val person = mock.get("results").first()
+        val birthDate = person.get("birthDate")
+        assertThat(birthDate.isObject).isTrue()
+        assertThat(birthDate.has("type")).isTrue()
+        assertThat(birthDate.has("date")).isTrue()
+        assertThat(birthDate.get("date").isTextual).isTrue()
+    }
+
+    @Test
     fun `generateMock resolves ref to component schema`() {
         val openApi = generator.loadSpec("classpath:pet-api.yaml")
 

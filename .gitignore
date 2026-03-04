@@ -24,12 +24,15 @@ hs_err_pid*
 
 .idea
 .jpb
+.kotlin
 
 # Credentials and secrets
 .env
+.env.properties
 
 ### Gradle template
 .gradle
+/build
 **/build/
 
 # Ignore Gradle GUI config
@@ -47,6 +50,7 @@ gradle-app.setting
 /deployment/
 /out/
 
+
 # Windows image file caches
 Thumbs.db
 
@@ -62,11 +66,6 @@ Desktop.ini
 
 # AWS credentials
 **/AwsCredentials.properties
-/.env.properties
-.kotlin
-connector-openklant/build
-connector-bag/build
-connector-brp/build
-connector-openzaak/build
-connector-objectenapi/build
-iko-common/build
+
+# Codelayer
+/thoughts/
