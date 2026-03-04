@@ -30,6 +30,7 @@ import org.apache.camel.http.base.HttpOperationFailedException
 import org.springframework.http.HttpStatus
 
 class GlobalErrorHandlerConfiguration : RouteConfigurationBuilder() {
+    @Suppress("ktlint:standard:indent")
     override fun configuration() {
         routeConfiguration(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .onException(AggregatedDataProfileAccessDenied::class.java)
