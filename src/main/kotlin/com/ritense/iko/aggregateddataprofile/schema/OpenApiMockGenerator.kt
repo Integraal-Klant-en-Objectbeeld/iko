@@ -50,7 +50,7 @@ internal class OpenApiMockGenerator(
     fun generateMock(openApi: OpenAPI, operationId: String): JsonNode {
         val schema = findResponseSchema(openApi, operationId)
             ?: return NullNode.instance
-        return generateNode(schema, openApi, depth = 0)
+        return generateNode(schema, openApi, depth = 0, visitedRefs = mutableSetOf())
     }
 
     private fun findResponseSchema(openApi: OpenAPI, operationId: String): Schema<*>? {
@@ -76,44 +76,78 @@ internal class OpenApiMockGenerator(
         return null
     }
 
-    private fun generateNode(schema: Schema<*>, openApi: OpenAPI, depth: Int): JsonNode {
+    private fun generateNode(
+        schema: Schema<*>,
+        openApi: OpenAPI,
+        depth: Int,
+        visitedRefs: MutableSet<String> = mutableSetOf(),
+    ): JsonNode {
         if (depth > 20) return NullNode.instance
 
         schema.`$ref`?.let { ref ->
             val refName = ref.substringAfterLast("/")
+            if (refName in visitedRefs) return NullNode.instance
+            visitedRefs.add(refName)
             val resolved = openApi.components?.schemas?.get(refName) ?: return NullNode.instance
-            return generateNode(resolved, openApi, depth + 1)
+            return generateNode(resolved, openApi, depth + 1, visitedRefs)
+        }
+
+        schema.discriminator?.mapping?.values?.firstOrNull()?.let { concreteRef ->
+            val concreteName = concreteRef.substringAfterLast("/")
+            if (concreteName !in visitedRefs) {
+                val concreteSchema = openApi.components?.schemas?.get(concreteName)
+                if (concreteSchema != null) {
+                    visitedRefs.add(concreteName)
+                    return generateNode(concreteSchema, openApi, depth + 1, visitedRefs)
+                }
+            }
         }
 
         val composites = listOfNotNull(schema.allOf, schema.anyOf, schema.oneOf).flatten()
         if (composites.isNotEmpty()) {
             val merged = mapper.createObjectNode()
+            var firstNonNull: JsonNode? = null
             composites.forEach { sub ->
-                val subNode = generateNode(sub, openApi, depth + 1)
-                if (subNode.isObject) merged.setAll<ObjectNode>(subNode as ObjectNode)
+                val subNode = generateNode(sub, openApi, depth + 1, visitedRefs)
+                if (subNode.isObject) {
+                    merged.setAll<ObjectNode>(subNode as ObjectNode)
+                } else if (firstNonNull == null && !subNode.isNull) {
+                    firstNonNull = subNode
+                }
             }
             if (!schema.properties.isNullOrEmpty()) {
-                val direct = generateByType(schema, openApi, depth)
+                val direct = generateByType(schema, openApi, depth, visitedRefs)
                 if (direct.isObject) merged.setAll<ObjectNode>(direct as ObjectNode)
             }
-            return if (merged.size() > 0) merged else NullNode.instance
+            return when {
+                merged.size() > 0 -> merged
+                firstNonNull != null -> firstNonNull!!
+                else -> NullNode.instance
+            }
         }
 
-        return generateByType(schema, openApi, depth)
+        return generateByType(schema, openApi, depth, visitedRefs)
     }
 
+    private fun resolveType(schema: Schema<*>): String? = schema.type ?: schema.types?.firstOrNull { it != "null" }
+
     @Suppress("UNCHECKED_CAST")
-    private fun generateByType(schema: Schema<*>, openApi: OpenAPI, depth: Int): JsonNode = when (schema.type) {
+    private fun generateByType(
+        schema: Schema<*>,
+        openApi: OpenAPI,
+        depth: Int,
+        visitedRefs: MutableSet<String> = mutableSetOf(),
+    ): JsonNode = when (resolveType(schema)) {
         "object" -> {
             val obj = mapper.createObjectNode()
             schema.properties?.forEach { (key, propSchema) ->
-                obj.set<JsonNode>(key, generateNode(propSchema as Schema<*>, openApi, depth + 1))
+                obj.set<JsonNode>(key, generateNode(propSchema as Schema<*>, openApi, depth + 1, visitedRefs))
             }
             obj
         }
         "array" -> {
             val arr = mapper.createArrayNode()
-            schema.items?.let { arr.add(generateNode(it as Schema<*>, openApi, depth + 1)) }
+            schema.items?.let { arr.add(generateNode(it as Schema<*>, openApi, depth + 1, visitedRefs)) }
             arr
         }
         "string" -> TextNode.valueOf(
@@ -128,6 +162,7 @@ internal class OpenApiMockGenerator(
                     schema.apply { type = "object" },
                     openApi,
                     depth,
+                    visitedRefs,
                 )
             } else {
                 NullNode.instance
