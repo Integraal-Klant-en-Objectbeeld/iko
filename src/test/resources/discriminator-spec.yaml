@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+    title: Discriminator Test Spec
+    version: "1.0.0"
+paths:
+    /query:
+        post:
+            operationId: "QueryPersons"
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/QueryResponse'
+components:
+    schemas:
+        QueryResponse:
+            type: object
+            required:
+                - type
+            discriminator:
+                propertyName: type
+                mapping:
+                    ConcreteResponse: '#/components/schemas/ConcreteResponse'
+                    OtherResponse: '#/components/schemas/OtherResponse'
+            properties:
+                type:
+                    type: string
+        ConcreteResponse:
+            allOf:
+                - $ref: '#/components/schemas/QueryResponse'
+                - type: object
+                  properties:
+                      results:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/Person'
+        OtherResponse:
+            allOf:
+                - $ref: '#/components/schemas/QueryResponse'
+                - type: object
+                  properties:
+                      count:
+                          type: integer
+        Person:
+            type: object
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: string
+                birthDate:
+                    $ref: '#/components/schemas/AbstractDate'
+        AbstractDate:
+            type: object
+            required:
+                - type
+            discriminator:
+                propertyName: type
+                mapping:
+                    FullDate: '#/components/schemas/FullDate'
+                    YearDate: '#/components/schemas/YearDate'
+            properties:
+                type:
+                    type: string
+        FullDate:
+            allOf:
+                - $ref: '#/components/schemas/AbstractDate'
+                - type: object
+                  properties:
+                      date:
+                          type: string
+                          format: date
+        YearDate:
+            allOf:
+                - $ref: '#/components/schemas/AbstractDate'
+                - type: object
+                  properties:
+                      year:
+                          type: integer
