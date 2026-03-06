@@ -18,6 +18,14 @@
     <cds-tile>
         <th:block th:if="${schemaSupported}">
             <div th:if="${aggregatedDataProfile.schema.value != null}">
+                <cds-inline-notification
+                    kind="warning"
+                    title="Best effort"
+                    subtitle="This schema is generated on a best-effort basis."
+                    hide-close-button
+                    low-contrast
+                    style="margin-bottom: var(--cds-spacing-05)"
+                ></cds-inline-notification>
                 <div
                     id="schema-editor"
                     data-monaco
