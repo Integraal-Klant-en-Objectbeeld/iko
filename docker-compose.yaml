@@ -1,8 +1,11 @@
 name: iko
 
 services:
-    iko-image-builder:
-        container_name: iko-image-builder
+
+    iko-application:
+        container_name: iko-application
+        profiles:
+            - standalone
         build: .
         ports:
             - "8080:8080"
