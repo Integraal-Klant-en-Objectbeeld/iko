@@ -76,8 +76,8 @@ class AggregatedDataProfile(
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 
-    @Column(name = "jsonschema")
-    var jsonschema: String? = null,
+    @Embedded
+    var schema: AggregatedDataProfileSchema = AggregatedDataProfileSchema(),
 ) {
 
     fun handle(request: AggregatedDataProfileEditForm) {
@@ -164,7 +164,7 @@ class AggregatedDataProfile(
         roles = this.roles,
         aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
         relations = mutableListOf(),
-        jsonschema = this.jsonschema,
+        schema = this.schema,
     )
 
     companion object {

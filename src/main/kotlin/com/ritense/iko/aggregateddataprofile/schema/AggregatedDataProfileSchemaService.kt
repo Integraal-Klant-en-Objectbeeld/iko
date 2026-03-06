@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileSchema
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -59,7 +60,7 @@ internal class AggregatedDataProfileSchemaService(
             }
             return
         }
-        adp.jsonschema = schema
+        adp.schema = AggregatedDataProfileSchema(schema)
         aggregatedDataProfileRepository.save(adp)
         logger.info { "Schema generated for ADP '${adp.name}' (${adp.id})" }
     }

@@ -36,7 +36,7 @@ class AggregatedDataProfileSchemaProcessor(
             ?: throw AggregatedDataProfileNotFound(profileName)
         exchange.setVariable(Variables.PROFILE_NAME, adp.name)
         exchange.setVariable(Variables.AUTHORITIES, adp.roles.asList())
-        exchange.setVariable(ADP_SCHEMA, adp.jsonschema)
+        exchange.setVariable(ADP_SCHEMA, adp.schema.value)
     }
 
     fun resolveSchema(exchange: Exchange) {
