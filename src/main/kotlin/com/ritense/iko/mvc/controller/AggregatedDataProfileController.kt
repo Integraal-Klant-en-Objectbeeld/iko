@@ -308,10 +308,12 @@ internal class AggregatedDataProfileController(
         }
         val previousResultTransform = aggregatedDataProfile.resultTransform.expression
         aggregatedDataProfile.handle(form)
-        if (aggregatedDataProfile.resultTransform.expression != previousResultTransform &&
-            aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)
-        ) {
-            aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
+            if (aggregatedDataProfile.resultTransform.expression != previousResultTransform) {
+                aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+            }
+        } else if (aggregatedDataProfile.schema.value != null) {
+            aggregatedDataProfile.resetSchema()
         }
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
         if (aggregatedDataProfile.isActive) {
@@ -485,6 +487,9 @@ internal class AggregatedDataProfileController(
         val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow().also {
             if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
                 it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
+                aggregatedDataProfileRepository.save(it)
+            } else if (it.schema.value != null) {
+                it.resetSchema()
                 aggregatedDataProfileRepository.save(it)
             }
         }
