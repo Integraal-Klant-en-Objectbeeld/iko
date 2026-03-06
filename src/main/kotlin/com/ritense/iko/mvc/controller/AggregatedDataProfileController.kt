@@ -95,6 +95,7 @@ internal class AggregatedDataProfileController(
                 "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
                 "email" to SecurityContextHelper.getUserPropertyByKey("email"),
+                "schemaSupported" to aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile),
             ),
         )
     }
@@ -480,6 +481,7 @@ internal class AggregatedDataProfileController(
         val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("schemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
         }
     }
 

@@ -72,7 +72,7 @@ internal class AggregatedDataProfileSchemaService(
         return jsonSchemaInferrer.infer(result)
     }
 
-    private fun isSchemaGenerationSupported(adp: AggregatedDataProfile): Boolean {
+    fun isSchemaGenerationSupported(adp: AggregatedDataProfile): Boolean {
         val allInstanceIds = buildList {
             add(adp.connectorInstanceId)
             adp.relations.forEach { add(it.connectorInstanceId) }
