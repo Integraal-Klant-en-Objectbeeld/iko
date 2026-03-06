@@ -16,34 +16,44 @@
 
 <div th:fragment="schema-panel" id="schema-panel-content">
     <cds-tile>
-        <div th:if="${aggregatedDataProfile.jsonschema != null}">
-            <div
-                id="schema-editor"
-                data-monaco
-                data-language="json"
-                data-readonly="true"
-                data-format-json
-                th:data-initial="${aggregatedDataProfile.jsonschema}"
-                data-theme="lightgray-theme"
-                class="monaco-editor-style"
-            ></div>
-        </div>
+        <th:block th:if="${schemaSupported}">
+            <div th:if="${aggregatedDataProfile.jsonschema != null}">
+                <div
+                    id="schema-editor"
+                    data-monaco
+                    data-language="json"
+                    data-readonly="true"
+                    data-format-json
+                    th:data-initial="${aggregatedDataProfile.jsonschema}"
+                    data-theme="lightgray-theme"
+                    class="monaco-editor-style"
+                ></div>
+            </div>
+            <cds-inline-notification
+                th:if="${aggregatedDataProfile.jsonschema == null}"
+                kind="info"
+                title="Schema not yet generated"
+                subtitle="Save the profile with a result transform change or click Regenerate to generate the schema."
+                hide-close-button
+            ></cds-inline-notification>
+            <cds-button
+                kind="primary"
+                th:hx-post="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}/schema/regenerate|}"
+                hx-target="#schema-panel-content"
+                hx-swap="outerHTML"
+                hx-on::before-request="this.setAttribute('disabled',''); this.textContent='Regenerating…';"
+                hx-on::after-request="this.removeAttribute('disabled'); this.textContent='Regenerate Schema';"
+                style="margin-top: var(--cds-spacing-05)"
+            >
+                Regenerate Schema
+            </cds-button>
+        </th:block>
         <cds-inline-notification
-            th:if="${aggregatedDataProfile.jsonschema == null}"
+            th:if="${!schemaSupported}"
             kind="info"
-            title="Schema not yet generated"
-            subtitle="Save the profile with a result transform change or click Regenerate to generate the schema."
+            title="Schema generation not supported"
+            subtitle="Schema generation is only supported for profiles where all connector instances have a config `specificationUri` configured."
             hide-close-button
         ></cds-inline-notification>
-        <cds-button
-            kind="secondary"
-            size="sm"
-            th:hx-post="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}/schema/regenerate|}"
-            hx-target="#schema-panel-content"
-            hx-swap="outerHTML"
-            style="margin-top: var(--cds-spacing-05)"
-        >
-            Regenerate Schema
-        </cds-button>
     </cds-tile>
 </div>
