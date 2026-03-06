@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
-import io.github.oshai.kotlinlogging.KotlinLogging
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.thisptr.jackson.jq.BuiltinFunctionLoader
