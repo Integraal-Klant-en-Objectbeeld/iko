@@ -32,12 +32,10 @@ import net.thisptr.jackson.jq.BuiltinFunctionLoader
 import net.thisptr.jackson.jq.JsonQuery
 import net.thisptr.jackson.jq.Scope
 import net.thisptr.jackson.jq.Versions
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-@Service
-internal class AggregatedDataProfileSchemaService(
+class AggregatedDataProfileSchemaService(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,

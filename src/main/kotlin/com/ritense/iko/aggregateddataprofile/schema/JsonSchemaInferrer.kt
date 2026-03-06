@@ -19,10 +19,8 @@ package com.ritense.iko.aggregateddataprofile.schema
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import org.springframework.stereotype.Component
 
-@Component
-internal class JsonSchemaInferrer(
+class JsonSchemaInferrer(
     private val mapper: ObjectMapper,
 ) {
 

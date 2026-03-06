@@ -27,10 +27,8 @@ import com.fasterxml.jackson.databind.node.TextNode
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.parser.OpenAPIV3Parser
-import org.springframework.stereotype.Component
 
-@Component
-internal class OpenApiMockGenerator(
+class OpenApiMockGenerator(
     private val mapper: ObjectMapper,
 ) {
 

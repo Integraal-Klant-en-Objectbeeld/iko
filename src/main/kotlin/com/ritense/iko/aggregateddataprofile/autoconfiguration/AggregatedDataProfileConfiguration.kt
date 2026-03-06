@@ -22,6 +22,11 @@ import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileTemplate
 import com.ritense.iko.aggregateddataprofile.processor.AggregatedDataProfileSchemaProcessor
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.schema.AggregatedDataProfileSchemaService
+import com.ritense.iko.aggregateddataprofile.schema.JsonSchemaInferrer
+import com.ritense.iko.aggregateddataprofile.schema.OpenApiMockGenerator
+import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
+import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -53,4 +58,31 @@ class AggregatedDataProfileConfiguration {
     fun aggregatedDataProfileSchemaProcessor(
         aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     ) = AggregatedDataProfileSchemaProcessor(aggregatedDataProfileRepository)
+
+    @Bean
+    fun openApiMockGenerator(
+        objectMapper: ObjectMapper,
+    ) = OpenApiMockGenerator(objectMapper)
+
+    @Bean
+    fun jsonSchemaInferrer(
+        objectMapper: ObjectMapper,
+    ) = JsonSchemaInferrer(objectMapper)
+
+    @Bean
+    fun aggregatedDataProfileSchemaService(
+        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+        connectorInstanceRepository: ConnectorInstanceRepository,
+        connectorEndpointRepository: ConnectorEndpointRepository,
+        openApiMockGenerator: OpenApiMockGenerator,
+        jsonSchemaInferrer: JsonSchemaInferrer,
+        objectMapper: ObjectMapper,
+    ) = AggregatedDataProfileSchemaService(
+        aggregatedDataProfileRepository,
+        connectorInstanceRepository,
+        connectorEndpointRepository,
+        openApiMockGenerator,
+        jsonSchemaInferrer,
+        objectMapper,
+    )
 }
