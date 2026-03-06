@@ -26,7 +26,6 @@ import com.ritense.iko.aggregateddataprofile.domain.RelationEndpointTransform
 import com.ritense.iko.aggregateddataprofile.domain.Roles
 import com.ritense.iko.aggregateddataprofile.domain.Transform
 import com.ritense.iko.aggregateddataprofile.domain.Version
-import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.connectors.domain.Connector
 import com.ritense.iko.connectors.domain.ConnectorEndpoint
 import com.ritense.iko.connectors.domain.ConnectorInstance
@@ -44,7 +43,6 @@ class AggregatedDataProfileSchemaServiceTest {
 
     private val mapper = ObjectMapper()
 
-    private lateinit var aggregatedDataProfileRepository: AggregatedDataProfileRepository
     private lateinit var connectorInstanceRepository: ConnectorInstanceRepository
     private lateinit var connectorEndpointRepository: ConnectorEndpointRepository
     private lateinit var service: AggregatedDataProfileSchemaService
@@ -83,7 +81,6 @@ class AggregatedDataProfileSchemaServiceTest {
 
     @BeforeEach
     fun setUp() {
-        aggregatedDataProfileRepository = mock()
         connectorInstanceRepository = mock()
         connectorEndpointRepository = mock()
 
@@ -95,7 +92,6 @@ class AggregatedDataProfileSchemaServiceTest {
             .thenReturn(Optional.of(ownersEndpoint))
 
         service = AggregatedDataProfileSchemaService(
-            aggregatedDataProfileRepository = aggregatedDataProfileRepository,
             connectorInstanceRepository = connectorInstanceRepository,
             connectorEndpointRepository = connectorEndpointRepository,
             openApiMockGenerator = OpenApiMockGenerator(mapper),

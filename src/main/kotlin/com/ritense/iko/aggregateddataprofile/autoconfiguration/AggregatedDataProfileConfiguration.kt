@@ -71,14 +71,12 @@ class AggregatedDataProfileConfiguration {
 
     @Bean
     fun aggregatedDataProfileSchemaService(
-        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
         connectorEndpointRepository: ConnectorEndpointRepository,
         openApiMockGenerator: OpenApiMockGenerator,
         jsonSchemaInferrer: JsonSchemaInferrer,
         objectMapper: ObjectMapper,
     ) = AggregatedDataProfileSchemaService(
-        aggregatedDataProfileRepository,
         connectorInstanceRepository,
         connectorEndpointRepository,
         openApiMockGenerator,

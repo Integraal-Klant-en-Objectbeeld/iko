@@ -23,41 +23,21 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
-import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.thisptr.jackson.jq.BuiltinFunctionLoader
 import net.thisptr.jackson.jq.JsonQuery
 import net.thisptr.jackson.jq.Scope
 import net.thisptr.jackson.jq.Versions
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-open class AggregatedDataProfileSchemaService(
-    private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+class AggregatedDataProfileSchemaService(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val openApiMockGenerator: OpenApiMockGenerator,
     private val jsonSchemaInferrer: JsonSchemaInferrer,
     private val mapper: ObjectMapper,
 ) {
-    @Transactional
-    open fun generateAndSave(adpId: UUID) {
-        val adp = aggregatedDataProfileRepository.findById(adpId)
-            .orElseThrow { NoSuchElementException("ADP not found: $adpId") }
-        if (!isSchemaGenerationSupported(adp)) {
-            logger.info {
-                "Schema generation skipped for ADP '${adp.name}' (${adp.id}): connector has no specificationUri"
-            }
-            return
-        }
-        val schema = generateSchema(adp)
-        adp.applySchema(schema)
-        aggregatedDataProfileRepository.save(adp)
-        logger.info { "Schema generated for ADP '${adp.name}' (${adp.id})" }
-    }
-
     fun generateSchema(adp: AggregatedDataProfile): String {
         val adpMock = generateConnectorMock(adp.connectorInstanceId, adp.connectorEndpointId)
         val composedInput = composeInput(adpMock, adp.level1Relations())
@@ -141,7 +121,4 @@ open class AggregatedDataProfileSchemaService(
             .firstOrNull() ?: NullNode.instance
     }
 
-    companion object {
-        private val logger = KotlinLogging.logger {}
-    }
 }

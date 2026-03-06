@@ -268,7 +268,11 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
-        val aggregatedDataProfile = AggregatedDataProfile.create(form)
+        val aggregatedDataProfile = AggregatedDataProfile.create(form).also {
+            if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
+                it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
+            }
+        }
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
         aggregatedDataProfileService.loadRoute(aggregatedDataProfile)
 
@@ -304,12 +308,14 @@ internal class AggregatedDataProfileController(
         }
         val previousResultTransform = aggregatedDataProfile.resultTransform.expression
         aggregatedDataProfile.handle(form)
+        if (aggregatedDataProfile.resultTransform.expression != previousResultTransform &&
+            aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)
+        ) {
+            aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+        }
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
         if (aggregatedDataProfile.isActive) {
             aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
-        }
-        if (aggregatedDataProfile.resultTransform.expression != previousResultTransform) {
-            aggregatedDataProfileSchemaService.generateAndSave(aggregatedDataProfile.id)
         }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
@@ -477,8 +483,12 @@ internal class AggregatedDataProfileController(
     fun regenerateSchema(
         @PathVariable id: UUID,
     ): ModelAndView {
-        aggregatedDataProfileSchemaService.generateAndSave(id)
-        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow().also {
+            if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
+                it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
+            }
+            aggregatedDataProfileRepository.save(it)
+        }
         return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("schemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
