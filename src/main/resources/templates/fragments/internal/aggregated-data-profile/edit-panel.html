@@ -29,6 +29,8 @@
                             hx-target="#profile-edit"
                             hx-swap="outerHTML"
                             hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                            hx-on::before-request="const b=document.getElementById('profile-save-btn'); if(b){ b.setAttribute('disabled',''); b.textContent='Saving…'; }"
+                            hx-on::after-request="const b=document.getElementById('profile-save-btn'); if(b){ b.removeAttribute('disabled'); b.textContent='Save'; }"
                         >
                             <cds-form-group
                                 id="form-group"
@@ -285,8 +287,6 @@
                                                 type="submit"
                                                 id="profile-save-btn"
                                                 hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
-                                                hx-on::before-request="this.setAttribute('disabled',''); this.textContent='Saving…';"
-                                                hx-on::after-request="this.removeAttribute('disabled'); this.textContent='Save';"
                                             >
                                                 Save
                                             </cds-button>
