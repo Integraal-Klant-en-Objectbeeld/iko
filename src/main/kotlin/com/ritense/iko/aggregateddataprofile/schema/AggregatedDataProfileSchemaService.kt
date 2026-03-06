@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import net.thisptr.jackson.jq.BuiltinFunctionLoader
 import net.thisptr.jackson.jq.JsonQuery
@@ -39,6 +40,7 @@ class AggregatedDataProfileSchemaService(
     private val mapper: ObjectMapper,
 ) {
     fun generateSchema(adp: AggregatedDataProfile): String {
+        logger.info { "Generating schema for ADP '${adp.name}' (${adp.id})" }
         val adpMock = generateConnectorMock(adp.connectorInstanceId, adp.connectorEndpointId)
         val composedInput = composeInput(adpMock, adp.level1Relations())
         val result = applyTransform(adp.resultTransform.expression, composedInput)
@@ -121,4 +123,7 @@ class AggregatedDataProfileSchemaService(
             .firstOrNull() ?: NullNode.instance
     }
 
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 }
