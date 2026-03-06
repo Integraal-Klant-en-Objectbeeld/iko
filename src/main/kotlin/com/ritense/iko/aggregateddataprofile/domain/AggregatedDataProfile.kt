@@ -28,6 +28,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
+import jakarta.persistence.PostLoad
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import java.util.UUID
@@ -79,6 +80,14 @@ class AggregatedDataProfile(
     @Embedded
     var schema: AggregatedDataProfileSchema = AggregatedDataProfileSchema(),
 ) {
+
+    @PostLoad
+    @Suppress("SENSELESS_COMPARISON")
+    private fun initializeEmbeddedDefaults() {
+        if (schema == null) {
+            schema = AggregatedDataProfileSchema()
+        }
+    }
 
     fun handle(request: AggregatedDataProfileEditForm) {
         this.roles = Roles(request.roles)
