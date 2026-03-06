@@ -479,15 +479,14 @@ internal class AggregatedDataProfileController(
     }
 
     @PostMapping("/{id}/schema/regenerate")
-    @Transactional
     fun regenerateSchema(
         @PathVariable id: UUID,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow().also {
             if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
                 it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
+                aggregatedDataProfileRepository.save(it)
             }
-            aggregatedDataProfileRepository.save(it)
         }
         return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
