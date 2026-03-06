@@ -25,6 +25,7 @@ import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.thisptr.jackson.jq.BuiltinFunctionLoader
 import net.thisptr.jackson.jq.JsonQuery
 import net.thisptr.jackson.jq.Scope
@@ -39,19 +40,19 @@ class AggregatedDataProfileSchemaService(
     private val mapper: ObjectMapper,
 ) {
     fun generateSchema(adp: AggregatedDataProfile): String {
+        logger.info { "Generating schema for ADP '${adp.name}' (${adp.id})" }
         val adpMock = generateConnectorMock(adp.connectorInstanceId, adp.connectorEndpointId)
         val composedInput = composeInput(adpMock, adp.level1Relations())
         val result = applyTransform(adp.resultTransform.expression, composedInput)
         return jsonSchemaInferrer.infer(result)
     }
 
-    fun isSchemaGenerationSupported(adp: AggregatedDataProfile): Boolean =
-        (listOf(adp.connectorInstanceId) + adp.relations.map { it.connectorInstanceId })
-            .all { instanceId ->
-                connectorInstanceRepository.findById(instanceId)
-                    .map { it.config.containsKey("specificationUri") }
-                    .orElse(false)
-            }
+    fun isSchemaGenerationSupported(adp: AggregatedDataProfile): Boolean = (listOf(adp.connectorInstanceId) + adp.relations.map { it.connectorInstanceId })
+        .all { instanceId ->
+            connectorInstanceRepository.findById(instanceId)
+                .map { it.config.containsKey("specificationUri") }
+                .orElse(false)
+        }
 
     private fun generateRelationResult(relation: Relation): JsonNode {
         val connectorMock = generateConnectorMock(relation.connectorInstanceId, relation.connectorEndpointId)
@@ -121,4 +122,7 @@ class AggregatedDataProfileSchemaService(
             .firstOrNull() ?: NullNode.instance
     }
 
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 }
