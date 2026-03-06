@@ -45,10 +45,6 @@ internal class AggregatedDataProfileSchemaService(
     private val jsonSchemaInferrer: JsonSchemaInferrer,
     private val mapper: ObjectMapper,
 ) {
-    companion object {
-        private val logger = KotlinLogging.logger {}
-    }
-
     @Transactional
     fun generateAndSave(adpId: UUID) {
         val adp = aggregatedDataProfileRepository.findById(adpId)
@@ -150,5 +146,9 @@ internal class AggregatedDataProfileSchemaService(
         val out = mutableListOf<JsonNode>()
         query.apply(scope, input) { out.add(it) }
         return out.firstOrNull() ?: NullNode.instance
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
     }
 }
