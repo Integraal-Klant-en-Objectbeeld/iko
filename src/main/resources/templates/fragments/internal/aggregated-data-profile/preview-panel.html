@@ -14,7 +14,7 @@
  limitations under the License.
  -->
 
-<div id="profile-debug" th:fragment="profile-debug">
+<div id="preview-panel" th:fragment="preview-panel">
     <cds-tile>
         <cds-tabs value="result" type="contained">
             <cds-tab id="tab-result" target="panel-result" value="result">
@@ -134,7 +134,7 @@
                             <cds-button
                                 kind="primary"
                                 hx-post="/admin/aggregated-data-profiles/debug"
-                                hx-target="#profile-debug"
+                                hx-target="#preview-panel"
                                 hx-swap="outerHTML"
                                 hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name'], [id='version']"
                                 hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"

@@ -127,7 +127,7 @@ internal class TestController(
         // Disable tracing
         tracer.isEnabled = false
 
-        return ModelAndView("$BASE_FRAGMENT_ADP/debug :: profile-debug").apply {
+        return ModelAndView("$BASE_FRAGMENT_ADP/preview-panel :: preview-panel").apply {
             addObject("form", form)
             addObject("endpointTransformContext", form.endpointTransformContext)
             addObject("testResult", result)
