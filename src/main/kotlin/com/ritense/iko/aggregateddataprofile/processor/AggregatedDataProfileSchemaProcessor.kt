@@ -19,8 +19,9 @@ package com.ritense.iko.aggregateddataprofile.processor
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileSchemaNotAvailable
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
-import com.ritense.iko.camel.IkoConstants.Headers
-import com.ritense.iko.camel.IkoConstants.Variables
+import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
+import com.ritense.iko.camel.IkoConstants.Variables.AUTHORITIES
+import com.ritense.iko.camel.IkoConstants.Variables.PROFILE_NAME
 import org.apache.camel.Exchange
 
 class AggregatedDataProfileSchemaProcessor(
@@ -29,20 +30,20 @@ class AggregatedDataProfileSchemaProcessor(
 
     fun resolveProfile(exchange: Exchange) {
         val profileName = exchange.`in`.getHeader(
-            Headers.ADP_PROFILE_NAME_PARAM_HEADER,
+            ADP_PROFILE_NAME_PARAM_HEADER,
             String::class.java,
         )
         val adp = aggregatedDataProfileRepository.findByNameAndIsActiveTrue(profileName)
             ?: throw AggregatedDataProfileNotFound(profileName)
-        exchange.setVariable(Variables.PROFILE_NAME, adp.name)
-        exchange.setVariable(Variables.AUTHORITIES, adp.roles.asList())
+        exchange.setVariable(PROFILE_NAME, adp.name)
+        exchange.setVariable(AUTHORITIES, adp.roles.asList())
         exchange.setVariable(ADP_SCHEMA, adp.schema.value)
     }
 
     fun resolveSchema(exchange: Exchange) {
         val schema = exchange.getVariable(ADP_SCHEMA, String::class.java)
             ?: throw AggregatedDataProfileSchemaNotAvailable(
-                exchange.getVariable(Variables.PROFILE_NAME, String::class.java) ?: "unknown",
+                exchange.getVariable(PROFILE_NAME, String::class.java) ?: "unknown",
             )
         exchange.`in`.body = schema
     }
