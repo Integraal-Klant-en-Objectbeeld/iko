@@ -140,6 +140,10 @@ class AggregatedDataProfile(
         this.relations.removeIf { it.id in toRemove }
     }
 
+    fun applySchema(jsonSchema: String) {
+        this.schema = AggregatedDataProfileSchema(jsonSchema)
+    }
+
     fun level1Relations(): List<Relation> {
         return relations.filter { it.sourceId == null || it.sourceId == this.id } // backwards compatible code either check on ADP id or null (used before prefilling)
     }

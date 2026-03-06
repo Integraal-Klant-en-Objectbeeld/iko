@@ -133,7 +133,7 @@ class AggregatedDataProfileSchemaServiceTest {
     }
 
     @Test
-    fun `generateSchema returns null when connector has no specificationUri`() {
+    fun `isSchemaGenerationSupported returns false when connector has no specificationUri`() {
         val instanceWithoutSpec = ConnectorInstance(
             id = UUID.randomUUID(),
             name = "no-spec-instance",
@@ -148,9 +148,7 @@ class AggregatedDataProfileSchemaServiceTest {
             resultTransform = ".",
         )
 
-        val schema = service.generateSchema(adp)
-
-        assertThat(schema).isNull()
+        assertThat(service.isSchemaGenerationSupported(adp)).isFalse()
     }
 
     @Test

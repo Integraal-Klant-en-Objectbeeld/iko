@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
-import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileSchema
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -35,7 +34,7 @@ import net.thisptr.jackson.jq.Versions
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-class AggregatedDataProfileSchemaService(
+open class AggregatedDataProfileSchemaService(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
@@ -44,70 +43,65 @@ class AggregatedDataProfileSchemaService(
     private val mapper: ObjectMapper,
 ) {
     @Transactional
-    fun generateAndSave(adpId: UUID) {
+    open fun generateAndSave(adpId: UUID) {
         val adp = aggregatedDataProfileRepository.findById(adpId)
             .orElseThrow { NoSuchElementException("ADP not found: $adpId") }
-        val schema = generateSchema(adp)
-        if (schema == null) {
+        if (!isSchemaGenerationSupported(adp)) {
             logger.info {
                 "Schema generation skipped for ADP '${adp.name}' (${adp.id}): connector has no specificationUri"
             }
             return
         }
-        adp.schema = AggregatedDataProfileSchema(schema)
+        val schema = generateSchema(adp)
+        adp.applySchema(schema)
         aggregatedDataProfileRepository.save(adp)
         logger.info { "Schema generated for ADP '${adp.name}' (${adp.id})" }
     }
 
-    fun generateSchema(adp: AggregatedDataProfile): String? {
-        if (!isSchemaGenerationSupported(adp)) return null
+    fun generateSchema(adp: AggregatedDataProfile): String {
         val adpMock = generateConnectorMock(adp.connectorInstanceId, adp.connectorEndpointId)
-        val composedInput = composeInput(adpMock, adp.level1Relations(), adp)
+        val composedInput = composeInput(adpMock, adp.level1Relations())
         val result = applyTransform(adp.resultTransform.expression, composedInput)
         return jsonSchemaInferrer.infer(result)
     }
 
-    fun isSchemaGenerationSupported(adp: AggregatedDataProfile): Boolean {
-        val allInstanceIds = buildList {
-            add(adp.connectorInstanceId)
-            adp.relations.forEach { add(it.connectorInstanceId) }
-        }
-        return allInstanceIds.all { instanceId ->
-            connectorInstanceRepository.findById(instanceId)
-                .map { it.config.containsKey("specificationUri") }
-                .orElse(false)
-        }
-    }
+    fun isSchemaGenerationSupported(adp: AggregatedDataProfile): Boolean =
+        (listOf(adp.connectorInstanceId) + adp.relations.map { it.connectorInstanceId })
+            .all { instanceId ->
+                connectorInstanceRepository.findById(instanceId)
+                    .map { it.config.containsKey("specificationUri") }
+                    .orElse(false)
+            }
 
     private fun generateRelationResult(relation: Relation): JsonNode {
         val connectorMock = generateConnectorMock(relation.connectorInstanceId, relation.connectorEndpointId)
         val children = relation.aggregatedDataProfile.relationsOf(relation.id)
-        val composedInput = composeInput(connectorMock, children, relation.aggregatedDataProfile)
+        val composedInput = composeInput(connectorMock, children)
         return applyTransform(relation.resultTransform.expression, composedInput)
     }
 
     private fun composeInput(
         connectorMock: JsonNode,
         children: List<Relation>,
-        adp: AggregatedDataProfile,
     ): JsonNode {
         if (children.isEmpty()) return connectorMock
 
-        val rightMap = mapper.createObjectNode()
-        for (child in children) {
-            val childResult = generateRelationResult(child)
-            val isArrayMode = detectArrayMode(child.endpointTransform.expression, connectorMock)
-            if (isArrayMode) {
-                rightMap.set<ArrayNode>(child.propertyName, mapper.createArrayNode().add(childResult))
-            } else {
-                rightMap.set<JsonNode>(child.propertyName, childResult)
+        val rightMap = mapper.createObjectNode().apply {
+            children.forEach { child ->
+                val childResult = generateRelationResult(child)
+                val isArrayMode = detectArrayMode(child.endpointTransform.expression, connectorMock)
+                if (isArrayMode) {
+                    set<ArrayNode>(child.propertyName, mapper.createArrayNode().add(childResult))
+                } else {
+                    set<JsonNode>(child.propertyName, childResult)
+                }
             }
         }
 
-        return mapper.createObjectNode()
-            .set<ObjectNode>("left", connectorMock).also {
-                (it as ObjectNode).set<ObjectNode>("right", rightMap)
-            }
+        return mapper.createObjectNode().apply {
+            set<ObjectNode>("left", connectorMock)
+            set<ObjectNode>("right", rightMap)
+        }
     }
 
     private fun generateConnectorMock(connectorInstanceId: UUID, connectorEndpointId: UUID): JsonNode {
@@ -118,8 +112,9 @@ class AggregatedDataProfileSchemaService(
         val specUri = checkNotNull(instance.config["specificationUri"]) {
             "specificationUri missing from ConnectorInstance ${instance.id}"
         }
-        val openApi = openApiMockGenerator.loadSpec(specUri)
-        return openApiMockGenerator.generateMock(openApi, endpoint.operation)
+        return openApiMockGenerator.loadSpec(specUri).let { openApi ->
+            openApiMockGenerator.generateMock(openApi, endpoint.operation)
+        }
     }
 
     private fun detectArrayMode(endpointTransformExpression: String, parentMock: JsonNode): Boolean {
@@ -138,12 +133,12 @@ class AggregatedDataProfileSchemaService(
     }
 
     private fun applyTransform(expression: String, input: JsonNode): JsonNode {
-        val scope = Scope.newEmptyScope()
-        BuiltinFunctionLoader.getInstance().loadFunctions(Versions.JQ_1_6, scope)
+        val scope = Scope.newEmptyScope().also {
+            BuiltinFunctionLoader.getInstance().loadFunctions(Versions.JQ_1_6, it)
+        }
         val query = JsonQuery.compile(expression, Versions.JQ_1_6)
-        val out = mutableListOf<JsonNode>()
-        query.apply(scope, input) { out.add(it) }
-        return out.firstOrNull() ?: NullNode.instance
+        return buildList<JsonNode> { query.apply(scope, input) { add(it) } }
+            .firstOrNull() ?: NullNode.instance
     }
 
     companion object {
