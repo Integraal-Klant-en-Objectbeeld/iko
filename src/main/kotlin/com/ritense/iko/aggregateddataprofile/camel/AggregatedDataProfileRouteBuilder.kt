@@ -231,6 +231,7 @@ class AggregatedDataProfileRouteBuilder(
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${currentRelation.propertyName}] --> Endpoint")
             .unmarshal().json()
+            .setVariable("connectorId", constant(connectorInstance.connector.id))
             .setVariable("connector", constant(connectorInstance.connector.tag))
             .setVariable("config", constant(connectorInstance.tag))
             .setVariable("operation", constant(connectorEndpoint.operation))
