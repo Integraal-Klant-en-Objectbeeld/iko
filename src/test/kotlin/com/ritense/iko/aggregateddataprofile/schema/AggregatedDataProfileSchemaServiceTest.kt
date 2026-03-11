@@ -19,6 +19,7 @@ package com.ritense.iko.aggregateddataprofile.schema
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileCacheSetting
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileSchema
 import com.ritense.iko.aggregateddataprofile.domain.EndpointTransform
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.domain.RelationCacheSettings
@@ -208,5 +209,6 @@ class AggregatedDataProfileSchemaServiceTest {
         resultTransform = Transform(resultTransform),
         roles = Roles("ROLE_TEST"),
         aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+        schema = AggregatedDataProfileSchema(),
     )
 }

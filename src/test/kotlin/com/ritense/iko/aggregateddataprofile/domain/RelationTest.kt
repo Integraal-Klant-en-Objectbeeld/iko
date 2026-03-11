@@ -34,6 +34,7 @@ class RelationTest {
             resultTransform = Transform("."),
             roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = AggregatedDataProfileSchema(),
         )
 
         val relation = Relation(
@@ -63,6 +64,7 @@ class RelationTest {
             resultTransform = Transform("."),
             roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = AggregatedDataProfileSchema(),
         )
 
         assertThatThrownBy {
@@ -91,6 +93,7 @@ class RelationTest {
             resultTransform = Transform("."),
             roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = AggregatedDataProfileSchema(),
         )
 
         assertThatThrownBy {

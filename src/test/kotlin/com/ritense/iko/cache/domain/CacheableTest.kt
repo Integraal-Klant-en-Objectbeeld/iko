@@ -18,6 +18,7 @@ package com.ritense.iko.cache.domain
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileCacheSetting
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileSchema
 import com.ritense.iko.aggregateddataprofile.domain.EndpointTransform
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.domain.RelationCacheSettings
@@ -49,6 +50,7 @@ class CacheableTest {
                 timeToLive = 250,
             ),
             roles = Roles("ROLE_ADMIN"),
+            schema = AggregatedDataProfileSchema(),
         )
 
         val exchange = DefaultExchange(context)
@@ -85,6 +87,7 @@ class CacheableTest {
             resultTransform = Transform("."),
             roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = AggregatedDataProfileSchema(),
         )
         val relation = Relation(
             aggregatedDataProfile = profile,

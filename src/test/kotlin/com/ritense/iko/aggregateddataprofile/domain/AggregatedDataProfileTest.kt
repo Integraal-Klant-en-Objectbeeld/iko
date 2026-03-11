@@ -385,5 +385,6 @@ class AggregatedDataProfileTest {
         roles = Roles("ROLE_TEST"),
         aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
         version = Version("1.0.0"),
+        schema = AggregatedDataProfileSchema(),
     )
 }
