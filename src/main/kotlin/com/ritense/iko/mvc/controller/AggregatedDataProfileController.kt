@@ -317,7 +317,7 @@ internal class AggregatedDataProfileController(
             ) {
                 aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
             }
-        // Save call is needed here as JPA sets it via reflection resulting into null when it is null in the database.
+            // Save call is needed here as JPA sets it via reflection resulting into null when it is null in the database.
         } else if (aggregatedDataProfile.schema?.value != null) {
             aggregatedDataProfile.resetSchema()
         }

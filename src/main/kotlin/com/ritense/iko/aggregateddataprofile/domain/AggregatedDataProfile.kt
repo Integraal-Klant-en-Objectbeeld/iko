@@ -77,7 +77,7 @@ class AggregatedDataProfile(
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 
     @Embedded
-    var schema: AggregatedDataProfileSchema
+    var schema: AggregatedDataProfileSchema,
 ) {
 
     fun handle(request: AggregatedDataProfileEditForm) {
