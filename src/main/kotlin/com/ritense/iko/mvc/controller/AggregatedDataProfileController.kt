@@ -307,13 +307,18 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
+        val previousConnectorInstanceId = aggregatedDataProfile.connectorInstanceId
         val previousResultTransform = aggregatedDataProfile.resultTransform.expression
         aggregatedDataProfile.handle(form)
         if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
-            if (aggregatedDataProfile.resultTransform.expression != previousResultTransform) {
+            if (
+                aggregatedDataProfile.resultTransform.expression != previousResultTransform ||
+                aggregatedDataProfile.connectorInstanceId != previousConnectorInstanceId
+            ) {
                 aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
             }
-        } else if (aggregatedDataProfile.schema.value != null) {
+        // Save call is needed here as JPA sets it via reflection resulting into null when it is null in the database.
+        } else if (aggregatedDataProfile.schema?.value != null) {
             aggregatedDataProfile.resetSchema()
         }
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
