@@ -46,7 +46,8 @@ Available in JQ transforms as `.sortParams` and `.filterParams`.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/endpoints/{name}` | JWT (`ROLE_ENDPOINT_*`) | Call a connector endpoint directly |
+| `GET` | `/endpoints/{connector}/{instance}/{operation}` | JWT (`ROLE_ENDPOINT_*`) | Call a connector endpoint directly |
+| `GET` | `/endpoints/{connector}/{instance}/{operation}/{id}` | JWT (`ROLE_ENDPOINT_*`) | Call a connector endpoint with an ID parameter |
 
 ## Admin UI (OAuth2-secured)
 
