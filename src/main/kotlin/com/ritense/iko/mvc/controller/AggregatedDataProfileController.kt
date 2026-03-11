@@ -76,6 +76,7 @@ internal class AggregatedDataProfileController(
         val availableSources = sources(aggregatedDataProfile)
         val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
         val versions = aggregatedDataProfileRepository.findVersionsByName(aggregatedDataProfile.name)
+        val isSchemaSupported = aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)
 
         return ModelAndView(
             "$BASE_FRAGMENT_ADP/detail-page" +
@@ -95,7 +96,7 @@ internal class AggregatedDataProfileController(
                 "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
                 "email" to SecurityContextHelper.getUserPropertyByKey("email"),
-                "schemaSupported" to aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile),
+                "isSchemaSupported" to isSchemaSupported,
             ),
         )
     }
@@ -495,7 +496,7 @@ internal class AggregatedDataProfileController(
         }
         return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
-            addObject("schemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
+            addObject("isSchemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
         }
     }
 

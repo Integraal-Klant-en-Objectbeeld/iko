@@ -16,8 +16,8 @@
 
 <div th:fragment="schema-panel" id="schema-panel-content">
     <cds-tile>
-        <th:block th:if="${schemaSupported}">
-            <div th:if="${aggregatedDataProfile.schema.value != null}">
+        <th:block th:if="${isSchemaSupported}">
+            <div th:if="${aggregatedDataProfile.schema?.value != null}">
                 <cds-inline-notification
                     kind="warning"
                     title="Best effort"
@@ -38,7 +38,7 @@
                 ></div>
             </div>
             <cds-inline-notification
-                th:if="${aggregatedDataProfile.schema.value == null}"
+                th:if="${aggregatedDataProfile.schema?.value == null}"
                 kind="info"
                 title="Schema not yet generated"
                 subtitle="Save the profile with a result transform change or click Regenerate to generate the schema."
@@ -57,7 +57,7 @@
             </cds-button>
         </th:block>
         <cds-inline-notification
-            th:if="${!schemaSupported}"
+            th:if="${!isSchemaSupported}"
             kind="info"
             title="Schema generation not supported"
             subtitle="Schema generation is only supported for profiles where all connector instances have a config `specificationUri` configured."

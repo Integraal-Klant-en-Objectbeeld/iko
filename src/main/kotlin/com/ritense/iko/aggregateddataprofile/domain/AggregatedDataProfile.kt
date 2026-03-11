@@ -28,7 +28,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
-import jakarta.persistence.PostLoad
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import java.util.UUID
@@ -78,16 +77,8 @@ class AggregatedDataProfile(
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 
     @Embedded
-    var schema: AggregatedDataProfileSchema = AggregatedDataProfileSchema(),
+    var schema: AggregatedDataProfileSchema
 ) {
-
-    @PostLoad
-    @Suppress("SENSELESS_COMPARISON")
-    private fun initializeEmbeddedDefaults() {
-        if (schema == null) {
-            schema = AggregatedDataProfileSchema()
-        }
-    }
 
     fun handle(request: AggregatedDataProfileEditForm) {
         this.roles = Roles(request.roles)
@@ -108,7 +99,7 @@ class AggregatedDataProfile(
                 sourceId = form.sourceId,
                 resultTransform = Transform(form.resultTransform),
                 endpointTransform = RelationEndpointTransform(form.sourceToEndpointMapping),
-                connectorEndpointId = form.connectorEndpointId!!,
+                connectorEndpointId = form.connectorEndpointId,
                 connectorInstanceId = form.connectorInstanceId,
                 propertyName = form.propertyName,
                 relationCacheSettings = RelationCacheSettings(),
@@ -181,6 +172,7 @@ class AggregatedDataProfile(
         roles = this.roles,
         aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
         relations = mutableListOf(),
+        schema = AggregatedDataProfileSchema(),
     )
 
     companion object {
@@ -194,6 +186,7 @@ class AggregatedDataProfile(
             endpointTransform = EndpointTransform(form.endpointTransform),
             resultTransform = Transform(form.resultTransform),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = AggregatedDataProfileSchema(),
         )
     }
 }
