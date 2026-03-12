@@ -552,6 +552,7 @@ cds-form-item {
 
 .page-title-version-select cds-dropdown {
     min-width: 150px;
+    width: max-content;
 }
 
 .page-title-version-select cds-dropdown::part(trigger-button) {
