@@ -146,6 +146,7 @@ class ConnectorController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+        connector.ensureDraft()
 
         if (bindingResult.hasErrors()) {
             httpServletResponse.setHeader("HX-Retarget", "#connector-code")
@@ -315,6 +316,8 @@ class ConnectorController(
         bindingResult: BindingResult,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
+        connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }.ensureDraft()
+
         if (bindingResult.hasErrors()) {
             return ModelAndView(
                 "fragments/internal/connector/formCreateConnectorInstanceConfig :: form",
@@ -385,6 +388,8 @@ class ConnectorController(
         bindingResult: BindingResult,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
+        connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }.ensureDraft()
+
         if (bindingResult.hasErrors()) {
             val connector =
                 connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
@@ -442,6 +447,8 @@ class ConnectorController(
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         response: HttpServletResponse,
     ): ModelAndView {
+        connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }.ensureDraft()
+
         if (bindingResult.hasErrors()) {
             return ModelAndView(
                 "fragments/internal/connector/formCreateConnectorInstance :: form",
@@ -531,6 +538,7 @@ class ConnectorController(
         }
 
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+        connector.ensureDraft()
 
         var connectorEndpoint =
             ConnectorEndpoint(
@@ -562,9 +570,10 @@ class ConnectorController(
         @PathVariable id: UUID,
         @PathVariable endpointId: UUID,
     ): ModelAndView {
-        connectorEndpointRepository.deleteById(endpointId)
-
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+        connector.ensureDraft()
+
+        connectorEndpointRepository.deleteById(endpointId)
 
         return ModelAndView(
             "fragments/internal/connector/detailsPageConnector :: endpoints-table",
@@ -583,9 +592,10 @@ class ConnectorController(
         @PathVariable id: UUID,
         @PathVariable instanceId: UUID,
     ): ModelAndView {
-        connectorInstanceRepository.deleteById(instanceId)
-
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
+        connector.ensureDraft()
+
+        connectorInstanceRepository.deleteById(instanceId)
         val instances = connectorInstanceRepository.findByConnector(connector)
 
         return ModelAndView(
@@ -603,6 +613,8 @@ class ConnectorController(
         @PathVariable instanceId: UUID,
         @PathVariable roleId: UUID,
     ): ModelAndView {
+        connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }.ensureDraft()
+
         connectorEndpointRoleRepository.deleteById(roleId)
         val connectorInstance =
             connectorInstanceRepository
@@ -625,6 +637,8 @@ class ConnectorController(
         @PathVariable instanceId: UUID,
         @PathVariable configKey: String,
     ): ModelAndView {
+        connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }.ensureDraft()
+
         val instance =
             connectorInstanceRepository
                 .findById(instanceId)
@@ -720,6 +734,15 @@ class ConnectorController(
                 addObject("errors", bindingResult)
             }
         }
+    }
+
+    @PostMapping("/{id}/finalize")
+    fun finalizeConnector(
+        @PathVariable id: UUID,
+        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        connectorService.finalizeConnector(id)
+        return details(id, isHxRequest)
     }
 
     @PostMapping("/{id}/activate")
