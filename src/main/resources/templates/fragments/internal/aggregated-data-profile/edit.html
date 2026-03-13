@@ -130,58 +130,6 @@
                                                                          value=${form?.roles}"
                                             >
                                             </cds-text-input>
-
-                                            <div
-                                                class="form-row"
-                                                style="
-                                                    flex-direction: row;
-                                                    align-items: center;
-                                                    justify-content: space-between;
-                                                "
-                                            >
-                                                <cds-toggle
-                                                    id="cacheEnabledToggle"
-                                                    name="cacheEnabledToggle"
-                                                    label-text="Cache enabled"
-                                                    aria-labelledby="cacheEnabled-label"
-                                                    hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
-                                                    th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
-                                                                     invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
-                                                                     checked=${form?.cacheEnabled}"
-                                                >
-                                                </cds-toggle>
-                                                <input
-                                                    type="hidden"
-                                                    name="cacheEnabled"
-                                                    id="adpCacheEnabledHidden"
-                                                    th:value="${form?.cacheEnabled}"
-                                                />
-                                                <cds-number-input
-                                                    id="cacheTimeToLive"
-                                                    name="cacheTimeToLive"
-                                                    required="true"
-                                                    value="5000"
-                                                    min="0"
-                                                    step="1000"
-                                                    max="31536000000"
-                                                    label="Time to live"
-                                                    helper-text="Milliseconds"
-                                                    style="width: 300px"
-                                                    th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
-                                                                     invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
-                                                                     value=${form?.cacheTimeToLive}"
-                                                >
-                                                </cds-number-input>
-                                                <cds-button
-                                                    kind="danger-tertiary"
-                                                    size="sm"
-                                                    hx-confirm="Are you sure?"
-                                                    th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form?.id} + '/cache'},
-                                                                disabled=${!isCached}"
-                                                >
-                                                    Clear cache
-                                                </cds-button>
-                                            </div>
                                         </cds-stack>
                                     </div>
                                     <div class="form-column">

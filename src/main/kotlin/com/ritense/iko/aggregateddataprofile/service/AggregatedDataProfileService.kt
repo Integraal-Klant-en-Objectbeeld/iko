@@ -214,6 +214,7 @@ internal class AggregatedDataProfileService(
         return FinalizationImpact(
             adpId = adp.id,
             adpName = adp.name,
+            adpVersion = adp.version.value,
             connectorsToFinalize = connectorImpacts,
             canFinalize = errors.isEmpty(),
             errors = errors,

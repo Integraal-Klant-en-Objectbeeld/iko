@@ -45,7 +45,8 @@ Available in JQ transforms as `.sortParams` and `.filterParams`.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/endpoints/{name}` | JWT (`ROLE_ENDPOINT_*`) | Call a connector endpoint directly |
+| `GET` | `/endpoints/{connector}/{config}/{operation}` | JWT (`ROLE_ENDPOINT_*`) | Call a connector endpoint directly by connector tag, config tag, and operation name |
+| `GET` | `/endpoints/{connector}/{config}/{operation}/{id}` | JWT (`ROLE_ENDPOINT_*`) | Call a connector endpoint with an additional ID parameter passed to the connector route |
 
 ## Admin UI (OAuth2-secured)
 
@@ -61,8 +62,10 @@ All admin endpoints require OAuth2/OIDC login with at least one configured admin
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/admin/aggregated-data-profiles` | List profiles (paginated, default 10/page) |
+| `GET` | `/admin/aggregated-data-profiles` | List active profiles (paginated, default 10/page) |
 | `GET` | `/admin/aggregated-data-profiles/{id}` | View profile details |
+| `GET` | `/admin/aggregated-data-profiles/create` | Profile creation form |
+| `GET` | `/admin/aggregated-data-profiles/create/endpoints` | HTMX partial: endpoint list for connector instance (create form) |
 | `POST` | `/admin/aggregated-data-profiles` | Create new profile |
 | `PUT` | `/admin/aggregated-data-profiles` | Update profile |
 | `DELETE` | `/admin/aggregated-data-profiles/{id}` | Delete profile |
@@ -79,13 +82,26 @@ All admin endpoints require OAuth2/OIDC login with at least one configured admin
 | `GET` | `/admin/aggregated-data-profiles/{id}/relations/create` | Relation creation form |
 | `GET` | `/admin/aggregated-data-profiles/{id}/relations/edit/{relationId}` | Relation edit form |
 | `GET` | `/admin/aggregated-data-profiles/{id}/relations/edit/{relationId}/delete` | Relation delete confirmation |
+| `GET` | `/admin/aggregated-data-profiles/relations/add/endpoints` | HTMX partial: endpoint list for relation add form |
+| `GET` | `/admin/aggregated-data-profiles/relations/edit/endpoints` | HTMX partial: endpoint list for relation edit form |
 
 ### Cache Management
 
 | Method | Path | Description |
 |---|---|---|
+| `PUT` | `/admin/aggregated-data-profiles/{id}/cache` | Update cache settings (enabled flag + TTL) |
 | `DELETE` | `/admin/aggregated-data-profiles/{id}/cache` | Evict profile cache |
 | `DELETE` | `/admin/aggregated-data-profiles/{id}/relation/{relationId}/cache` | Evict relation cache |
+
+### Version Management (Aggregated Data Profiles)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/admin/aggregated-data-profiles/{id}/versions/create` | Create new version modal |
+| `POST` | `/admin/aggregated-data-profiles/{id}/versions` | Create a new version by cloning the profile |
+| `POST` | `/admin/aggregated-data-profiles/{id}/finalize/preview` | Preview finalization impact (cascade and affected ADPs) |
+| `POST` | `/admin/aggregated-data-profiles/{id}/finalize` | Finalize (lock) a profile version |
+| `POST` | `/admin/aggregated-data-profiles/{id}/activate` | Activate a specific profile version |
 
 ### Debug / Test
 
@@ -97,8 +113,9 @@ All admin endpoints require OAuth2/OIDC login with at least one configured admin
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/admin/connectors` | List all connectors |
+| `GET` | `/admin/connectors` | List all active connectors |
 | `GET` | `/admin/connectors/{id}` | View connector details |
+| `GET` | `/admin/connectors/create` | Connector creation form |
 | `POST` | `/admin/connectors` | Create new connector |
 | `PUT` | `/admin/connectors/{id}` | Update connector YAML code |
 | `DELETE` | `/admin/connectors/{id}` | Delete connector (cascades) |
@@ -138,6 +155,15 @@ All admin endpoints require OAuth2/OIDC login with at least one configured admin
 | `GET` | `/admin/connectors/{id}/instances/{instanceId}/roles` | Roles form |
 | `POST` | `/admin/connectors/{id}/instances/{instanceId}/roles` | Add role mapping |
 | `DELETE` | `/admin/connectors/{id}/instances/{instanceId}/roles/{roleId}` | Delete role mapping |
+
+### Version Management (Connectors)
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/admin/connectors/{id}/versions/create` | Create new version modal |
+| `POST` | `/admin/connectors/{id}/versions` | Create a new version of a connector |
+| `POST` | `/admin/connectors/{id}/finalize` | Finalize (lock) a connector version |
+| `POST` | `/admin/connectors/{id}/activate` | Activate a specific connector version |
 
 ## Actuator Endpoints
 

@@ -14,29 +14,23 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.aggregateddataprofile.service
+package com.ritense.iko.mvc.model
 
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import jakarta.validation.constraints.Min
 import java.util.UUID
 
-internal data class FinalizationImpact(
-    val adpId: UUID,
-    val adpName: String,
-    val adpVersion: String,
-    val connectorsToFinalize: List<ConnectorImpact>,
-    val canFinalize: Boolean,
-    val errors: List<String>,
-)
-
-internal data class ConnectorImpact(
-    val connectorId: UUID,
-    val connectorName: String,
-    val connectorTag: String,
-    val connectorVersion: String,
-    val affectedDraftAdps: List<AffectedAdp>,
-)
-
-internal data class AffectedAdp(
+data class AggregatedDataProfileCacheForm(
     val id: UUID,
-    val name: String,
-    val version: String,
-)
+    val cacheEnabled: Boolean,
+    @field:Min(value = 0)
+    val cacheTimeToLive: Int,
+) {
+    companion object {
+        fun from(aggregatedDataProfile: AggregatedDataProfile) = AggregatedDataProfileCacheForm(
+            id = aggregatedDataProfile.id,
+            cacheEnabled = aggregatedDataProfile.aggregatedDataProfileCacheSetting.enabled,
+            cacheTimeToLive = aggregatedDataProfile.aggregatedDataProfileCacheSetting.timeToLive,
+        )
+    }
+}

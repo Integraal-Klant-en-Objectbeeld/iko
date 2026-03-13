@@ -112,8 +112,6 @@ class AggregatedDataProfileTest {
             connectorEndpointId = newConnectorEndpointId,
             endpointTransform = ".updated",
             resultTransform = ".result",
-            cacheEnabled = true,
-            cacheTimeToLive = 3600,
             version = Version("2.0.0"),
         )
 
@@ -127,8 +125,6 @@ class AggregatedDataProfileTest {
         assertThat(profile.connectorEndpointId).isEqualTo(newConnectorEndpointId)
         assertThat(profile.endpointTransform.expression).isEqualTo(".updated")
         assertThat(profile.resultTransform.expression).isEqualTo(".result")
-        assertThat(profile.aggregatedDataProfileCacheSetting.enabled).isTrue
-        assertThat(profile.aggregatedDataProfileCacheSetting.timeToLive).isEqualTo(3600)
     }
 
     @Test
@@ -409,8 +405,6 @@ class AggregatedDataProfileTest {
             connectorEndpointId = UUID.randomUUID(),
             endpointTransform = ".",
             resultTransform = ".",
-            cacheEnabled = false,
-            cacheTimeToLive = 0,
             version = Version("1.0.0"),
         )
         assertThatThrownBy { profile.handle(form) }

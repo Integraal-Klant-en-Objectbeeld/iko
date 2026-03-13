@@ -75,7 +75,5 @@ class AggregatedDataProfileFormTest {
         assertThat(form.resultTransform).isEqualTo(".")
         assertThat(form.connectorInstanceId).isEqualTo(profile.connectorInstanceId)
         assertThat(form.connectorEndpointId).isEqualTo(profile.connectorEndpointId)
-        assertThat(form.cacheEnabled).isTrue()
-        assertThat(form.cacheTimeToLive).isEqualTo(123)
     }
 }

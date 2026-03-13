@@ -1,0 +1,98 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<div id="cache-panel" th:fragment="cache-panel">
+    <cds-tile>
+        <span class="tile-header">Cache settings</span>
+        <cds-content>
+            <cds-form
+                id="cache-form"
+                class="cds-theme-zone-white"
+                data-carbon-theme="white"
+            >
+                <div class="form-column single-column no-stack">
+                    <div class="form-row">
+                        <cds-toggle
+                            id="cacheEnabledToggle"
+                            name="cacheEnabledToggle"
+                            label-text="Cache enabled"
+                            aria-labelledby="cacheEnabled-label"
+                            hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
+                            th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                            th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
+                                             invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
+                                             checked=${cacheForm?.cacheEnabled}"
+                        >
+                        </cds-toggle>
+                        <input
+                            type="hidden"
+                            name="cacheEnabled"
+                            id="adpCacheEnabledHidden"
+                            th:value="${cacheForm?.cacheEnabled}"
+                        />
+                    </div>
+                    <div class="form-row">
+                        <cds-number-input
+                            id="cacheTimeToLive"
+                            name="cacheTimeToLive"
+                            required="true"
+                            value="5000"
+                            min="0"
+                            step="1000"
+                            max="31536000000"
+                            label="Time to live"
+                            helper-text="Milliseconds"
+                            style="width: 200px"
+                            th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                            th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
+                                             invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
+                                             value=${cacheForm?.cacheTimeToLive}"
+                        >
+                        </cds-number-input>
+                    </div>
+                    <div
+                        class="form-actions"
+                        style="
+                            display: flex;
+                            flex-direction: row;
+                            gap: var(--cds-spacing-05);
+                            justify-content: flex-end;
+                        "
+                    >
+                        <cds-button
+                            kind="danger"
+                            hx-confirm="Are you sure?"
+                            th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/cache'},
+                                        disabled=${!isCached}"
+                        >
+                            Clear cache
+                        </cds-button>
+                        <cds-button
+                            th:attr="hx-put=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/cache'}"
+                            hx-target="#cache-panel"
+                            hx-swap="outerHTML"
+                            hx-include="#cache-form *"
+                            hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                            th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                        >
+                            Save
+                        </cds-button>
+                    </div>
+                </div>
+            </cds-form>
+        </cds-content>
+    </cds-tile>
+</div>

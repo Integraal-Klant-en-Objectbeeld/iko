@@ -23,7 +23,8 @@
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
         <cds-modal-heading
-            >Finalize <span th:text="${impact.adpName}"></span
+            >Finalize
+            <span th:text="|${impact.adpName} v${impact.adpVersion}|"></span
         ></cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
@@ -34,30 +35,39 @@
 
         <div th:if="${!#lists.isEmpty(impact.connectorsToFinalize)}">
             <p>The following connectors will also be finalized:</p>
-            <div
-                th:each="conn : ${impact.connectorsToFinalize}"
-                style="margin-bottom: var(--cds-spacing-05)"
+            <ul
+                style="
+                    margin: var(--cds-spacing-03) 0;
+                    padding-left: var(--cds-spacing-06);
+                    list-style-type: disc;
+                "
             >
-                <strong
-                    th:text="|${conn.connectorTag} v${conn.connectorVersion}|"
-                ></strong>
-                <span> (DRAFT → FINAL)</span>
-                <div
-                    th:if="${!#lists.isEmpty(conn.affectedDraftAdps)}"
-                    style="
-                        margin-top: var(--cds-spacing-02);
-                        color: var(--cds-text-secondary);
-                    "
+                <li
+                    th:each="conn : ${impact.connectorsToFinalize}"
+                    style="margin-bottom: var(--cds-spacing-03)"
                 >
-                    <span>Also referenced by: </span>
-                    <span th:each="affected, stat : ${conn.affectedDraftAdps}">
+                    <strong
+                        th:text="|${conn.connectorName} (${conn.connectorTag}) v${conn.connectorVersion}|"
+                    ></strong>
+                    <div
+                        th:if="${!#lists.isEmpty(conn.affectedDraftAdps)}"
+                        style="
+                            margin-top: var(--cds-spacing-02);
+                            color: var(--cds-text-secondary);
+                        "
+                    >
+                        <span>Also referenced by: </span>
                         <span
-                            th:text="|${affected.name} v${affected.version}|"
-                        ></span>
-                        <span th:if="${!stat.last}">, </span>
-                    </span>
-                </div>
-            </div>
+                            th:each="affected, stat : ${conn.affectedDraftAdps}"
+                        >
+                            <span
+                                th:text="|${affected.name} v${affected.version}|"
+                            ></span>
+                            <span th:if="${!stat.last}">, </span>
+                        </span>
+                    </div>
+                </li>
+            </ul>
         </div>
 
         <cds-inline-notification
