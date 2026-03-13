@@ -99,9 +99,13 @@ class AggregatedDataProfile(
         this.connectorInstanceId = request.connectorInstanceId
         this.endpointTransform = EndpointTransform(request.endpointTransform)
         this.resultTransform = Transform(request.resultTransform)
+    }
+
+    fun updateCacheSettings(enabled: Boolean, timeToLive: Int) {
+        ensureDraft()
         this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
-            enabled = request.cacheEnabled,
-            timeToLive = request.cacheTimeToLive,
+            enabled = enabled,
+            timeToLive = timeToLive,
         )
     }
 

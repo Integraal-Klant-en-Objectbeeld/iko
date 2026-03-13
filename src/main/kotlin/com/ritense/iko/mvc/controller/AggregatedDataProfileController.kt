@@ -29,6 +29,7 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
 import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileAddForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileCacheForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
 import com.ritense.iko.mvc.model.CreateVersionForm
 import com.ritense.iko.mvc.model.DeleteRelationForm
@@ -88,9 +89,10 @@ internal class AggregatedDataProfileController(
                 "form" to AggregatedDataProfileEditForm.from(aggregatedDataProfile),
                 "relations" to aggregatedDataProfile.relations.map { Relation.from(it) },
                 "aggregatedDataProfileId" to aggregatedDataProfile.id,
-                "connectorInstances" to connectorInstanceRepository.findAll(),
+                "connectorInstances" to connectorInstanceRepository.findAllByOrderByNameAsc(),
                 "connectorEndpoints" to endpoints,
                 "sources" to availableSources,
+                "cacheForm" to AggregatedDataProfileCacheForm.from(aggregatedDataProfile),
                 "isCached" to isCached,
                 "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
@@ -207,7 +209,7 @@ internal class AggregatedDataProfileController(
 
     @GetMapping("/aggregated-data-profiles/create")
     fun create(): ModelAndView {
-        val connectors = connectorInstanceRepository.findAll()
+        val connectors = connectorInstanceRepository.findAllByOrderByNameAsc()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/add").apply {
             addObject("connectorInstances", connectors)
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectors.first().connector))
@@ -262,7 +264,7 @@ internal class AggregatedDataProfileController(
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/add :: adp-add-form").apply {
                 addObject("form", form)
                 addObject("errors", bindingResult)
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject(
                     "connectorEndpoints",
                     connectorInstanceRepository.findById(form.connectorInstanceId)
@@ -293,16 +295,14 @@ internal class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
-        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/edit :: profile-edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", form)
                 addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
-                addObject("isCached", isCached)
             }
             return modelAndView
         }
@@ -319,6 +319,40 @@ internal class AggregatedDataProfileController(
         return details(aggregatedDataProfile.id, isHxRequest = true)
     }
 
+    @PutMapping(
+        path = ["/aggregated-data-profiles/{id}/cache"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+    )
+    fun editCache(
+        @PathVariable id: UUID,
+        @Valid @ModelAttribute form: AggregatedDataProfileCacheForm,
+        bindingResult: BindingResult,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
+                addObject("errors", bindingResult)
+                addObject("cacheForm", form)
+                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("isCached", isCached)
+            }
+        }
+        aggregatedDataProfile.updateCacheSettings(
+            enabled = form.cacheEnabled,
+            timeToLive = form.cacheTimeToLive,
+        )
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
+        return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
+            addObject("cacheForm", AggregatedDataProfileCacheForm.from(aggregatedDataProfile))
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("isCached", isCached)
+        }
+    }
+
     @GetMapping("/aggregated-data-profiles/{id}/relations/create")
     fun relationCreate(
         @PathVariable id: UUID,
@@ -328,7 +362,7 @@ internal class AggregatedDataProfileController(
         val sources = sources(aggregatedDataProfile)
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpointRepository.findAll())
             addObject("sources", sources)
             addObject("parentId", sourceId)
@@ -355,7 +389,7 @@ internal class AggregatedDataProfileController(
                 addObject("sources", sources)
                 addObject("errors", bindingResult)
                 addObject("form", form)
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject("connectorEndpoints", connectorEndpoints)
             }
 
@@ -374,7 +408,7 @@ internal class AggregatedDataProfileController(
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
             addObject("sources", sources)
             addObject("aggregatedDataProfileId", aggregatedDataProfile.id)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpointRepository.findAll())
         }
 
@@ -397,7 +431,7 @@ internal class AggregatedDataProfileController(
         val isCached = cacheService.isCached(relation.id.toString())
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
             addObject("sources", sources)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
             addObject("form", EditRelationForm.from(relation))
             addObject("isCached", isCached)
@@ -423,7 +457,7 @@ internal class AggregatedDataProfileController(
             addObject("sources", sources)
             addObject("errors", bindingResult)
             addObject("form", form)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpoints)
             addObject("isCached", isCached)
         }

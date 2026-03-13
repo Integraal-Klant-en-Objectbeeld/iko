@@ -331,6 +331,16 @@ cds-tile {
     }
 }
 
+.debug-grid + .debug-grid {
+    margin-top: 2rem;
+}
+
+cds-form-item.form-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
 .form-grid {
     display: flex;
     gap: 2rem;
@@ -377,6 +387,14 @@ cds-form.adp-add-form cds-form-item {
 @media (max-width: 1200px) {
     #detail-grid {
         flex-direction: column;
+    }
+
+    .debug-grid {
+        flex-direction: column;
+    }
+
+    .monaco-editor-style {
+        overflow: auto;
     }
 }
 
@@ -482,9 +500,13 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 /* Monaco Editor */
 .monaco-editor-style {
     width: 100%;
-    max-width: 100%;
     height: 300px;
     box-sizing: border-box;
+    overflow: hidden;
+}
+
+.form-column cds-form-item {
+    min-width: 0;
     overflow: hidden;
 }
 
@@ -581,7 +603,7 @@ cds-form-item {
 }
 
 .page-title-version-select cds-dropdown {
-    min-width: 150px;
+    min-width: 250px;
     width: max-content;
 }
 
