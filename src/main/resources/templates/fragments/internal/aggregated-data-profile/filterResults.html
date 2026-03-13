@@ -89,6 +89,7 @@
                 ></cds-tag>
             </cds-table-cell>
             <cds-table-cell class="app--table-cell-actions">
+                <div th:if="${aggregatedDataProfile.status != 'DRAFT'}"></div>
                 <cds-overflow-menu
                     th:if="${aggregatedDataProfile.status == 'DRAFT'}"
                     enter-delay-ms="3000"

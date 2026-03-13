@@ -148,6 +148,9 @@
                                 ></cds-tag>
                             </cds-table-cell>
                             <cds-table-cell class="app--table-cell-actions">
+                                <div
+                                    th:if="${connector.status.name() != 'DRAFT'}"
+                                ></div>
                                 <cds-overflow-menu
                                     th:if="${connector.status.name() == 'DRAFT'}"
                                     enter-delay-ms="3000"
