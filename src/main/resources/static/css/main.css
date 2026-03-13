@@ -203,9 +203,40 @@ cds-header ~ cds-side-nav {
     margin-block-start: 3rem;
 }
 
-cds-header-menu-button,
-.cds--header__menu-trigger {
-    display: none !important;
+/* Wide screens: menu always expanded, no hamburger */
+@media (min-width: 1024px) {
+    cds-header-menu-button,
+    .cds--header__menu-trigger {
+        display: none !important;
+    }
+
+    main {
+        margin-left: 16rem;
+    }
+}
+
+/* Narrow screens: show hamburger, overlay menu */
+@media (max-width: 1023px) {
+    cds-header-menu-button,
+    .cds--header__menu-trigger {
+        display: inline-flex !important;
+    }
+
+    cds-side-nav {
+        position: fixed;
+        z-index: 6000;
+        inset-block-start: 3rem;
+        inset-inline-start: 0;
+        width: 0 !important;
+        max-width: 0 !important;
+        overflow: hidden !important;
+        transition: width 0.25s ease, max-width 0.25s ease;
+    }
+
+    cds-side-nav[expanded] {
+        width: 16rem !important;
+        max-width: 16rem !important;
+    }
 }
 
 cds-header .header-panel {
@@ -237,8 +268,7 @@ cds-header cds-header-global-bar {
 
 /* Content and components */
 main {
-    padding: var(--cds-spacing-09) var(--cds-spacing-07) var(--cds-spacing-09)
-        var(--cds-spacing-11);
+    padding: var(--cds-spacing-09) var(--cds-spacing-07);
     min-height: calc(100vh - 3rem);
     background-color: var(--cds-layer-02);
 }
