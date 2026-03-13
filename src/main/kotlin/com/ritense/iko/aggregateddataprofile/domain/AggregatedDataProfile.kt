@@ -25,6 +25,8 @@ import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
@@ -49,6 +51,10 @@ class AggregatedDataProfile(
 
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = false,
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    var status: EntityStatus = EntityStatus.DRAFT,
 
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
@@ -77,7 +83,17 @@ class AggregatedDataProfile(
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 ) {
 
+    fun finalize() {
+        require(status == EntityStatus.DRAFT) { "Only DRAFT versions can be finalized" }
+        this.status = EntityStatus.FINAL
+    }
+
+    fun ensureDraft() {
+        require(status == EntityStatus.DRAFT) { "Cannot modify a FINAL version" }
+    }
+
     fun handle(request: AggregatedDataProfileEditForm) {
+        ensureDraft()
         this.roles = Roles(request.roles)
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
@@ -90,6 +106,7 @@ class AggregatedDataProfile(
     }
 
     fun addRelation(form: AddRelationForm) {
+        ensureDraft()
         this.relations.add(
             Relation(
                 aggregatedDataProfile = this,
@@ -105,6 +122,7 @@ class AggregatedDataProfile(
     }
 
     fun changeRelation(form: EditRelationForm) {
+        ensureDraft()
         this.relations.removeIf { it.id == form.id }
         this.relations.add(
             Relation(
@@ -125,6 +143,7 @@ class AggregatedDataProfile(
     }
 
     fun removeRelation(request: DeleteRelationForm) {
+        ensureDraft()
         // Remove the selected relation and all its descendants
         val toRemove: MutableSet<UUID> = linkedSetOf()
 

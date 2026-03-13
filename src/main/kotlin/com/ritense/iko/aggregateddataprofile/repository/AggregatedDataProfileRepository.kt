@@ -17,6 +17,7 @@
 package com.ritense.iko.aggregateddataprofile.repository
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -41,6 +42,8 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
 
     fun findAllByIsActiveTrue(): List<AggregatedDataProfile>
     fun findAllByIsActiveTrue(pageable: Pageable = Pageable.unpaged()): Page<AggregatedDataProfile>
+
+    fun findAllByStatus(status: EntityStatus): List<AggregatedDataProfile>
 
     @Query(
         """
@@ -81,6 +84,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         ,       adp.name as name
         ,       adp.version.value as version
         ,       adp.isActive as active
+        ,       adp.status as status
         FROM    AggregatedDataProfile adp
         WHERE   adp.name = :name
         ORDER BY adp.version.value DESC
@@ -98,5 +102,6 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         val name: String
         val version: String
         val active: Boolean
+        val status: EntityStatus
     }
 }

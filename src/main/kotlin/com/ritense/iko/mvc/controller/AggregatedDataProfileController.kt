@@ -590,6 +590,24 @@ internal class AggregatedDataProfileController(
         }
     }
 
+    @PostMapping("/aggregated-data-profiles/{id}/finalize/preview")
+    fun finalizePreview(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val impact = aggregatedDataProfileService.previewFinalization(id)
+        return ModelAndView("fragments/internal/versioning/finalize-preview-modal")
+            .addObject("impact", impact)
+    }
+
+    @PostMapping("/aggregated-data-profiles/{id}/finalize")
+    fun finalizeProfile(
+        @PathVariable id: UUID,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        aggregatedDataProfileService.finalizeProfile(id)
+        return details(id, isHxRequest)
+    }
+
     @PostMapping("/aggregated-data-profiles/{id}/activate")
     fun activateVersion(
         @PathVariable id: UUID,

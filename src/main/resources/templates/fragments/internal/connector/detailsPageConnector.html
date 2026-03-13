@@ -33,6 +33,7 @@
                         entityType='connector',
                         currentVersion=${connector.version.value},
                         isActiveVersion=${connector.isActive},
+                        status=${connector.status},
                         versions=${versions}
                     )}"
                 ></div>
@@ -90,6 +91,7 @@
                                 data-editor-selector="#connector-editor"
                                 style="display: none"
                                 onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
+                                th:disabled="${connector.status.name() != 'DRAFT'}"
                             >
                                 Save
                             </cds-button>
@@ -97,6 +99,7 @@
                             <cds-button
                                 id="edit-code-button"
                                 onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
+                                th:disabled="${connector.status.name() != 'DRAFT'}"
                             >
                                 Edit code
                             </cds-button>
@@ -150,6 +153,7 @@
                                         th:hx-get="@{|/admin/connectors/${connector.id}/endpoints/create|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                     >
                                         Add endpoint
                                         <svg
@@ -199,6 +203,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.status.name() != 'DRAFT'}"
                                         >
                                             <svg
                                                 focusable="false"
@@ -265,6 +270,7 @@
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/create|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                     >
                                         Add instance
                                         <svg
@@ -322,6 +328,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.status.name() != 'DRAFT'}"
                                         >
                                             <svg
                                                 focusable="false"

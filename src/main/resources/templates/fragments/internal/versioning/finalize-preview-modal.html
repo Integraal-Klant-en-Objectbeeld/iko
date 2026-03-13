@@ -1,0 +1,87 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<cds-modal
+    id="active-modal"
+    prevent-close-on-click-outside="true"
+    open="true"
+    size="md"
+>
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-heading
+            >Finalize <span th:text="${impact.adpName}"></span
+        ></cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <p th:if="${#lists.isEmpty(impact.connectorsToFinalize)}">
+            All referenced connectors are already finalized. This will make the
+            ADP immutable.
+        </p>
+
+        <div th:if="${!#lists.isEmpty(impact.connectorsToFinalize)}">
+            <p>The following connectors will also be finalized:</p>
+            <div
+                th:each="conn : ${impact.connectorsToFinalize}"
+                style="margin-bottom: var(--cds-spacing-05)"
+            >
+                <strong
+                    th:text="|${conn.connectorTag} v${conn.connectorVersion}|"
+                ></strong>
+                <span> (DRAFT → FINAL)</span>
+                <div
+                    th:if="${!#lists.isEmpty(conn.affectedDraftAdps)}"
+                    style="
+                        margin-top: var(--cds-spacing-02);
+                        color: var(--cds-text-secondary);
+                    "
+                >
+                    <span>Also referenced by: </span>
+                    <span th:each="affected, stat : ${conn.affectedDraftAdps}">
+                        <span
+                            th:text="|${affected.name} v${affected.version}|"
+                        ></span>
+                        <span th:if="${!stat.last}">, </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <cds-inline-notification
+            th:each="error : ${impact.errors}"
+            kind="error"
+            title="Validation Error"
+            th:attr="subtitle=${error}"
+            hide-close-button="true"
+        >
+        </cds-inline-notification>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button data-modal-close="" kind="secondary"
+            >Cancel</cds-modal-footer-button
+        >
+        <cds-modal-footer-button
+            th:hx-post="@{|/admin/aggregated-data-profiles/${impact.adpId}/finalize|}"
+            hx-target="#view-panel"
+            hx-swap="innerHTML"
+            hx-on::after-request="document.getElementById('active-modal')?.removeAttribute('open')"
+            th:disabled="${!impact.canFinalize}"
+            th:attr="aria-disabled=${!impact.canFinalize} ? 'true' : null"
+            kind="danger"
+            >Finalize</cds-modal-footer-button
+        >
+    </cds-modal-footer>
+</cds-modal>
