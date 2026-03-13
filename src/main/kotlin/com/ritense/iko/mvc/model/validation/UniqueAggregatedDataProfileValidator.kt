@@ -31,17 +31,15 @@ class UniqueAggregatedDataProfileValidator(
     ): Boolean {
         if (form.name.isBlank()) return false
 
-        val existing = aggregatedDataProfileRepository.findByName(form.name)
-        val isValid = existing == null || existing.id == form.id
-
-        if (!isValid) {
+        val exists = aggregatedDataProfileRepository.existsByName(form.name)
+        if (exists) {
             context.disableDefaultConstraintViolation()
             context
                 .buildConstraintViolationWithTemplate("Name already exists/in use, please choose another.")
-                .addPropertyNode("name") // point to 'name' field
+                .addPropertyNode("name")
                 .addConstraintViolation()
         }
 
-        return isValid
+        return !exists
     }
 }

@@ -39,8 +39,26 @@
                     hx-target="#search-results"
                     hx-swap="outerHTML"
                     hx-push-url="true"
+                    hx-vals="js:{
+                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true
+                    }"
                 >
                 </cds-table-toolbar-search>
+                <cds-checkbox
+                    id="active-filter-toggle"
+                    th:checked="${isActive}"
+                    hx-get="/admin/aggregated-data-profiles/filter"
+                    hx-target="#search-results"
+                    hx-swap="outerHTML"
+                    hx-trigger="cds-checkbox-changed"
+                    hx-vals="js:{
+                        isActive: event.detail.checked,
+                        size: document.querySelector('#pagination-container')?.__pageSize || 10,
+                        page: 0,
+                        query: document.querySelector('#search-bar')?.value || ''
+                    }"
+                    >Active only</cds-checkbox
+                >
                 <cds-button
                     hx-get="/admin/aggregated-data-profiles/create"
                     hx-target="#modal-container"
@@ -83,12 +101,15 @@
                         sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
                         size: document.querySelector('#pagination-container').__pageSize,
                         page: document.querySelector('#pagination-container').__page - 1,
-                        query: document.querySelector('#search-bar').value
+                        query: document.querySelector('#search-bar').value,
+                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true
                         }"
                 >
                     Name
                 </cds-table-header-cell>
                 <cds-table-header-cell size="sm">Version</cds-table-header-cell>
+                <cds-table-header-cell size="sm">Status</cds-table-header-cell>
+                <cds-table-header-cell size="sm">Active</cds-table-header-cell>
                 <cds-table-header-cell></cds-table-header-cell>
             </cds-table-header-row>
         </cds-table-head>

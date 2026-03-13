@@ -36,6 +36,9 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
 
     fun findAllByIsActiveTrue(): List<Connector>
 
+    @Query("SELECT c FROM Connector c WHERE (:isActive IS NULL OR c.isActive = :isActive)")
+    fun findAllByIsActive(@Param("isActive") isActive: Boolean?): List<Connector>
+
     @Query(
         """
         SELECT  c.id as id

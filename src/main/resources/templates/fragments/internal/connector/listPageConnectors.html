@@ -34,6 +34,18 @@
                 <cds-table id="profile-table">
                     <cds-table-toolbar slot="toolbar">
                         <cds-table-toolbar-content>
+                            <cds-checkbox
+                                id="active-filter-toggle"
+                                th:checked="${isActive}"
+                                hx-get="/admin/connectors"
+                                hx-target="#view-panel"
+                                hx-swap="innerHTML"
+                                hx-trigger="cds-checkbox-changed"
+                                hx-vals="js:{
+                                    isActive: event.detail.checked
+                                }"
+                                >Active only</cds-checkbox
+                            >
                             <cds-button
                                 hx-get="/admin/connectors/create"
                                 hx-target="#modal-container"
@@ -70,6 +82,12 @@
                             <cds-table-header-cell class="col-width-15">
                                 Version
                             </cds-table-header-cell>
+                            <cds-table-header-cell>
+                                Status
+                            </cds-table-header-cell>
+                            <cds-table-header-cell>
+                                Active
+                            </cds-table-header-cell>
                             <cds-table-header-cell> </cds-table-header-cell>
                         </cds-table-header-row>
                     </cds-table-head>
@@ -92,8 +110,21 @@
                             <cds-table-cell
                                 th:text="${connector.version.value}"
                             ></cds-table-cell>
+                            <cds-table-cell>
+                                <cds-tag
+                                    th:type="${connector.status.name() == 'FINAL' ? 'green' : 'cool-gray'}"
+                                    th:text="${connector.status.name()}"
+                                ></cds-tag>
+                            </cds-table-cell>
+                            <cds-table-cell>
+                                <cds-tag
+                                    th:type="${connector.isActive ? 'green' : 'cool-gray'}"
+                                    th:text="${connector.isActive ? 'Yes' : 'No'}"
+                                ></cds-tag>
+                            </cds-table-cell>
                             <cds-table-cell class="app--table-cell-actions">
                                 <cds-overflow-menu
+                                    th:if="${connector.status.name() == 'DRAFT'}"
                                     enter-delay-ms="3000"
                                     leave-delay-ms="0"
                                     close-on-activation
