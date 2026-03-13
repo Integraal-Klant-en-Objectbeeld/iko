@@ -23,7 +23,8 @@
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
         <cds-modal-heading
-            >Finalize <span th:text="|${impact.adpName} v${impact.adpVersion}|"></span
+            >Finalize
+            <span th:text="|${impact.adpName} v${impact.adpVersion}|"></span
         ></cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
@@ -34,7 +35,13 @@
 
         <div th:if="${!#lists.isEmpty(impact.connectorsToFinalize)}">
             <p>The following connectors will also be finalized:</p>
-            <ul style="margin: var(--cds-spacing-03) 0; padding-left: var(--cds-spacing-06); list-style-type: disc">
+            <ul
+                style="
+                    margin: var(--cds-spacing-03) 0;
+                    padding-left: var(--cds-spacing-06);
+                    list-style-type: disc;
+                "
+            >
                 <li
                     th:each="conn : ${impact.connectorsToFinalize}"
                     style="margin-bottom: var(--cds-spacing-03)"
@@ -50,7 +57,9 @@
                         "
                     >
                         <span>Also referenced by: </span>
-                        <span th:each="affected, stat : ${conn.affectedDraftAdps}">
+                        <span
+                            th:each="affected, stat : ${conn.affectedDraftAdps}"
+                        >
                             <span
                                 th:text="|${affected.name} v${affected.version}|"
                             ></span>
