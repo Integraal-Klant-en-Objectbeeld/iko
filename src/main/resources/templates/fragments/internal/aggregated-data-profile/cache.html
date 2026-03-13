@@ -24,14 +24,7 @@
                 data-carbon-theme="white"
             >
                 <div class="form-column single-column no-stack">
-                    <div
-                        class="form-row"
-                        style="
-                            flex-direction: row;
-                            align-items: center;
-                            justify-content: space-between;
-                        "
-                    >
+                    <div class="form-row">
                         <cds-toggle
                             id="cacheEnabledToggle"
                             name="cacheEnabledToggle"
@@ -50,6 +43,8 @@
                             id="adpCacheEnabledHidden"
                             th:value="${cacheForm?.cacheEnabled}"
                         />
+                    </div>
+                    <div class="form-row">
                         <cds-number-input
                             id="cacheTimeToLive"
                             name="cacheTimeToLive"
@@ -60,24 +55,31 @@
                             max="31536000000"
                             label="Time to live"
                             helper-text="Milliseconds"
-                            style="width: 300px"
+                            style="width: 200px"
                             th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                             th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
                                              value=${cacheForm?.cacheTimeToLive}"
                         >
                         </cds-number-input>
+                    </div>
+                    <div
+                        class="form-actions"
+                        style="
+                            display: flex;
+                            flex-direction: row;
+                            gap: var(--cds-spacing-05);
+                            justify-content: flex-end;
+                        "
+                    >
                         <cds-button
-                            kind="danger-tertiary"
-                            size="sm"
+                            kind="danger"
                             hx-confirm="Are you sure?"
                             th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/cache'},
                                         disabled=${!isCached}"
                         >
                             Clear cache
                         </cds-button>
-                    </div>
-                    <cds-form-item class="form-actions">
                         <cds-button
                             th:attr="hx-put=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/cache'}"
                             hx-target="#cache-panel"
@@ -88,7 +90,7 @@
                         >
                             Save
                         </cds-button>
-                    </cds-form-item>
+                    </div>
                 </div>
             </cds-form>
         </cds-content>
