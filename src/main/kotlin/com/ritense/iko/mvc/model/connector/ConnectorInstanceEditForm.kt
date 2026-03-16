@@ -23,4 +23,5 @@ class ConnectorInstanceEditForm(
     val name: String,
     @field:NotBlank(message = "Please provide a reference.")
     val reference: String,
+    val apiSpecificationUrl: String? = null,
 )

@@ -4,8 +4,9 @@
 
 The configuration properties of the objecten api are:
 - **host**: Base URL
-- **specificationUri**: The specification uri (could be a file or a url)
 - **token**: The token to use for authentication
+
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property.
 
 ## Endpoints
 

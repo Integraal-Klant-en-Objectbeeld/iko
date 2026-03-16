@@ -3,10 +3,10 @@
 ## Configuration
 
 The configuration properties of openzaak are:
-- **host**: Base URL 
-- **specificationUri**: The specification uri (could be a file or a url).  
-    For example: https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openapi.yaml
+- **host**: Base URL
 - **secret**: The token to use for authentication
+
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property (e.g. `https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openapi.yaml`).
 
 ## Endpoints
 

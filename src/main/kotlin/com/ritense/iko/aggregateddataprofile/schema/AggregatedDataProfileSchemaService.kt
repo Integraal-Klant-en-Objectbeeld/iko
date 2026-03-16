@@ -50,7 +50,7 @@ class AggregatedDataProfileSchemaService(
     fun isSchemaGenerationSupported(adp: AggregatedDataProfile): Boolean = (listOf(adp.connectorInstanceId) + adp.relations.map { it.connectorInstanceId })
         .all { instanceId ->
             connectorInstanceRepository.findById(instanceId)
-                .map { it.config.containsKey("specificationUri") }
+                .map { it.apiSpecificationUrl != null }
                 .orElse(false)
         }
 
@@ -90,8 +90,8 @@ class AggregatedDataProfileSchemaService(
             .orElseThrow { NoSuchElementException("ConnectorInstance not found: $connectorInstanceId") }
         val endpoint = connectorEndpointRepository.findById(connectorEndpointId)
             .orElseThrow { NoSuchElementException("ConnectorEndpoint not found: $connectorEndpointId") }
-        val specUri = checkNotNull(instance.config["specificationUri"]) {
-            "specificationUri missing from ConnectorInstance ${instance.id}"
+        val specUri = checkNotNull(instance.apiSpecificationUrl) {
+            "apiSpecificationUrl missing from ConnectorInstance ${instance.id}"
         }
         return openApiMockGenerator.loadSpec(specUri).let { openApi ->
             openApiMockGenerator.generateMock(openApi, endpoint.operation)

@@ -20,18 +20,17 @@ This list contains common connector configuration examples:
 
 ### Connector Instance
 
-A connector instance is a deployment of a connector with specific configuration. Each instance has its own set of encrypted key-value configuration entries (host, credentials, tokens, etc.).
+A connector instance is a deployment of a connector with specific configuration. Each instance has its own set of encrypted key-value configuration entries (host, credentials, tokens, etc.) and an optional `apiSpecificationUrl` property for the OpenAPI specification URL.
 
 For example, you might have one "OpenZaak" connector but two instances pointing to different environments (test and production).
 
-Configuration values are stored encrypted in the database using AES-GCM. See [security.md](../security.md) for details.
+The `apiSpecificationUrl` property is stored as a plain-text column on the connector instance. Configuration values in the `config` map are stored encrypted in the database using AES-GCM. See [security.md](../security.md) for details.
 
 Typical configuration keys:
 
 | Key | Description |
 |---|---|
 | `host` | Base URL of the external system |
-| `specificationUri` | OpenAPI specification path |
 | `token` / `secret` | API authentication token |
 | `clientId` | OAuth2 client ID |
 | `clientSecret` | OAuth2 client secret |

@@ -4,9 +4,9 @@
 
 The configuration properties of openzaak are:
 - **host**: Base URL
-- **specificationUri**: The specification uri (could be a file or a url).  
-    For example: https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml
 - **secret**: The token to use for authentication
+
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property (e.g. `https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml`).
 
 ## Endpoints
 

@@ -64,6 +64,7 @@ class AggregatedDataProfileSchemaServiceTest {
             "specificationUri" to "classpath:pet-api.yaml",
             "host" to "http://localhost:10000",
         ),
+        apiSpecificationUrl = "classpath:pet-api.yaml",
     )
 
     private val petsEndpoint = ConnectorEndpoint(
@@ -130,13 +131,14 @@ class AggregatedDataProfileSchemaServiceTest {
     }
 
     @Test
-    fun `isSchemaGenerationSupported returns false when connector has no specificationUri`() {
+    fun `isSchemaGenerationSupported returns false when connector has no apiSpecificationUrl`() {
         val instanceWithoutSpec = ConnectorInstance(
             id = UUID.randomUUID(),
             name = "no-spec-instance",
             connector = connector,
             tag = "no-spec",
             config = mapOf("host" to "http://localhost:10000"),
+            apiSpecificationUrl = null,
         )
         whenever(connectorInstanceRepository.findById(instanceWithoutSpec.id))
             .thenReturn(Optional.of(instanceWithoutSpec))
