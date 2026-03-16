@@ -301,8 +301,6 @@ class ConnectorController(
         @PathVariable instanceId: UUID,
         @Valid @ModelAttribute form: ConnectorInstanceEditForm,
         bindingResult: BindingResult,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-        response: HttpServletResponse,
     ): ModelAndView {
         val connector = connectorRepository.findById(id)
             .orElseThrow { NoSuchElementException("Connector not found") }
