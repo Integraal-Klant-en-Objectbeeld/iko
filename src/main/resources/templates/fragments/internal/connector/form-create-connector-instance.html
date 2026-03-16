@@ -52,6 +52,15 @@
                         invalid-text="Please enter a valid reference"
                     >
                     </cds-text-input>
+
+                    <cds-text-input
+                        name="apiSpecificationUrl"
+                        size="lg"
+                        th:value="${instance?.apiSpecificationUrl}"
+                        label="API Specification URL"
+                        helper-text="Optional. URL to the OpenAPI specification (e.g. https://example.com/openapi.yaml)"
+                    >
+                    </cds-text-input>
                 </cds-stack>
             </cds-form-group>
         </th:block>
