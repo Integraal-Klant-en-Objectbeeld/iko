@@ -11,7 +11,7 @@ VALUES ('9f3b9c7a-2d7c-4a1f-8f3d-1b9a2c7d4e5f', 'Test Connector', 'pet', '' ||
                 - removeHeaders: "CamelHttp*"
                 - log: "header: ${header.Accept}"
                 - toD:
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.specificationUri}#${variable.operation}?host=${variable.configProperties.host}\""
                 - log: "body: ${body}"
                 - unmarshal:
                     json: { }' ||
