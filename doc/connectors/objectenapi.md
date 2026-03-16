@@ -64,7 +64,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                     groovy: |-
                         exchange.in.setHeader("Authorization", "Token ${exchange.getVariable('configProperties', Map).token}")
               - toD:
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.specificationUri}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
               - unmarshal:
                     json: {}
 ```

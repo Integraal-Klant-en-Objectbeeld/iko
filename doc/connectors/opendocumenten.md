@@ -68,7 +68,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
 
                         exchange.in.setHeader("Authorization", "Bearer ${jwt}");
               - toD:
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.specificationUri}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
               - unmarshal:
                     json: {}
 ```

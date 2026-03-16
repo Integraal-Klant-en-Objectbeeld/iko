@@ -24,7 +24,7 @@ A connector instance is a deployment of a connector with specific configuration.
 
 For example, you might have one "OpenZaak" connector but two instances pointing to different environments (test and production).
 
-The `apiSpecificationUrl` property is stored as a plain-text column on the connector instance. Configuration values in the `config` map are stored encrypted in the database using AES-GCM. See [security.md](../security.md) for details.
+The `apiSpecificationUrl` property is stored as a plain-text column on the connector instance. At runtime, it is automatically injected into the `configProperties` variable so Camel routes can reference it as `${variable.configProperties.apiSpecificationUrl}`. Configuration values in the `config` map are stored encrypted in the database using AES-GCM. See [security.md](../security.md) for details.
 
 Typical configuration keys:
 
