@@ -121,7 +121,7 @@ internal class AggregatedDataProfileController(
                 addObject("query", query)
             }
         } else {
-            ModelAndView("$BASE_FRAGMENT_ADP/listPage").apply {
+            ModelAndView("$BASE_FRAGMENT_ADP/list-page").apply {
                 addObject("creationAllowed", creationAllowed)
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
@@ -171,7 +171,7 @@ internal class AggregatedDataProfileController(
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
 
         if (isHxRequest) {
-            val searchResults = ModelAndView("$BASE_FRAGMENT_ADP/filterResults").apply {
+            val searchResults = ModelAndView("$BASE_FRAGMENT_ADP/filter-results").apply {
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
@@ -193,7 +193,7 @@ internal class AggregatedDataProfileController(
             )
         } else {
             return listOf(
-                ModelAndView("$BASE_FRAGMENT_ADP/filterResultsPage").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/filter-results-page").apply {
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
