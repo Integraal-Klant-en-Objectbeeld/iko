@@ -18,10 +18,12 @@ package com.ritense.iko.aggregateddataprofile.service
 
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
+import com.ritense.iko.connectors.service.ConnectorService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -36,6 +38,7 @@ internal class AggregatedDataProfileService(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
+    private val connectorService: ConnectorService,
     private val ikoCacheProcessor: CacheProcessor,
 ) {
 
@@ -145,6 +148,101 @@ internal class AggregatedDataProfileService(
         logger.debug { "Created new version ${newAdp.name} v${newAdp.version} with ${newAdp.relations.size} relations" }
 
         return aggregatedDataProfileRepository.save(newAdp)
+    }
+
+    @Transactional(readOnly = true)
+    fun previewFinalization(id: UUID): FinalizationImpact {
+        val adp = aggregatedDataProfileRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Profile not found: $id") }
+        require(adp.status == EntityStatus.DRAFT) { "Already finalized" }
+
+        val allInstanceIds = buildSet {
+            add(adp.connectorInstanceId)
+            adp.relations.forEach { add(it.connectorInstanceId) }
+        }
+
+        val draftConnectors = mutableListOf<com.ritense.iko.connectors.domain.Connector>()
+        val errors = mutableListOf<String>()
+
+        for (instanceId in allInstanceIds) {
+            val instance = connectorInstanceRepository.findById(instanceId).orElse(null)
+            if (instance == null) {
+                errors.add("Connector instance $instanceId not found")
+                continue
+            }
+            val connector = instance.connector
+            if (connector.status == EntityStatus.DRAFT) {
+                draftConnectors.add(connector)
+            }
+        }
+
+        val connectorImpacts = draftConnectors.distinctBy { it.id }.map { connector ->
+            val instances = connectorInstanceRepository.findByConnector(connector)
+            val instanceIds = instances.map { it.id }.toSet()
+
+            val allDraftAdps = aggregatedDataProfileRepository.findAllByStatus(EntityStatus.DRAFT)
+            val affectedAdps = allDraftAdps
+                .filter { it.id != adp.id }
+                .filter { otherAdp ->
+                    val otherInstanceIds = buildSet {
+                        add(otherAdp.connectorInstanceId)
+                        otherAdp.relations.forEach { add(it.connectorInstanceId) }
+                    }
+                    otherInstanceIds.any { it in instanceIds }
+                }
+                .map { AffectedAdp(it.id, it.name, it.version.value) }
+
+            try {
+                connectorService.validateConnectorCode(connector.connectorCode, connector.tag)
+            } catch (e: Exception) {
+                errors.add("Connector '${connector.tag}' v${connector.version} has invalid code: ${e.message}")
+            }
+            val endpoints = connectorEndpointRepository.findByConnector(connector)
+            if (endpoints.isEmpty()) {
+                errors.add("Connector '${connector.tag}' v${connector.version} has no endpoints")
+            }
+
+            ConnectorImpact(
+                connectorId = connector.id,
+                connectorName = connector.name,
+                connectorTag = connector.tag,
+                connectorVersion = connector.version.value,
+                affectedDraftAdps = affectedAdps,
+            )
+        }
+
+        return FinalizationImpact(
+            adpId = adp.id,
+            adpName = adp.name,
+            adpVersion = adp.version.value,
+            connectorsToFinalize = connectorImpacts,
+            canFinalize = errors.isEmpty(),
+            errors = errors,
+        )
+    }
+
+    @Transactional
+    fun finalizeProfile(id: UUID): AggregatedDataProfile {
+        val adp = aggregatedDataProfileRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Profile not found: $id") }
+        require(adp.status == EntityStatus.DRAFT) { "Already finalized" }
+
+        val allInstanceIds = buildSet {
+            add(adp.connectorInstanceId)
+            adp.relations.forEach { add(it.connectorInstanceId) }
+        }
+
+        for (instanceId in allInstanceIds) {
+            val instance = connectorInstanceRepository.findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance $instanceId not found") }
+            val connector = instance.connector
+            if (connector.status == EntityStatus.DRAFT) {
+                connectorService.finalizeConnector(connector.id)
+            }
+        }
+
+        adp.finalize()
+        return aggregatedDataProfileRepository.save(adp)
     }
 
     companion object {

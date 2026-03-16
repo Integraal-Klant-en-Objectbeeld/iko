@@ -37,6 +37,7 @@
                         entityType='aggregated-data-profile',
                         currentVersion=${aggregatedDataProfile.version.value},
                         isActiveVersion=${aggregatedDataProfile.isActive},
+                        status=${aggregatedDataProfile.status},
                         versions=${versions}
                     )}"
                 ></div>
@@ -52,6 +53,9 @@
                         target="panel-relations"
                         value="relations"
                         >Relations</cds-tab
+                    >
+                    <cds-tab id="tab-cache" target="panel-cache" value="cache"
+                        >Cache</cds-tab
                     >
                     <cds-tab
                         id="tab-preview"
@@ -84,6 +88,16 @@
                 >
                     <div
                         th:replace="~{fragments/internal/aggregated-data-profile/relations-panel :: relations-panel}"
+                    ></div>
+                </div>
+
+                <div
+                    id="panel-cache"
+                    role="tabpanel"
+                    aria-labelledby="tab-cache"
+                >
+                    <div
+                        th:replace="~{fragments/internal/aggregated-data-profile/cache :: cache-panel}"
                     ></div>
                 </div>
 

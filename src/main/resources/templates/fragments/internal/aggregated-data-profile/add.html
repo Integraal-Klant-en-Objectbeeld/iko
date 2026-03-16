@@ -62,6 +62,10 @@
                             >
                                 (<span
                                     th:text="${instance.connector.name + ' ' + instance.connector.version.value}"
+                                ></span>
+                                -
+                                <span
+                                    th:text="${instance.connector.status.name()}"
                                 ></span
                                 >)
                                 <span th:text="${instance.name}"></span>

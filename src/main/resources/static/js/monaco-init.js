@@ -101,7 +101,6 @@ require.config({
 
         const state = {
             editor: null,
-            resizeObserver: null,
             promise: null
         };
         initialized.set(el, state);
@@ -128,7 +127,7 @@ require.config({
                         value: initialValue,
                         language,
                         theme,
-                        automaticLayout: false,
+                        automaticLayout: true,
                         minimap: { enabled: false },
                         readOnly: isReadOnly,
                         scrollBeyondLastLine: false,
@@ -148,18 +147,7 @@ require.config({
                         }
                     }
 
-                    // Use ResizeObserver to watch for container size changes
-                    const resizeObserver = new ResizeObserver(() => {
-                        editor.layout();
-                    });
-                    resizeObserver.observe(el);
-
-                    // Store both editor and observer for cleanup
                     state.editor = editor;
-                    state.resizeObserver = resizeObserver;
-
-                    // Initial layout
-                    requestAnimationFrame(() => editor.layout());
 
                     resolve(editor);
                 };
@@ -221,10 +209,7 @@ require.config({
         root.querySelectorAll("[data-monaco]").forEach((el) => {
             const state = initialized.get(el);
             if (state) {
-                // Dispose editor if created
                 state.editor?.dispose();
-                // Disconnect resize observer to prevent memory leaks
-                state.resizeObserver?.disconnect();
             }
             initialized.delete(el);
             // Clear the element to prevent layout issues

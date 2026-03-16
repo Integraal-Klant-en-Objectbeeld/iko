@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.repository
+package com.ritense.iko.aggregateddataprofile.service
 
-import com.ritense.iko.connectors.domain.Connector
-import com.ritense.iko.connectors.domain.ConnectorInstance
-import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
-interface ConnectorInstanceRepository : JpaRepository<ConnectorInstance, UUID> {
-    fun findAllByOrderByNameAsc(): List<ConnectorInstance>
+internal data class FinalizationImpact(
+    val adpId: UUID,
+    val adpName: String,
+    val adpVersion: String,
+    val connectorsToFinalize: List<ConnectorImpact>,
+    val canFinalize: Boolean,
+    val errors: List<String>,
+)
 
-    fun findByConnector(connector: Connector): List<ConnectorInstance>
+internal data class ConnectorImpact(
+    val connectorId: UUID,
+    val connectorName: String,
+    val connectorTag: String,
+    val connectorVersion: String,
+    val affectedDraftAdps: List<AffectedAdp>,
+)
 
-    fun findByConnectorIdAndTag(
-        tag: UUID,
-        config: String,
-    ): ConnectorInstance?
-}
+internal data class AffectedAdp(
+    val id: UUID,
+    val name: String,
+    val version: String,
+)

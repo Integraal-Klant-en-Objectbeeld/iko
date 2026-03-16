@@ -29,6 +29,7 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
 import com.ritense.iko.mvc.model.AggregatedDataProfileAddForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileCacheForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
 import com.ritense.iko.mvc.model.CreateVersionForm
 import com.ritense.iko.mvc.model.EditRelationForm
@@ -89,9 +90,10 @@ internal class AggregatedDataProfileController(
                 "form" to AggregatedDataProfileEditForm.from(aggregatedDataProfile),
                 "relations" to aggregatedDataProfile.relations.map { Relation.from(it) },
                 "aggregatedDataProfileId" to aggregatedDataProfile.id,
-                "connectorInstances" to connectorInstanceRepository.findAll(),
+                "connectorInstances" to connectorInstanceRepository.findAllByOrderByNameAsc(),
                 "connectorEndpoints" to endpoints,
                 "sources" to availableSources,
+                "cacheForm" to AggregatedDataProfileCacheForm.from(aggregatedDataProfile),
                 "isCached" to isCached,
                 "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
@@ -206,7 +208,7 @@ internal class AggregatedDataProfileController(
 
     @GetMapping("/create")
     fun create(): ModelAndView {
-        val connectors = connectorInstanceRepository.findAll()
+        val connectors = connectorInstanceRepository.findAllByOrderByNameAsc()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/add").apply {
             addObject("connectorInstances", connectors)
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectors.first().connector))
@@ -260,7 +262,7 @@ internal class AggregatedDataProfileController(
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/add :: adp-add-form").apply {
                 addObject("form", form)
                 addObject("errors", bindingResult)
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject(
                     "connectorEndpoints",
                     connectorInstanceRepository.findById(form.connectorInstanceId)
@@ -294,16 +296,14 @@ internal class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
-        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/edit :: profile-edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", form)
                 addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
-                addObject("isCached", isCached)
             }
             return modelAndView
         }
@@ -342,7 +342,7 @@ internal class AggregatedDataProfileController(
         val sources = sources(aggregatedDataProfile)
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpointRepository.findAll())
             addObject("sources", sources)
             addObject("parentId", sourceId)
@@ -362,7 +362,7 @@ internal class AggregatedDataProfileController(
         val isCached = cacheService.isCached(relation.id.toString())
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
             addObject("sources", sources)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
             addObject("form", EditRelationForm.from(relation))
             addObject("isCached", isCached)
@@ -401,6 +401,40 @@ internal class AggregatedDataProfileController(
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
         return list(query = "", pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
+    }
+
+    @PutMapping(
+        path = ["/{id}/cache"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+    )
+    fun editCache(
+        @PathVariable id: UUID,
+        @Valid @ModelAttribute form: AggregatedDataProfileCacheForm,
+        bindingResult: BindingResult,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
+                addObject("errors", bindingResult)
+                addObject("cacheForm", form)
+                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("isCached", isCached)
+            }
+        }
+        aggregatedDataProfile.updateCacheSettings(
+            enabled = form.cacheEnabled,
+            timeToLive = form.cacheTimeToLive,
+        )
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
+        return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
+            addObject("cacheForm", AggregatedDataProfileCacheForm.from(aggregatedDataProfile))
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("isCached", isCached)
+        }
     }
 
     @DeleteMapping("/{id}/cache")
@@ -486,6 +520,33 @@ internal class AggregatedDataProfileController(
         }
     }
 
+    @PostMapping("/{id}/finalize/preview")
+    fun finalizePreview(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val impact = aggregatedDataProfileService.previewFinalization(id)
+        return ModelAndView("fragments/internal/versioning/finalize-preview-modal")
+            .addObject("impact", impact)
+    }
+
+    @PostMapping("/{id}/finalize")
+    fun finalizeProfile(
+        @PathVariable id: UUID,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        aggregatedDataProfileService.finalizeProfile(id)
+        return details(id, isHxRequest)
+    }
+
+    @PostMapping("/{id}/activate")
+    fun activateVersion(
+        @PathVariable id: UUID,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        aggregatedDataProfileService.activateVersion(id)
+        return details(id, isHxRequest)
+    }
+
     @PostMapping("/{id}/schema/regenerate")
     fun regenerateSchema(
         @PathVariable id: UUID,
@@ -503,15 +564,6 @@ internal class AggregatedDataProfileController(
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("isSchemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
         }
-    }
-
-    @PostMapping("/{id}/activate")
-    fun activateVersion(
-        @PathVariable id: UUID,
-        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
-    ): ModelAndView {
-        aggregatedDataProfileService.activateVersion(id)
-        return details(id, isHxRequest)
     }
 
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations

@@ -103,6 +103,7 @@
 
                 <cds-button
                     kind="secondary"
+                    th:disabled="${aggregatedDataProfile.status.name() != 'DRAFT'}"
                     th:attr="
                                     hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/create'},
                                     hx-vals=|js:{ sourceId: document.querySelector('#selectedSourceId').value }|,

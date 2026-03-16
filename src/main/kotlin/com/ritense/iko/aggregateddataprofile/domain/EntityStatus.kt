@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.repository
+package com.ritense.iko.aggregateddataprofile.domain
 
-import com.ritense.iko.connectors.domain.Connector
-import com.ritense.iko.connectors.domain.ConnectorInstance
-import org.springframework.data.jpa.repository.JpaRepository
-import java.util.UUID
-
-interface ConnectorInstanceRepository : JpaRepository<ConnectorInstance, UUID> {
-    fun findAllByOrderByNameAsc(): List<ConnectorInstance>
-
-    fun findByConnector(connector: Connector): List<ConnectorInstance>
-
-    fun findByConnectorIdAndTag(
-        tag: UUID,
-        config: String,
-    ): ConnectorInstance?
-}
+enum class EntityStatus { DRAFT, FINAL }

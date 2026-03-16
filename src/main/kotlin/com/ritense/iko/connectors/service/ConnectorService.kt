@@ -117,6 +117,20 @@ class ConnectorService(
         logger.debug { "Removed routes for connector ${connector.tag} (group: $groupName)" }
     }
 
+    @Transactional
+    fun finalizeConnector(id: UUID): Connector {
+        val connector = connectorRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Connector not found: $id") }
+
+        validateConnectorCode(connector.connectorCode, connector.tag)
+
+        val endpoints = connectorEndpointRepository.findByConnector(connector)
+        require(endpoints.isNotEmpty()) { "Connector must have at least one endpoint to be finalized" }
+
+        connector.finalize()
+        return connectorRepository.save(connector)
+    }
+
     /**
      * Activates a specific version of a Connector.
      * Deactivates any currently active version and loads routes for the new active version.

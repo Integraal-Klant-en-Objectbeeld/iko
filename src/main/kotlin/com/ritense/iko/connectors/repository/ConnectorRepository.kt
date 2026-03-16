@@ -16,6 +16,7 @@
 
 package com.ritense.iko.connectors.repository
 
+import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
 import com.ritense.iko.connectors.domain.Connector
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -42,6 +43,7 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         ,       c.tag as tag
         ,       c.version.value as version
         ,       c.isActive as active
+        ,       c.status as status
         FROM    Connector c
         WHERE   c.tag = :tag
         ORDER BY c.version.value DESC
@@ -55,5 +57,6 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         val tag: String
         val version: String
         val active: Boolean
+        val status: EntityStatus
     }
 }
