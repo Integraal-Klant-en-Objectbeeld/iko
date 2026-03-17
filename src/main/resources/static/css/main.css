@@ -204,7 +204,7 @@ cds-header ~ cds-side-nav {
 }
 
 /* Wide screens: menu always expanded, no hamburger */
-@media (min-width: 1024px) {
+@media (min-width: 1056px) {
     cds-header-menu-button,
     .cds--header__menu-trigger {
         display: none !important;
@@ -216,7 +216,7 @@ cds-header ~ cds-side-nav {
 }
 
 /* Narrow screens: show hamburger, overlay menu */
-@media (max-width: 1023px) {
+@media (max-width: 1055px) {
     cds-header-menu-button,
     .cds--header__menu-trigger {
         display: inline-flex !important;
