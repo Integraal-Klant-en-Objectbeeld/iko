@@ -49,32 +49,46 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         """
         SELECT  adp.id
         ,       adp.name
+        ,       adp.version
+        ,       adp.is_active AS active
+        ,       adp.status
         FROM    aggregated_data_profile adp
+        WHERE   (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         countQuery = """
         SELECT  count(*)
         FROM    aggregated_data_profile adp
+        WHERE   (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         nativeQuery = true,
     )
-    fun findAllBy(pageable: Pageable): Page<AggregatedDataProfileListItem>
+    fun findAllBy(
+        @Param("isActive") isActive: Boolean?,
+        pageable: Pageable,
+    ): Page<AggregatedDataProfileListItem>
 
     @Query(
         """
         SELECT  adp.id
         ,       adp.name
+        ,       adp.version
+        ,       adp.is_active AS active
+        ,       adp.status
         FROM    aggregated_data_profile adp
         WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        AND     (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         countQuery = """
         SELECT  COUNT(*)
         FROM    aggregated_data_profile adp
         WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        AND     (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         nativeQuery = true,
     )
     fun findAllByName(
         @Param("name") name: String,
+        @Param("isActive") isActive: Boolean?,
         pageable: Pageable,
     ): Page<AggregatedDataProfileListItem>
 
@@ -92,9 +106,15 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
     )
     fun findVersionsByName(@Param("name") name: String): List<AggregatedDataProfileVersionProjection>
 
+    @Query("SELECT COUNT(*) > 0 FROM aggregated_data_profile WHERE name COLLATE \"C\" = :name", nativeQuery = true)
+    fun existsByName(@Param("name") name: String): Boolean
+
     interface AggregatedDataProfileListItem {
         val id: String
         val name: String
+        val version: String
+        val active: Boolean
+        val status: String
     }
 
     interface AggregatedDataProfileVersionProjection {

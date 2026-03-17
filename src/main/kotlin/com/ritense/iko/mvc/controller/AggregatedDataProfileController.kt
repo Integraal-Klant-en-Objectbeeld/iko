@@ -104,10 +104,12 @@ internal class AggregatedDataProfileController(
     @GetMapping("/aggregated-data-profiles")
     fun list(
         @RequestParam(required = false, defaultValue = "") query: String,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val page = aggregatedDataProfileRepository.findAllByIsActiveTrue(pageable)
+        val activeFilter = if (isActive == true) true else null
+        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
         val connectorInstancesCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstancesCount > 0 && endpointsCount > 0
@@ -117,6 +119,7 @@ internal class AggregatedDataProfileController(
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
+                addObject("isActive", isActive)
             }
         } else {
             ModelAndView("$BASE_FRAGMENT_ADP/listPage").apply {
@@ -124,6 +127,7 @@ internal class AggregatedDataProfileController(
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
+                addObject("isActive", isActive)
                 addObject("menuItems", menuItems)
                 addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                 addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
@@ -134,9 +138,11 @@ internal class AggregatedDataProfileController(
     @GetMapping("/aggregated-data-profiles/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
     ): ModelAndView {
-        val page = aggregatedDataProfileRepository.findAll(pageable)
+        val activeFilter = if (isActive == true) true else null
+        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
@@ -145,6 +151,7 @@ internal class AggregatedDataProfileController(
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
+                addObject("isActive", isActive)
                 addObject("creationAllowed", creationAllowed)
                 addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                 addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
@@ -155,14 +162,16 @@ internal class AggregatedDataProfileController(
     @GetMapping("/aggregated-data-profiles/filter")
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
         @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
+        val activeFilter = if (isActive == true) true else null
         val page =
             if (query.isBlank()) {
-                aggregatedDataProfileRepository.findAllBy(pageable)
+                aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
             } else {
-                aggregatedDataProfileRepository.findAllByName(query.trim(), pageable)
+                aggregatedDataProfileRepository.findAllByName(query.trim(), activeFilter, pageable)
             }
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
@@ -175,6 +184,7 @@ internal class AggregatedDataProfileController(
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
+                    addObject("isActive", isActive)
                     addObject("creationAllowed", creationAllowed)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                     addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
@@ -184,6 +194,7 @@ internal class AggregatedDataProfileController(
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
+                    addObject("isActive", isActive)
                     addObject("creationAllowed", creationAllowed)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                     addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
@@ -198,6 +209,7 @@ internal class AggregatedDataProfileController(
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
+                    addObject("isActive", isActive)
                     addObject("creationAllowed", creationAllowed)
                     addObject("menuItems", menuItems)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
@@ -538,7 +550,7 @@ internal class AggregatedDataProfileController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
-        return list(query = "", pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
+        return list(query = "", isActive = true, pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
     }
 
     @DeleteMapping("/aggregated-data-profiles/{id}/cache")
