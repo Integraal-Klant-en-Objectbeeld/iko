@@ -211,6 +211,6 @@ class AggregatedDataProfileSchemaServiceTest {
         resultTransform = Transform(resultTransform),
         roles = Roles("ROLE_TEST"),
         aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-        schema = AggregatedDataProfileSchema(),
+        schema = null,
     )
 }

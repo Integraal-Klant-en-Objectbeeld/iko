@@ -42,7 +42,7 @@ class RelationTest {
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             roles = Roles("ROLE_ADMIN"),
-            schema = AggregatedDataProfileSchema(),
+            schema = null,
         )
         val relation = Relation(
             aggregatedDataProfile = profile,
@@ -78,7 +78,7 @@ class RelationTest {
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             roles = Roles("ROLE_ADMIN"),
-            schema = AggregatedDataProfileSchema(),
+            schema = null,
         )
         val relation = Relation(
             aggregatedDataProfile = profile,

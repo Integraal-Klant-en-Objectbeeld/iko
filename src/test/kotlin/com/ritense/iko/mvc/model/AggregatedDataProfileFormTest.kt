@@ -39,7 +39,7 @@ class AggregatedDataProfileFormTest {
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             roles = Roles("ROLE_ADMIN"),
-            schema = AggregatedDataProfileSchema(),
+            schema = null,
         )
 
         val form = AggregatedDataProfileAddForm.from(profile)
@@ -66,7 +66,7 @@ class AggregatedDataProfileFormTest {
                 timeToLive = 123,
             ),
             roles = Roles("ROLE_ADMIN"),
-            schema = AggregatedDataProfileSchema(),
+            schema = null,
         )
 
         val form = AggregatedDataProfileEditForm.from(profile)

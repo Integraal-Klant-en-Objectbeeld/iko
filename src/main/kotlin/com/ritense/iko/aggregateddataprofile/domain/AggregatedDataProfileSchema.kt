@@ -22,5 +22,5 @@ import jakarta.persistence.Embeddable
 @Embeddable
 class AggregatedDataProfileSchema(
     @Column(name = "jsonschema")
-    val value: String? = null,
+    val value: String,
 )

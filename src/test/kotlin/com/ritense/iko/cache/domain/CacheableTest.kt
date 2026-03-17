@@ -50,7 +50,7 @@ class CacheableTest {
                 timeToLive = 250,
             ),
             roles = Roles("ROLE_ADMIN"),
-            schema = AggregatedDataProfileSchema(),
+            schema = null,
         )
 
         val exchange = DefaultExchange(context)
@@ -87,7 +87,7 @@ class CacheableTest {
             resultTransform = Transform("."),
             roles = Roles("ROLE_TEST"),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-            schema = AggregatedDataProfileSchema(),
+            schema = null,
         )
         val relation = Relation(
             aggregatedDataProfile = profile,

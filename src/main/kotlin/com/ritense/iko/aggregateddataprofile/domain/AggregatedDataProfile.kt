@@ -83,7 +83,7 @@ class AggregatedDataProfile(
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
 
     @Embedded
-    var schema: AggregatedDataProfileSchema,
+    var schema: AggregatedDataProfileSchema?,
 ) {
 
     fun finalize() {
@@ -168,7 +168,7 @@ class AggregatedDataProfile(
     }
 
     fun resetSchema() {
-        this.schema = AggregatedDataProfileSchema(value = null)
+        this.schema = null
     }
 
     fun level1Relations(): List<Relation> {
@@ -195,7 +195,7 @@ class AggregatedDataProfile(
         roles = this.roles,
         aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
         relations = mutableListOf(),
-        schema = AggregatedDataProfileSchema(),
+        schema = null,
     )
 
     companion object {
@@ -209,7 +209,7 @@ class AggregatedDataProfile(
             endpointTransform = EndpointTransform(form.endpointTransform),
             resultTransform = Transform(form.resultTransform),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
-            schema = AggregatedDataProfileSchema(),
+            schema = null,
         )
     }
 }
