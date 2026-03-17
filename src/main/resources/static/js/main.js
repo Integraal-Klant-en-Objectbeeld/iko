@@ -1,6 +1,6 @@
 /* Responsive side navigation */
 (function () {
-    const BREAKPOINT = 1024;
+    const BREAKPOINT = 1056;
     const mql = window.matchMedia(`(min-width: ${BREAKPOINT}px)`);
 
     function applyLayout(wide) {
