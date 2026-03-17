@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import java.util.UUID
 
@@ -71,9 +72,11 @@ class ConnectorController(
      */
     @GetMapping()
     fun list(
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
         @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val connectors = connectorRepository.findAllByIsActiveTrue()
+        val activeFilter = if (isActive == true) true else null
+        val connectors = connectorRepository.findAllByIsActive(activeFilter)
 
         return ModelAndView(
             "fragments/internal/connector/list-page-connectors" +
@@ -83,6 +86,7 @@ class ConnectorController(
                 },
             mapOf(
                 "connectors" to connectors,
+                "isActive" to isActive,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
                 "email" to SecurityContextHelper.getUserPropertyByKey("email"),
             ),
