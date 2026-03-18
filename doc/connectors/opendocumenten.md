@@ -3,10 +3,11 @@
 ## Configuration
 
 The configuration properties of opendocumenten are:
-- **host**: Base URL 
-- **specificationUri**: The specification uri (could be a file or a url)
+- **host**: Base URL
 - **clientId**: The token to use for authentication
 - **clientSecret**: The secret to use for authentication
+
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property.
 
 ## Endpoints
 
@@ -67,7 +68,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
 
                         exchange.in.setHeader("Authorization", "Bearer ${jwt}");
               - toD:
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.specificationUri}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
               - unmarshal:
                     json: {}
 ```

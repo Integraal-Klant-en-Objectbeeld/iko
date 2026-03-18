@@ -40,7 +40,11 @@ class ConnectorConfig(
                             ?: throw NoSuchElementException("Connector instance not found")
                         ).get()
 
-                exchange.setVariable("configProperties", connectorInstance.config)
+                val configProperties = connectorInstance.config.toMutableMap()
+                connectorInstance.apiSpecificationUrl?.let {
+                    configProperties["apiSpecificationUrl"] = it
+                }
+                exchange.setVariable("configProperties", configProperties)
             }
     }
 }

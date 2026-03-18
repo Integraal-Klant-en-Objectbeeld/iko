@@ -3,9 +3,10 @@
 ## Configuration
 
 The configuration properties of openzaak are:
-- **host**: Base URL 
-- **specificationUri**: The specification uri (could be a file or a url)
+- **host**: Base URL
 - **secret**: The token to use for authentication
+
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property (e.g. `https://api.bag.kadaster.nl/lvbag/individuelebevragingen/v2/openapi.yaml`).
 
 ## Endpoints
 
@@ -61,7 +62,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                         exchange.in.setHeader("X-Api-Key", "${exchange.getVariable('configProperties', Map).secret}")
               - log: "BODY: ${header.Accept}"
               - toD:
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.specificationUri}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
               - unmarshal:
                     json: {}
 ```

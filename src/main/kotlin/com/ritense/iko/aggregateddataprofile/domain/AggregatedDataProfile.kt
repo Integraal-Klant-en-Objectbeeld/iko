@@ -81,6 +81,9 @@ class AggregatedDataProfile(
 
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
+
+    @Embedded
+    var schema: AggregatedDataProfileSchema?,
 ) {
 
     fun finalize() {
@@ -117,7 +120,7 @@ class AggregatedDataProfile(
                 sourceId = form.sourceId,
                 resultTransform = Transform(form.resultTransform),
                 endpointTransform = RelationEndpointTransform(form.sourceToEndpointMapping),
-                connectorEndpointId = form.connectorEndpointId!!,
+                connectorEndpointId = form.connectorEndpointId,
                 connectorInstanceId = form.connectorInstanceId,
                 propertyName = form.propertyName,
                 relationCacheSettings = RelationCacheSettings(),
@@ -160,6 +163,14 @@ class AggregatedDataProfile(
         this.relations.removeIf { it.id in toRemove }
     }
 
+    fun applySchema(jsonSchema: String) {
+        this.schema = AggregatedDataProfileSchema(jsonSchema)
+    }
+
+    fun resetSchema() {
+        this.schema = null
+    }
+
     fun level1Relations(): List<Relation> {
         return relations.filter { it.sourceId == null || it.sourceId == this.id } // backwards compatible code either check on ADP id or null (used before prefilling)
     }
@@ -184,6 +195,7 @@ class AggregatedDataProfile(
         roles = this.roles,
         aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
         relations = mutableListOf(),
+        schema = null,
     )
 
     companion object {
@@ -197,6 +209,7 @@ class AggregatedDataProfile(
             endpointTransform = EndpointTransform(form.endpointTransform),
             resultTransform = Transform(form.resultTransform),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = null,
         )
     }
 }

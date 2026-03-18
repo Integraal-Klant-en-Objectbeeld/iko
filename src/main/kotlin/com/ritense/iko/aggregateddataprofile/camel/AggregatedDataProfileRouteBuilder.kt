@@ -23,6 +23,7 @@ import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.error.TransformResultTypeUnsupportedError
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
+import com.ritense.iko.camel.IkoConstants.Variables.AUTHORITIES
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
@@ -73,7 +74,7 @@ class AggregatedDataProfileRouteBuilder(
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[ADP Root]")
             .setVariable(
-                "authorities",
+                AUTHORITIES,
                 constant(aggregatedDataProfile.roles.asList()),
             )
             .to("direct:auth")

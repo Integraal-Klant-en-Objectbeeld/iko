@@ -51,6 +51,8 @@ class ConnectorInstance(
         joinColumns = [JoinColumn(name = "connector_instance_id")],
     )
     var config: Map<String, String>,
+    @Column(name = "api_specification_url")
+    var apiSpecificationUrl: String? = null,
 ) {
     /**
      * Creates a copy of this instance for a new Connector version.
@@ -62,5 +64,6 @@ class ConnectorInstance(
         connector = newConnector,
         tag = this.tag,
         config = this.config.toMap(), // Create a copy of the config map
+        apiSpecificationUrl = this.apiSpecificationUrl,
     )
 }

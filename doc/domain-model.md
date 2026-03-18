@@ -130,11 +130,11 @@ A deployed instance of a connector with specific configuration (credentials, hos
 | `name` | String | Instance name |
 | `connector` | Connector (FK) | Parent connector template |
 | `tag` | String | Instance alias/tag |
+| `apiSpecificationUrl` | String? | Optional URL to the OpenAPI specification |
 | `config` | Map\<String, String\> | Configuration key-value pairs, encrypted at rest (AES-GCM) |
 
 Configuration values typically include:
 - `host` — Base URL of the external system
-- `specificationUri` — OpenAPI specification path
 - `token` / `secret` — API authentication credentials
 - `clientId` / `clientSecret` — OAuth2 client credentials
 

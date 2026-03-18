@@ -24,53 +24,138 @@
         <div layout:fragment="view-panel-content">
             <th:block th:fragment="details">
                 <div
-                    th:replace="~{layout-internal :: breadcrumb (${ {
-                {'Connectors', '/admin/connectors'},
-                { connector.name, '/admin/connectors/' + connector.id },
-                { instance.name, '/admin/connectors/' + connector.id + '/instances/' + instance.id }
-                }})}"
+                    th:replace="~{layout-internal :: breadcrumb (${ {{'Connectors', '/admin/connectors'}, { connector.name, '/admin/connectors/' + connector.id } }})}"
                 ></div>
                 <div
-                    th:replace="~{layout-internal :: page-header (pageName='Connector Instance', title=|${connector.name} - ${instance.name}|, subtext=${instance.tag})}"
+                    th:replace="~{fragments/internal/versioning/page-header-versioned :: page-header-versioned (
+                        title=${connector.name},
+                        entityId=${connector.id},
+                        entityType='connector',
+                        currentVersion=${connector.version.value},
+                        isActiveVersion=${connector.isActive},
+                        status=${connector.status},
+                        versions=${versions}
+                    )}"
                 ></div>
 
                 <cds-layout>
                     <cds-tabs
-                        value="config"
+                        value="instances"
                         type="contained"
                         class="cds--tabs cds--tabs--contained"
                     >
                         <cds-tab
-                            id="tab-config"
-                            target="panel-config"
-                            value="config"
-                            >Config</cds-tab
+                            id="tab-instances"
+                            target="panel-instances"
+                            value="instances"
+                            >Instances</cds-tab
                         >
                         <cds-tab
-                            id="tab-roles"
-                            target="panel-roles"
-                            value="roles"
+                            id="tab-connector-code"
+                            target="panel-connector-code"
+                            value="connector-code"
                             selected=""
                         >
-                            Roles
+                            Connector Code
                         </cds-tab>
+                        <cds-tab
+                            id="tab-endpoints"
+                            target="panel-endpoints"
+                            value="endpoints"
+                            >Endpoints</cds-tab
+                        >
                     </cds-tabs>
 
                     <div
-                        id="panel-config"
+                        id="panel-connector-code"
                         role="tabpanel"
+                        aria-labelledby="tab-connector-code"
                         class="cds--tab-content cds--tab-content--interactive"
-                        aria-labelledby="tab-config"
                     >
-                        <cds-table id="config-table" th:fragment="config-table">
+                        <div
+                            style="
+                                display: flex;
+                                flex-flow: row;
+                                justify-content: flex-end;
+                                align-items: center;
+                            "
+                        >
+                            <cds-button
+                                id="save-button"
+                                type="submit"
+                                th:hx-put="@{|/admin/connectors/${connector.id}|}"
+                                hx-include="#connectorCode"
+                                hx-target="this"
+                                hx-select="#connector-code"
+                                hx-swap="none"
+                                data-editor-selector="#connector-editor"
+                                style="display: none"
+                                onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
+                                th:disabled="${connector.status.name() != 'DRAFT'}"
+                            >
+                                Save
+                            </cds-button>
+
+                            <cds-button
+                                id="edit-code-button"
+                                onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
+                                th:disabled="${connector.status.name() != 'DRAFT'}"
+                            >
+                                Edit code
+                            </cds-button>
+                        </div>
+                        <div
+                            id="connector-code"
+                            style="margin: 0.5em"
+                            th:fragment="connector-code"
+                        >
+                            <textarea
+                                id="connectorCode"
+                                name="connectorCode"
+                                th:text="${connector?.connectorCode}"
+                                hidden
+                            ></textarea>
+
+                            <!-- Monaco container -->
+                            <div
+                                id="connector-editor"
+                                data-monaco
+                                data-language="yaml"
+                                data-textarea="#connectorCode"
+                                data-readonly="true"
+                                th:data-initial="${connector.connectorCode}"
+                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-editor-style-full-height monaco-editor-error' : 'monaco-editor-style-full-height'"
+                            ></div>
+
+                            <div
+                                id="monaco-error"
+                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'cds--form-requirement' : 'monaco-error'"
+                                th:if="${errors?.getFieldError('connectorCode') != null}"
+                                th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div
+                        id="panel-endpoints"
+                        role="tabpanel"
+                        aria-labelledby="tab-endpoints"
+                        hidden=""
+                        class="cds--tab-content cds--tab-content--interactive"
+                    >
+                        <cds-table
+                            id="endpoints-table"
+                            th:fragment="endpoints-table"
+                        >
                             <cds-table-toolbar slot="toolbar">
                                 <cds-table-toolbar-content>
                                     <cds-button
-                                        th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config|}"
+                                        th:hx-get="@{|/admin/connectors/${connector.id}/endpoints/create|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                     >
-                                        Add config
+                                        Add endpoint
                                         <svg
                                             focusable="false"
                                             preserveAspectRatio="xMidYMid meet"
@@ -96,60 +181,20 @@
                                         Name
                                     </cds-table-header-cell>
                                     <cds-table-header-cell class="col-width-30">
-                                        Value
+                                        Reference
                                     </cds-table-header-cell>
-
                                     <cds-table-header-cell>
                                     </cds-table-header-cell>
                                 </cds-table-header-row>
                             </cds-table-head>
-                            <cds-table-body id="config">
-                                <cds-table-row
-                                    class="not-clickable"
-                                    th:each="config: ${connectorInstance.config}"
-                                >
+                            <cds-table-body id="endpoints">
+                                <cds-table-row th:each="endpoint: ${endpoints}">
                                     <cds-table-cell
-                                        th:text="${config.key}"
+                                        th:text="${endpoint.name}"
                                     ></cds-table-cell>
                                     <cds-table-cell
-                                        class="pointer"
-                                        th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config/${config.key}|}"
-                                    >
-                                        <svg
-                                            focusable="false"
-                                            preserveAspectRatio="xMidYMid meet"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="currentColor"
-                                            aria-hidden="true"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 32 32"
-                                        >
-                                            <defs>
-                                                <style>
-                                                    .cls-1 {
-                                                        fill: none;
-                                                    }
-                                                </style>
-                                            </defs>
-                                            <title>view</title>
-                                            <path
-                                                d="M30.94,15.66A16.69,16.69,0,0,0,16,5,16.69,16.69,0,0,0,1.06,15.66a1,1,0,0,0,0,.68A16.69,16.69,0,0,0,16,27,16.69,16.69,0,0,0,30.94,16.34,1,1,0,0,0,30.94,15.66ZM16,25c-5.3,0-10.9-3.93-12.93-9C5.1,10.93,10.7,7,16,7s10.9,3.93,12.93,9C26.9,21.07,21.3,25,16,25Z"
-                                                transform="translate(0 0)"
-                                            />
-                                            <path
-                                                d="M16,10a6,6,0,1,0,6,6A6,6,0,0,0,16,10Zm0,10a4,4,0,1,1,4-4A4,4,0,0,1,16,20Z"
-                                                transform="translate(0 0)"
-                                            />
-                                            <rect
-                                                id="_Transparent_Rectangle_"
-                                                data-name="&lt;Transparent Rectangle&gt;"
-                                                class="cls-1"
-                                                width="32"
-                                                height="32"
-                                            />
-                                        </svg>
-                                    </cds-table-cell>
+                                        th:text="${endpoint.operation}"
+                                    ></cds-table-cell>
                                     <cds-table-cell
                                         class="app--table-cell-actions"
                                     >
@@ -158,6 +203,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.status.name() != 'DRAFT'}"
                                         >
                                             <svg
                                                 focusable="false"
@@ -192,10 +238,10 @@
                                             </span>
                                             <cds-overflow-menu-body flipped="">
                                                 <cds-overflow-menu-item
-                                                    hx-confirm="Are you sure you want to delete this config?"
-                                                    th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config/${config.key}|}"
+                                                    hx-confirm="Are you sure you want to delete this endpoint?"
+                                                    th:hx-delete="@{|/admin/connectors/${connector.id}/endpoints/${endpoint.id}|}"
                                                     hx-swap="outerHTML"
-                                                    hx-target="#config-table"
+                                                    hx-target="#endpoints-table"
                                                     danger="true"
                                                 >
                                                     Delete
@@ -207,22 +253,26 @@
                             </cds-table-body>
                         </cds-table>
                     </div>
-
                     <div
-                        id="panel-roles"
+                        id="panel-instances"
                         role="tabpanel"
+                        aria-labelledby="tab-instances"
+                        hidden=""
                         class="cds--tab-content cds--tab-content--interactive"
-                        aria-labelledby="tab-roles"
                     >
-                        <cds-table id="roles-table" th:fragment="roles-table">
+                        <cds-table
+                            id="instance-table"
+                            th:fragment="instance-table"
+                        >
                             <cds-table-toolbar slot="toolbar">
                                 <cds-table-toolbar-content>
                                     <cds-button
-                                        th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles|}"
+                                        th:hx-get="@{|/admin/connectors/${connector.id}/instances/create|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                     >
-                                        Add role
+                                        Add instance
                                         <svg
                                             focusable="false"
                                             preserveAspectRatio="xMidYMid meet"
@@ -245,25 +295,36 @@
                             <cds-table-head>
                                 <cds-table-header-row>
                                     <cds-table-header-cell class="col-width-30">
-                                        Endpoint
+                                        Name
                                     </cds-table-header-cell>
                                     <cds-table-header-cell class="col-width-30">
-                                        Role
+                                        Reference
                                     </cds-table-header-cell>
-                                    <cds-table-header-cell></cds-table-header-cell>
+                                    <cds-table-header-cell>
+                                        API Specification URL
+                                    </cds-table-header-cell>
+                                    <cds-table-header-cell>
+                                    </cds-table-header-cell>
                                 </cds-table-header-row>
                             </cds-table-head>
-                            <cds-table-body id="endpoints">
+                            <cds-table-body id="instances">
                                 <cds-table-row
-                                    class="not-clickable"
-                                    th:each="role: ${connectorRoles}"
-                                    kind="primary"
+                                    th:each="instance: ${instances}"
+                                    th:hx-get="@{|/admin/connectors/${connector.id}/instances/${instance.id}|}"
+                                    hx-target="#view-panel"
+                                    hx-push-url="true"
+                                    role="link"
+                                    onclick="document.addEventListener('click', (e) => {if (e.target.closest('.app--table-cell-actions')) {e.stopImmediatePropagation();}});"
+                                    class="app--table-row-clickable"
                                 >
                                     <cds-table-cell
-                                        th:text="${role.connectorEndpoint.name}"
+                                        th:text="${instance.name}"
                                     ></cds-table-cell>
                                     <cds-table-cell
-                                        th:text="${role.role}"
+                                        th:text="${instance.tag}"
+                                    ></cds-table-cell>
+                                    <cds-table-cell
+                                        th:text="${instance.apiSpecificationUrl}"
                                     ></cds-table-cell>
                                     <cds-table-cell
                                         class="app--table-cell-actions"
@@ -273,6 +334,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.status.name() != 'DRAFT'}"
                                         >
                                             <svg
                                                 focusable="false"
@@ -307,10 +369,10 @@
                                             </span>
                                             <cds-overflow-menu-body flipped="">
                                                 <cds-overflow-menu-item
-                                                    hx-confirm="Are you sure you want to delete this role?"
-                                                    th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles/${role.id}|}"
+                                                    hx-confirm="Are you sure you want to delete this instance?"
+                                                    th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${instance.id}|}"
                                                     hx-swap="outerHTML"
-                                                    hx-target="#roles-table"
+                                                    hx-target="#instance-table"
                                                     danger="true"
                                                 >
                                                     Delete

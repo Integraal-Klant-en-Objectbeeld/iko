@@ -4,8 +4,9 @@
 
 The configuration properties of openzaak are:
 - **host**: Base URL
-- **specificationUri**: The specification uri (could be a file or a url)
 - **secret**: The token to use for authentication
+
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property (e.g. `https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml`).
 
 ## Endpoints
 
@@ -29,8 +30,8 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
               - setBody:
                     jq: |
                         {
-                          type: header("type"),
-                           fields: header("fields") // empty | split(","),
+                           type: (if (header("type") != null) then header("type") else "RaadpleegMetBurgerservicenummer" end),
+                           fields: (if (header("fields") != null) then header("fields") | split(",") else ["burgerservicenummer","naam","geboorte","nationaliteiten","verblijfplaats","partners"] end),
                            gemeenteVanInschrijving: header("gemeenteVanInschrijving"),
                            inclusiefOverledenPersonen: header("inclusiefOverledenPersonen"),
                            geboortedatum: header("geboortedatum"),
@@ -38,7 +39,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                            geslacht: header("geslacht"),
                            voorvoegsel: header("voorvoegsel"),
                            voornamen: header("voornamen"),
-                           burgerservicenummer: header("burgerservicenummer") // empty | split(","),
+                           burgerservicenummer: (if header("burgerservicenummer") != null then header("burgerservicenummer") | split(",") else [header("idParam")] end),
                            huisletter: header("huisletter"),
                            huisnummer: header("huisnummer"),
                            huisnummertoevoeging: header("huisnummertoevoeging"),
@@ -48,7 +49,7 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                            straat: header("straat"),
                            nummeraanduidingIdentificatie: header("nummeraanduidingIdentificatie"),
                            adresseerbaarObjectIdentificatie: header("adresseerbaarObjectIdentificatie")
-                           } | with_entries(select(.value!=null))
+                        } | with_entries(select(.value!=null))
               - removeHeaders:
                     pattern: "*"
                     excludePattern: "type|fields|gemeenteVanInschrijving|inclusiefOverledenPersonen|geboortedatum|geslachtsnaam|geslacht|voorvoegsel|voornamen|burgerservicenummer|huisletter|huisnummer|huisnummertoevoeging|postcode|geboortedatum|geslachtsnaam|straat|nummeraanduidingIdentificatie|adresseerbaarObjectIdentificatie"
@@ -64,14 +65,18 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                     constant: "application/json"
               - setHeader:
                     name: "Accept"
-                    constant: "application/json"
+                    constant: "application/json; charset=utf-8"
               - script:
                     groovy: |-
                         exchange.in.setHeader("X-Api-Key", "${exchange.getVariable('configProperties', Map).secret}")
               - log: "BODY: ${header.Accept}"
               - toD:
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.specificationUri}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
               - unmarshal:
                     json: {}
+```
 
+If you want to output the response body to the console log, add the following line to the second route of the connector at the same level of `- unmarshal:`:
+```yaml
+              - log: "BODY: ${body}"
 ```

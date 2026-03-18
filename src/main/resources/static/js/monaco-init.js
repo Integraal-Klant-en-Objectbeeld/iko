@@ -106,10 +106,14 @@ require.config({
         initialized.set(el, state);
 
         const language = el.getAttribute("data-language") || "plaintext";
-        const initialValue = el.getAttribute("data-initial") || "";
+        let initialValue = el.getAttribute("data-initial") || "";
         const textAreaSelector = el.getAttribute("data-textarea");
         const isReadOnly = el.hasAttribute("data-readonly");
         const theme = el.getAttribute("data-theme") || "vs";
+
+        if (el.hasAttribute("data-format-json")) {
+            try { initialValue = JSON.stringify(JSON.parse(initialValue), null, 2); } catch (e) { /* keep as-is */ }
+        }
 
         const initPromise = new Promise((resolve) => {
             require(["vs/editor/editor.main"], function () {

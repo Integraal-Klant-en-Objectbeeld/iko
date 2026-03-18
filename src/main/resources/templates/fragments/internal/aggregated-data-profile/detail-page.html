@@ -63,6 +63,12 @@
                         value="preview"
                         >Preview</cds-tab
                     >
+                    <cds-tab
+                        id="tab-schema"
+                        target="panel-schema"
+                        value="schema"
+                        >Schema</cds-tab
+                    >
                 </cds-tabs>
 
                 <div
@@ -71,7 +77,7 @@
                     aria-labelledby="tab-general"
                 >
                     <div
-                        th:replace="~{fragments/internal/aggregated-data-profile/edit :: profile-edit-panel}"
+                        th:replace="~{fragments/internal/aggregated-data-profile/edit-panel :: profile-edit-panel}"
                     ></div>
                 </div>
 
@@ -101,7 +107,17 @@
                     aria-labelledby="tab-preview"
                 >
                     <div
-                        th:replace="~{fragments/internal/aggregated-data-profile/debug :: profile-debug}"
+                        th:replace="~{fragments/internal/aggregated-data-profile/preview-panel :: preview-panel}"
+                    ></div>
+                </div>
+
+                <div
+                    id="panel-schema"
+                    role="tabpanel"
+                    aria-labelledby="tab-schema"
+                >
+                    <div
+                        th:replace="~{fragments/internal/aggregated-data-profile/schema-panel :: schema-panel}"
                     ></div>
                 </div>
             </th:block>

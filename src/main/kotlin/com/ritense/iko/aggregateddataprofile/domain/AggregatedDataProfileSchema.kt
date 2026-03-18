@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.mvc.model.connector
+package com.ritense.iko.aggregateddataprofile.domain
 
-import jakarta.validation.constraints.NotBlank
+import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
 
-class ConnectorInstanceEditForm(
-    @field:NotBlank(message = "Please provide a name.")
-    val name: String,
-    @field:NotBlank(message = "Please provide a reference.")
-    val reference: String,
-    val apiSpecificationUrl: String? = null,
+@Embeddable
+class AggregatedDataProfileSchema(
+    @Column(name = "jsonschema")
+    val value: String,
 )

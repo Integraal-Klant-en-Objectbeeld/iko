@@ -19,8 +19,14 @@ package com.ritense.iko.aggregateddataprofile.autoconfiguration
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRoute
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileTemplatesRouteBuilder
+import com.ritense.iko.aggregateddataprofile.processor.AggregatedDataProfileSchemaProcessor
 import com.ritense.iko.aggregateddataprofile.processor.ContainerParamsProcessor
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.schema.AggregatedDataProfileSchemaService
+import com.ritense.iko.aggregateddataprofile.schema.JsonSchemaInferrer
+import com.ritense.iko.aggregateddataprofile.schema.OpenApiMockGenerator
+import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
+import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -30,8 +36,10 @@ class AggregatedDataProfileConfiguration {
     @Bean
     fun aggregatedDataProfileRoute(
         containerParamsProcessor: ContainerParamsProcessor,
+        aggregatedDataProfileSchemaProcessor: AggregatedDataProfileSchemaProcessor,
     ) = AggregatedDataProfileRoute(
         containerParamsProcessor,
+        aggregatedDataProfileSchemaProcessor,
     )
 
     @Bean
@@ -45,4 +53,34 @@ class AggregatedDataProfileConfiguration {
     fun containerParamsProcessor(
         objectMapper: ObjectMapper,
     ) = ContainerParamsProcessor(objectMapper)
+
+    @Bean
+    fun aggregatedDataProfileSchemaProcessor(
+        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+    ) = AggregatedDataProfileSchemaProcessor(aggregatedDataProfileRepository)
+
+    @Bean
+    fun openApiMockGenerator(
+        objectMapper: ObjectMapper,
+    ) = OpenApiMockGenerator(objectMapper)
+
+    @Bean
+    fun jsonSchemaInferrer(
+        objectMapper: ObjectMapper,
+    ) = JsonSchemaInferrer(objectMapper)
+
+    @Bean
+    fun aggregatedDataProfileSchemaService(
+        connectorInstanceRepository: ConnectorInstanceRepository,
+        connectorEndpointRepository: ConnectorEndpointRepository,
+        openApiMockGenerator: OpenApiMockGenerator,
+        jsonSchemaInferrer: JsonSchemaInferrer,
+        objectMapper: ObjectMapper,
+    ) = AggregatedDataProfileSchemaService(
+        connectorInstanceRepository,
+        connectorEndpointRepository,
+        openApiMockGenerator,
+        jsonSchemaInferrer,
+        objectMapper,
+    )
 }
