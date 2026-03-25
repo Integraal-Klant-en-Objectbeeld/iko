@@ -17,9 +17,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
-                uses: actions/checkout@v4
+                uses: actions/checkout@v6
             -   name: Setup Java
-                uses: actions/setup-java@v4
+                uses: actions/setup-java@v5
                 with:
                     distribution: 'temurin'
                     java-version: 21
@@ -42,7 +42,7 @@ jobs:
                         --suppression cve-exclusions.xml
             -   name: Upload Test results
                 if: always()
-                uses: actions/upload-artifact@v4
+                uses: actions/upload-artifact@v6
                 with:
                     name: Dependency check result
                     path: ${{github.workspace}}/dependency-check
