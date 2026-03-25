@@ -72,10 +72,10 @@ class ConnectorController(
      */
     @GetMapping()
     fun list(
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean = true,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val activeFilter = if (isActive == true) true else null
+        val activeFilter = if (isActive) true else null
         val connectors = connectorRepository.findAllByIsActive(activeFilter)
 
         return ModelAndView(
@@ -103,7 +103,7 @@ class ConnectorController(
     @GetMapping("/{id}")
     fun details(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
         val instances = connectorInstanceRepository.findByConnector(connector)
@@ -130,7 +130,7 @@ class ConnectorController(
     @GetMapping("/{id}/edit")
     fun getEditConnectorPage(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
 
@@ -186,7 +186,7 @@ class ConnectorController(
     @DeleteMapping("/{id}")
     fun deleteConnector(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
@@ -212,14 +212,14 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
-        return list(isHxRequest)
+        return list(isHxRequest = isHxRequest)
     }
 
     @PostMapping("")
     fun createConnector(
         @Valid @ModelAttribute form: ConnectorCreateForm,
         bindingResult: BindingResult,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         if (bindingResult.hasErrors()) {
@@ -260,7 +260,7 @@ class ConnectorController(
     @GetMapping("/{id}/instances/create")
     fun createConnectorInstancePage(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView = ModelAndView(
         "fragments/internal/connector/form-create-connector-instance",
         mapOf<String, Any?>(
