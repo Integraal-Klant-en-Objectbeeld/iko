@@ -10,11 +10,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Check source branch is rc/**
+              env:
+                  BASE_REF: ${{ github.base_ref }}
+                  HEAD_REF: ${{ github.head_ref }}
               run: |
-                  echo "Base branch: ${{ github.base_ref }}"
-                  echo "Head branch: ${{ github.head_ref }}"
+                  echo "Base branch: ${BASE_REF}"
+                  echo "Head branch: ${HEAD_REF}"
 
-                  if [[ "${{ github.head_ref }}" != rc/* ]]; then
+                  if [[ "${HEAD_REF}" != rc/* ]]; then
                     echo "Only branches matching 'rc/**' (rc/*) can open PRs to main."
                     exit 1
                   fi
