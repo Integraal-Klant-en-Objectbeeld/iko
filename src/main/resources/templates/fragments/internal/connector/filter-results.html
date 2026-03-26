@@ -14,36 +14,12 @@
  limitations under the License.
  -->
 
-<th:block th:fragment="profile-filter-results">
+<th:block th:fragment="connector-filter-results">
     <cds-table-body id="search-results">
-        <cds-table-row th:if="${!creationAllowed}" class="not-clickable">
-            <cds-table-cell colspan="5" class="app--table-cell-empty">
-                <div class="app--empty-notice">
-                    <img
-                        th:src="@{/assets/emptystate-error.svg}"
-                        alt="No connector instances or endpoints configured"
-                        class="app--empty-notice__icon"
-                        width="80"
-                        height="80"
-                    />
-                    <div class="app--empty-notice__content">
-                        <p class="app--empty-notice__title">
-                            Connector setup incomplete
-                        </p>
-                        <p class="app--empty-notice__description">
-                            Configure at least one connector instance and one
-                            endpoint before creating or viewing Aggregated Data
-                            Profiles.
-                        </p>
-                    </div>
-                </div>
+        <cds-table-row th:if="${#lists.isEmpty(connectors)}" class="not-clickable">
+            <cds-table-cell>
+                No result found
             </cds-table-cell>
-        </cds-table-row>
-        <cds-table-row
-            th:if="${creationAllowed and #lists.isEmpty(aggregatedDataProfiles)}"
-            class="not-clickable"
-        >
-            <cds-table-cell>No results found</cds-table-cell>
             <cds-table-cell></cds-table-cell>
             <cds-table-cell></cds-table-cell>
             <cds-table-cell></cds-table-cell>
@@ -51,34 +27,33 @@
             <cds-table-cell></cds-table-cell>
         </cds-table-row>
         <cds-table-row
-            th:each="aggregatedDataProfile : ${aggregatedDataProfiles}"
-            th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id}},
+            th:each="connector : ${connectors}"
+            th:attr="hx-get=@{'/admin/connectors/' + ${connector.id}},
                                  hx-target='#view-panel',
                                  hx-swap='innerHTML',
                                  hx-push-url='true'"
+            role="link"
+            class="app--table-row-clickable"
         >
-            <cds-table-cell
-                th:text="${aggregatedDataProfile.name}"
-            ></cds-table-cell>
-            <cds-table-cell
-                th:text="${aggregatedDataProfile.version}"
-            ></cds-table-cell>
+            <cds-table-cell th:text="${connector.name}"></cds-table-cell>
+            <cds-table-cell th:text="${connector.tag}"></cds-table-cell>
+            <cds-table-cell th:text="${connector.version}"></cds-table-cell>
             <cds-table-cell>
                 <cds-tag
-                    th:type="${aggregatedDataProfile.status == 'FINAL' ? 'green' : 'cool-gray'}"
-                    th:text="${aggregatedDataProfile.status}"
+                    th:type="${connector.status == 'FINAL' ? 'green' : 'cool-gray'}"
+                    th:text="${connector.status}"
                 ></cds-tag>
             </cds-table-cell>
             <cds-table-cell>
                 <cds-tag
-                    th:type="${aggregatedDataProfile.active ? 'green' : 'cool-gray'}"
-                    th:text="${aggregatedDataProfile.active ? 'Yes' : 'No'}"
+                    th:type="${connector.active ? 'green' : 'cool-gray'}"
+                    th:text="${connector.active ? 'Yes' : 'No'}"
                 ></cds-tag>
             </cds-table-cell>
             <cds-table-cell class="app--table-cell-actions">
-                <div th:if="${aggregatedDataProfile.status != 'DRAFT'}"></div>
+                <div th:if="${connector.status != 'DRAFT'}"></div>
                 <cds-overflow-menu
-                    th:if="${aggregatedDataProfile.status == 'DRAFT'}"
+                    th:if="${connector.status == 'DRAFT'}"
                     enter-delay-ms="3000"
                     leave-delay-ms="0"
                     close-on-activation
@@ -103,8 +78,8 @@
                     <span slot="tooltip-content"> Options </span>
                     <cds-overflow-menu-body flipped="">
                         <cds-overflow-menu-item
-                            hx-confirm="Are you sure you want to delete this Aggregated Data Profile?"
-                            th:hx-delete="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}|}"
+                            hx-confirm="Are you sure you want to delete this connector?"
+                            th:hx-delete="@{|/admin/connectors/${connector.id}|}"
                             hx-swap="outerHTML"
                             hx-target="#search-results"
                             danger="true"
