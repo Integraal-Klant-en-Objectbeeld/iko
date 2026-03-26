@@ -78,7 +78,7 @@ class ConnectorController(
     @GetMapping
     fun list(
         @RequestParam(required = false, defaultValue = "") query: String = "",
-        @RequestParam(required = false) isActive: Boolean? = null,
+        @RequestParam(required = false) isActive: Boolean? = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
@@ -105,7 +105,7 @@ class ConnectorController(
     @GetMapping("/filter")
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false) isActive: Boolean? = null,
+        @RequestParam(required = false) isActive: Boolean? = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {

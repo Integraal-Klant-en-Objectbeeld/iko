@@ -107,7 +107,7 @@ internal class AggregatedDataProfileController(
     @GetMapping
     fun list(
         @RequestParam(required = false, defaultValue = "") query: String = "",
-        @RequestParam(required = false) isActive: Boolean? = null,
+        @RequestParam(required = false) isActive: Boolean? = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
@@ -140,7 +140,7 @@ internal class AggregatedDataProfileController(
     @GetMapping("/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false) isActive: Boolean? = null,
+        @RequestParam(required = false) isActive: Boolean? = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
     ): ModelAndView {
         val page = aggregatedDataProfileRepository.findAllBy(isActive, pageable)
@@ -162,7 +162,7 @@ internal class AggregatedDataProfileController(
     @GetMapping("/filter")
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false) isActive: Boolean? = null,
+        @RequestParam(required = false) isActive: Boolean? = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
