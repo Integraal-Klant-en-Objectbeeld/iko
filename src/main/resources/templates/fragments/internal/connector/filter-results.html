@@ -16,10 +16,11 @@
 
 <th:block th:fragment="connector-filter-results">
     <cds-table-body id="search-results">
-        <cds-table-row th:if="${#lists.isEmpty(connectors)}" class="not-clickable">
-            <cds-table-cell>
-                No result found
-            </cds-table-cell>
+        <cds-table-row
+            th:if="${#lists.isEmpty(connectors)}"
+            class="not-clickable"
+        >
+            <cds-table-cell> No result found </cds-table-cell>
             <cds-table-cell></cds-table-cell>
             <cds-table-cell></cds-table-cell>
             <cds-table-cell></cds-table-cell>
