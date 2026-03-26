@@ -72,10 +72,10 @@ class ConnectorController(
      */
     @GetMapping()
     fun list(
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean = true,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
         @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val activeFilter = if (isActive) true else null
+        val activeFilter = if (isActive == true) true else null
         val connectors = connectorRepository.findAllByIsActive(activeFilter)
 
         return ModelAndView(
@@ -212,7 +212,7 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
-        return list(isHxRequest = isHxRequest)
+        return list(isActive = true, isHxRequest = isHxRequest)
     }
 
     @PostMapping("")

@@ -39,6 +39,7 @@ import com.ritense.iko.security.SecurityContextHelper
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
@@ -107,7 +108,7 @@ internal class AggregatedDataProfileController(
     fun list(
         @RequestParam(required = false, defaultValue = "") query: String,
         @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val activeFilter = if (isActive == true) true else null
@@ -141,7 +142,7 @@ internal class AggregatedDataProfileController(
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
         @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
     ): ModelAndView {
         val activeFilter = if (isActive == true) true else null
         val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
@@ -154,6 +155,7 @@ internal class AggregatedDataProfileController(
             addObject("query", query)
             addObject("isActive", isActive)
             addObject("creationAllowed", creationAllowed)
+
             addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
             addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
         }
@@ -164,7 +166,7 @@ internal class AggregatedDataProfileController(
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
         @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
         val activeFilter = if (isActive == true) true else null
@@ -195,6 +197,7 @@ internal class AggregatedDataProfileController(
                 addObject("query", query)
                 addObject("isActive", isActive)
                 addObject("creationAllowed", creationAllowed)
+    
                 addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                 addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
             }

@@ -40,7 +40,7 @@
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-vals="js:{
-                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true
+                        isActive: document.querySelector('#active-filter-toggle')?.checked
                     }"
                 >
                 </cds-table-toolbar-search>
@@ -125,7 +125,7 @@
                         size: document.querySelector('#pagination-container').__pageSize,
                         page: document.querySelector('#pagination-container').__page - 1,
                         query: document.querySelector('#search-bar').value,
-                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true
+                        isActive: document.querySelector('#active-filter-toggle')?.checked
                         }"
                 >
                     Name
