@@ -39,6 +39,7 @@ import com.ritense.iko.security.SecurityContextHelper
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
@@ -105,13 +106,12 @@ internal class AggregatedDataProfileController(
 
     @GetMapping
     fun list(
-        @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @RequestParam(required = false, defaultValue = "") query: String = "",
+        @RequestParam(required = false) isActive: Boolean? = null,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val activeFilter = if (isActive == true) true else null
-        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
+        val page = aggregatedDataProfileRepository.findAllBy(isActive, pageable)
         val connectorInstancesCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstancesCount > 0 && endpointsCount > 0
@@ -140,11 +140,10 @@ internal class AggregatedDataProfileController(
     @GetMapping("/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @RequestParam(required = false) isActive: Boolean? = null,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
     ): ModelAndView {
-        val activeFilter = if (isActive == true) true else null
-        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
+        val page = aggregatedDataProfileRepository.findAllBy(isActive, pageable)
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
@@ -163,16 +162,15 @@ internal class AggregatedDataProfileController(
     @GetMapping("/filter")
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @RequestParam(required = false) isActive: Boolean? = null,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
-        val activeFilter = if (isActive == true) true else null
         val page =
             if (query.isBlank()) {
-                aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
+                aggregatedDataProfileRepository.findAllBy(isActive, pageable)
             } else {
-                aggregatedDataProfileRepository.findAllByName(query.trim(), activeFilter, pageable)
+                aggregatedDataProfileRepository.findAllByName(query.trim(), isActive, pageable)
             }
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
@@ -195,6 +193,7 @@ internal class AggregatedDataProfileController(
                 addObject("query", query)
                 addObject("isActive", isActive)
                 addObject("creationAllowed", creationAllowed)
+
                 addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                 addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
             }
@@ -411,7 +410,7 @@ internal class AggregatedDataProfileController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
-        return list(query = "", isActive = true, pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
+        return list(pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
     }
 
     @PutMapping(

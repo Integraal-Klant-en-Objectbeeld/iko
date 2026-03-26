@@ -25,6 +25,8 @@ import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
 import com.ritense.iko.connectors.service.ConnectorService
+import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_CONNECTOR
+import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.model.CreateVersionForm
 import com.ritense.iko.mvc.model.connector.ConnectorCreateForm
 import com.ritense.iko.mvc.model.connector.ConnectorEditForm
@@ -35,6 +37,9 @@ import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
 import com.ritense.iko.security.SecurityContextHelper
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -70,27 +75,74 @@ class ConnectorController(
      * asynchronously.  Menu items are provided so the sidebar remains
      * consistent.
      */
-    @GetMapping()
+    @GetMapping
     fun list(
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean = true,
+        @RequestParam(required = false, defaultValue = "") query: String = "",
+        @RequestParam(required = false) isActive: Boolean? = null,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val activeFilter = if (isActive) true else null
-        val connectors = connectorRepository.findAllByIsActive(activeFilter)
+        val page = connectorRepository.findAllByIsActivePaged(isActive, pageable)
+        return if (isHxRequest) {
+            ModelAndView("$BASE_FRAGMENT_CONNECTOR/list").apply {
+                addObject("connectors", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("isActive", isActive)
+            }
+        } else {
+            ModelAndView("$BASE_FRAGMENT_CONNECTOR/list-page-connectors").apply {
+                addObject("connectors", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("isActive", isActive)
+                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
+            }
+        }
+    }
 
-        return ModelAndView(
-            "fragments/internal/connector/list-page-connectors" +
-                when (isHxRequest) {
-                    true -> ":: connector-list"
-                    false -> ""
+    @GetMapping("/filter")
+    fun filter(
+        @RequestParam(required = false, defaultValue = "") query: String,
+        @RequestParam(required = false) isActive: Boolean? = null,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): List<ModelAndView> {
+        val page =
+            if (query.isBlank()) {
+                connectorRepository.findAllByIsActivePaged(isActive, pageable)
+            } else {
+                connectorRepository.findAllByName(query.trim(), isActive, pageable)
+            }
+
+        if (isHxRequest) {
+            val searchResults = ModelAndView("$BASE_FRAGMENT_CONNECTOR/filter-results").apply {
+                addObject("connectors", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("isActive", isActive)
+            }
+            val pagination = ModelAndView("$BASE_FRAGMENT_CONNECTOR/pagination").apply {
+                addObject("connectors", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("isActive", isActive)
+            }
+            return listOf(searchResults, pagination)
+        } else {
+            return listOf(
+                ModelAndView("$BASE_FRAGMENT_CONNECTOR/filter-results-page").apply {
+                    addObject("connectors", page.content)
+                    addObject("page", page)
+                    addObject("query", query)
+                    addObject("isActive", isActive)
+                    addObject("menuItems", HomeController.menuItems)
+                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
                 },
-            mapOf(
-                "connectors" to connectors,
-                "isActive" to isActive,
-                "username" to SecurityContextHelper.getUserPropertyByKey("name"),
-                "email" to SecurityContextHelper.getUserPropertyByKey("email"),
-            ),
-        )
+            )
+        }
     }
 
     /**
@@ -212,7 +264,7 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
-        return list(isHxRequest = isHxRequest)
+        return list(pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
     }
 
     @PostMapping("")
@@ -400,7 +452,7 @@ class ConnectorController(
     fun connectorInstanceRolesPage(
         @PathVariable id: UUID,
         @PathVariable instanceId: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connectorInstance =
             connectorInstanceRepository
@@ -485,7 +537,7 @@ class ConnectorController(
         @PathVariable id: UUID,
         @Valid @ModelAttribute form: ConnectorInstanceEditForm,
         bindingResult: BindingResult,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         response: HttpServletResponse,
     ): ModelAndView {
         connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }.ensureDraft()
@@ -522,7 +574,7 @@ class ConnectorController(
     @GetMapping("/{id}/endpoints/create")
     fun createEndpointPage(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView = ModelAndView(
         "fragments/internal/connector/form-create-connector-endpoint",
         mapOf(
@@ -534,7 +586,7 @@ class ConnectorController(
     fun editEndpointPage(
         @PathVariable id: UUID,
         @PathVariable endpointId: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
         val endpoint =
@@ -563,7 +615,7 @@ class ConnectorController(
     @PostMapping("/{id}/endpoints")
     fun createEndpoint(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         @Valid @ModelAttribute form: ConnectorEndpointConfigForm,
         bindingResult: BindingResult,
         response: HttpServletResponse,
@@ -740,7 +792,7 @@ class ConnectorController(
         @PathVariable id: UUID,
         @Valid @ModelAttribute form: CreateVersionForm,
         bindingResult: BindingResult,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
@@ -781,7 +833,7 @@ class ConnectorController(
     @PostMapping("/{id}/finalize")
     fun finalizeConnector(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         connectorService.finalizeConnector(id)
         return details(id, isHxRequest)
@@ -790,7 +842,7 @@ class ConnectorController(
     @PostMapping("/{id}/activate")
     fun activateVersion(
         @PathVariable id: UUID,
-        @RequestHeader(HomeController.Companion.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+        @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         connectorService.activateVersion(id)
         return details(id, isHxRequest)

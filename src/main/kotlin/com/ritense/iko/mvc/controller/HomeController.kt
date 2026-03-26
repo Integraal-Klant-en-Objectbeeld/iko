@@ -51,6 +51,7 @@ internal class HomeController {
         const val HX_REQUEST_HEADER = "Hx-Request"
         const val PAGE_DEFAULT = 10
         const val BASE_FRAGMENT_ADP = "fragments/internal/aggregated-data-profile"
+        const val BASE_FRAGMENT_CONNECTOR = "fragments/internal/connector"
         const val BASE_FRAGMENT_RELATION = "fragments/internal/relation"
 
         /**
