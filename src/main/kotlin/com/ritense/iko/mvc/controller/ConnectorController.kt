@@ -70,13 +70,12 @@ class ConnectorController(
      * asynchronously.  Menu items are provided so the sidebar remains
      * consistent.
      */
-    @GetMapping()
+    @GetMapping
     fun list(
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean?,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean = true,
         @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val activeFilter = if (isActive == true) true else null
-        val connectors = connectorRepository.findAllByIsActive(activeFilter)
+        val connectors = connectorRepository.findAllByIsActive(isActive)
 
         return ModelAndView(
             "fragments/internal/connector/list-page-connectors" +
@@ -212,7 +211,7 @@ class ConnectorController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
-        return list(isActive = true, isHxRequest = isHxRequest)
+        return list(isHxRequest = isHxRequest)
     }
 
     @PostMapping("")

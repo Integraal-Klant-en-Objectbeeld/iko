@@ -38,10 +38,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         @Param("version") version: String,
     ): AggregatedDataProfile?
 
-    fun findAllByNameOrderByVersionDesc(name: String): List<AggregatedDataProfile>
-
     fun findAllByIsActiveTrue(): List<AggregatedDataProfile>
-    fun findAllByIsActiveTrue(pageable: Pageable = Pageable.unpaged()): Page<AggregatedDataProfile>
 
     fun findAllByStatus(status: EntityStatus): List<AggregatedDataProfile>
 
@@ -63,7 +60,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         nativeQuery = true,
     )
     fun findAllBy(
-        @Param("isActive") isActive: Boolean?,
+        @Param("isActive") isActive: Boolean,
         pageable: Pageable,
     ): Page<AggregatedDataProfileListItem>
 

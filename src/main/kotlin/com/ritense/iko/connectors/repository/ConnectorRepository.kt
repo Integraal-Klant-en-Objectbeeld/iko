@@ -32,12 +32,12 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         @Param("version") version: String,
     ): Connector?
 
-    fun findAllByTagOrderByVersionDesc(tag: String): List<Connector>
-
     fun findAllByIsActiveTrue(): List<Connector>
 
     @Query("SELECT c FROM Connector c WHERE (:isActive IS NULL OR c.isActive = :isActive) ORDER BY c.name ASC")
-    fun findAllByIsActive(@Param("isActive") isActive: Boolean?): List<Connector>
+    fun findAllByIsActive(
+        @Param("isActive") isActive: Boolean,
+    ): List<Connector>
 
     @Query(
         """
