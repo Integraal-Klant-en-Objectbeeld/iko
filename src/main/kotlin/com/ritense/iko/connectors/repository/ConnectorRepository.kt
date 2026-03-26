@@ -18,6 +18,8 @@ package com.ritense.iko.connectors.repository
 
 import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
 import com.ritense.iko.connectors.domain.Connector
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -36,8 +38,57 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
 
     @Query("SELECT c FROM Connector c WHERE (:isActive IS NULL OR c.isActive = :isActive) ORDER BY c.name ASC")
     fun findAllByIsActive(
-        @Param("isActive") isActive: Boolean,
+        @Param("isActive") isActive: Boolean?,
     ): List<Connector>
+
+    @Query(
+        """
+        SELECT  c.id
+        ,       c.name
+        ,       c.tag
+        ,       c.version
+        ,       c.is_active AS active
+        ,       c.status
+        FROM    connector c
+        WHERE   (:isActive IS NULL OR c.is_active = :isActive)
+        """,
+        countQuery = """
+        SELECT  count(*)
+        FROM    connector c
+        WHERE   (:isActive IS NULL OR c.is_active = :isActive)
+        """,
+        nativeQuery = true,
+    )
+    fun findAllByIsActivePaged(
+        @Param("isActive") isActive: Boolean?,
+        pageable: Pageable,
+    ): Page<ConnectorListItem>
+
+    @Query(
+        """
+        SELECT  c.id
+        ,       c.name
+        ,       c.tag
+        ,       c.version
+        ,       c.is_active AS active
+        ,       c.status
+        FROM    connector c
+        WHERE   LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        AND     (:isActive IS NULL OR c.is_active = :isActive)
+        """,
+        countQuery = """
+        SELECT  COUNT(*)
+        FROM    connector c
+        WHERE   LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        AND     (:isActive IS NULL OR c.is_active = :isActive)
+        """,
+        nativeQuery = true,
+    )
+    fun findAllByName(
+        @Param("name") name: String,
+        @Param("isActive") isActive: Boolean?,
+        pageable: Pageable,
+    ): Page<ConnectorListItem>
 
     @Query(
         """
@@ -53,6 +104,15 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         """,
     )
     fun findVersionsByTag(@Param("tag") tag: String): List<ConnectorVersionProjection>
+
+    interface ConnectorListItem {
+        val id: String
+        val name: String
+        val tag: String
+        val version: String
+        val active: Boolean
+        val status: String
+    }
 
     interface ConnectorVersionProjection {
         val id: UUID

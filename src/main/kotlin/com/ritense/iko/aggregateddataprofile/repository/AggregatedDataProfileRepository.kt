@@ -60,7 +60,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         nativeQuery = true,
     )
     fun findAllBy(
-        @Param("isActive") isActive: Boolean,
+        @Param("isActive") isActive: Boolean?,
         pageable: Pageable,
     ): Page<AggregatedDataProfileListItem>
 
