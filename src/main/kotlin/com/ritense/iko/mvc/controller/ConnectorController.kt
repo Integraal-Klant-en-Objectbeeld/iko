@@ -363,6 +363,8 @@ class ConnectorController(
         val connectorInstance = connectorInstanceRepository.findById(instanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
 
+        connector.ensureDraft()
+
         if (bindingResult.hasErrors()) {
             return ModelAndView(
                 "fragments/internal/connector/details-page-connector-instance :: instance-edit-form",

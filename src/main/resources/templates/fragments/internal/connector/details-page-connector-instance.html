@@ -80,6 +80,7 @@
                                                 th:value="${connectorInstance.name}"
                                                 th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                                     invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
+                                                th:disabled="${connector.status.name() != 'DRAFT'}"
                                                 required=""
                                                 label="Name"
                                             ></cds-text-input>
@@ -88,18 +89,21 @@
                                                 th:value="${connectorInstance.tag}"
                                                 th:attr="invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
                                                     invalid-text=${errors?.getFieldError('reference')?.defaultMessage}"
+                                                th:disabled="${connector.status.name() != 'DRAFT'}"
                                                 required=""
                                                 label="Reference"
                                             ></cds-text-input>
                                             <cds-text-input
                                                 name="apiSpecificationUrl"
                                                 th:value="${connectorInstance.apiSpecificationUrl}"
+                                                th:disabled="${connector.status.name() != 'DRAFT'}"
                                                 label="API Specification URL"
                                                 helper-text="Optional. URL to the OpenAPI specification."
                                             ></cds-text-input>
                                             <cds-form-item class="form-actions">
                                                 <cds-button
                                                     id="instance-save-btn"
+                                                    th:disabled="${connector.status.name() != 'DRAFT'}"
                                                     th:hx-put="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}|}"
                                                     hx-target="#instance-edit-form-container"
                                                     hx-include="#instance-edit-form-container *"
@@ -130,6 +134,7 @@
                                     <cds-button
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config|}"
                                         hx-target="#modal-container"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                         kind="primary"
                                     >
                                         Add config
@@ -220,6 +225,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.status.name() != 'DRAFT'}"
                                         >
                                             <svg
                                                 focusable="false"
@@ -283,6 +289,7 @@
                                     <cds-button
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles|}"
                                         hx-target="#modal-container"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                         kind="primary"
                                     >
                                         Add role
@@ -336,6 +343,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.status.name() != 'DRAFT'}"
                                         >
                                             <svg
                                                 focusable="false"
