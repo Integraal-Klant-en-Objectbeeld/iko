@@ -40,7 +40,8 @@
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-vals="js:{
-                        ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {})
+                        ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {}),
+                        sort: new URLSearchParams(window.location.search).get('sort') || ''
                     }"
                 >
                 </cds-table-toolbar-search>
@@ -69,12 +70,14 @@
                                 hx-get="/admin/connectors/filter"
                                 hx-target="#search-results"
                                 hx-swap="outerHTML"
+                                hx-push-url="true"
                                 hx-trigger="cds-checkbox-changed"
                                 hx-vals="js:{
-                                    ...(event.detail.checked ? {isActive: true} : {}),
-                                    size: document.querySelector('#pagination-container')?.__pageSize || 10,
+                                    isActive: event.detail.checked,
+                                    size: document.querySelector('#pagination-container')?.pageSize || 10,
                                     page: 0,
-                                    query: document.querySelector('#search-bar')?.value || ''
+                                    query: document.querySelector('#search-bar')?.value || '',
+                                    sort: new URLSearchParams(window.location.search).get('sort') || ''
                                 }"
                                 style="pointer-events: auto"
                                 >Active only</cds-checkbox
@@ -117,12 +120,12 @@
                     hx-get="/admin/connectors/filter"
                     hx-target="#search-results"
                     hx-swap="outerHTML"
-                    hx-push-url="false"
+                    hx-push-url="true"
                     hx-trigger="cds-table-header-cell-sort"
                     hx-vals="js:{
                         sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
-                        size: document.querySelector('#pagination-container').__pageSize,
-                        page: document.querySelector('#pagination-container').__page - 1,
+                        size: document.querySelector('#pagination-container').pageSize,
+                        page: document.querySelector('#pagination-container').page - 1,
                         query: document.querySelector('#search-bar').value,
                         ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {})
                         }"
@@ -159,10 +162,11 @@
         hx-swap="outerHTML"
         hx-push-url="true"
         hx-vals="js:{
-                      size: event.detail.pageSize,
-                      page: event.detail.page - 1,
+                      size: document.querySelector('#pagination-container').pageSize,
+                      page: document.querySelector('#pagination-container').page - 1,
                       query: document.querySelector('#search-bar').value,
-                      ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {})
+                      ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {}),
+                      sort: new URLSearchParams(window.location.search).get('sort') || ''
                     }"
     >
         <cds-select-item value="10">10</cds-select-item>

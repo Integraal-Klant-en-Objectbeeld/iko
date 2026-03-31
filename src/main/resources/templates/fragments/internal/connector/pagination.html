@@ -29,10 +29,11 @@
         hx-swap="outerHTML"
         hx-push-url="true"
         hx-vals="js:{
-                      size: event.detail.pageSize,
-                      page: event.detail.page - 1,
+                      size: document.querySelector('#pagination-container').pageSize,
+                      page: document.querySelector('#pagination-container').page - 1,
                       query: document.querySelector('#search-bar').value,
-                      ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {})
+                      ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {}),
+                      sort: new URLSearchParams(window.location.search).get('sort') || ''
                     }"
     >
         <cds-select-item value="10">10</cds-select-item>
