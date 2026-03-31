@@ -34,7 +34,7 @@
                       size: document.querySelector('#pagination-container').pageSize,
                       page: document.querySelector('#pagination-container').page - 1,
                       query: document.querySelector('#search-bar').value,
-                      ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {}),
+                      isActive: document.querySelector('#active-filter-toggle')?.checked ?? true,
                       sort: new URLSearchParams(window.location.search).get('sort') || ''
                     }"
     >

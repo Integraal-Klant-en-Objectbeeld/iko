@@ -40,7 +40,7 @@
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-vals="js:{
-                        ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {}),
+                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true,
                         sort: new URLSearchParams(window.location.search).get('sort') || ''
                     }"
                 >
@@ -66,7 +66,7 @@
                         <cds-overflow-menu-item style="pointer-events: none">
                             <cds-checkbox
                                 id="active-filter-toggle"
-                                th:checked="${isActive != null and isActive}"
+                                th:checked="${isActive == null or isActive}"
                                 hx-get="/admin/aggregated-data-profiles/filter"
                                 hx-target="#search-results"
                                 hx-swap="outerHTML"
@@ -125,7 +125,7 @@
                         size: document.querySelector('#pagination-container').pageSize,
                         page: document.querySelector('#pagination-container').page - 1,
                         query: document.querySelector('#search-bar').value,
-                        ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {})
+                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true
                         }"
                 >
                     Name
@@ -159,7 +159,7 @@
                       size: document.querySelector('#pagination-container').pageSize,
                       page: document.querySelector('#pagination-container').page - 1,
                       query: document.querySelector('#search-bar').value,
-                      ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {}),
+                      isActive: document.querySelector('#active-filter-toggle')?.checked ?? true,
                       sort: new URLSearchParams(window.location.search).get('sort') || ''
                     }"
     >
