@@ -31,10 +31,11 @@
         hx-push-url="true"
         hx-on:cds-pagination-changed-current="console.log('cds-pagination-changed-current', event, this.pageSize, this.page)"
         hx-vals="js:{
-                      size: event.detail.pageSize,
-                      page: event.detail.page - 1,
+                      size: document.querySelector('#pagination-container').pageSize,
+                      page: document.querySelector('#pagination-container').page - 1,
                       query: document.querySelector('#search-bar').value,
-                      ...(document.querySelector('#active-filter-toggle')?.checked ? {isActive: true} : {})
+                      isActive: document.querySelector('#active-filter-toggle')?.checked ?? true,
+                      sort: new URLSearchParams(window.location.search).get('sort') || ''
                     }"
     >
         <cds-select-item value="10">10</cds-select-item>
