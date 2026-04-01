@@ -357,7 +357,7 @@ internal class AggregatedDataProfileController(
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
             addObject("connectorInstances", connectorInstances)
-            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectorInstances.first().connector))
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnectorOrderByNameAsc(connectorInstances.first().connector))
             addObject("sources", sources)
             addObject("parentId", sourceId)
         }
