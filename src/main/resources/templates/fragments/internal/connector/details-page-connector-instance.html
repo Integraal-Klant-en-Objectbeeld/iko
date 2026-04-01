@@ -100,7 +100,10 @@
                                                 label="API Specification URL"
                                                 helper-text="Optional. URL to the OpenAPI specification."
                                             ></cds-text-input>
-                                            <cds-form-item class="form-actions" th:if="${connector.status.name() == 'DRAFT'}">
+                                            <cds-form-item
+                                                class="form-actions"
+                                                th:if="${connector.status.name() == 'DRAFT'}"
+                                            >
                                                 <cds-button
                                                     id="instance-save-btn"
                                                     th:hx-put="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}|}"
