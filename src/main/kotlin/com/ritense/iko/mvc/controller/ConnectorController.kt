@@ -362,6 +362,7 @@ class ConnectorController(
     ): ModelAndView {
         val connector = connectorRepository.findById(id)
             .orElseThrow { NoSuchElementException("Connector not found") }
+        connector.ensureDraft()
         val connectorInstance = connectorInstanceRepository.findById(instanceId)
             .orElseThrow { NoSuchElementException("Connector instance not found") }
 

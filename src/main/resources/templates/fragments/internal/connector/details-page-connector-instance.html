@@ -80,6 +80,7 @@
                                                 th:value="${connectorInstance.name}"
                                                 th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
                                                     invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
+                                                th:readonly="${connector.status.name() != 'DRAFT'}"
                                                 required=""
                                                 label="Name"
                                             ></cds-text-input>
@@ -88,16 +89,18 @@
                                                 th:value="${connectorInstance.tag}"
                                                 th:attr="invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
                                                     invalid-text=${errors?.getFieldError('reference')?.defaultMessage}"
+                                                th:readonly="${connector.status.name() != 'DRAFT'}"
                                                 required=""
                                                 label="Reference"
                                             ></cds-text-input>
                                             <cds-text-input
                                                 name="apiSpecificationUrl"
                                                 th:value="${connectorInstance.apiSpecificationUrl}"
+                                                th:readonly="${connector.status.name() != 'DRAFT'}"
                                                 label="API Specification URL"
                                                 helper-text="Optional. URL to the OpenAPI specification."
                                             ></cds-text-input>
-                                            <cds-form-item class="form-actions">
+                                            <cds-form-item class="form-actions" th:if="${connector.status.name() == 'DRAFT'}">
                                                 <cds-button
                                                     id="instance-save-btn"
                                                     th:hx-put="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}|}"
@@ -131,6 +134,7 @@
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                     >
                                         Add config
                                         <svg
@@ -214,6 +218,7 @@
                                     </cds-table-cell>
                                     <cds-table-cell
                                         class="app--table-cell-actions"
+                                        th:if="${connector.status.name() == 'DRAFT'}"
                                     >
                                         <cds-overflow-menu
                                             enter-delay-ms="3000"
@@ -284,6 +289,7 @@
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.status.name() != 'DRAFT'}"
                                     >
                                         Add role
                                         <svg
@@ -330,6 +336,7 @@
                                     ></cds-table-cell>
                                     <cds-table-cell
                                         class="app--table-cell-actions"
+                                        th:if="${connector.status.name() == 'DRAFT'}"
                                     >
                                         <cds-overflow-menu
                                             enter-delay-ms="3000"
