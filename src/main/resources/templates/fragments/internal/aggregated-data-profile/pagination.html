@@ -24,7 +24,7 @@
                                   total-items=${page.totalElements},
                                   page-size=${page.size},
                                   disabled=${!creationAllowed} ? 'disabled' : null"
-        hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
+        hx-trigger="cds-pagination-changed-current from:closest cds-pagination, cds-page-sizes-select-changed from:closest cds-pagination"
         hx-get="/admin/aggregated-data-profiles/filter"
         hx-target="#search-results"
         hx-swap="outerHTML"

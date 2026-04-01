@@ -82,8 +82,8 @@
                                 <cds-menu-item
                                     th:if="${status.name() == 'DRAFT'}"
                                     label="Finalize"
-                                    th:hx-post="@{|/admin/${entityType}s/${entityId}/${entityType == 'aggregated-data-profile' ? 'finalize/preview' : 'finalize'}|}"
-                                    th:hx-target="${entityType == 'aggregated-data-profile' ? '#modal-container' : '#view-panel'}"
+                                    th:hx-post="@{|/admin/${entityType}s/${entityId}/finalize/preview|}"
+                                    hx-target="#modal-container"
                                     hx-swap="innerHTML"
                                 ></cds-menu-item>
                                 <cds-menu-item

@@ -832,6 +832,18 @@ class ConnectorController(
         }
     }
 
+    @PostMapping("/{id}/finalize/preview")
+    fun finalizePreview(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Connector not found: $id") }
+        return ModelAndView("fragments/internal/versioning/finalize-connector-modal")
+            .addObject("connectorId", connector.id)
+            .addObject("connectorName", connector.name)
+            .addObject("connectorVersion", connector.version.value)
+    }
+
     @PostMapping("/{id}/finalize")
     fun finalizeConnector(
         @PathVariable id: UUID,
