@@ -353,10 +353,11 @@ internal class AggregatedDataProfileController(
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val sources = sources(aggregatedDataProfile)
+        val connectorInstances = connectorInstanceRepository.findAllByOrderByNameAsc()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
-            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
-            addObject("connectorEndpoints", connectorEndpointRepository.findAll())
+            addObject("connectorInstances", connectorInstances)
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnectorOrderByNameAsc(connectorInstances.first().connector))
             addObject("sources", sources)
             addObject("parentId", sourceId)
         }
