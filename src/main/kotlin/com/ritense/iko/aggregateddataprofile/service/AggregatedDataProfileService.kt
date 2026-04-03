@@ -24,10 +24,12 @@ import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.service.ConnectorService
+import com.ritense.iko.connectors.service.RouteDependencyService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -39,26 +41,46 @@ internal class AggregatedDataProfileService(
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorService: ConnectorService,
+    private val routeDependencyService: RouteDependencyService,
     private val ikoCacheProcessor: CacheProcessor,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
+    @Order(2)
     fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
         aggregatedDataProfileRepository.findAllByIsActiveTrue().forEach { aggregatedDataProfile ->
-            loadRoute(aggregatedDataProfile)
-            logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+            try {
+                loadRoute(aggregatedDataProfile)
+                logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to load ADP route: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
+            }
         }
     }
 
     fun removeRoute(aggregatedDataProfile: AggregatedDataProfile) {
+        val connectorDeps = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
+
         val groupName = "adp_${aggregatedDataProfile.id}"
         camelContext.getRoutesByGroup(groupName).forEach { route ->
             camelContext.routeController.stopRoute(route.id)
             camelContext.removeRoute(route.id)
         }
+
+        for (connector in connectorDeps) {
+            if (!routeDependencyService.isConnectorRouteNeeded(connector)) {
+                connectorService.removeConnectorRoutes(connector)
+            }
+        }
     }
 
     fun loadRoute(aggregatedDataProfile: AggregatedDataProfile) {
+        val requiredConnectors = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
+        for (connector in requiredConnectors) {
+            if (!routeDependencyService.isConnectorRouteLoaded(connector)) {
+                connectorService.loadConnectorRoutes(connector)
+            }
+        }
         camelContext.addRoutes(
             AggregatedDataProfileRouteBuilder(
                 camelContext,
@@ -102,7 +124,24 @@ internal class AggregatedDataProfileService(
         // Activate new version
         profileToActivate.isActive = true
         aggregatedDataProfileRepository.save(profileToActivate)
-        loadRoute(profileToActivate)
+
+        try {
+            loadRoute(profileToActivate)
+        } catch (e: Exception) {
+            // Recovery: restore old version if new route loading fails
+            if (currentActive != null) {
+                try {
+                    currentActive.isActive = true
+                    aggregatedDataProfileRepository.saveAndFlush(currentActive)
+                    profileToActivate.isActive = false
+                    aggregatedDataProfileRepository.save(profileToActivate)
+                    loadRoute(currentActive)
+                } catch (recoveryEx: Exception) {
+                    logger.error(recoveryEx) { "Failed to recover old ADP route: ${currentActive.name} v${currentActive.version}" }
+                }
+            }
+            throw e
+        }
         logger.debug { "Activated ADP ${profileToActivate.name} v${profileToActivate.version}" }
     }
 

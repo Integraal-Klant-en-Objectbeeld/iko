@@ -181,16 +181,20 @@ class ConnectorService(
             return
         }
 
+        // Pre-validate before any state changes
+        validateConnectorCode(connectorToActivate.connectorCode, connectorToActivate.tag)
+
         // Find and deactivate currently active version
         val currentActive = connectorRepository.findByTagAndIsActiveTrue(connectorToActivate.tag)
         if (currentActive != null) {
             logger.debug { "Deactivating Connector ${currentActive.tag} v${currentActive.version}" }
-            removeConnectorRoutes(currentActive)
+            // Do NOT remove old routes — active ADPs may still depend on them.
+            // Old routes become orphans when ADPs are eventually updated/deactivated.
             currentActive.isActive = false
             connectorRepository.saveAndFlush(currentActive)
         }
 
-        // Activate new version
+        // Activate new version and load routes (coexists with old due to version-namespaced URIs)
         connectorToActivate.isActive = true
         connectorRepository.save(connectorToActivate)
         loadConnectorRoutes(connectorToActivate)

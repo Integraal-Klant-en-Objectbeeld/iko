@@ -32,6 +32,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
+import org.springframework.core.annotation.Order
 
 @Configuration
 class ConnectorConfiguration(
@@ -75,6 +76,7 @@ class ConnectorConfiguration(
     fun ikoTransform() = Transform()
 
     @EventListener(ApplicationReadyEvent::class)
+    @Order(1)
     fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
         // Only load active connectors at startup
         connectorRepository.findAllByIsActiveTrue().forEach { connector ->
