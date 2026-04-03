@@ -129,8 +129,7 @@
 
                             <div
                                 id="monaco-error"
-                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'cds--form-requirement' : 'monaco-error'"
-                                th:if="${errors?.getFieldError('connectorCode') != null}"
+                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-error show' : 'monaco-error'"
                                 th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
                             ></div>
                         </div>

@@ -80,8 +80,7 @@
                             th:text="${connector?.connectorCode}"
                         ></textarea>
                         <div
-                            class="cds--form-requirement"
-                            th:if="${errors?.getFieldError('connectorCode') != null}"
+                            th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-error show' : 'monaco-error'"
                             th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
                         ></div>
                     </div>

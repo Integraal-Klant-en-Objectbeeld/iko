@@ -16,12 +16,15 @@
 
 package com.ritense.iko.mvc.model.validation
 
-import com.ritense.iko.connectors.service.ConnectorService
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import org.apache.camel.CamelContext
+import org.apache.camel.builder.RouteBuilder
+import org.apache.camel.support.PluginHelper
+import org.apache.camel.support.ResourceHelper
 
 class ValidConnectorCodeValidator(
-    private val connectorService: ConnectorService,
+    private val camelContext: CamelContext,
 ) : ConstraintValidator<ValidConnectorCode, String> {
 
     override fun isValid(
@@ -31,8 +34,7 @@ class ValidConnectorCodeValidator(
         if (connectorCode.isNullOrBlank()) return true // let @NotBlank handle this
 
         return try {
-            // Use a placeholder tag for validation - the tag doesn't affect YAML parsing
-            connectorService.validateConnectorCode(connectorCode, "validation-check")
+            validate(connectorCode)
             true
         } catch (e: Exception) {
             context.disableDefaultConstraintViolation()
@@ -41,5 +43,28 @@ class ValidConnectorCodeValidator(
                 .addConstraintViolation()
             false
         }
+    }
+
+    private fun validate(connectorCode: String) {
+        val resource = ResourceHelper.fromString("connector-validation.yaml", connectorCode)
+        val loader = PluginHelper.getRoutesLoader(camelContext)
+        val builders = loader.findRoutesBuilders(listOf(resource))
+
+        val hasConnectorRoute = builders.any { builder ->
+            val routeBuilder = builder as RouteBuilder
+            routeBuilder.setCamelContext(camelContext)
+            routeBuilder.configure()
+            routeBuilder.routeCollection.routes.any { routeDef ->
+                CONNECTOR_URI_REGEX.matches(routeDef.input.uri)
+            }
+        }
+
+        require(hasConnectorRoute) {
+            "Connector code must contain at least one route with a 'direct:iko:connector:<tag>' from URI"
+        }
+    }
+
+    companion object {
+        private val CONNECTOR_URI_REGEX = Regex("""^direct:iko:connector:[^:.]+$""")
     }
 }

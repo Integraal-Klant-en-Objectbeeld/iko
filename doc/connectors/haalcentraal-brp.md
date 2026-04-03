@@ -10,7 +10,7 @@ The OpenAPI specification URL is set on the connector instance via the `apiSpeci
 
 ## Endpoints
 
-Openzaak has the following endpoints:
+Haalcentraal BRP has the following endpoints:
 - Personen 
 
 Other endpoints can be found by inspecting the specification.
