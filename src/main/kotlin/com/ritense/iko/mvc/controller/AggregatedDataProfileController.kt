@@ -111,7 +111,8 @@ internal class AggregatedDataProfileController(
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val page = aggregatedDataProfileRepository.findAllBy(isActive, pageable)
+        val activeFilter = if (isActive == true) true else null
+        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
         val connectorInstancesCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstancesCount > 0 && endpointsCount > 0
@@ -143,7 +144,8 @@ internal class AggregatedDataProfileController(
         @RequestParam(required = false, defaultValue = "true") isActive: Boolean? = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
     ): ModelAndView {
-        val page = aggregatedDataProfileRepository.findAllBy(isActive, pageable)
+        val activeFilter = if (isActive == true) true else null
+        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
@@ -162,15 +164,16 @@ internal class AggregatedDataProfileController(
     @GetMapping("/filter")
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean? = true,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
+        val activeFilter = if (isActive) true else null
         val page =
             if (query.isBlank()) {
-                aggregatedDataProfileRepository.findAllBy(isActive, pageable)
+                aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
             } else {
-                aggregatedDataProfileRepository.findAllByName(query.trim(), isActive, pageable)
+                aggregatedDataProfileRepository.findAllByName(query.trim(), activeFilter, pageable)
             }
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
@@ -350,10 +353,11 @@ internal class AggregatedDataProfileController(
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val sources = sources(aggregatedDataProfile)
+        val connectorInstances = connectorInstanceRepository.findAllByOrderByNameAsc()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
-            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
-            addObject("connectorEndpoints", connectorEndpointRepository.findAll())
+            addObject("connectorInstances", connectorInstances)
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnectorOrderByNameAsc(connectorInstances.first().connector))
             addObject("sources", sources)
             addObject("parentId", sourceId)
         }

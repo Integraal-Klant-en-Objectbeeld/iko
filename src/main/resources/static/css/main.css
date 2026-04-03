@@ -416,12 +416,11 @@ cds-table-row.not-clickable {
 }
 
 cds-table-row > .app--table-cell-actions {
-    display: flex;
-    flex-flow: row;
-    justify-content: flex-end;
-    padding: 0;
+    line-height: 3rem;
+    padding-inline-end: 0;
 
     cds-overflow-menu {
+        float: right;
         block-size: 3rem;
         inline-size: 3rem;
     }

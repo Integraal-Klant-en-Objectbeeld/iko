@@ -25,7 +25,6 @@
             <cds-table-cell></cds-table-cell>
             <cds-table-cell></cds-table-cell>
             <cds-table-cell></cds-table-cell>
-            <cds-table-cell></cds-table-cell>
         </cds-table-row>
         <cds-table-row
             th:each="connector : ${connectors}"
@@ -45,16 +44,13 @@
                     th:text="${connector.status}"
                 ></cds-tag>
             </cds-table-cell>
-            <cds-table-cell>
+            <cds-table-cell class="app--table-cell-actions">
                 <cds-tag
                     th:type="${connector.active ? 'green' : 'cool-gray'}"
                     th:text="${connector.active ? 'Yes' : 'No'}"
                 ></cds-tag>
-            </cds-table-cell>
-            <cds-table-cell class="app--table-cell-actions">
-                <div th:if="${connector.status != 'DRAFT'}"></div>
                 <cds-overflow-menu
-                    th:if="${connector.status == 'DRAFT'}"
+                    th:disabled="${connector.status != 'DRAFT'}"
                     enter-delay-ms="3000"
                     leave-delay-ms="0"
                     close-on-activation
@@ -79,6 +75,7 @@
                     <span slot="tooltip-content"> Options </span>
                     <cds-overflow-menu-body flipped="">
                         <cds-overflow-menu-item
+                            th:if="${connector.status == 'DRAFT'}"
                             hx-confirm="Are you sure you want to delete this connector?"
                             th:hx-delete="@{|/admin/connectors/${connector.id}|}"
                             hx-swap="outerHTML"
