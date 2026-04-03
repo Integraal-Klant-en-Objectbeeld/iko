@@ -71,6 +71,6 @@ class AggregatedDataProfileTemplatesRouteBuilder(
 
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
             }
-            .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
+            .toD("direct:adp:\${variable.aggregatedDataProfileId}")
     }
 }

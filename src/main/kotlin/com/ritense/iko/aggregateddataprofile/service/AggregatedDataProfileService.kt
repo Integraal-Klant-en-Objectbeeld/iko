@@ -61,7 +61,7 @@ internal class AggregatedDataProfileService(
     fun removeRoute(aggregatedDataProfile: AggregatedDataProfile) {
         val connectorDeps = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
 
-        val groupName = "adp_${aggregatedDataProfile.id}"
+        val groupName = "group:adp:${aggregatedDataProfile.id}"
         camelContext.getRoutesByGroup(groupName).forEach { route ->
             camelContext.routeController.stopRoute(route.id)
             camelContext.removeRoute(route.id)

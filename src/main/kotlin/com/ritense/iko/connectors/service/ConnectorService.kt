@@ -49,7 +49,7 @@ class ConnectorService(
      * This matches the existing AggregatedDataProfileService pattern.
      */
     fun loadConnectorRoutes(connector: Connector) {
-        val groupName = "connector_${connector.id}"
+        val groupName = "group:connector:${connector.id}"
 
         // Step 1: Create resource from YAML (filename must end in .yaml)
         val resource = ResourceHelper.fromString(
@@ -91,7 +91,7 @@ class ConnectorService(
             camelContext.addRoutes(routeBuilder)
         }
 
-        logger.debug { "Loaded ${builders.size} route builder(s) for connector ${connector.tag} with group $groupName" }
+        logger.debug { "Loaded ${builders.size} route builder(s) for connector [${connector.tag}] with group [$groupName]" }
     }
 
     /**
@@ -145,7 +145,7 @@ class ConnectorService(
      * Removes all routes belonging to a connector using route groups.
      */
     fun removeConnectorRoutes(connector: Connector) {
-        val groupName = "connector_${connector.id}"
+        val groupName = "group:connector:${connector.id}"
         camelContext.getRoutesByGroup(groupName).forEach { route ->
             camelContext.routeController.stopRoute(route.id)
             camelContext.removeRoute(route.id)

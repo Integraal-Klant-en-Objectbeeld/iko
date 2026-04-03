@@ -51,7 +51,11 @@ private fun fallbackForDebugTrace(exchange: Exchange, throwable: Exception?) {
     val ikoTraceId: String? = exchange.getVariable(IKO_TRACE_ID_VARIABLE, String::class.java)
 
     if (ikoTraceId != null) {
-        throw CamelExecutionException(throwable?.message ?: "Unexpected error", exchange)
+        val messageContext =
+            "Error occurred while processing request for Connector " +
+                "[${exchange.getVariable("connectorTag")}:${exchange.getVariable("connectorVersion")}] " +
+                "and operation [${exchange.getVariable("operation")}]"
+        throw CamelExecutionException((messageContext + ":\n" + throwable?.message) ?: "Unexpected error", exchange)
     }
 }
 
