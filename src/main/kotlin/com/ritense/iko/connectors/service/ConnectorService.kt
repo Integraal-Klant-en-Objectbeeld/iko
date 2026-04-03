@@ -61,15 +61,29 @@ class ConnectorService(
         val loader = PluginHelper.getRoutesLoader(camelContext)
         val builders = loader.findRoutesBuilders(listOf(resource))
 
+        val versionSuffix = ":${connector.version.value}"
+
         // Step 3: For each builder, configure it, modify route definitions, then add to context
         builders.forEach { builder ->
             val routeBuilder = builder as RouteBuilder
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
 
-            // Set group on each route definition BEFORE adding to context
+            // Namespace routeId and from URI with tag:version BEFORE adding to context
             routeBuilder.routeCollection.routes.forEach { routeDef ->
                 routeDef.group(groupName)
+                routeDef.routeId("connector:${connector.tag}:${connector.version.value}:${routeDef.id}")
+                val fromUri = routeDef.input.uri
+                routeDef.input.uri = namespaceUri(fromUri, versionSuffix)
+            }
+
+            // Pre-check for duplicate route IDs
+            val existingRouteIds = camelContext.routes.map { it.id }.toSet()
+            val newRouteIds = routeBuilder.routeCollection.routes.map { it.id }
+            val duplicates = newRouteIds.filter { it in existingRouteIds }
+            if (duplicates.isNotEmpty()) {
+                logger.debug { "Routes already loaded for connector ${connector.tag} v${connector.version}, skipping" }
+                return
             }
 
             // Add routes using standard CamelContext.addRoutes() - same pattern as AggregatedDataProfileService
@@ -95,9 +109,30 @@ class ConnectorService(
             val routeBuilder = builder as RouteBuilder
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
+
+            // Validate that from URIs match the connector's tag
+            routeBuilder.routeCollection.routes.forEach { routeDef ->
+                val fromUri = routeDef.input.uri
+                validateFromUri(fromUri, tag)
+            }
         }
 
         return true
+    }
+
+    private fun validateFromUri(uri: String, expectedTag: String) {
+        CONNECTOR_URI_REGEX.matchEntire(uri)?.let { match ->
+            require(match.groupValues[1] == expectedTag) {
+                "Route from URI '$uri' uses tag '${match.groupValues[1]}' but connector tag is '$expectedTag'"
+            }
+            return
+        }
+        TRANSFORM_URI_REGEX.matchEntire(uri)?.let { match ->
+            require(match.groupValues[1] == expectedTag) {
+                "Route from URI '$uri' uses tag '${match.groupValues[1]}' but connector tag is '$expectedTag'"
+            }
+            return
+        }
     }
 
     fun reloadConnectorRoutes(connector: Connector) {
@@ -226,5 +261,20 @@ class ConnectorService(
 
     companion object {
         private val logger = KotlinLogging.logger {}
+
+        private val CONNECTOR_URI_REGEX = Regex("""^direct:iko:connector:([^:.]+)$""")
+        private val TRANSFORM_URI_REGEX = Regex("""^direct:iko:endpoint:transform:([^:.]+)(\..*)?$""")
+
+        internal fun namespaceUri(uri: String, versionSuffix: String): String {
+            CONNECTOR_URI_REGEX.matchEntire(uri)?.let { match ->
+                return "direct:iko:connector:${match.groupValues[1]}$versionSuffix"
+            }
+            TRANSFORM_URI_REGEX.matchEntire(uri)?.let { match ->
+                val tag = match.groupValues[1]
+                val operationSuffix = match.groupValues[2]
+                return "direct:iko:endpoint:transform:$tag$versionSuffix$operationSuffix"
+            }
+            return uri
+        }
     }
 }

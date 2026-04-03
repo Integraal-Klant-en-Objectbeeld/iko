@@ -26,15 +26,22 @@ class Transform : RouteBuilder() {
             .routeId("transform")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .choice()
-            .`when` { ex -> ex.context.hasEndpoint(IkoRouteHelper.transform("${ex.getVariable("connector")}")) != null }
-            .toD(IkoRouteHelper.transform("\${variable.connector}"))
+            .`when` { ex ->
+                ex.context.hasEndpoint(
+                    IkoRouteHelper.transform("${ex.getVariable("connector")}:${ex.getVariable("connectorVersion")}"),
+                ) != null
+            }
+            .toD(IkoRouteHelper.transform("\${variable.connector}:\${variable.connectorVersion}"))
             .end()
             .choice()
             .`when` { ex ->
                 ex.context.hasEndpoint(
-                    IkoRouteHelper.transform("${ex.getVariable("connector")}.${ex.getVariable("operation")}"),
+                    IkoRouteHelper.transform(
+                        "${ex.getVariable("connector")}:${ex.getVariable("connectorVersion")}.${ex.getVariable("operation")}",
+                    ),
                 ) != null
-            }.toD(IkoRouteHelper.transform("\${variable.connector}.\${variable.operation}"))
+            }
+            .toD(IkoRouteHelper.transform("\${variable.connector}:\${variable.connectorVersion}.\${variable.operation}"))
             .end()
     }
 }

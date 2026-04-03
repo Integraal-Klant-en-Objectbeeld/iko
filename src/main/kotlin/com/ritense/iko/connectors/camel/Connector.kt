@@ -25,6 +25,6 @@ class Connector : RouteBuilder() {
         from(IkoRouteHelper.connector())
             .routeId("connector")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .toD(IkoRouteHelper.connector("\${variable.connector}"))
+            .toD(IkoRouteHelper.connector("\${variable.connector}:\${variable.connectorVersion}"))
     }
 }
