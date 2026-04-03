@@ -101,7 +101,7 @@ sequenceDiagram
     XfmPers-->>Caller: exchange with POST body set and headers whitelisted
     Caller->>Conn: exchange with POST body and whitelisted headers
     Conn->>Conn: setHeader Content-Type: application/json
-    Conn->>Conn: setHeader Accept: application/json; charset=utf-8
+    Conn->>Conn: "setHeader Accept: application/json; charset=utf-8"
     Conn->>Conn: Groovy: setHeader X-Api-Key: <secret>
     Conn->>BRP: POST /personen via rest-openapi (body = JSON search request)
     BRP-->>Conn: HTTP 200 JSON response
