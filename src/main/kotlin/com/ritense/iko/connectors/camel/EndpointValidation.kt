@@ -34,16 +34,16 @@ class EndpointValidation(
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { ex ->
                 val connectorId = ex.getVariable("connectorId", UUID::class.java)
-                val connectorTag = ex.getVariable("connector", String::class.java)
-                val config = ex.getVariable("config", String::class.java)
+                val connectorTag = ex.getVariable("connectorTag", String::class.java)
+                val connectorInstanceTag = ex.getVariable("connectorInstanceTag", String::class.java)
                 val operation = ex.getVariable("operation", String::class.java)
 
                 val connectorEndpoint =
                     connectorEndpointRepository.findByConnectorIdAndOperation(connectorId, operation)
                         ?: throw EndpointValidationFailed("Unknown operation: [$connectorTag.$operation] on connector with id: $connectorId")
                 val connectorInstance =
-                    connectorInstanceRepository.findByConnectorIdAndTag(connectorId, config)
-                        ?: throw EndpointValidationFailed("Unknown instance: [$connectorTag.$config] on connector with id: $connectorId")
+                    connectorInstanceRepository.findByConnectorIdAndTag(connectorId, connectorInstanceTag)
+                        ?: throw EndpointValidationFailed("Unknown instance: [$connectorTag.$connectorInstanceTag] on connector with id: $connectorId")
 
                 ex.setVariable("connectorEndpointId", connectorEndpoint.id)
                 ex.setVariable("connectorInstanceId", connectorInstance.id)

@@ -18,8 +18,8 @@ package com.ritense.iko.connectors.autoconfiguration
 
 import com.ritense.iko.connectors.camel.Connector
 import com.ritense.iko.connectors.camel.ConnectorConfig
-import com.ritense.iko.connectors.camel.Endpoint
 import com.ritense.iko.connectors.camel.EndpointAuth
+import com.ritense.iko.connectors.camel.EndpointRoute
 import com.ritense.iko.connectors.camel.EndpointValidation
 import com.ritense.iko.connectors.camel.Transform
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -40,7 +40,7 @@ class ConnectorConfiguration(
     val connectorService: ConnectorService,
 ) {
     @Bean
-    fun endpoint(connectorRepository: ConnectorRepository) = Endpoint(connectorRepository)
+    fun endpoint(connectorRepository: ConnectorRepository) = EndpointRoute(connectorRepository)
 
     @Bean
     fun endpointAuth(

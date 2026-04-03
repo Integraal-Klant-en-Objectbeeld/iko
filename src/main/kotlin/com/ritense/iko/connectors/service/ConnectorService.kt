@@ -72,14 +72,15 @@ class ConnectorService(
             // Namespace routeId and from URI with tag:version BEFORE adding to context
             routeBuilder.routeCollection.routes.forEach { routeDef ->
                 routeDef.group(groupName)
-                routeDef.routeId("connector:${connector.tag}:${connector.version.value}:${routeDef.id}")
-                val fromUri = routeDef.input.uri
-                routeDef.input.uri = namespaceUri(fromUri, versionSuffix)
+                with(routeDef.input) {
+                    id = "connector:${connector.tag}:${connector.version.value}:${routeDef.id}"
+                    uri = namespaceUri(uri, versionSuffix)
+                }
             }
 
             // Pre-check for duplicate route IDs
-            val existingRouteIds = camelContext.routes.map { it.id }.toSet()
-            val newRouteIds = routeBuilder.routeCollection.routes.map { it.id }
+            val existingRouteIds = camelContext.routes.map { it.routeId }.toSet()
+            val newRouteIds = routeBuilder.routeCollection.routes.map { it.input.id }.toSet()
             val duplicates = newRouteIds.filter { it in existingRouteIds }
             if (duplicates.isNotEmpty()) {
                 logger.debug { "Routes already loaded for connector ${connector.tag} v${connector.version}, skipping" }

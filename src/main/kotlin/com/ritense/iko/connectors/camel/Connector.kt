@@ -23,8 +23,8 @@ import org.apache.camel.builder.RouteBuilder
 class Connector : RouteBuilder() {
     override fun configure() {
         from(IkoRouteHelper.connector())
-            .routeId("connector")
+            .routeId("connector-dispatcher")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .toD(IkoRouteHelper.connector("\${variable.connector}:\${variable.connectorVersion}"))
+            .toD(IkoRouteHelper.connector("\${variable.connectorTag}:\${variable.connectorVersion}"))
     }
 }

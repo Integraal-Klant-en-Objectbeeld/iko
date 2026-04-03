@@ -23,25 +23,25 @@ import org.apache.camel.builder.RouteBuilder
 class Transform : RouteBuilder() {
     override fun configure() {
         from(IkoRouteHelper.transform())
-            .routeId("transform")
+            .routeId("transform-dispatcher")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .choice()
-            .`when` { ex ->
-                ex.context.hasEndpoint(
-                    IkoRouteHelper.transform("${ex.getVariable("connector")}:${ex.getVariable("connectorVersion")}"),
+            .`when` { exchange ->
+                exchange.context.hasEndpoint(
+                    IkoRouteHelper.transform("${exchange.getVariable("connectorTag")}:${exchange.getVariable("connectorVersion")}"),
                 ) != null
             }
-            .toD(IkoRouteHelper.transform("\${variable.connector}:\${variable.connectorVersion}"))
+            .toD(IkoRouteHelper.transform("\${variable.connectorTag}:\${variable.connectorVersion}"))
             .end()
             .choice()
-            .`when` { ex ->
-                ex.context.hasEndpoint(
+            .`when` { exchange ->
+                exchange.context.hasEndpoint(
                     IkoRouteHelper.transform(
-                        "${ex.getVariable("connector")}:${ex.getVariable("connectorVersion")}.${ex.getVariable("operation")}",
+                        "${exchange.getVariable("connectorTag")}:${exchange.getVariable("connectorVersion")}.${exchange.getVariable("operation")}",
                     ),
                 ) != null
             }
-            .toD(IkoRouteHelper.transform("\${variable.connector}:\${variable.connectorVersion}.\${variable.operation}"))
+            .toD(IkoRouteHelper.transform("\${variable.connectorTag}:\${variable.connectorVersion}.\${variable.operation}"))
             .end()
     }
 }
