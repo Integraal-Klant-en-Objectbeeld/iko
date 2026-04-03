@@ -23,7 +23,7 @@
                                   totalPages=${page.totalPages},
                                   total-items=${page.totalElements},
                                   page-size=${page.size}"
-        hx-trigger="cds-pagination-changed-current from:closest cds-pagination"
+        hx-trigger="cds-pagination-changed-current from:closest cds-pagination, cds-page-sizes-select-changed from:closest cds-pagination"
         hx-get="/admin/connectors/filter"
         hx-target="#search-results"
         hx-swap="outerHTML"

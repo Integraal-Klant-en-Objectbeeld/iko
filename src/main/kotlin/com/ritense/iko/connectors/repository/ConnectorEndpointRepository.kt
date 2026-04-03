@@ -23,5 +23,6 @@ import java.util.UUID
 
 interface ConnectorEndpointRepository : JpaRepository<ConnectorEndpoint, UUID> {
     fun findByConnector(connector: Connector): List<ConnectorEndpoint>
+    fun findByConnectorOrderByNameAsc(connector: Connector): List<ConnectorEndpoint>
     fun findByConnectorIdAndOperation(connectorId: UUID, operation: String): ConnectorEndpoint?
 }

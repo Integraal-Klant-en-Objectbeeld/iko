@@ -82,7 +82,8 @@ class ConnectorController(
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val page = connectorRepository.findAllByIsActivePaged(isActive, pageable)
+        val activeFilter = if (isActive == true) true else null
+        val page = connectorRepository.findAllByIsActivePaged(activeFilter, pageable)
         return if (isHxRequest) {
             ModelAndView("$BASE_FRAGMENT_CONNECTOR/list").apply {
                 addObject("connectors", page.content)
@@ -105,15 +106,16 @@ class ConnectorController(
     @GetMapping("/filter")
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @RequestParam(required = false, defaultValue = "true") isActive: Boolean? = true,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean = true,
         @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HomeController.HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
+        val activeFilter = if (isActive) true else null
         val page =
             if (query.isBlank()) {
-                connectorRepository.findAllByIsActivePaged(isActive, pageable)
+                connectorRepository.findAllByIsActivePaged(activeFilter, pageable)
             } else {
-                connectorRepository.findAllByName(query.trim(), isActive, pageable)
+                connectorRepository.findAllByName(query.trim(), activeFilter, pageable)
             }
 
         if (isHxRequest) {
@@ -830,6 +832,18 @@ class ConnectorController(
                 addObject("errors", bindingResult)
             }
         }
+    }
+
+    @PostMapping("/{id}/finalize/preview")
+    fun finalizePreview(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val connector = connectorRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Connector not found: $id") }
+        return ModelAndView("fragments/internal/versioning/finalize-connector-modal")
+            .addObject("connectorId", connector.id)
+            .addObject("connectorName", connector.name)
+            .addObject("connectorVersion", connector.version.value)
     }
 
     @PostMapping("/{id}/finalize")
