@@ -31,7 +31,6 @@
                             label-text="Cache enabled"
                             aria-labelledby="cacheEnabled-label"
                             hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
-                            th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                             th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
                                              checked=${cacheForm?.cacheEnabled}"
@@ -56,7 +55,6 @@
                             label="Time to live"
                             helper-text="Milliseconds"
                             style="width: 200px"
-                            th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                             th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
                                              value=${cacheForm?.cacheTimeToLive}"
@@ -86,7 +84,6 @@
                             hx-swap="outerHTML"
                             hx-include="#cache-form *"
                             hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
-                            th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                         >
                             Save
                         </cds-button>

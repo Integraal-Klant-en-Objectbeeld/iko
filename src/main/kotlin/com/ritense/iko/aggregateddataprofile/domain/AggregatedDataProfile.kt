@@ -105,7 +105,6 @@ class AggregatedDataProfile(
     }
 
     fun updateCacheSettings(enabled: Boolean, timeToLive: Int) {
-        ensureDraft()
         this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
             enabled = enabled,
             timeToLive = timeToLive,
