@@ -16,6 +16,8 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_ENDPOINT_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_ID_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.error.ConnectorAccessDenied
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -25,7 +27,7 @@ import org.apache.camel.builder.RouteBuilder
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.UUID
 
-class EndpointAuth(
+class EndpointAuthRouteBuilder(
     val connectorEndpointRepository: ConnectorEndpointRepository,
     val connectorInstanceRepository: ConnectorInstanceRepository,
     val connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
@@ -35,8 +37,8 @@ class EndpointAuth(
             .routeId("endpoint-auth")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { ex ->
-                val connectorEndpointId = ex.getVariable("connectorEndpointId", UUID::class.java)
-                val connectorInstanceId = ex.getVariable("connectorInstanceId", UUID::class.java)
+                val connectorEndpointId = ex.getVariable(CONNECTOR_ENDPOINT_ID_VARIABLE, UUID::class.java)
+                val connectorInstanceId = ex.getVariable(CONNECTOR_INSTANCE_ID_VARIABLE, UUID::class.java)
 
                 val connectorEndpointRoles =
                     connectorEndpointRoleRepository.findByConnectorEndpointAndConnectorInstance(

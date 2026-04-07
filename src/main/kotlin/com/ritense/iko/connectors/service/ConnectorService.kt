@@ -16,6 +16,8 @@
 
 package com.ritense.iko.connectors.service
 
+import com.ritense.iko.camel.IkoConstants.Validation.CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN
+import com.ritense.iko.camel.IkoConstants.Validation.CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN
 import com.ritense.iko.connectors.domain.Connector
 import com.ritense.iko.connectors.domain.ConnectorEndpoint
 import com.ritense.iko.connectors.domain.ConnectorEndpointRole
@@ -28,12 +30,10 @@ import org.apache.camel.CamelContext
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.support.PluginHelper
 import org.apache.camel.support.ResourceHelper
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-@Service
-class ConnectorService(
+open class ConnectorService(
     private val connectorRepository: ConnectorRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
@@ -48,7 +48,7 @@ class ConnectorService(
      * Pattern: Parse YAML → Modify RouteDefinitions → Add via addRoutes()
      * This matches the existing AggregatedDataProfileService pattern.
      */
-    fun loadConnectorRoutes(connector: Connector) {
+    open fun loadConnectorRoutes(connector: Connector) {
         val groupName = "group:connector:${connector.id}"
 
         // Step 1: Create resource from YAML (filename must end in .yaml)
@@ -98,7 +98,7 @@ class ConnectorService(
      * Validates connector YAML by attempting to parse it.
      * Returns true if valid, throws exception with details if invalid.
      */
-    fun validateConnectorCode(connectorCode: String, tag: String): Boolean {
+    open fun validateConnectorCode(connectorCode: String, tag: String): Boolean {
         val resource = ResourceHelper.fromString("$tag.yaml", connectorCode)
         val loader = PluginHelper.getRoutesLoader(camelContext)
 
@@ -136,7 +136,7 @@ class ConnectorService(
         }
     }
 
-    fun reloadConnectorRoutes(connector: Connector) {
+    open fun reloadConnectorRoutes(connector: Connector) {
         removeConnectorRoutes(connector)
         loadConnectorRoutes(connector)
     }
@@ -144,7 +144,7 @@ class ConnectorService(
     /**
      * Removes all routes belonging to a connector using route groups.
      */
-    fun removeConnectorRoutes(connector: Connector) {
+    open fun removeConnectorRoutes(connector: Connector) {
         val groupName = "group:connector:${connector.id}"
         camelContext.getRoutesByGroup(groupName).forEach { route ->
             camelContext.routeController.stopRoute(route.id)
@@ -154,7 +154,7 @@ class ConnectorService(
     }
 
     @Transactional
-    fun finalizeConnector(id: UUID): Connector {
+    open fun finalizeConnector(id: UUID): Connector {
         val connector = connectorRepository.findById(id)
             .orElseThrow { NoSuchElementException("Connector not found: $id") }
 
@@ -172,7 +172,7 @@ class ConnectorService(
      * Deactivates any currently active version and loads routes for the new active version.
      */
     @Transactional
-    fun activateVersion(id: UUID) {
+    open fun activateVersion(id: UUID) {
         val connectorToActivate = connectorRepository.findById(id)
             .orElseThrow { NoSuchElementException("Connector not found: $id") }
 
@@ -207,7 +207,7 @@ class ConnectorService(
      * The new version starts as inactive.
      */
     @Transactional
-    fun createNewVersion(sourceId: UUID, newVersion: String): Connector {
+    open fun createNewVersion(sourceId: UUID, newVersion: String): Connector {
         val source = connectorRepository.findById(sourceId)
             .orElseThrow { NoSuchElementException("Connector not found: $sourceId") }
 
@@ -267,8 +267,8 @@ class ConnectorService(
     companion object {
         private val logger = KotlinLogging.logger {}
 
-        private val CONNECTOR_URI_REGEX = Regex("""^direct:iko:connector:([^:.]+)$""")
-        private val TRANSFORM_URI_REGEX = Regex("""^direct:iko:endpoint:transform:([^:.]+)(\..*)?$""")
+        private val CONNECTOR_URI_REGEX = Regex(CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN)
+        private val TRANSFORM_URI_REGEX = Regex(CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN)
 
         internal fun namespaceUri(uri: String, versionSuffix: String): String {
             CONNECTOR_URI_REGEX.matchEntire(uri)?.let { match ->

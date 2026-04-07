@@ -16,6 +16,9 @@
 
 package com.ritense.iko.camel
 
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_VERSION_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -53,8 +56,8 @@ private fun fallbackForDebugTrace(exchange: Exchange, throwable: Exception?) {
     if (ikoTraceId != null) {
         val messageContext =
             "Error occurred while processing request for Connector " +
-                "[${exchange.getVariable("connectorTag")}:${exchange.getVariable("connectorVersion")}] " +
-                "and operation [${exchange.getVariable("operation")}]"
+                "[${exchange.getVariable(CONNECTOR_TAG_VARIABLE)}:${exchange.getVariable(CONNECTOR_VERSION_VARIABLE)}] " +
+                "and operation [${exchange.getVariable(CONNECTOR_OPERATION_VARIABLE)}]"
         throw CamelExecutionException((messageContext + ":\n" + throwable?.message) ?: "Unexpected error", exchange)
     }
 }

@@ -50,12 +50,14 @@ class ValidConnectorCodeValidator(
         val loader = PluginHelper.getRoutesLoader(camelContext)
         val builders = loader.findRoutesBuilders(listOf(resource))
 
+        // TODO: change validator to check for reserved routes contianing iko:endpoint:transform and iko:connector
         val hasConnectorRoute = builders.any { builder ->
             val routeBuilder = builder as RouteBuilder
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
             routeBuilder.routeCollection.routes.any { routeDef ->
-                CONNECTOR_URI_REGEX.matches(routeDef.input.uri)
+                CONNECTOR_URI_REGEX.matches(routeDef.input.uri) ||
+                    TRANSFORM_URI_REGEX.matches(routeDef.input.uri)
             }
         }
 
@@ -66,5 +68,6 @@ class ValidConnectorCodeValidator(
 
     companion object {
         private val CONNECTOR_URI_REGEX = Regex("""^direct:iko:connector:[^:.]+$""")
+        private val TRANSFORM_URI_REGEX = Regex("""^direct:iko:endpoint:trasform:[^:.]+$""")
     }
 }

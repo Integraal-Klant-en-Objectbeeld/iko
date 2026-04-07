@@ -25,8 +25,13 @@ import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRep
 import com.ritense.iko.aggregateddataprofile.schema.AggregatedDataProfileSchemaService
 import com.ritense.iko.aggregateddataprofile.schema.JsonSchemaInferrer
 import com.ritense.iko.aggregateddataprofile.schema.OpenApiMockGenerator
+import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
+import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
+import com.ritense.iko.connectors.service.ConnectorService
+import com.ritense.iko.connectors.service.RouteDependencyService
+import org.apache.camel.CamelContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -82,5 +87,24 @@ class AggregatedDataProfileConfiguration {
         openApiMockGenerator,
         jsonSchemaInferrer,
         objectMapper,
+    )
+
+    @Bean
+    fun aggregatedDataProfileService(
+        camelContext: CamelContext,
+        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+        connectorEndpointRepository: ConnectorEndpointRepository,
+        connectorInstanceRepository: ConnectorInstanceRepository,
+        connectorService: ConnectorService,
+        routeDependencyService: RouteDependencyService,
+        ikoCacheProcessor: CacheProcessor,
+    ): AggregatedDataProfileService = AggregatedDataProfileService(
+        camelContext,
+        aggregatedDataProfileRepository,
+        connectorEndpointRepository,
+        connectorInstanceRepository,
+        connectorService,
+        routeDependencyService,
+        ikoCacheProcessor,
     )
 }

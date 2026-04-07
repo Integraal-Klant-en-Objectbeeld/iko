@@ -130,3 +130,5 @@ After `rest-openapi` dispatches the HTTP call, headers matching the `excludePatt
 ### `unmarshal: json: {}`
 
 Parses the raw HTTP response bytes into a Jackson `JsonNode` object tree.
+
+// TODO: add information about mandatory routes

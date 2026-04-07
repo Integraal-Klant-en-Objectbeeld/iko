@@ -16,11 +16,14 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_VERSION_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
-class Transform : RouteBuilder() {
+class TransformDispatcheRouteBuilder : RouteBuilder() {
     override fun configure() {
         from(IkoRouteHelper.transform())
             .routeId("transform-dispatcher")
@@ -28,20 +31,20 @@ class Transform : RouteBuilder() {
             .choice()
             .`when` { exchange ->
                 exchange.context.hasEndpoint(
-                    IkoRouteHelper.transform("${exchange.getVariable("connectorTag")}:${exchange.getVariable("connectorVersion")}"),
+                    IkoRouteHelper.transform("${exchange.getVariable(CONNECTOR_TAG_VARIABLE)}:${exchange.getVariable(CONNECTOR_VERSION_VARIABLE)}"),
                 ) != null
             }
-            .toD(IkoRouteHelper.transform("\${variable.connectorTag}:\${variable.connectorVersion}"))
+            .toD(IkoRouteHelper.transform("\${variable.${CONNECTOR_TAG_VARIABLE}}:\${variable.${CONNECTOR_VERSION_VARIABLE}}"))
             .end()
             .choice()
             .`when` { exchange ->
                 exchange.context.hasEndpoint(
                     IkoRouteHelper.transform(
-                        "${exchange.getVariable("connectorTag")}:${exchange.getVariable("connectorVersion")}.${exchange.getVariable("operation")}",
+                        "${exchange.getVariable(CONNECTOR_TAG_VARIABLE)}:${exchange.getVariable(CONNECTOR_VERSION_VARIABLE)}.${exchange.getVariable(CONNECTOR_OPERATION_VARIABLE)}",
                     ),
                 ) != null
             }
-            .toD(IkoRouteHelper.transform("\${variable.connectorTag}:\${variable.connectorVersion}.\${variable.operation}"))
+            .toD(IkoRouteHelper.transform("\${variable.${CONNECTOR_TAG_VARIABLE}}:\${variable.${CONNECTOR_VERSION_VARIABLE}}.\${variable.${CONNECTOR_OPERATION_VARIABLE}}"))
             .end()
     }
 }

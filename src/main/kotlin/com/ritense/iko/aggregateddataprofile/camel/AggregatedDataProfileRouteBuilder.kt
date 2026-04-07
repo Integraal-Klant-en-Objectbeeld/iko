@@ -23,7 +23,13 @@ import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.error.TransformResultTypeUnsupportedError
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
+import com.ritense.iko.camel.IkoConstants.Properties.RELATION_RELATION_PROPERTY_NAME_PROPERTY
 import com.ritense.iko.camel.IkoConstants.Variables.AUTHORITIES
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_VERSION_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
@@ -79,11 +85,11 @@ class AggregatedDataProfileRouteBuilder(
             )
             .to("direct:auth")
             .to("direct:adp:${aggregatedDataProfile.id}:endpoint-transform")
-            .setVariable("connectorId", constant(connectorInstance.connector.id))
-            .setVariable("connectorTag", constant(connectorInstance.connector.tag))
-            .setVariable("connectorVersion", constant(connectorInstance.connector.version.value))
-            .setVariable("connectorInstanceTag", constant(connectorInstance.tag))
-            .setVariable("operation", constant(connectorEndpoint.operation))
+            .setVariable(CONNECTOR_ID_VARIABLE, constant(connectorInstance.connector.id))
+            .setVariable(CONNECTOR_TAG_VARIABLE, constant(connectorInstance.connector.tag))
+            .setVariable(CONNECTOR_VERSION_VARIABLE, constant(connectorInstance.connector.version.value))
+            .setVariable(CONNECTOR_INSTANCE_TAG_VARIABLE, constant(connectorInstance.tag))
+            .setVariable(CONNECTOR_OPERATION_VARIABLE, constant(connectorEndpoint.operation))
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.iko("config"))
             .to(IkoRouteHelper.transform())
@@ -233,12 +239,12 @@ class AggregatedDataProfileRouteBuilder(
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${currentRelation.propertyName}] --> Endpoint")
             .unmarshal().json()
-            .setVariable("connectorId", constant(connectorInstance.connector.id))
-            .setVariable("connectorTag", constant(connectorInstance.connector.tag))
-            .setVariable("connectorVersion", constant(connectorInstance.connector.version.value))
-            .setVariable("connectorInstanceTag", constant(connectorInstance.tag))
-            .setVariable("operation", constant(connectorEndpoint.operation))
-            .setVariable("relationPropertyName", constant(currentRelation.propertyName))
+            .setVariable(CONNECTOR_ID_VARIABLE, constant(connectorInstance.connector.id))
+            .setVariable(CONNECTOR_TAG_VARIABLE, constant(connectorInstance.connector.tag))
+            .setVariable(CONNECTOR_VERSION_VARIABLE, constant(connectorInstance.connector.version.value))
+            .setVariable(CONNECTOR_INSTANCE_TAG_VARIABLE, constant(connectorInstance.tag))
+            .setVariable(CONNECTOR_OPERATION_VARIABLE, constant(connectorEndpoint.operation))
+            .setVariable(RELATION_RELATION_PROPERTY_NAME_PROPERTY, constant(currentRelation.propertyName))
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.iko("config"))
             .to(IkoRouteHelper.transform())

@@ -16,14 +16,18 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
-import com.ritense.iko.connectors.repository.ConnectorRepository
+import com.ritense.iko.connectors.processor.ConnectorLookupProcessor
 import org.apache.camel.builder.RouteBuilder
 
-class EndpointRoute(
-    private val connectorRepository: ConnectorRepository,
+class EndpointRestRoutesBuilder(
+    private val connectorLookup: ConnectorLookupProcessor,
 ) : RouteBuilder() {
+
     override fun configure() {
         rest("/endpoints")
             .get("/{iko_connector_tag}/{iko_connector_instance_tag}/{iko_operation}")
@@ -34,20 +38,10 @@ class EndpointRoute(
         from(IkoRouteHelper.iko("rest:endpoint"))
             .routeId("rest-endpoint")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .setVariable("connectorTag", header("iko_connector_tag"))
-            .setVariable("connectorInstanceTag", header("iko_connector_instance_tag"))
-            .setVariable("operation", header("iko_operation"))
-            .process { exchange ->
-                val connectorTag = exchange.getVariable("connectorTag", String::class.java)
-                val connector = requireNotNull(connectorRepository.findByTagAndIsActiveTrue(connectorTag)) {
-                    "Connector with tag [$connectorTag] not found"
-                }
-
-                with(connector) {
-                    exchange.setVariable("connectorId", id)
-                    exchange.setVariable("connectorVersion", version.toString())
-                }
-            }
+            .setVariable(CONNECTOR_TAG_VARIABLE, header("iko_connector_tag"))
+            .setVariable(CONNECTOR_INSTANCE_TAG_VARIABLE, header("iko_connector_instance_tag"))
+            .setVariable(CONNECTOR_OPERATION_VARIABLE, header("iko_operation"))
+            .process(connectorLookup)
             .removeHeaders("iko_*")
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.endpoint("auth"))
@@ -60,21 +54,11 @@ class EndpointRoute(
         from(IkoRouteHelper.iko("rest:endpoint.id"))
             .routeId("rest-endpoint-id")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .setVariable("connectorTag", header("iko_connector_tag"))
-            .setVariable("connectorInstanceTag", header("iko_connector_instance_tag"))
-            .setVariable("operation", header("iko_operation"))
+            .setVariable(CONNECTOR_TAG_VARIABLE, header("iko_connector_tag"))
+            .setVariable(CONNECTOR_INSTANCE_TAG_VARIABLE, header("iko_connector_instance_tag"))
+            .setVariable(CONNECTOR_OPERATION_VARIABLE, header("iko_operation"))
             .setVariable("id", header("id"))
-            .process { exchange ->
-                val connectorTag = exchange.getVariable("connector", String::class.java)
-                val connector = requireNotNull(connectorRepository.findByTagAndIsActiveTrue(connectorTag)) {
-                    "Connector with tag [$connectorTag] not found"
-                }
-
-                with(connector) {
-                    exchange.setVariable("connectorId", id)
-                    exchange.setVariable("connectorVersion", version.toString())
-                }
-            }
+            .process(connectorLookup)
             .removeHeaders("iko_*")
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.endpoint("auth"))

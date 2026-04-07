@@ -34,8 +34,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-@Service
-internal class AggregatedDataProfileService(
+open class AggregatedDataProfileService(
     private val camelContext: CamelContext,
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
@@ -47,7 +46,7 @@ internal class AggregatedDataProfileService(
 
     @EventListener(ApplicationReadyEvent::class)
     @Order(2)
-    fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
+    open fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
         aggregatedDataProfileRepository.findAllByIsActiveTrue().forEach { aggregatedDataProfile ->
             try {
                 loadRoute(aggregatedDataProfile)
@@ -150,7 +149,7 @@ internal class AggregatedDataProfileService(
      * The new version starts as inactive.
      */
     @Transactional
-    fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile {
+    open fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile {
         val source = aggregatedDataProfileRepository.findById(sourceId)
             .orElseThrow { NoSuchElementException("AggregatedDataProfile not found: $sourceId") }
 
@@ -189,7 +188,6 @@ internal class AggregatedDataProfileService(
         return aggregatedDataProfileRepository.save(newAdp)
     }
 
-    @Transactional(readOnly = true)
     fun previewFinalization(id: UUID): FinalizationImpact {
         val adp = aggregatedDataProfileRepository.findById(id)
             .orElseThrow { NoSuchElementException("Profile not found: $id") }
@@ -261,7 +259,7 @@ internal class AggregatedDataProfileService(
     }
 
     @Transactional
-    fun finalizeProfile(id: UUID): AggregatedDataProfile {
+    open fun finalizeProfile(id: UUID): AggregatedDataProfile {
         val adp = aggregatedDataProfileRepository.findById(id)
             .orElseThrow { NoSuchElementException("Profile not found: $id") }
         require(adp.status == EntityStatus.DRAFT) { "Already finalized" }

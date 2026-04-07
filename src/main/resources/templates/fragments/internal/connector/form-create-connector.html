@@ -60,7 +60,10 @@
                     >
                     </cds-text-input>
 
-                    <div class="cds--form-item">
+                    <div
+                        class="cds--form-item"
+                        th:with='defaultConnectorCode=${&apos;- route:\n      id: "direct:iko:connector:CHANGEME"\n      errorHandler:\n          noErrorHandler: {}\n      from:\n          uri: "direct:iko:connector:CHANGEME"\n          steps:\n            - log: "Test"&apos;}'
+                    >
                         <label class="cds--label" for="connectorCodeEditor"
                             >Code</label
                         >
@@ -68,7 +71,7 @@
                             id="connectorCodeEditor"
                             data-monaco
                             data-language="yaml"
-                            th:attr="data-initial=${connector?.connectorCode}"
+                            th:attr="data-initial=${connector?.connectorCode ?: defaultConnectorCode}"
                             data-textarea="#connectorCodeField"
                             data-theme="lightgray-theme"
                             th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"

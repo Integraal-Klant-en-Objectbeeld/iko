@@ -23,13 +23,12 @@ import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.CamelContext
 import org.springframework.stereotype.Service
 
-@Service
-internal class RouteDependencyService(
+open class RouteDependencyService(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val camelContext: CamelContext,
 ) {
-    fun resolveConnectorDependencies(adp: AggregatedDataProfile): Set<Connector> {
+    open fun resolveConnectorDependencies(adp: AggregatedDataProfile): Set<Connector> {
         val allInstanceIds = buildSet {
             add(adp.connectorInstanceId)
             adp.relations.forEach { add(it.connectorInstanceId) }
@@ -39,9 +38,9 @@ internal class RouteDependencyService(
         }.toSet()
     }
 
-    fun isConnectorRouteLoaded(connector: Connector): Boolean = camelContext.getRoutesByGroup("connector_${connector.id}").isNotEmpty()
+    open fun isConnectorRouteLoaded(connector: Connector): Boolean = camelContext.getRoutesByGroup("connector_${connector.id}").isNotEmpty()
 
-    fun isConnectorRouteNeeded(connector: Connector): Boolean {
+    open fun isConnectorRouteNeeded(connector: Connector): Boolean {
         if (connector.isActive) return true
 
         val instances = connectorInstanceRepository.findByConnector(connector)

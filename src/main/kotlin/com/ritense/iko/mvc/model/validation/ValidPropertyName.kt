@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.aggregateddataprofile.service
+package com.ritense.iko.mvc.model.validation
 
-import java.util.UUID
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
 
-data class FinalizationImpact(
-    val adpId: UUID,
-    val adpName: String,
-    val adpVersion: String,
-    val connectorsToFinalize: List<ConnectorImpact>,
-    val canFinalize: Boolean,
-    val errors: List<String>,
-)
-
-data class ConnectorImpact(
-    val connectorId: UUID,
-    val connectorName: String,
-    val connectorTag: String,
-    val connectorVersion: String,
-    val affectedDraftAdps: List<AffectedAdp>,
-)
-
-data class AffectedAdp(
-    val id: UUID,
-    val name: String,
-    val version: String,
+@Target(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY_GETTER)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [ValidPropertyNameValidator::class])
+annotation class ValidPropertyName(
+    val message: String = "Invalid property name.",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = [],
 )

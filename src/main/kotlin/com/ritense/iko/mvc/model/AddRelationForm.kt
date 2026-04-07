@@ -18,6 +18,7 @@ package com.ritense.iko.mvc.model
 
 import com.ritense.iko.mvc.model.validation.UniqueRelation
 import com.ritense.iko.mvc.model.validation.UniqueRelationCheck
+import com.ritense.iko.mvc.model.validation.ValidPropertyName
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.NotBlank
 import java.util.UUID
@@ -34,6 +35,7 @@ data class AddRelationForm(
     @field:ValidTransform
     val resultTransform: String,
     @field:NotBlank(message = "Please provide a property name.")
+    @field:ValidPropertyName
     override val propertyName: String,
     override val id: UUID? = null,
 ) : UniqueRelation

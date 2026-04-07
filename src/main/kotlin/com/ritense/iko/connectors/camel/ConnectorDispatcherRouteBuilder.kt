@@ -20,7 +20,7 @@ import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
-class Connector : RouteBuilder() {
+class ConnectorDispatcherRouteBuilder : RouteBuilder() {
     override fun configure() {
         from(IkoRouteHelper.connector())
             .routeId("connector-dispatcher")
