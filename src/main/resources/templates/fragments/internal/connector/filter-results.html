@@ -40,7 +40,7 @@
             <cds-table-cell th:text="${connector.version}"></cds-table-cell>
             <cds-table-cell>
                 <cds-tag
-                    th:type="${connector.status == 'FINAL' ? 'green' : 'cool-gray'}"
+                    th:type="${connector.final ? 'green' : 'cool-gray'}"
                     th:text="${connector.status}"
                 ></cds-tag>
             </cds-table-cell>
@@ -50,7 +50,7 @@
                     th:text="${connector.active ? 'Yes' : 'No'}"
                 ></cds-tag>
                 <cds-overflow-menu
-                    th:disabled="${connector.status != 'DRAFT'}"
+                    th:disabled="${connector.final}"
                     enter-delay-ms="3000"
                     leave-delay-ms="0"
                     close-on-activation
@@ -75,7 +75,7 @@
                     <span slot="tooltip-content"> Options </span>
                     <cds-overflow-menu-body flipped="">
                         <cds-overflow-menu-item
-                            th:if="${connector.status == 'DRAFT'}"
+                            th:if="${connector.final}"
                             hx-confirm="Are you sure you want to delete this connector?"
                             th:hx-delete="@{|/admin/connectors/${connector.id}|}"
                             hx-swap="outerHTML"

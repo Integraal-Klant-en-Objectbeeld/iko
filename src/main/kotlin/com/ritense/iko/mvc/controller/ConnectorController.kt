@@ -20,6 +20,7 @@ import com.ritense.iko.connectors.domain.Connector
 import com.ritense.iko.connectors.domain.ConnectorEndpoint
 import com.ritense.iko.connectors.domain.ConnectorEndpointRole
 import com.ritense.iko.connectors.domain.ConnectorInstance
+import com.ritense.iko.connectors.domain.toDTO
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
@@ -171,7 +172,7 @@ class ConnectorController(
                     false -> ""
                 },
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "instances" to instances,
                 "endpoints" to endpoints,
                 "versions" to versions,
@@ -232,7 +233,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector :: connector-code",
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
             ),
         )
     }
@@ -345,7 +346,7 @@ class ConnectorController(
             mapOf(
                 "connectorId" to connector.id,
                 "instanceId" to connectorInstance.id,
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "instance" to connectorInstance,
                 "connectorRoles" to connectorRoles,
                 "connectorInstance" to connectorInstance,
@@ -371,7 +372,7 @@ class ConnectorController(
             return ModelAndView(
                 "fragments/internal/connector/details-page-connector-instance :: instance-edit-form",
                 mapOf(
-                    "connector" to connector,
+                    "connector" to connector.toDTO(),
                     "connectorInstance" to connectorInstance,
                     "errors" to bindingResult,
                 ),
@@ -386,7 +387,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector-instance :: instance-edit-form",
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "connectorInstance" to connectorInstance,
             ),
         )
@@ -445,7 +446,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector-instance :: config-table",
             mapOf(
-                "connector" to connectorInstance.connector,
+                "connector" to connectorInstance.connector.toDTO(),
                 "connectorInstance" to connectorInstance,
                 "instanceId" to instanceId,
             ),
@@ -467,7 +468,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/form-create-connector-instance-role",
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "connectorInstance" to connectorInstance,
                 "connectorEndpoints" to
                     connectorEndpointRepository.findByConnector(
@@ -525,7 +526,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector-instance :: roles-table",
             mapOf(
-                "connector" to connectorInstance.connector,
+                "connector" to connectorInstance.connector.toDTO(),
                 "connectorInstance" to connectorInstance,
                 "instanceId" to instanceId,
                 "connectorRoles" to
@@ -603,7 +604,7 @@ class ConnectorController(
             "fragments/internal/connector/edit-endpoint-page",
             "edit",
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "endpoint" to endpoint,
                 "form" to
                     ConnectorEndpointConfigForm(
@@ -657,7 +658,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector :: endpoints-table",
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "endpoints" to endpoints,
             ),
         )
@@ -676,7 +677,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector :: endpoints-table",
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "endpoints" to
                     connectorEndpointRepository.findByConnector(
                         connector,
@@ -699,7 +700,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector :: instance-table",
             mapOf(
-                "connector" to connector,
+                "connector" to connector.toDTO(),
                 "instances" to instances,
             ),
         )
@@ -722,7 +723,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector-instance :: roles-table",
             mapOf(
-                "connector" to connectorInstance.connector,
+                "connector" to connectorInstance.connector.toDTO(),
                 "connectorInstance" to connectorInstance,
                 "connectorRoles" to connectorEndpointRoleRepository.findAllByConnectorInstance(connectorInstance),
             ),
@@ -752,7 +753,7 @@ class ConnectorController(
         return ModelAndView(
             "fragments/internal/connector/details-page-connector-instance :: config-table",
             mapOf(
-                "connector" to instance.connector,
+                "connector" to instance.connector.toDTO(),
                 "connectorInstance" to instance,
             ),
         )

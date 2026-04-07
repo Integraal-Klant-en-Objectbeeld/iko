@@ -18,6 +18,7 @@ package com.ritense.iko.mvc.model
 
 import com.ritense.iko.mvc.model.validation.UniqueRelation
 import com.ritense.iko.mvc.model.validation.UniqueRelationCheck
+import com.ritense.iko.mvc.model.validation.ValidPropertyName
 import com.ritense.iko.mvc.model.validation.ValidTransform
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
@@ -35,6 +36,7 @@ data class EditRelationForm(
     @field:ValidTransform
     val resultTransform: String,
     @field:NotBlank(message = "Please provide a property name.")
+    @field:ValidPropertyName
     override val propertyName: String,
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,

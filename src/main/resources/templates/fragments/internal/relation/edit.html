@@ -30,7 +30,7 @@
                     title-text="From"
                     label="Select a from"
                     required
-                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                    th:disabled="${aggregatedDataProfile.isFinalized()}"
                     th:attr="
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
@@ -58,7 +58,7 @@
                     size="lg"
                     name="connectorInstanceId"
                     required
-                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                    th:disabled="${aggregatedDataProfile.isFinalized()}"
                     hx-get="/admin/aggregated-data-profiles/relations/edit/endpoints"
                     hx-trigger="cds-select-selected"
                     hx-target="#formRelationEndpoints"
@@ -93,7 +93,7 @@
                     size="lg"
                     name="connectorEndpointId"
                     required
-                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                    th:disabled="${aggregatedDataProfile.isFinalized()}"
                     th:value="${#lists.isEmpty(connectorEndpoints) ? '' : (form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints[0].id)}"
                     th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null or (errors != null or #lists.isEmpty(connectorEndpoints))} ? 'true' : null,
                              invalid-text=${(errors != null or #lists.isEmpty(connectorEndpoints)) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorEndpointId')?.defaultMessage}"
@@ -144,7 +144,7 @@
                     data-textarea="#sourceToEndpointMappingCode"
                     th:data-initial="${form?.sourceToEndpointMapping}"
                     data-theme="lightgray-theme"
-                    th:attr="data-readonly=${aggregatedDataProfile?.status?.name() != 'DRAFT'} ? 'true' : null"
+                    th:attr="data-readonly=${aggregatedDataProfile.isFinalized()} ? 'true' : null"
                     th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                 ></div>
                 <div
@@ -163,7 +163,7 @@
                     label="Property Name"
                     placeholder="e.g. relation"
                     required="true"
-                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                    th:disabled="${aggregatedDataProfile.isFinalized()}"
                     th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
                             invalid-text=${errors?.getFieldError('propertyName')?.defaultMessage},
                             value=${form?.propertyName}"

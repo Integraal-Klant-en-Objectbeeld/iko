@@ -72,7 +72,7 @@
                                                         hx-get="/admin/aggregated-data-profiles/create/endpoints"
                                                         hx-trigger="cds-select-selected"
                                                         hx-target="#formEndpoints"
-                                                        th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                                                        th:disabled="${aggregatedDataProfile.isFinalized()}"
                                                         th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null or (errors != null and #lists.isEmpty(connectorEndpoints))} ? 'true' : null,
                                                                  invalid-text=${(errors != null and #lists.isEmpty(connectorEndpoints)) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorInstanceId')?.defaultMessage},
                                                                  value=${form.connectorInstanceId}
@@ -104,7 +104,7 @@
                                                         <cds-select
                                                             label-text="Select an connector endpoint"
                                                             name="connectorEndpointId"
-                                                            th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                                                            th:disabled="${aggregatedDataProfile.isFinalized()}"
                                                             th:attr="invalid=${#lists.isEmpty(connectorEndpoints) or errors?.getFieldError('connectorEndpointId') != null} ? 'true' : null,
                                                                      invalid-text=${#lists.isEmpty(connectorEndpoints) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorEndpointId')?.defaultMessage},
                                                                      value=${#lists.isEmpty(connectorEndpoints) ? '' : form?.connectorEndpointId}"
@@ -126,7 +126,7 @@
                                             <cds-text-input
                                                 name="roles"
                                                 label="Roles"
-                                                th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                                                th:disabled="${aggregatedDataProfile.isFinalized()}"
                                                 th:attr="invalid=${errors?.getFieldError('roles') != null} ? 'true' : null,
                                                                          invalid-text=${errors?.getFieldError('roles')?.defaultMessage},
                                                                          value=${form?.roles}"
@@ -179,7 +179,7 @@
                                                 data-textarea="#endpointTransformCode"
                                                 th:data-initial="${form?.endpointTransform}"
                                                 data-theme="lightgray-theme"
-                                                th:attr="data-readonly=${aggregatedDataProfile?.status?.name() != 'DRAFT'} ? 'true' : null"
+                                                th:attr="data-readonly=${aggregatedDataProfile.isFinalized()} ? 'true' : null"
                                                 th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                                             ></div>
                                             <div
@@ -233,7 +233,7 @@
                                                 data-textarea="#resultTransformCode"
                                                 th:data-initial="${form?.resultTransform}"
                                                 data-theme="lightgray-theme"
-                                                th:attr="data-readonly=${aggregatedDataProfile?.status?.name() != 'DRAFT'} ? 'true' : null"
+                                                th:attr="data-readonly=${aggregatedDataProfile.isFinalized()} ? 'true' : null"
                                                 th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                                             ></div>
                                             <div
@@ -250,7 +250,7 @@
                                             <cds-button
                                                 type="submit"
                                                 id="profile-save-btn"
-                                                th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
+                                                th:disabled="${aggregatedDataProfile.isFinalized()}"
                                                 hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
                                             >
                                                 Save

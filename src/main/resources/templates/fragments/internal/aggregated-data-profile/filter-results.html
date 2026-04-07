@@ -75,7 +75,7 @@
                     th:text="${aggregatedDataProfile.active ? 'Yes' : 'No'}"
                 ></cds-tag>
                 <cds-overflow-menu
-                    th:disabled="${aggregatedDataProfile.status != 'DRAFT'}"
+                    th:disabled="${aggregatedDataProfile.isFinalized()}"
                     enter-delay-ms="3000"
                     leave-delay-ms="0"
                     close-on-activation

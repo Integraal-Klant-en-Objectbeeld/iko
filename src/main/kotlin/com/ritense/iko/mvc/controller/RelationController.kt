@@ -114,6 +114,7 @@ internal class RelationController(
 
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("sources", sources)
             addObject("errors", bindingResult)
             addObject("form", form)
