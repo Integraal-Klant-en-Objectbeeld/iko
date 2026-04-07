@@ -105,8 +105,15 @@ class AggregatedDataProfile(
     }
 
     fun updateCacheSettings(enabled: Boolean, timeToLive: Int) {
-        ensureDraft()
         this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
+            enabled = enabled,
+            timeToLive = timeToLive,
+        )
+    }
+
+    fun updateRelationCacheSettings(relationId: UUID, enabled: Boolean, timeToLive: Int) {
+        val relation = this.relations.first { it.id == relationId }
+        relation.relationCacheSettings = RelationCacheSettings(
             enabled = enabled,
             timeToLive = timeToLive,
         )
