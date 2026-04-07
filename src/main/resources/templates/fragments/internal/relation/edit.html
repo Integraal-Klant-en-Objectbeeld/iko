@@ -30,6 +30,7 @@
                     title-text="From"
                     label="Select a from"
                     required
+                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                     th:attr="
                                 invalid=${errors?.getFieldError('sourceId') != null} ? 'true' : null,
                                 invalid-text=${errors?.getFieldError('sourceId')?.defaultMessage},
@@ -57,6 +58,7 @@
                     size="lg"
                     name="connectorInstanceId"
                     required
+                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                     hx-get="/admin/aggregated-data-profiles/relations/edit/endpoints"
                     hx-trigger="cds-select-selected"
                     hx-target="#formRelationEndpoints"
@@ -91,6 +93,7 @@
                     size="lg"
                     name="connectorEndpointId"
                     required
+                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                     th:value="${#lists.isEmpty(connectorEndpoints) ? '' : (form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints[0].id)}"
                     th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null or (errors != null or #lists.isEmpty(connectorEndpoints))} ? 'true' : null,
                              invalid-text=${(errors != null or #lists.isEmpty(connectorEndpoints)) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorEndpointId')?.defaultMessage}"
@@ -141,6 +144,7 @@
                     data-textarea="#sourceToEndpointMappingCode"
                     th:data-initial="${form?.sourceToEndpointMapping}"
                     data-theme="lightgray-theme"
+                    th:attr="data-readonly=${aggregatedDataProfile?.status?.name() != 'DRAFT'} ? 'true' : null"
                     th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                 ></div>
                 <div
@@ -159,6 +163,7 @@
                     label="Property Name"
                     placeholder="e.g. relation"
                     required="true"
+                    th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                     th:attr="invalid=${errors?.getFieldError('propertyName') != null} ? 'true' : null,
                             invalid-text=${errors?.getFieldError('propertyName')?.defaultMessage},
                             value=${form?.propertyName}"
@@ -199,6 +204,7 @@
                     data-textarea="#resultTransformCodeEdit"
                     th:data-initial="${form?.resultTransform}"
                     data-theme="lightgray-theme"
+                    th:attr="data-readonly=${aggregatedDataProfile?.status?.name() != 'DRAFT'} ? 'true' : null"
                     th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
                 ></div>
                 <div
@@ -212,70 +218,28 @@
                 </div>
             </cds-form-item>
 
-            <!-- Cache setting -->
-            <div
-                class="form-row"
-                style="
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: space-between;
-                "
-            >
-                <cds-toggle
-                    id="cacheEnabledToggle"
-                    name="cacheEnabledToggle"
-                    label-text="Cache enabled"
-                    aria-labelledby="cacheEnabled-label"
-                    hx-on:cds-toggle-changed="document.querySelector('#relationCacheEnabledHidden').value = this.checked;"
-                    th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
-                                 invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
-                                 checked=${form?.cacheEnabled}"
-                >
-                </cds-toggle>
-                <input
-                    type="hidden"
-                    name="cacheEnabled"
-                    id="relationCacheEnabledHidden"
-                    th:value="${form?.cacheEnabled}"
-                />
-                <cds-number-input
-                    id="cacheTimeToLive"
-                    name="cacheTimeToLive"
-                    required="true"
-                    value="5000"
-                    min="0"
-                    step="1000"
-                    max="31536000000"
-                    label="Time to live"
-                    helper-text="Milliseconds"
-                    style="width: 300px"
-                    th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
-                                       invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
-                                       value=${form?.cacheTimeToLive}"
-                >
-                </cds-number-input>
-                <cds-button
-                    kind="danger-tertiary"
-                    size="sm"
-                    hx-confirm="Are you sure?"
-                    th:attr="hx-delete=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relation/' + ${form.id} + '/cache'},
-                                 disabled=${!isCached}"
-                >
-                    Clear cache
-                </cds-button>
-            </div>
-            <!-- Cache setting -->
             <input
                 type="hidden"
                 name="aggregatedDataProfileId"
                 th:value="${form.aggregatedDataProfileId}"
             />
             <input type="hidden" name="id" th:value="${form.id}" />
+            <input
+                type="hidden"
+                name="cacheEnabled"
+                th:value="${form?.cacheEnabled}"
+            />
+            <input
+                type="hidden"
+                name="cacheTimeToLive"
+                th:value="${form?.cacheTimeToLive}"
+            />
         </div>
 
         <div class="relation-button-bar">
             <cds-button
                 kind="danger"
+                th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                 th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/edit/' + ${form.id} + '/delete'} "
                 hx-target="#modal-container"
                 hx-swap="innerHTML"
@@ -303,6 +267,7 @@
                 </svg>
             </cds-button>
             <cds-button
+                th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                 hx-put="/admin/relations"
                 hx-target="#relation-edit"
                 hx-swap="innerHTML"
@@ -329,6 +294,11 @@
             </cds-button>
         </div>
     </cds-form>
+
+    <!-- Relation cache settings (separate form, always editable) -->
+    <div
+        th:replace="~{fragments/internal/relation/cache :: relation-cache}"
+    ></div>
 </div>
 <span
     id="selected-relation-name"
