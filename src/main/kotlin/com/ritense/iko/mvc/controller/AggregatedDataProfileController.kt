@@ -37,6 +37,7 @@ import com.ritense.iko.mvc.model.Relation
 import com.ritense.iko.mvc.model.RelationCacheForm
 import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.security.SecurityContextHelper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
@@ -286,9 +287,23 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
-        val aggregatedDataProfile = AggregatedDataProfile.create(form).also {
-            if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
-                it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
+        val aggregatedDataProfile = AggregatedDataProfile.create(form)
+        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
+            try {
+                aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+            } catch (e: Exception) {
+                logger.warn(e) { "Schema generation failed for new ADP '${form.name}'" }
+                bindingResult.rejectValue("resultTransform", "schema.error", "Schema generation failed: ${e.message}")
+                return ModelAndView("$BASE_FRAGMENT_ADP/add :: adp-add-form").apply {
+                    addObject("form", form)
+                    addObject("errors", bindingResult)
+                    addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
+                    addObject(
+                        "connectorEndpoints",
+                        connectorInstanceRepository.findById(form.connectorInstanceId)
+                            .map { connectorEndpointRepository.findByConnector(it.connector) }.orElseThrow(),
+                    )
+                }
             }
         }
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
@@ -330,7 +345,19 @@ internal class AggregatedDataProfileController(
                 aggregatedDataProfile.resultTransform.expression != previousResultTransform ||
                 aggregatedDataProfile.connectorInstanceId != previousConnectorInstanceId
             ) {
-                aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+                try {
+                    aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+                } catch (e: Exception) {
+                    logger.warn(e) { "Schema generation failed for ADP '${aggregatedDataProfile.name}'" }
+                    bindingResult.rejectValue("resultTransform", "schema.error", "Schema generation failed: ${e.message}")
+                    return ModelAndView("$BASE_FRAGMENT_ADP/edit :: profile-edit").apply {
+                        addObject("errors", bindingResult)
+                        addObject("form", form)
+                        addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
+                        addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
+                        addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
+                    }
+                }
             }
         } else if (aggregatedDataProfile.schema != null) {
             aggregatedDataProfile.resetSchema()
@@ -613,18 +640,24 @@ internal class AggregatedDataProfileController(
     fun regenerateSchema(
         @PathVariable id: UUID,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow().also {
-            if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
-                it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
-                aggregatedDataProfileRepository.save(it)
-            } else if (it.schema != null) {
-                it.resetSchema()
-                aggregatedDataProfileRepository.save(it)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        var schemaError: String? = null
+        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
+            try {
+                aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+                aggregatedDataProfileRepository.save(aggregatedDataProfile)
+            } catch (e: Exception) {
+                logger.warn(e) { "Schema regeneration failed for ADP '${aggregatedDataProfile.name}'" }
+                schemaError = "Schema generation failed: ${e.message}"
             }
+        } else if (aggregatedDataProfile.schema != null) {
+            aggregatedDataProfile.resetSchema()
+            aggregatedDataProfileRepository.save(aggregatedDataProfile)
         }
         return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
             addObject("aggregatedDataProfile", aggregatedDataProfile)
             addObject("isSchemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
+            addObject("schemaError", schemaError)
         }
     }
 
@@ -646,4 +679,8 @@ internal class AggregatedDataProfileController(
             )
         }
         .toMutableList()
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 }
