@@ -250,6 +250,7 @@
                                             <cds-button
                                                 type="submit"
                                                 id="profile-save-btn"
+                                                th:disabled="${aggregatedDataProfile?.status?.name() != 'DRAFT'}"
                                                 hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
                                             >
                                                 Save

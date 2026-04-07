@@ -380,6 +380,7 @@ internal class AggregatedDataProfileController(
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
             addObject("form", EditRelationForm.from(relation))
             addObject("isCached", isCached)
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
         }
         return modelAndView
     }
