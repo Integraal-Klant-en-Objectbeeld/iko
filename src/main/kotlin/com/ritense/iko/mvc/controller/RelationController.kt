@@ -17,6 +17,7 @@
 package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.toDTO
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.cache.service.CacheService
@@ -83,7 +84,7 @@ internal class RelationController(
         }
 
         val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
             addObject("form", AggregatedDataProfileEditForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
             addObject("sources", sources)
@@ -114,7 +115,7 @@ internal class RelationController(
 
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
             addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
             addObject("sources", sources)
             addObject("errors", bindingResult)
             addObject("form", form)
@@ -132,7 +133,7 @@ internal class RelationController(
         }
 
         val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }
 
@@ -156,7 +157,7 @@ internal class RelationController(
         }
 
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
             addObject("form", AggregatedDataProfileEditForm.from(aggregatedDataProfile))
             addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
         }

@@ -111,6 +111,8 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         val version: String
         val active: Boolean
         val status: String
+        val final: Boolean
+            get() = status == EntityStatus.FINAL.name
     }
 
     interface AggregatedDataProfileVersionProjection {
