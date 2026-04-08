@@ -286,11 +286,7 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
-        val aggregatedDataProfile = AggregatedDataProfile.create(form).also {
-            if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
-                it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
-            }
-        }
+        val aggregatedDataProfile = AggregatedDataProfile.create(form)
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
         aggregatedDataProfileService.loadRoute(aggregatedDataProfile)
 
@@ -322,19 +318,7 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
-        val previousConnectorInstanceId = aggregatedDataProfile.connectorInstanceId
-        val previousResultTransform = aggregatedDataProfile.resultTransform.expression
         aggregatedDataProfile.handle(form)
-        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
-            if (
-                aggregatedDataProfile.resultTransform.expression != previousResultTransform ||
-                aggregatedDataProfile.connectorInstanceId != previousConnectorInstanceId
-            ) {
-                aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
-            }
-        } else if (aggregatedDataProfile.schema != null) {
-            aggregatedDataProfile.resetSchema()
-        }
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
         if (aggregatedDataProfile.isActive) {
             aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
@@ -606,6 +590,11 @@ internal class AggregatedDataProfileController(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         aggregatedDataProfileService.activateVersion(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
+            aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+            aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        }
         return details(id, isHxRequest)
     }
 
