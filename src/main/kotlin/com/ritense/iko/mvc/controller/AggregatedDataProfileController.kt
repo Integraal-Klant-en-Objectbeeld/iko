@@ -34,6 +34,7 @@ import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
 import com.ritense.iko.mvc.model.CreateVersionForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Relation
+import com.ritense.iko.mvc.model.RelationCacheForm
 import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.security.SecurityContextHelper
 import jakarta.servlet.http.HttpServletResponse
@@ -285,11 +286,7 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
-        val aggregatedDataProfile = AggregatedDataProfile.create(form).also {
-            if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
-                it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
-            }
-        }
+        val aggregatedDataProfile = AggregatedDataProfile.create(form)
         aggregatedDataProfileRepository.saveAndFlush(aggregatedDataProfile)
         aggregatedDataProfileService.loadRoute(aggregatedDataProfile)
 
@@ -321,19 +318,7 @@ internal class AggregatedDataProfileController(
             }
             return modelAndView
         }
-        val previousConnectorInstanceId = aggregatedDataProfile.connectorInstanceId
-        val previousResultTransform = aggregatedDataProfile.resultTransform.expression
         aggregatedDataProfile.handle(form)
-        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
-            if (
-                aggregatedDataProfile.resultTransform.expression != previousResultTransform ||
-                aggregatedDataProfile.connectorInstanceId != previousConnectorInstanceId
-            ) {
-                aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
-            }
-        } else if (aggregatedDataProfile.schema != null) {
-            aggregatedDataProfile.resetSchema()
-        }
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
         if (aggregatedDataProfile.isActive) {
             aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
@@ -380,6 +365,7 @@ internal class AggregatedDataProfileController(
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
             addObject("form", EditRelationForm.from(relation))
             addObject("isCached", isCached)
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
         }
         return modelAndView
     }
@@ -461,6 +447,52 @@ internal class AggregatedDataProfileController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
         return details(id, true)
+    }
+
+    @PutMapping(
+        path = ["/{id}/relation/{relationId}/cache"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+    )
+    fun editRelationCache(
+        @PathVariable id: UUID,
+        @PathVariable relationId: UUID,
+        @Valid @ModelAttribute form: RelationCacheForm,
+        bindingResult: BindingResult,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val relation = aggregatedDataProfile.relations.first { it.id == relationId }
+        val isCached = cacheService.isCached(relation.id.toString())
+        val connectorInstance = connectorInstanceRepository.findById(relation.connectorInstanceId).orElseThrow()
+        val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
+                addObject("errors", bindingResult)
+                addObject("form", EditRelationForm.from(relation))
+                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("sources", sources)
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
+                addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectorInstance.connector))
+                addObject("isCached", isCached)
+            }
+        }
+        aggregatedDataProfile.updateRelationCacheSettings(
+            relationId = relationId,
+            enabled = form.cacheEnabled,
+            timeToLive = form.cacheTimeToLive,
+        )
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
+        val updatedRelation = aggregatedDataProfile.relations.first { it.id == relationId }
+        return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
+            addObject("form", EditRelationForm.from(updatedRelation))
+            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("sources", sources)
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectorInstance.connector))
+            addObject("isCached", isCached)
+        }
     }
 
     @DeleteMapping("/{id}/relation/{relationId}/cache")
@@ -558,6 +590,11 @@ internal class AggregatedDataProfileController(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         aggregatedDataProfileService.activateVersion(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
+            aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+            aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        }
         return details(id, isHxRequest)
     }
 
