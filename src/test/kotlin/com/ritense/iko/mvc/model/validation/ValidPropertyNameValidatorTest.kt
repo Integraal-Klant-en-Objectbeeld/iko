@@ -32,14 +32,14 @@ class ValidPropertyNameValidatorTest {
     )
 
     @ParameterizedTest
-    @ValueSource(strings = ["owner", "pet_owner", "PetOwner", "pet1", "_hidden", "a", "ABC_123"])
+    @ValueSource(strings = ["owner", "pet_owner", "pet-owner", "PetOwner", "pet1", "_hidden", "a", "ABC_123"])
     fun `valid property names pass`(name: String) {
         val violations = validator.validate(Subject(name))
         assertThat(violations).isEmpty()
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["pet-owner", "pet owner", "pet.owner", "pet/owner", "pet@owner", "ünïcödé"])
+    @ValueSource(strings = ["pet owner", "pet.owner", "pet/owner", "pet@owner", "ünïcödé"])
     fun `property names with invalid characters fail`(name: String) {
         val violations = validator.validate(Subject(name))
         assertThat(violations).hasSize(1)
