@@ -20,7 +20,7 @@ import com.ritense.iko.mvc.model.validation.ValidConnectorCode
 import jakarta.validation.constraints.NotBlank
 
 data class ConnectorEditForm(
-    @field:NotBlank(message = "Please provide a connector code.")
+    @field:NotBlank(message = "Connector code must not be empty. Refer to the documentation for connector code requirements..")
     @field:ValidConnectorCode
     val connectorCode: String,
 )

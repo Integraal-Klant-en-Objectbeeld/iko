@@ -207,6 +207,14 @@ class ConnectorController(
         val connector = connectorRepository.findById(id).orElseThrow { NoSuchElementException("Connector not found") }
         connector.ensureDraft()
 
+        if (!bindingResult.hasErrors()) {
+            try {
+                connectorService.validateConnectorCode(form.connectorCode, connector.tag)
+            } catch (e: Exception) {
+                bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Invalid connector code")
+            }
+        }
+
         if (bindingResult.hasErrors()) {
             httpServletResponse.setHeader("HX-Retarget", "#connector-code")
             httpServletResponse.setHeader("HX-Reswap", "outerHTML")

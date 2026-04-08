@@ -61,8 +61,6 @@ open class ConnectorService(
         val loader = PluginHelper.getRoutesLoader(camelContext)
         val builders = loader.findRoutesBuilders(listOf(resource))
 
-        val versionSuffix = ":${connector.version.value}"
-
         // Step 3: For each builder, configure it, modify route definitions, then add to context
         builders.forEach { builder ->
             val routeBuilder = builder as RouteBuilder
@@ -74,7 +72,7 @@ open class ConnectorService(
                 routeDef.group(groupName)
                 with(routeDef.input) {
                     id = "connector:${connector.tag}:${connector.version.value}:${routeDef.id}"
-                    uri = namespaceUri(uri, versionSuffix)
+                    uri = namespaceUri(uri, connector.version.value)
                 }
             }
 
@@ -270,14 +268,14 @@ open class ConnectorService(
         private val CONNECTOR_URI_REGEX = Regex(CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN)
         private val TRANSFORM_URI_REGEX = Regex(CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN)
 
-        internal fun namespaceUri(uri: String, versionSuffix: String): String {
+        internal fun namespaceUri(uri: String, version: String): String {
             CONNECTOR_URI_REGEX.matchEntire(uri)?.let { match ->
-                return "direct:iko:connector:${match.groupValues[1]}$versionSuffix"
+                return "direct:iko:connector:${match.groupValues[1]}:$version"
             }
             TRANSFORM_URI_REGEX.matchEntire(uri)?.let { match ->
                 val tag = match.groupValues[1]
-                val operationSuffix = match.groupValues[2]
-                return "direct:iko:endpoint:transform:$tag$versionSuffix$operationSuffix"
+                val operation = match.groupValues[2]
+                return "direct:iko:endpoint:transform:$tag:$version$operation"
             }
             return uri
         }

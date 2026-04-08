@@ -29,7 +29,7 @@ class ConnectorServiceTest {
         fun `namespaces connector from URI with version`() {
             val result = ConnectorService.namespaceUri(
                 "direct:iko:connector:my-tag",
-                ":1.0.0",
+                "1.0.0",
             )
             assertThat(result).isEqualTo("direct:iko:connector:my-tag:1.0.0")
         }
@@ -38,7 +38,7 @@ class ConnectorServiceTest {
         fun `namespaces transform from URI with version`() {
             val result = ConnectorService.namespaceUri(
                 "direct:iko:endpoint:transform:my-tag",
-                ":2.0.0",
+                "2.0.0",
             )
             assertThat(result).isEqualTo("direct:iko:endpoint:transform:my-tag:2.0.0")
         }
@@ -47,7 +47,7 @@ class ConnectorServiceTest {
         fun `namespaces transform from URI with operation and version`() {
             val result = ConnectorService.namespaceUri(
                 "direct:iko:endpoint:transform:my-tag.get_zaak",
-                ":1.0.0",
+                "1.0.0",
             )
             assertThat(result).isEqualTo("direct:iko:endpoint:transform:my-tag:1.0.0.get_zaak")
         }
@@ -56,7 +56,7 @@ class ConnectorServiceTest {
         fun `does not modify unrelated URIs`() {
             val result = ConnectorService.namespaceUri(
                 "direct:iko:config",
-                ":1.0.0",
+                "1.0.0",
             )
             assertThat(result).isEqualTo("direct:iko:config")
         }
@@ -65,7 +65,7 @@ class ConnectorServiceTest {
         fun `does not modify already-namespaced connector URIs`() {
             val result = ConnectorService.namespaceUri(
                 "direct:iko:connector:my-tag:1.0.0",
-                ":2.0.0",
+                "2.0.0",
             )
             // Already contains a colon after tag, so regex won't match
             assertThat(result).isEqualTo("direct:iko:connector:my-tag:1.0.0")
