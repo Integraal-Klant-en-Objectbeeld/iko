@@ -112,8 +112,9 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         val version: String
         val active: Boolean
         val status: String
+        val final: Boolean
+            get() = status == EntityStatus.FINAL.name
     }
-
     interface ConnectorVersionProjection {
         val id: UUID
         val name: String
@@ -121,5 +122,7 @@ interface ConnectorRepository : JpaRepository<Connector, UUID> {
         val version: String
         val active: Boolean
         val status: EntityStatus
+        val final: Boolean
+            get() = status == EntityStatus.FINAL
     }
 }

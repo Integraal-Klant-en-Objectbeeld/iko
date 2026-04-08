@@ -26,7 +26,6 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
-@Repository
 interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile, UUID> {
     fun findByName(name: String): AggregatedDataProfile?
 
@@ -112,6 +111,8 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         val version: String
         val active: Boolean
         val status: String
+        val final: Boolean
+            get() = status == EntityStatus.FINAL.name
     }
 
     interface AggregatedDataProfileVersionProjection {

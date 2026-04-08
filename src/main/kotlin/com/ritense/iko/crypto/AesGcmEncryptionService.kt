@@ -16,7 +16,6 @@
 
 package com.ritense.iko.crypto
 
-import org.springframework.stereotype.Service
 import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.util.Base64
@@ -31,7 +30,6 @@ import javax.crypto.spec.SecretKeySpec
  * - IV is 12 random bytes (96 bits)
  * - GCM auth tag is included at the end of the ciphertext by JCE
  */
-@Service
 class AesGcmEncryptionService(
     private val aesSecretKeySpec: SecretKeySpec,
 ) {

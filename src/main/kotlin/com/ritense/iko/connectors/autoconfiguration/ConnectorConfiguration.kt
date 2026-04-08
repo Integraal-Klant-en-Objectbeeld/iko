@@ -16,66 +16,96 @@
 
 package com.ritense.iko.connectors.autoconfiguration
 
-import com.ritense.iko.connectors.camel.Connector
-import com.ritense.iko.connectors.camel.ConnectorConfig
-import com.ritense.iko.connectors.camel.Endpoint
-import com.ritense.iko.connectors.camel.EndpointAuth
-import com.ritense.iko.connectors.camel.EndpointValidation
-import com.ritense.iko.connectors.camel.Transform
+import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.connectors.camel.ConnectorConfigRouteBuilder
+import com.ritense.iko.connectors.camel.ConnectorDispatcherRouteBuilder
+import com.ritense.iko.connectors.camel.EndpointAuthRouteBuilder
+import com.ritense.iko.connectors.camel.EndpointRestRoutesBuilder
+import com.ritense.iko.connectors.camel.EndpointValidationRouteBuilder
+import com.ritense.iko.connectors.camel.TransformDispatcheRouteBuilder
+import com.ritense.iko.connectors.processor.ConnectorLookupProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import com.ritense.iko.connectors.repository.ConnectorRepository
 import com.ritense.iko.connectors.service.ConnectorService
+import com.ritense.iko.connectors.service.RouteDependencyService
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.apache.camel.CamelContext
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
+import org.springframework.core.annotation.Order
 
 @Configuration
 class ConnectorConfiguration(
     val connectorRepository: ConnectorRepository,
-    val connectorService: ConnectorService,
 ) {
     @Bean
-    fun endpoint(connectorRepository: ConnectorRepository) = Endpoint(connectorRepository)
+    fun connectorService(
+        connectorInstanceRepository: ConnectorInstanceRepository,
+        connectorEndpointRepository: ConnectorEndpointRepository,
+        connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
+        camelContext: CamelContext,
+    ) = ConnectorService(
+        connectorRepository,
+        connectorInstanceRepository,
+        connectorEndpointRepository,
+        connectorEndpointRoleRepository,
+        camelContext,
+    )
 
     @Bean
-    fun endpointAuth(
+    fun connectorLookupProcessor() = ConnectorLookupProcessor(connectorRepository)
+
+    @Bean
+    fun endpointRestRoutesBuilder(connectorLookupProcessor: ConnectorLookupProcessor) = EndpointRestRoutesBuilder(connectorLookupProcessor)
+
+    @Bean
+    fun endpointAuthRouteBuilder(
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
         connectorEndpointRoleRepository: ConnectorEndpointRoleRepository,
-    ) = EndpointAuth(
+    ) = EndpointAuthRouteBuilder(
         connectorEndpointRepository,
         connectorInstanceRepository,
         connectorEndpointRoleRepository,
     )
 
     @Bean
-    fun endpointValidation(
+    fun endpointValidationRouteBuilder(
         connectorEndpointRepository: ConnectorEndpointRepository,
         connectorInstanceRepository: ConnectorInstanceRepository,
-    ) = EndpointValidation(
+    ) = EndpointValidationRouteBuilder(
         connectorEndpointRepository,
         connectorInstanceRepository,
     )
 
     @Bean
-    fun ikoConnector() = Connector()
+    fun connectorDispatcherRouteBuilder() = ConnectorDispatcherRouteBuilder()
 
     @Bean
-    fun ikoConnectorConfig(
+    fun connectorConfigRouteBuilder(
         connectorInstanceRepository: ConnectorInstanceRepository,
-    ) = ConnectorConfig(
+    ) = ConnectorConfigRouteBuilder(
         connectorInstanceRepository,
     )
 
     @Bean
-    fun ikoTransform() = Transform()
+    fun transformDispatcheRouteBuilder() = TransformDispatcheRouteBuilder()
+
+    @Bean
+    fun routeDependencyService(
+        connectorInstanceRepository: ConnectorInstanceRepository,
+        aggregatedDataProfileRepository: AggregatedDataProfileRepository,
+        camelContext: CamelContext,
+    ) = RouteDependencyService(connectorInstanceRepository, aggregatedDataProfileRepository, camelContext)
 
     @EventListener(ApplicationReadyEvent::class)
+    @Order(1)
     fun loadAllConnectorsAtStartup(event: ApplicationReadyEvent) {
+        val connectorService = event.applicationContext.getBean(ConnectorService::class.java)
         // Only load active connectors at startup
         connectorRepository.findAllByIsActiveTrue().forEach { connector ->
             try {

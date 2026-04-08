@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.camel
+package com.ritense.iko.connectors.domain
 
-import com.ritense.iko.camel.IkoRouteHelper
-import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
-import org.apache.camel.builder.RouteBuilder
+import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
+import java.util.UUID
 
-class Connector : RouteBuilder() {
-    override fun configure() {
-        from(IkoRouteHelper.connector())
-            .routeId("connector")
-            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .toD(IkoRouteHelper.connector("\${variable.connector}"))
-    }
-}
+data class ConnectorDTO(
+    val id: UUID,
+    val name: String,
+    val tag: String,
+    val version: String,
+    val isActive: Boolean,
+    val status: EntityStatus,
+    val final: Boolean,
+    val connectorCode: String,
+)
+
+fun Connector.toDTO() = ConnectorDTO(
+    id = id,
+    name = name,
+    tag = tag,
+    version = version.value,
+    isActive = isActive,
+    status = status,
+    final = status == EntityStatus.FINAL,
+    connectorCode = connectorCode,
+)

@@ -20,21 +20,11 @@ import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
-class Transform : RouteBuilder() {
+class ConnectorDispatcherRouteBuilder : RouteBuilder() {
     override fun configure() {
-        from(IkoRouteHelper.transform())
-            .routeId("transform")
+        from(IkoRouteHelper.connector())
+            .routeId("connector-dispatcher")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .choice()
-            .`when` { ex -> ex.context.hasEndpoint(IkoRouteHelper.transform("${ex.getVariable("connector")}")) != null }
-            .toD(IkoRouteHelper.transform("\${variable.connector}"))
-            .end()
-            .choice()
-            .`when` { ex ->
-                ex.context.hasEndpoint(
-                    IkoRouteHelper.transform("${ex.getVariable("connector")}.${ex.getVariable("operation")}"),
-                ) != null
-            }.toD(IkoRouteHelper.transform("\${variable.connector}.\${variable.operation}"))
-            .end()
+            .toD(IkoRouteHelper.connector("\${variable.connectorTag}:\${variable.connectorVersion}"))
     }
 }

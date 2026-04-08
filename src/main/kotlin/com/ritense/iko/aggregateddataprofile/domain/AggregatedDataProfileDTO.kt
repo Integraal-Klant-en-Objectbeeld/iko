@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.aggregateddataprofile.service
+package com.ritense.iko.aggregateddataprofile.domain
 
 import java.util.UUID
 
-data class FinalizationImpact(
-    val adpId: UUID,
-    val adpName: String,
-    val adpVersion: String,
-    val connectorsToFinalize: List<ConnectorImpact>,
-    val canFinalize: Boolean,
-    val errors: List<String>,
-)
-
-data class ConnectorImpact(
-    val connectorId: UUID,
-    val connectorName: String,
-    val connectorTag: String,
-    val connectorVersion: String,
-    val affectedDraftAdps: List<AffectedAdp>,
-)
-
-data class AffectedAdp(
+data class AggregatedDataProfileDTO(
     val id: UUID,
     val name: String,
     val version: String,
+    val isActive: Boolean,
+    val status: EntityStatus,
+    val final: Boolean,
+    val schema: String?,
+)
+
+fun AggregatedDataProfile.toDTO() = AggregatedDataProfileDTO(
+    id = id,
+    name = name,
+    version = version.value,
+    isActive = isActive,
+    status = status,
+    final = status == EntityStatus.FINAL,
+    schema = schema?.value,
 )

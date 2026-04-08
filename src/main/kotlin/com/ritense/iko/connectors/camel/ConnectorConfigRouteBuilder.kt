@@ -16,12 +16,14 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoConstants.Properties.CONNECTOR_API_SPECIFICATION_URL_PROPERTY
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_ID_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.builder.RouteBuilder
 import java.util.UUID
 
-class ConnectorConfig(
+class ConnectorConfigRouteBuilder(
     val connectorInstanceRepository: ConnectorInstanceRepository,
 ) : RouteBuilder() {
     override fun configure() {
@@ -33,7 +35,7 @@ class ConnectorConfig(
                     (
                         connectorInstanceRepository.findById(
                             exchange.getVariable(
-                                "connectorInstanceId",
+                                CONNECTOR_INSTANCE_ID_VARIABLE,
                                 UUID::class.java,
                             ),
                         )
@@ -42,7 +44,7 @@ class ConnectorConfig(
 
                 val configProperties = connectorInstance.config.toMutableMap()
                 connectorInstance.apiSpecificationUrl?.let {
-                    configProperties["apiSpecificationUrl"] = it
+                    configProperties[CONNECTOR_API_SPECIFICATION_URL_PROPERTY] = it
                 }
                 exchange.setVariable("configProperties", configProperties)
             }

@@ -130,3 +130,67 @@ After `rest-openapi` dispatches the HTTP call, headers matching the `excludePatt
 ### `unmarshal: json: {}`
 
 Parses the raw HTTP response bytes into a Jackson `JsonNode` object tree.
+
+## Mandatory Routes
+
+Every connector code definition must include exactly the routes described below. IKO's internal dispatcher architecture expects these `from` URI forms to exist; without them the connector cannot be invoked.
+
+### Route 1 — Connector Route (required)
+
+**URI pattern:** `direct:iko:connector:<tag>`
+
+Exactly one route with this `from` URI must be present. `<tag>` must exactly match the connector's `tag` field (enforced at finalization). This route performs the actual outbound HTTP call to the external system: it injects authentication headers, dispatches via `rest-openapi` or `toD: http:`, and unmarshals the response.
+
+```yaml
+- route:
+    id: "getResource"
+    errorHandler:
+      noErrorHandler: {}
+    from:
+      uri: "direct:iko:connector:<tag>"
+      steps:
+        # — set auth headers
+        # — toD: rest-openapi:...#${variable.operation}?host=...
+        # — unmarshal: json: {}
+```
+
+IKO's `ConnectorDispatcherRouteBuilder` registers `direct:iko:connector` as its own entry point and routes dynamically to `direct:iko:connector:<tag>:<version>` (the version suffix is added automatically at load time). The connector route must not attempt to call `direct:iko:connector` itself.
+
+### Route 2 — Endpoint Transform Route (optional, one per operation)
+
+**URI pattern:** `direct:iko:endpoint:transform:<tag>.<operation>`
+
+Zero or more routes with this form may be present. They run *before* the connector route and are responsible for:
+- Whitelisting query parameters via `removeHeaders` with `excludePattern`
+- Conditionally defaulting path/query parameters via `choice/when`
+- Setting any API-specific headers (e.g., `Accept-Crs`)
+
+Both `<tag>` and `<operation>` are required. `<tag>` must exactly match the connector's `tag` field. `<operation>` must match the endpoint operation name (e.g., `zaak_list`). Transform routes without an operation suffix are rejected at validation time.
+
+```yaml
+- route:
+    id: "transformZaakList"
+    errorHandler:
+      noErrorHandler: {}
+    from:
+      uri: "direct:iko:endpoint:transform:<tag>.zaak_list"
+      steps:
+        # — choice/when — conditional header defaults
+        # — removeHeaders — whitelist allowed query params
+```
+
+### The `direct:iko:*` namespace is reserved
+
+**Connector code must not define routes whose `from` URI starts with `direct:iko:` except for the two patterns above.**
+
+All other `direct:iko:*` URIs are owned by IKO's internal routing layer:
+
+| URI | Purpose |
+|---|---|
+| `direct:iko:connector` | Dispatcher: routes to the versioned connector route |
+| `direct:iko:endpoint:transform` | Dispatcher: routes to the versioned endpoint transform route |
+| `direct:iko:endpoint:validate` | Validates the endpoint + instance, resolves IDs |
+| `direct:iko:endpoint:auth` | RBAC check against connector endpoint roles |
+| `direct:iko:config` | Loads decrypted config properties from the connector instance |
+
+Defining a `from` route that conflicts with any of these URIs bypasses IKO's internal wiring and will cause unpredictable behavior. Custom connector-internal routes that chain between steps should use non-`direct:iko:*` URIs (e.g., `direct:<tag>:some-step`) or, preferably, inline `steps` within a single route.

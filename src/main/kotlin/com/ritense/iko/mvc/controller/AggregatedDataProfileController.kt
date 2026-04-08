@@ -17,6 +17,7 @@
 package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.toDTO
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.aggregateddataprofile.schema.AggregatedDataProfileSchemaService
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
@@ -88,7 +89,7 @@ internal class AggregatedDataProfileController(
                     false -> ""
                 },
             mapOf(
-                "aggregatedDataProfile" to aggregatedDataProfile,
+                "aggregatedDataProfile" to aggregatedDataProfile.toDTO(),
                 "form" to AggregatedDataProfileEditForm.from(aggregatedDataProfile),
                 "relations" to aggregatedDataProfile.relations.map { Relation.from(it) },
                 "aggregatedDataProfileId" to aggregatedDataProfile.id,
@@ -309,9 +310,10 @@ internal class AggregatedDataProfileController(
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
-            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/edit :: profile-edit").apply {
+            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/edit-panel :: profile-edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", form)
+                addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
                 addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
                 addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
@@ -365,7 +367,7 @@ internal class AggregatedDataProfileController(
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
             addObject("form", EditRelationForm.from(relation))
             addObject("isCached", isCached)
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
         }
         return modelAndView
     }
@@ -418,7 +420,7 @@ internal class AggregatedDataProfileController(
             return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
                 addObject("errors", bindingResult)
                 addObject("cacheForm", form)
-                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
                 addObject("isCached", isCached)
             }
         }
@@ -432,7 +434,7 @@ internal class AggregatedDataProfileController(
         }
         return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
             addObject("cacheForm", AggregatedDataProfileCacheForm.from(aggregatedDataProfile))
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
             addObject("isCached", isCached)
         }
     }
@@ -468,7 +470,7 @@ internal class AggregatedDataProfileController(
             return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", EditRelationForm.from(relation))
-                addObject("aggregatedDataProfile", aggregatedDataProfile)
+                addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
                 addObject("sources", sources)
                 addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectorInstance.connector))
@@ -487,7 +489,7 @@ internal class AggregatedDataProfileController(
         val updatedRelation = aggregatedDataProfile.relations.first { it.id == relationId }
         return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
             addObject("form", EditRelationForm.from(updatedRelation))
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
             addObject("sources", sources)
             addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectorInstance.connector))
@@ -612,7 +614,7 @@ internal class AggregatedDataProfileController(
             }
         }
         return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
             addObject("isSchemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
         }
     }
