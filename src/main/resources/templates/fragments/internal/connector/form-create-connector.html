@@ -60,9 +60,15 @@
                     >
                     </cds-text-input>
 
-                    <div
-                        class="cds--form-item"
-                        th:with='defaultConnectorCode=${&apos;- route:\n      id: "direct:iko:connector:CHANGEME"\n      errorHandler:\n          noErrorHandler: {}\n      from:\n          uri: "direct:iko:connector:CHANGEME"\n          steps:\n            - log: "Test"&apos;}'
+                    <div class="cds--form-item"
+                        th:with="defaultConnectorCode=| - route:
+      id: 'direct:iko:connector:CHANGEME'
+      errorHandler:
+          noErrorHandler: {}
+      from:
+          uri: 'direct:iko:connector:CHANGEME'
+          steps:
+            - log: 'Example' |"
                     >
                         <label class="cds--label" for="connectorCodeEditor"
                             >Code</label
