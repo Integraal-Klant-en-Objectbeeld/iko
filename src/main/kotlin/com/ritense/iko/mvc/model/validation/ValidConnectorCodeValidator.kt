@@ -16,6 +16,7 @@
 
 package com.ritense.iko.mvc.model.validation
 
+import com.ritense.iko.camel.IkoConstants.Validation.CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.apache.camel.CamelContext
@@ -50,24 +51,27 @@ class ValidConnectorCodeValidator(
         val loader = PluginHelper.getRoutesLoader(camelContext)
         val builders = loader.findRoutesBuilders(listOf(resource))
 
-        // TODO: change validator to check for reserved routes contianing iko:endpoint:transform and iko:connector
-        val hasConnectorRoute = builders.any { builder ->
+        val allUris = builders.flatMap { builder ->
             val routeBuilder = builder as RouteBuilder
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
-            routeBuilder.routeCollection.routes.any { routeDef ->
-                CONNECTOR_URI_REGEX.matches(routeDef.input.uri) ||
-                    TRANSFORM_URI_REGEX.matches(routeDef.input.uri)
-            }
+            routeBuilder.routeCollection.routes.map { it.input.uri }
         }
 
-        require(hasConnectorRoute) {
-            "Connector code must contain at least one route with a 'direct:iko:connector:<tag>' from URI"
+        require(allUris.any { CONNECTOR_URI_REGEX.matches(it) }) {
+            "Connector code must contain at least one 'direct:iko:connector:<tag>' route"
+        }
+
+        allUris.filter { TRANSFORM_PREFIX_REGEX.containsMatchIn(it) }.forEach { uri ->
+            require(TRANSFORM_URI_REGEX.matches(uri)) {
+                "Transform route '$uri' must use format 'direct:iko:endpoint:transform:<tag>.<operation>'"
+            }
         }
     }
 
     companion object {
-        private val CONNECTOR_URI_REGEX = Regex("""^direct:iko:connector:[^:.]+$""")
-        private val TRANSFORM_URI_REGEX = Regex("""^direct:iko:endpoint:trasform:[^:.]+$""")
+        private val CONNECTOR_URI_REGEX = Regex(CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN)
+        private val TRANSFORM_URI_REGEX = Regex("""^direct:iko:endpoint:transform:[^:.]+\.[^:.]+$""")
+        private val TRANSFORM_PREFIX_REGEX = Regex("""^direct:iko:endpoint:transform:""")
     }
 }

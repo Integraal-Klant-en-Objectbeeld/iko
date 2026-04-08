@@ -158,14 +158,14 @@ IKO's `ConnectorDispatcherRouteBuilder` registers `direct:iko:connector` as its 
 
 ### Route 2 — Endpoint Transform Route (optional, one per operation)
 
-**URI pattern:** `direct:iko:endpoint:transform:<tag>` or `direct:iko:endpoint:transform:<tag>.<operation>`
+**URI pattern:** `direct:iko:endpoint:transform:<tag>.<operation>`
 
 Zero or more routes with this form may be present. They run *before* the connector route and are responsible for:
 - Whitelisting query parameters via `removeHeaders` with `excludePattern`
 - Conditionally defaulting path/query parameters via `choice/when`
 - Setting any API-specific headers (e.g., `Accept-Crs`)
 
-`<tag>` must exactly match the connector's `tag` field. The optional `.<operation>` suffix scopes the route to a single endpoint operation (e.g., `.zaak_list`). If both the generic and operation-specific forms are present, IKO prefers the operation-specific one.
+Both `<tag>` and `<operation>` are required. `<tag>` must exactly match the connector's `tag` field. `<operation>` must match the endpoint operation name (e.g., `zaak_list`). Transform routes without an operation suffix are rejected at validation time.
 
 ```yaml
 - route:
