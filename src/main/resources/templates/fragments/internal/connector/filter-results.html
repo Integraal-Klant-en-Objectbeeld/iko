@@ -75,7 +75,6 @@
                     <span slot="tooltip-content"> Options </span>
                     <cds-overflow-menu-body flipped="">
                         <cds-overflow-menu-item
-                            th:if="${connector.final}"
                             hx-confirm="Are you sure you want to delete this connector?"
                             th:hx-delete="@{|/admin/connectors/${connector.id}|}"
                             hx-swap="outerHTML"
