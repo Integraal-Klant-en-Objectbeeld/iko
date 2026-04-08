@@ -48,12 +48,8 @@ open class AggregatedDataProfileService(
     @Order(2)
     open fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
         aggregatedDataProfileRepository.findAllByIsActiveTrue().forEach { aggregatedDataProfile ->
-            try {
-                loadRoute(aggregatedDataProfile)
-                logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
-            } catch (e: Exception) {
-                logger.error(e) { "Failed to load ADP route: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
-            }
+            loadRoute(aggregatedDataProfile)
+            logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
         }
     }
 
