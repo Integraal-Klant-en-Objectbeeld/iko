@@ -23,7 +23,7 @@ import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
-class TransformDispatcheRouteBuilder : RouteBuilder() {
+class TransformDispatcherRouteBuilder : RouteBuilder() {
     override fun configure() {
         from(IkoRouteHelper.transform())
             .routeId("transform-dispatcher")

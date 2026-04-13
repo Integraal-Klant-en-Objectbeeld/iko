@@ -22,7 +22,7 @@ import com.ritense.iko.connectors.camel.ConnectorDispatcherRouteBuilder
 import com.ritense.iko.connectors.camel.EndpointAuthRouteBuilder
 import com.ritense.iko.connectors.camel.EndpointRestRoutesBuilder
 import com.ritense.iko.connectors.camel.EndpointValidationRouteBuilder
-import com.ritense.iko.connectors.camel.TransformDispatcheRouteBuilder
+import com.ritense.iko.connectors.camel.TransformDispatcherRouteBuilder
 import com.ritense.iko.connectors.processor.ConnectorLookupProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorEndpointRoleRepository
@@ -93,7 +93,7 @@ class ConnectorConfiguration(
     )
 
     @Bean
-    fun transformDispatcheRouteBuilder() = TransformDispatcheRouteBuilder()
+    fun transformDispatcherRouteBuilder() = TransformDispatcherRouteBuilder()
 
     @Bean
     fun routeDependencyService(
