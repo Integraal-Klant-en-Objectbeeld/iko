@@ -112,6 +112,22 @@ paths:
                                 type: array
                                 items:
                                     $ref: '#/components/schemas/Owner'
+    /pets-with-enum:
+        get:
+            operationId: "GetPetsWithEnum"
+            summary: Get pets with allOf-wrapped enum properties
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    results:
+                                        type: array
+                                        items:
+                                            $ref: '#/components/schemas/PetWithEnum'
     /pet2:
         get:
             operationId: "GetPet2"
@@ -126,7 +142,7 @@ paths:
                                 items:
                                     $ref: '#/components/schemas/Pet'
 
-    components:
+components:
     schemas:
         Pet:
             type: object
@@ -151,3 +167,25 @@ paths:
                         - male
                         - non-binary
                         - unknown
+        GenderEnum:
+            type: string
+            enum:
+                - female
+                - male
+                - non-binary
+                - unknown
+        PetWithEnum:
+            type: object
+            properties:
+                id:
+                    type: integer
+                name:
+                    type: string
+                gender:
+                    allOf:
+                        - $ref: '#/components/schemas/GenderEnum'
+                    title: Gender
+                status:
+                    oneOf:
+                        - $ref: '#/components/schemas/GenderEnum'
+                        - $ref: '#/components/schemas/GenderEnum'

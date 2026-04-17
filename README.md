@@ -2,9 +2,9 @@
 
 ### Integraal Klant & Objectbeeld (IKO)
 
-![Version: 1.1.3](https://img.shields.io/badge/Version-1.1.3-informational?style=flat-square)  
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square)  
 
-IKO is a Kotlin/Spring Boot application that uses Apache Camel to integrate with external systems via connectors. It ships with an admin UI and a Docker-based local environment.
+IKO is a Kotlin/Spring Boot Application that uses Apache Camel to integrate with external systems via connectors. It ships with an admin UI and a Docker-based local environment.
 
 ---
 
@@ -28,6 +28,12 @@ IKO is a Kotlin/Spring Boot application that uses Apache Camel to integrate with
 1. Start the local stack:
    ```bash
    docker compose up -d
+   ```
+   This starts only the supporting services (database, Redis, Keycloak, etc.). The IKO application itself is **not** included by default — it is expected to be run via IntelliJ IDEA or `./gradlew bootRun` during development.
+
+   To also run the IKO application container, include the `standalone` profile:
+   ```bash
+   docker compose --profile standalone up -d
    ```
 2. Add a hosts entry so Keycloak tokens use the hostname expected by configuration:
    ```text

@@ -16,9 +16,12 @@
 
 package com.ritense.iko.connectors.domain
 
+import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
@@ -42,7 +45,19 @@ class Connector(
     var isActive: Boolean = false,
     @Column(name = "connector_code")
     var connectorCode: String,
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    var status: EntityStatus = EntityStatus.DRAFT,
 ) {
+    fun finalize() {
+        require(status == EntityStatus.DRAFT) { "Only DRAFT versions can be finalized" }
+        this.status = EntityStatus.FINAL
+    }
+
+    fun ensureDraft() {
+        require(status == EntityStatus.DRAFT) { "Cannot modify a FINAL version" }
+    }
+
     /**
      * Creates a new version of this Connector.
      * Endpoints and instances are NOT copied here - they must be copied separately.

@@ -35,8 +35,9 @@
                         title=${aggregatedDataProfile.name},
                         entityId=${aggregatedDataProfile.id},
                         entityType='aggregated-data-profile',
-                        currentVersion=${aggregatedDataProfile.version.value},
+                        currentVersion=${aggregatedDataProfile.version},
                         isActiveVersion=${aggregatedDataProfile.isActive},
+                        status=${aggregatedDataProfile.status},
                         versions=${versions}
                     )}"
                 ></div>
@@ -53,11 +54,20 @@
                         value="relations"
                         >Relations</cds-tab
                     >
+                    <cds-tab id="tab-cache" target="panel-cache" value="cache"
+                        >Cache</cds-tab
+                    >
                     <cds-tab
                         id="tab-preview"
                         target="panel-preview"
                         value="preview"
                         >Preview</cds-tab
+                    >
+                    <cds-tab
+                        id="tab-schema"
+                        target="panel-schema"
+                        value="schema"
+                        >Schema</cds-tab
                     >
                 </cds-tabs>
 
@@ -67,7 +77,7 @@
                     aria-labelledby="tab-general"
                 >
                     <div
-                        th:replace="~{fragments/internal/aggregated-data-profile/edit :: profile-edit-panel}"
+                        th:replace="~{fragments/internal/aggregated-data-profile/edit-panel :: profile-edit-panel}"
                     ></div>
                 </div>
 
@@ -82,12 +92,32 @@
                 </div>
 
                 <div
+                    id="panel-cache"
+                    role="tabpanel"
+                    aria-labelledby="tab-cache"
+                >
+                    <div
+                        th:replace="~{fragments/internal/aggregated-data-profile/cache :: cache-panel}"
+                    ></div>
+                </div>
+
+                <div
                     id="panel-preview"
                     role="tabpanel"
                     aria-labelledby="tab-preview"
                 >
                     <div
-                        th:replace="~{fragments/internal/aggregated-data-profile/debug :: profile-debug}"
+                        th:replace="~{fragments/internal/aggregated-data-profile/preview-panel :: preview-panel}"
+                    ></div>
+                </div>
+
+                <div
+                    id="panel-schema"
+                    role="tabpanel"
+                    aria-labelledby="tab-schema"
+                >
+                    <div
+                        th:replace="~{fragments/internal/aggregated-data-profile/schema-panel :: schema-panel}"
                     ></div>
                 </div>
             </th:block>

@@ -51,6 +51,20 @@
                                         >
                                             Active
                                         </cds-tag>
+                                        <cds-tag
+                                            th:if="${version.status.name() == 'DRAFT'}"
+                                            type="warm-gray"
+                                            size="sm"
+                                        >
+                                            Draft
+                                        </cds-tag>
+                                        <cds-tag
+                                            th:if="${version.status.name() == 'FINAL'}"
+                                            type="blue"
+                                            size="sm"
+                                        >
+                                            Final
+                                        </cds-tag>
                                     </div>
                                 </cds-dropdown-item>
                             </cds-dropdown>
@@ -65,6 +79,19 @@
                             size="md"
                         >
                             <cds-menu>
+                                <cds-menu-item
+                                    th:if="${status.name() == 'DRAFT'}"
+                                    label="Finalize"
+                                    th:hx-post="@{|/admin/${entityType}s/${entityId}/finalize/preview|}"
+                                    hx-target="#modal-container"
+                                    hx-swap="innerHTML"
+                                ></cds-menu-item>
+                                <cds-menu-item
+                                    th:if="${status.name() == 'FINAL'}"
+                                    label="Finalize"
+                                    disabled
+                                    aria-disabled="true"
+                                ></cds-menu-item>
                                 <cds-menu-item
                                     label="Create New Version"
                                     th:hx-get="@{|/admin/${entityType}s/${entityId}/versions/create|}"

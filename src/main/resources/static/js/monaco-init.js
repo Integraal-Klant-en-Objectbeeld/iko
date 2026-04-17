@@ -101,16 +101,19 @@ require.config({
 
         const state = {
             editor: null,
-            resizeObserver: null,
             promise: null
         };
         initialized.set(el, state);
 
         const language = el.getAttribute("data-language") || "plaintext";
-        const initialValue = el.getAttribute("data-initial") || "";
+        let initialValue = el.getAttribute("data-initial") || "";
         const textAreaSelector = el.getAttribute("data-textarea");
         const isReadOnly = el.hasAttribute("data-readonly");
         const theme = el.getAttribute("data-theme") || "vs";
+
+        if (el.hasAttribute("data-format-json")) {
+            try { initialValue = JSON.stringify(JSON.parse(initialValue), null, 2); } catch (e) { /* keep as-is */ }
+        }
 
         const initPromise = new Promise((resolve) => {
             require(["vs/editor/editor.main"], function () {
@@ -124,7 +127,7 @@ require.config({
                         value: initialValue,
                         language,
                         theme,
-                        automaticLayout: false,
+                        automaticLayout: true,
                         minimap: { enabled: false },
                         readOnly: isReadOnly,
                         scrollBeyondLastLine: false,
@@ -144,18 +147,7 @@ require.config({
                         }
                     }
 
-                    // Use ResizeObserver to watch for container size changes
-                    const resizeObserver = new ResizeObserver(() => {
-                        editor.layout();
-                    });
-                    resizeObserver.observe(el);
-
-                    // Store both editor and observer for cleanup
                     state.editor = editor;
-                    state.resizeObserver = resizeObserver;
-
-                    // Initial layout
-                    requestAnimationFrame(() => editor.layout());
 
                     resolve(editor);
                 };
@@ -217,10 +209,7 @@ require.config({
         root.querySelectorAll("[data-monaco]").forEach((el) => {
             const state = initialized.get(el);
             if (state) {
-                // Dispose editor if created
                 state.editor?.dispose();
-                // Disconnect resize observer to prevent memory leaks
-                state.resizeObserver?.disconnect();
             }
             initialized.delete(el);
             // Clear the element to prevent layout issues

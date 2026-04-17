@@ -16,6 +16,7 @@
 
 package com.ritense.iko.aggregateddataprofile.camel
 
+import com.ritense.iko.camel.IkoConstants.Properties.RELATION_RELATION_PROPERTY_NAME_PROPERTY
 import org.apache.camel.AggregationStrategy
 import org.apache.camel.Exchange
 
@@ -30,7 +31,7 @@ object MapAggregator : AggregationStrategy {
             throw exception as Exception
         }
 
-        val key = newExchange.getVariable("relationPropertyName", String::class.java)
+        val key = newExchange.getVariable(RELATION_RELATION_PROPERTY_NAME_PROPERTY, String::class.java)
         val value = newExchange.getIn().body
 
         return if (oldExchange == null) {

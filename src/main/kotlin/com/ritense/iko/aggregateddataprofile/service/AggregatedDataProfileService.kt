@@ -18,29 +18,35 @@ package com.ritense.iko.aggregateddataprofile.service
 
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.processor.CacheProcessor
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
 import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
+import com.ritense.iko.connectors.service.ConnectorService
+import com.ritense.iko.connectors.service.RouteDependencyService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelContext
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-@Service
-internal class AggregatedDataProfileService(
+open class AggregatedDataProfileService(
     private val camelContext: CamelContext,
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
+    private val connectorService: ConnectorService,
+    private val routeDependencyService: RouteDependencyService,
     private val ikoCacheProcessor: CacheProcessor,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
-    fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
+    @Order(2)
+    open fun loadAllAggregatedDataProfilesAtStartup(event: ApplicationReadyEvent) {
         aggregatedDataProfileRepository.findAllByIsActiveTrue().forEach { aggregatedDataProfile ->
             loadRoute(aggregatedDataProfile)
             logger.debug { "Loaded routes for active ADP: ${aggregatedDataProfile.name} v${aggregatedDataProfile.version}" }
@@ -48,14 +54,28 @@ internal class AggregatedDataProfileService(
     }
 
     fun removeRoute(aggregatedDataProfile: AggregatedDataProfile) {
-        val groupName = "adp_${aggregatedDataProfile.id}"
+        val connectorDeps = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
+
+        val groupName = "group:adp:${aggregatedDataProfile.id}"
         camelContext.getRoutesByGroup(groupName).forEach { route ->
             camelContext.routeController.stopRoute(route.id)
             camelContext.removeRoute(route.id)
         }
+
+        for (connector in connectorDeps) {
+            if (!routeDependencyService.isConnectorRouteNeeded(connector)) {
+                connectorService.removeConnectorRoutes(connector)
+            }
+        }
     }
 
     fun loadRoute(aggregatedDataProfile: AggregatedDataProfile) {
+        val requiredConnectors = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
+        for (connector in requiredConnectors) {
+            if (!routeDependencyService.isConnectorRouteLoaded(connector)) {
+                connectorService.loadConnectorRoutes(connector)
+            }
+        }
         camelContext.addRoutes(
             AggregatedDataProfileRouteBuilder(
                 camelContext,
@@ -99,7 +119,24 @@ internal class AggregatedDataProfileService(
         // Activate new version
         profileToActivate.isActive = true
         aggregatedDataProfileRepository.save(profileToActivate)
-        loadRoute(profileToActivate)
+
+        try {
+            loadRoute(profileToActivate)
+        } catch (e: Exception) {
+            // Recovery: restore old version if new route loading fails
+            if (currentActive != null) {
+                try {
+                    currentActive.isActive = true
+                    aggregatedDataProfileRepository.saveAndFlush(currentActive)
+                    profileToActivate.isActive = false
+                    aggregatedDataProfileRepository.save(profileToActivate)
+                    loadRoute(currentActive)
+                } catch (recoveryEx: Exception) {
+                    logger.error(recoveryEx) { "Failed to recover old ADP route: ${currentActive.name} v${currentActive.version}" }
+                }
+            }
+            throw e
+        }
         logger.debug { "Activated ADP ${profileToActivate.name} v${profileToActivate.version}" }
     }
 
@@ -108,7 +145,7 @@ internal class AggregatedDataProfileService(
      * The new version starts as inactive.
      */
     @Transactional
-    fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile {
+    open fun createNewVersion(sourceId: UUID, newVersion: String): AggregatedDataProfile {
         val source = aggregatedDataProfileRepository.findById(sourceId)
             .orElseThrow { NoSuchElementException("AggregatedDataProfile not found: $sourceId") }
 
@@ -145,6 +182,100 @@ internal class AggregatedDataProfileService(
         logger.debug { "Created new version ${newAdp.name} v${newAdp.version} with ${newAdp.relations.size} relations" }
 
         return aggregatedDataProfileRepository.save(newAdp)
+    }
+
+    fun previewFinalization(id: UUID): FinalizationImpact {
+        val adp = aggregatedDataProfileRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Profile not found: $id") }
+        require(adp.status == EntityStatus.DRAFT) { "Already finalized" }
+
+        val allInstanceIds = buildSet {
+            add(adp.connectorInstanceId)
+            adp.relations.forEach { add(it.connectorInstanceId) }
+        }
+
+        val draftConnectors = mutableListOf<com.ritense.iko.connectors.domain.Connector>()
+        val errors = mutableListOf<String>()
+
+        for (instanceId in allInstanceIds) {
+            val instance = connectorInstanceRepository.findById(instanceId).orElse(null)
+            if (instance == null) {
+                errors.add("Connector instance $instanceId not found")
+                continue
+            }
+            val connector = instance.connector
+            if (connector.status == EntityStatus.DRAFT) {
+                draftConnectors.add(connector)
+            }
+        }
+
+        val connectorImpacts = draftConnectors.distinctBy { it.id }.map { connector ->
+            val instances = connectorInstanceRepository.findByConnector(connector)
+            val instanceIds = instances.map { it.id }.toSet()
+
+            val allDraftAdps = aggregatedDataProfileRepository.findAllByStatus(EntityStatus.DRAFT)
+            val affectedAdps = allDraftAdps
+                .filter { it.id != adp.id }
+                .filter { otherAdp ->
+                    val otherInstanceIds = buildSet {
+                        add(otherAdp.connectorInstanceId)
+                        otherAdp.relations.forEach { add(it.connectorInstanceId) }
+                    }
+                    otherInstanceIds.any { it in instanceIds }
+                }
+                .map { AffectedAdp(it.id, it.name, it.version.value) }
+
+            try {
+                connectorService.validateConnectorCode(connector.connectorCode, connector.tag)
+            } catch (e: Exception) {
+                errors.add("Connector '${connector.tag}' v${connector.version} has invalid code: ${e.message}")
+            }
+            val endpoints = connectorEndpointRepository.findByConnector(connector)
+            if (endpoints.isEmpty()) {
+                errors.add("Connector '${connector.tag}' v${connector.version} has no endpoints")
+            }
+
+            ConnectorImpact(
+                connectorId = connector.id,
+                connectorName = connector.name,
+                connectorTag = connector.tag,
+                connectorVersion = connector.version.value,
+                affectedDraftAdps = affectedAdps,
+            )
+        }
+
+        return FinalizationImpact(
+            adpId = adp.id,
+            adpName = adp.name,
+            adpVersion = adp.version.value,
+            connectorsToFinalize = connectorImpacts,
+            canFinalize = errors.isEmpty(),
+            errors = errors,
+        )
+    }
+
+    @Transactional
+    open fun finalizeProfile(id: UUID): AggregatedDataProfile {
+        val adp = aggregatedDataProfileRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Profile not found: $id") }
+        require(adp.status == EntityStatus.DRAFT) { "Already finalized" }
+
+        val allInstanceIds = buildSet {
+            add(adp.connectorInstanceId)
+            adp.relations.forEach { add(it.connectorInstanceId) }
+        }
+
+        for (instanceId in allInstanceIds) {
+            val instance = connectorInstanceRepository.findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance $instanceId not found") }
+            val connector = instance.connector
+            if (connector.status == EntityStatus.DRAFT) {
+                connectorService.finalizeConnector(connector.id)
+            }
+        }
+
+        adp.finalize()
+        return aggregatedDataProfileRepository.save(adp)
     }
 
     companion object {

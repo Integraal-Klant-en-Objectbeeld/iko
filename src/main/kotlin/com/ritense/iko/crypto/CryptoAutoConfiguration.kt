@@ -31,4 +31,7 @@ class CryptoAutoConfiguration {
         val decoded = Base64.getDecoder().decode(secretKeyString)
         return SecretKeySpec(decoded, "AES")
     }
+
+    @Bean
+    fun aesGcmEncryptionService(aesSecretKeySpec: SecretKeySpec) = AesGcmEncryptionService(aesSecretKeySpec)
 }

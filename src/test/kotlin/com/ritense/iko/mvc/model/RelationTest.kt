@@ -18,6 +18,7 @@ package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileCacheSetting
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileSchema
 import com.ritense.iko.aggregateddataprofile.domain.EndpointTransform
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.domain.RelationCacheSettings
@@ -41,6 +42,7 @@ class RelationTest {
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             roles = Roles("ROLE_ADMIN"),
+            schema = null,
         )
         val relation = Relation(
             aggregatedDataProfile = profile,
@@ -76,6 +78,7 @@ class RelationTest {
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             roles = Roles("ROLE_ADMIN"),
+            schema = null,
         )
         val relation = Relation(
             aggregatedDataProfile = profile,

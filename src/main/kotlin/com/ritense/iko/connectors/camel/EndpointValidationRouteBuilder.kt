@@ -16,6 +16,12 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_ENDPOINT_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.exception.EndpointValidationFailed
@@ -24,7 +30,7 @@ import com.ritense.iko.connectors.repository.ConnectorInstanceRepository
 import org.apache.camel.builder.RouteBuilder
 import java.util.UUID
 
-class EndpointValidation(
+class EndpointValidationRouteBuilder(
     val connectorEndpointRepository: ConnectorEndpointRepository,
     val connectorInstanceRepository: ConnectorInstanceRepository,
 ) : RouteBuilder() {
@@ -33,20 +39,20 @@ class EndpointValidation(
             .routeId("endpoint-validation")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .process { ex ->
-                val connectorId = ex.getVariable("connectorId", UUID::class.java)
-                val connectorTag = ex.getVariable("connector", String::class.java)
-                val config = ex.getVariable("config", String::class.java)
-                val operation = ex.getVariable("operation", String::class.java)
+                val connectorId = ex.getVariable(CONNECTOR_ID_VARIABLE, UUID::class.java)
+                val connectorTag = ex.getVariable(CONNECTOR_TAG_VARIABLE, String::class.java)
+                val connectorInstanceTag = ex.getVariable(CONNECTOR_INSTANCE_TAG_VARIABLE, String::class.java)
+                val operation = ex.getVariable(CONNECTOR_OPERATION_VARIABLE, String::class.java)
 
                 val connectorEndpoint =
                     connectorEndpointRepository.findByConnectorIdAndOperation(connectorId, operation)
                         ?: throw EndpointValidationFailed("Unknown operation: [$connectorTag.$operation] on connector with id: $connectorId")
                 val connectorInstance =
-                    connectorInstanceRepository.findByConnectorIdAndTag(connectorId, config)
-                        ?: throw EndpointValidationFailed("Unknown instance: [$connectorTag.$config] on connector with id: $connectorId")
+                    connectorInstanceRepository.findByConnectorIdAndTag(connectorId, connectorInstanceTag)
+                        ?: throw EndpointValidationFailed("Unknown instance: [$connectorTag.$connectorInstanceTag] on connector with id: $connectorId")
 
-                ex.setVariable("connectorEndpointId", connectorEndpoint.id)
-                ex.setVariable("connectorInstanceId", connectorInstance.id)
+                ex.setVariable(CONNECTOR_ENDPOINT_ID_VARIABLE, connectorEndpoint.id)
+                ex.setVariable(CONNECTOR_INSTANCE_ID_VARIABLE, connectorInstance.id)
             }
     }
 }

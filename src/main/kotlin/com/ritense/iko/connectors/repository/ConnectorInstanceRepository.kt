@@ -22,6 +22,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
 interface ConnectorInstanceRepository : JpaRepository<ConnectorInstance, UUID> {
+    fun findAllByOrderByNameAsc(): List<ConnectorInstance>
+
     fun findByConnector(connector: Connector): List<ConnectorInstance>
 
     fun findByConnectorIdAndTag(

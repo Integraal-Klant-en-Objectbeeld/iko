@@ -25,6 +25,8 @@ import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
@@ -49,6 +51,10 @@ class AggregatedDataProfile(
 
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = false,
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    var status: EntityStatus = EntityStatus.DRAFT,
 
     @Column(name = "connector_instance_id")
     var connectorInstanceId: UUID,
@@ -75,28 +81,53 @@ class AggregatedDataProfile(
 
     @Embedded
     var aggregatedDataProfileCacheSetting: AggregatedDataProfileCacheSetting,
+
+    @Embedded
+    var schema: AggregatedDataProfileSchema?,
 ) {
 
+    fun finalize() {
+        require(status == EntityStatus.DRAFT) { "Only DRAFT versions can be finalized" }
+        this.status = EntityStatus.FINAL
+    }
+
+    fun ensureDraft() {
+        require(status == EntityStatus.DRAFT) { "Cannot modify a FINAL version" }
+    }
+
     fun handle(request: AggregatedDataProfileEditForm) {
+        ensureDraft()
         this.roles = Roles(request.roles)
         this.connectorEndpointId = request.connectorEndpointId
         this.connectorInstanceId = request.connectorInstanceId
         this.endpointTransform = EndpointTransform(request.endpointTransform)
         this.resultTransform = Transform(request.resultTransform)
+    }
+
+    fun updateCacheSettings(enabled: Boolean, timeToLive: Int) {
         this.aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
-            enabled = request.cacheEnabled,
-            timeToLive = request.cacheTimeToLive,
+            enabled = enabled,
+            timeToLive = timeToLive,
+        )
+    }
+
+    fun updateRelationCacheSettings(relationId: UUID, enabled: Boolean, timeToLive: Int) {
+        val relation = this.relations.first { it.id == relationId }
+        relation.relationCacheSettings = RelationCacheSettings(
+            enabled = enabled,
+            timeToLive = timeToLive,
         )
     }
 
     fun addRelation(form: AddRelationForm) {
+        ensureDraft()
         this.relations.add(
             Relation(
                 aggregatedDataProfile = this,
                 sourceId = form.sourceId,
                 resultTransform = Transform(form.resultTransform),
                 endpointTransform = RelationEndpointTransform(form.sourceToEndpointMapping),
-                connectorEndpointId = form.connectorEndpointId!!,
+                connectorEndpointId = form.connectorEndpointId,
                 connectorInstanceId = form.connectorInstanceId,
                 propertyName = form.propertyName,
                 relationCacheSettings = RelationCacheSettings(),
@@ -105,6 +136,7 @@ class AggregatedDataProfile(
     }
 
     fun changeRelation(form: EditRelationForm) {
+        ensureDraft()
         this.relations.removeIf { it.id == form.id }
         this.relations.add(
             Relation(
@@ -125,6 +157,7 @@ class AggregatedDataProfile(
     }
 
     fun removeRelation(request: DeleteRelationForm) {
+        ensureDraft()
         // Remove the selected relation and all its descendants
         val toRemove: MutableSet<UUID> = linkedSetOf()
 
@@ -135,6 +168,14 @@ class AggregatedDataProfile(
         }
         collectDescendants(request.id)
         this.relations.removeIf { it.id in toRemove }
+    }
+
+    fun applySchema(jsonSchema: String) {
+        this.schema = AggregatedDataProfileSchema(jsonSchema)
+    }
+
+    fun resetSchema() {
+        this.schema = null
     }
 
     fun level1Relations(): List<Relation> {
@@ -161,6 +202,7 @@ class AggregatedDataProfile(
         roles = this.roles,
         aggregatedDataProfileCacheSetting = this.aggregatedDataProfileCacheSetting,
         relations = mutableListOf(),
+        schema = null,
     )
 
     companion object {
@@ -174,6 +216,7 @@ class AggregatedDataProfile(
             endpointTransform = EndpointTransform(form.endpointTransform),
             resultTransform = Transform(form.resultTransform),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = null,
         )
     }
 }

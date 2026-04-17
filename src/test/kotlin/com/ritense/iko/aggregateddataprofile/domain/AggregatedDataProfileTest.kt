@@ -112,8 +112,6 @@ class AggregatedDataProfileTest {
             connectorEndpointId = newConnectorEndpointId,
             endpointTransform = ".updated",
             resultTransform = ".result",
-            cacheEnabled = true,
-            cacheTimeToLive = 3600,
             version = Version("2.0.0"),
         )
 
@@ -127,8 +125,6 @@ class AggregatedDataProfileTest {
         assertThat(profile.connectorEndpointId).isEqualTo(newConnectorEndpointId)
         assertThat(profile.endpointTransform.expression).isEqualTo(".updated")
         assertThat(profile.resultTransform.expression).isEqualTo(".result")
-        assertThat(profile.aggregatedDataProfileCacheSetting.enabled).isTrue
-        assertThat(profile.aggregatedDataProfileCacheSetting.timeToLive).isEqualTo(3600)
     }
 
     @Test
@@ -375,6 +371,117 @@ class AggregatedDataProfileTest {
         assertThat(profile.relationsOf(targetId).map { it.id }).containsOnly(matchId)
     }
 
+    @Test
+    fun `new profile has DRAFT status`() {
+        val profile = createProfile()
+        assertThat(profile.status).isEqualTo(EntityStatus.DRAFT)
+    }
+
+    @Test
+    fun `finalize changes status to FINAL`() {
+        val profile = createProfile()
+        profile.finalize()
+        assertThat(profile.status).isEqualTo(EntityStatus.FINAL)
+    }
+
+    @Test
+    fun `finalize on FINAL throws`() {
+        val profile = createProfile()
+        profile.finalize()
+        assertThatThrownBy { profile.finalize() }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Only DRAFT versions can be finalized")
+    }
+
+    @Test
+    fun `handle on FINAL throws`() {
+        val profile = createProfile()
+        profile.finalize()
+        val form = AggregatedDataProfileEditForm(
+            id = profile.id,
+            name = "updated",
+            roles = "ROLE_UPDATED",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+            endpointTransform = ".",
+            resultTransform = ".",
+            version = Version("1.0.0"),
+        )
+        assertThatThrownBy { profile.handle(form) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Cannot modify a FINAL version")
+    }
+
+    @Test
+    fun `addRelation on FINAL throws`() {
+        val profile = createProfile()
+        profile.finalize()
+        val form = AddRelationForm(
+            aggregatedDataProfileId = profile.id,
+            sourceId = profile.id,
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+            sourceToEndpointMapping = ".",
+            resultTransform = ".",
+            propertyName = "test",
+        )
+        assertThatThrownBy { profile.addRelation(form) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Cannot modify a FINAL version")
+    }
+
+    @Test
+    fun `changeRelation on FINAL throws`() {
+        val profile = createProfile()
+        profile.finalize()
+        val form = EditRelationForm(
+            aggregatedDataProfileId = profile.id,
+            id = UUID.randomUUID(),
+            sourceId = profile.id,
+            sourceToEndpointMapping = ".",
+            resultTransform = ".",
+            propertyName = "test",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+            cacheEnabled = false,
+            cacheTimeToLive = 0,
+        )
+        assertThatThrownBy { profile.changeRelation(form) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Cannot modify a FINAL version")
+    }
+
+    @Test
+    fun `removeRelation on FINAL throws`() {
+        val profile = createProfile()
+        profile.finalize()
+        assertThatThrownBy { profile.removeRelation(DeleteRelationForm(profile.id, UUID.randomUUID())) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Cannot modify a FINAL version")
+    }
+
+    @Test
+    fun `createNewVersion from FINAL produces DRAFT`() {
+        val profile = createProfile()
+        profile.finalize()
+        val newVersion = profile.createNewVersion("2.0.0")
+        assertThat(newVersion.status).isEqualTo(EntityStatus.DRAFT)
+    }
+
+    @Test
+    fun `create produces DRAFT`() {
+        val form = AggregatedDataProfileAddForm(
+            name = "pets",
+            roles = "ROLE_ADMIN",
+            endpointTransform = ".",
+            resultTransform = ".",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+        )
+        val profile = AggregatedDataProfile.create(form)
+        assertThat(profile.status).isEqualTo(EntityStatus.DRAFT)
+    }
+
     private fun createProfile(): AggregatedDataProfile = AggregatedDataProfile(
         id = UUID.randomUUID(),
         name = "pets",
@@ -385,5 +492,6 @@ class AggregatedDataProfileTest {
         roles = Roles("ROLE_TEST"),
         aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
         version = Version("1.0.0"),
+        schema = null,
     )
 }

@@ -19,6 +19,7 @@ package com.ritense.iko.camel
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileAccessDenied
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileNotFound
 import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileQueryParametersError
+import com.ritense.iko.aggregateddataprofile.error.AggregatedDataProfileSchemaNotAvailable
 import com.ritense.iko.aggregateddataprofile.error.TransformResultTypeUnsupportedError
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import com.ritense.iko.connectors.error.ConnectorAccessDenied
@@ -29,26 +30,29 @@ import org.apache.camel.http.base.HttpOperationFailedException
 import org.springframework.http.HttpStatus
 
 class GlobalErrorHandlerConfiguration : RouteConfigurationBuilder() {
+    @Suppress("ktlint:standard:indent")
     override fun configuration() {
         routeConfiguration(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .onException(AggregatedDataProfileAccessDenied::class.java)
-            .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
+                .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
             .onException(ConnectorAccessDenied::class.java)
-            .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
+                .errorResponse(status = HttpStatus.UNAUTHORIZED, exposeMessage = false)
             .onException(ConnectorInstanceNotFound::class.java)
-            .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
+                .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
             .onException(ConnectorEndpointNotFound::class.java)
-            .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
+                .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
             .onException(HttpOperationFailedException::class.java)
-            .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = false)
+                .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = false)
             .onException(TransformResultTypeUnsupportedError::class.java)
-            .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = true)
+                .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = true)
             .onException(AggregatedDataProfileNotFound::class.java)
-            .errorResponse(status = HttpStatus.NOT_FOUND)
+                .errorResponse(status = HttpStatus.NOT_FOUND)
             .onException(AggregatedDataProfileQueryParametersError::class.java)
-            .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
+                .errorResponse(status = HttpStatus.BAD_REQUEST, exposeMessage = true)
+            .onException(AggregatedDataProfileSchemaNotAvailable::class.java)
+                .errorResponse(status = HttpStatus.NOT_FOUND)
             // Global exception handler
             .onException(Exception::class.java)
-            .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = false)
+                .errorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, exposeMessage = false)
     }
 }

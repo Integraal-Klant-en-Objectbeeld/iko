@@ -31,8 +31,9 @@
                         title=${connector.name},
                         entityId=${connector.id},
                         entityType='connector',
-                        currentVersion=${connector.version.value},
+                        currentVersion=${connector.version},
                         isActiveVersion=${connector.isActive},
+                        status=${connector.status},
                         versions=${versions}
                     )}"
                 ></div>
@@ -84,12 +85,12 @@
                                 type="submit"
                                 th:hx-put="@{|/admin/connectors/${connector.id}|}"
                                 hx-include="#connectorCode"
-                                hx-target="this"
-                                hx-select="#connector-code"
-                                hx-swap="none"
-                                data-editor-selector="#connector-editor"
+                                hx-target="#connector-code"
+                                hx-swap="outerHTML"
+                                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
                                 style="display: none"
                                 onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
+                                th:disabled="${connector.final}"
                             >
                                 Save
                             </cds-button>
@@ -97,6 +98,7 @@
                             <cds-button
                                 id="edit-code-button"
                                 onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
+                                th:disabled="${connector.final}"
                             >
                                 Edit code
                             </cds-button>
@@ -113,23 +115,32 @@
                                 hidden
                             ></textarea>
 
-                            <!-- Monaco container -->
                             <div
-                                id="connector-editor"
-                                data-monaco
-                                data-language="yaml"
-                                data-textarea="#connectorCode"
-                                data-readonly="true"
-                                th:data-initial="${connector.connectorCode}"
-                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-editor-style-full-height monaco-editor-error' : 'monaco-editor-style-full-height'"
-                            ></div>
+                                class="cds--form-item"
+                                style="
+                                    display: flex;
+                                    flex-direction: column;
+                                    height: calc(100vh - 15rem);
+                                "
+                            >
+                                <!-- Monaco container -->
+                                <div
+                                    id="connector-editor"
+                                    data-monaco
+                                    data-language="yaml"
+                                    data-textarea="#connectorCode"
+                                    data-readonly="true"
+                                    th:data-initial="${connector.connectorCode}"
+                                    style="flex: 1; min-height: 200px"
+                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                ></div>
 
-                            <div
-                                id="monaco-error"
-                                th:class="${errors?.getFieldError('connectorCode') != null} ? 'cds--form-requirement' : 'monaco-error'"
-                                th:if="${errors?.getFieldError('connectorCode') != null}"
-                                th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
-                            ></div>
+                                <div
+                                    id="monaco-error"
+                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'monaco-error show' : 'monaco-error'"
+                                    th:text="${errors?.getFieldError('connectorCode')?.defaultMessage ?: connectorCodeError}"
+                                ></div>
+                            </div>
                         </div>
                     </div>
 
@@ -150,6 +161,7 @@
                                         th:hx-get="@{|/admin/connectors/${connector.id}/endpoints/create|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.final}"
                                     >
                                         Add endpoint
                                         <svg
@@ -199,6 +211,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.final}"
                                         >
                                             <svg
                                                 focusable="false"
@@ -265,6 +278,7 @@
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/create|}"
                                         hx-target="#modal-container"
                                         kind="primary"
+                                        th:disabled="${connector.final}"
                                     >
                                         Add instance
                                         <svg
@@ -295,6 +309,9 @@
                                         Reference
                                     </cds-table-header-cell>
                                     <cds-table-header-cell>
+                                        API Specification URL
+                                    </cds-table-header-cell>
+                                    <cds-table-header-cell>
                                     </cds-table-header-cell>
                                 </cds-table-header-row>
                             </cds-table-head>
@@ -315,6 +332,9 @@
                                         th:text="${instance.tag}"
                                     ></cds-table-cell>
                                     <cds-table-cell
+                                        th:text="${instance.apiSpecificationUrl}"
+                                    ></cds-table-cell>
+                                    <cds-table-cell
                                         class="app--table-cell-actions"
                                     >
                                         <cds-overflow-menu
@@ -322,6 +342,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.final}"
                                         >
                                             <svg
                                                 focusable="false"

@@ -1,0 +1,91 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<th:block th:fragment="connector-filter-results">
+    <cds-table-body id="search-results">
+        <cds-table-row
+            th:if="${#lists.isEmpty(connectors)}"
+            class="not-clickable"
+        >
+            <cds-table-cell> No result found </cds-table-cell>
+            <cds-table-cell></cds-table-cell>
+            <cds-table-cell></cds-table-cell>
+            <cds-table-cell></cds-table-cell>
+            <cds-table-cell></cds-table-cell>
+        </cds-table-row>
+        <cds-table-row
+            th:each="connector : ${connectors}"
+            th:attr="hx-get=@{'/admin/connectors/' + ${connector.id}},
+                                 hx-target='#view-panel',
+                                 hx-swap='innerHTML',
+                                 hx-push-url='true'"
+            role="link"
+            class="app--table-row-clickable"
+        >
+            <cds-table-cell th:text="${connector.name}"></cds-table-cell>
+            <cds-table-cell th:text="${connector.tag}"></cds-table-cell>
+            <cds-table-cell th:text="${connector.version}"></cds-table-cell>
+            <cds-table-cell>
+                <cds-tag
+                    th:type="${connector.final ? 'green' : 'cool-gray'}"
+                    th:text="${connector.status}"
+                ></cds-tag>
+            </cds-table-cell>
+            <cds-table-cell class="app--table-cell-actions">
+                <cds-tag
+                    th:type="${connector.active ? 'green' : 'cool-gray'}"
+                    th:text="${connector.active ? 'Yes' : 'No'}"
+                ></cds-tag>
+                <cds-overflow-menu
+                    th:disabled="${connector.final}"
+                    enter-delay-ms="3000"
+                    leave-delay-ms="0"
+                    close-on-activation
+                    hx-on:click="event.stopPropagation()"
+                >
+                    <svg
+                        focusable="false"
+                        preserveAspectRatio="xMidYMid meet"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        slot="icon"
+                        class="cds--overflow-menu__icon"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 32 32"
+                        aria-hidden="true"
+                    >
+                        <circle cx="16" cy="8" r="2"></circle>
+                        <circle cx="16" cy="16" r="2"></circle>
+                        <circle cx="16" cy="24" r="2"></circle>
+                    </svg>
+                    <span slot="tooltip-content"> Options </span>
+                    <cds-overflow-menu-body flipped="">
+                        <cds-overflow-menu-item
+                            hx-confirm="Are you sure you want to delete this connector?"
+                            th:hx-delete="@{|/admin/connectors/${connector.id}|}"
+                            hx-swap="outerHTML"
+                            hx-target="#search-results"
+                            danger="true"
+                        >
+                            Delete
+                        </cds-overflow-menu-item>
+                    </cds-overflow-menu-body>
+                </cds-overflow-menu>
+            </cds-table-cell>
+        </cds-table-row>
+    </cds-table-body>
+</th:block>

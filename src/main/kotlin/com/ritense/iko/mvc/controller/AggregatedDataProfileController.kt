@@ -17,7 +17,9 @@
 package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.toDTO
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
+import com.ritense.iko.aggregateddataprofile.schema.AggregatedDataProfileSchemaService
 import com.ritense.iko.aggregateddataprofile.service.AggregatedDataProfileService
 import com.ritense.iko.cache.service.CacheService
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -27,18 +29,19 @@ import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_REL
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
 import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.controller.HomeController.Companion.menuItems
-import com.ritense.iko.mvc.model.AddRelationForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileAddForm
+import com.ritense.iko.mvc.model.AggregatedDataProfileCacheForm
 import com.ritense.iko.mvc.model.AggregatedDataProfileEditForm
 import com.ritense.iko.mvc.model.CreateVersionForm
-import com.ritense.iko.mvc.model.DeleteRelationForm
 import com.ritense.iko.mvc.model.EditRelationForm
 import com.ritense.iko.mvc.model.Relation
+import com.ritense.iko.mvc.model.RelationCacheForm
 import com.ritense.iko.mvc.model.Source
 import com.ritense.iko.security.SecurityContextHelper
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
@@ -57,15 +60,16 @@ import org.springframework.web.servlet.ModelAndView
 import java.util.UUID
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/aggregated-data-profiles")
 internal class AggregatedDataProfileController(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val aggregatedDataProfileService: AggregatedDataProfileService,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val cacheService: CacheService,
+    private val aggregatedDataProfileSchemaService: AggregatedDataProfileSchemaService,
 ) {
-    @GetMapping("/aggregated-data-profiles/{id}")
+    @GetMapping("/{id}")
     fun details(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
@@ -76,6 +80,7 @@ internal class AggregatedDataProfileController(
         val availableSources = sources(aggregatedDataProfile)
         val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
         val versions = aggregatedDataProfileRepository.findVersionsByName(aggregatedDataProfile.name)
+        val isSchemaSupported = aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)
 
         return ModelAndView(
             "$BASE_FRAGMENT_ADP/detail-page" +
@@ -84,28 +89,32 @@ internal class AggregatedDataProfileController(
                     false -> ""
                 },
             mapOf(
-                "aggregatedDataProfile" to aggregatedDataProfile,
+                "aggregatedDataProfile" to aggregatedDataProfile.toDTO(),
                 "form" to AggregatedDataProfileEditForm.from(aggregatedDataProfile),
                 "relations" to aggregatedDataProfile.relations.map { Relation.from(it) },
                 "aggregatedDataProfileId" to aggregatedDataProfile.id,
-                "connectorInstances" to connectorInstanceRepository.findAll(),
+                "connectorInstances" to connectorInstanceRepository.findAllByOrderByNameAsc(),
                 "connectorEndpoints" to endpoints,
                 "sources" to availableSources,
+                "cacheForm" to AggregatedDataProfileCacheForm.from(aggregatedDataProfile),
                 "isCached" to isCached,
                 "versions" to versions,
                 "username" to SecurityContextHelper.getUserPropertyByKey("name"),
                 "email" to SecurityContextHelper.getUserPropertyByKey("email"),
+                "isSchemaSupported" to isSchemaSupported,
             ),
         )
     }
 
-    @GetMapping("/aggregated-data-profiles")
+    @GetMapping
     fun list(
-        @RequestParam(required = false, defaultValue = "") query: String,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @RequestParam(required = false, defaultValue = "") query: String = "",
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean? = true,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val page = aggregatedDataProfileRepository.findAllByIsActiveTrue(pageable)
+        val activeFilter = if (isActive == true) true else null
+        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
         val connectorInstancesCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstancesCount > 0 && endpointsCount > 0
@@ -115,13 +124,15 @@ internal class AggregatedDataProfileController(
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
+                addObject("isActive", isActive)
             }
         } else {
-            ModelAndView("$BASE_FRAGMENT_ADP/listPage").apply {
+            ModelAndView("$BASE_FRAGMENT_ADP/list-page").apply {
                 addObject("creationAllowed", creationAllowed)
                 addObject("aggregatedDataProfiles", page.content)
                 addObject("page", page)
                 addObject("query", query)
+                addObject("isActive", isActive)
                 addObject("menuItems", menuItems)
                 addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                 addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
@@ -129,38 +140,42 @@ internal class AggregatedDataProfileController(
         }
     }
 
-    @GetMapping("/aggregated-data-profiles/pagination")
+    @GetMapping("/pagination")
     fun pagination(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean? = true,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
     ): ModelAndView {
-        val page = aggregatedDataProfileRepository.findAll(pageable)
+        val activeFilter = if (isActive == true) true else null
+        val page = aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
-        val list =
-            ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
-                addObject("aggregatedDataProfiles", page.content)
-                addObject("page", page)
-                addObject("query", query)
-                addObject("creationAllowed", creationAllowed)
-                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
-                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
-            }
+        val list = ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
+            addObject("aggregatedDataProfiles", page.content)
+            addObject("page", page)
+            addObject("query", query)
+            addObject("isActive", isActive)
+            addObject("creationAllowed", creationAllowed)
+            addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+            addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
+        }
         return list
     }
 
-    @GetMapping("/aggregated-data-profiles/filter")
+    @GetMapping("/filter")
     fun filter(
         @RequestParam(required = false, defaultValue = "") query: String,
-        @PageableDefault(size = PAGE_DEFAULT) pageable: Pageable,
+        @RequestParam(required = false, defaultValue = "true") isActive: Boolean = true,
+        @PageableDefault(size = PAGE_DEFAULT, sort = ["name"], direction = Sort.Direction.ASC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
+        val activeFilter = if (isActive) true else null
         val page =
             if (query.isBlank()) {
-                aggregatedDataProfileRepository.findAllBy(pageable)
+                aggregatedDataProfileRepository.findAllBy(activeFilter, pageable)
             } else {
-                aggregatedDataProfileRepository.findAllByName(query.trim(), pageable)
+                aggregatedDataProfileRepository.findAllByName(query.trim(), activeFilter, pageable)
             }
         val connectorInstanceCount = connectorInstanceRepository.findAll().size
         val endpointsCount = connectorEndpointRepository.findAll().size
@@ -168,34 +183,36 @@ internal class AggregatedDataProfileController(
         val creationAllowed = connectorInstanceCount > 0 && endpointsCount > 0
 
         if (isHxRequest) {
-            val searchResults =
-                ModelAndView("$BASE_FRAGMENT_ADP/filterResults").apply {
-                    addObject("aggregatedDataProfiles", page.content)
-                    addObject("page", page)
-                    addObject("query", query)
-                    addObject("creationAllowed", creationAllowed)
-                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
-                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
-                }
-            val pagination =
-                ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
-                    addObject("aggregatedDataProfiles", page.content)
-                    addObject("page", page)
-                    addObject("query", query)
-                    addObject("creationAllowed", creationAllowed)
-                    addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
-                    addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
-                }
+            val searchResults = ModelAndView("$BASE_FRAGMENT_ADP/filter-results").apply {
+                addObject("aggregatedDataProfiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("isActive", isActive)
+                addObject("creationAllowed", creationAllowed)
+                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
+            }
+            val pagination = ModelAndView("$BASE_FRAGMENT_ADP/pagination").apply {
+                addObject("aggregatedDataProfiles", page.content)
+                addObject("page", page)
+                addObject("query", query)
+                addObject("isActive", isActive)
+                addObject("creationAllowed", creationAllowed)
+
+                addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
+                addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
+            }
             return listOf(
                 searchResults,
                 pagination,
             )
         } else {
             return listOf(
-                ModelAndView("$BASE_FRAGMENT_ADP/filterResultsPage").apply {
+                ModelAndView("$BASE_FRAGMENT_ADP/filter-results-page").apply {
                     addObject("aggregatedDataProfiles", page.content)
                     addObject("page", page)
                     addObject("query", query)
+                    addObject("isActive", isActive)
                     addObject("creationAllowed", creationAllowed)
                     addObject("menuItems", menuItems)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
@@ -205,9 +222,9 @@ internal class AggregatedDataProfileController(
         }
     }
 
-    @GetMapping("/aggregated-data-profiles/create")
+    @GetMapping("/create")
     fun create(): ModelAndView {
-        val connectors = connectorInstanceRepository.findAll()
+        val connectors = connectorInstanceRepository.findAllByOrderByNameAsc()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/add").apply {
             addObject("connectorInstances", connectors)
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectors.first().connector))
@@ -215,7 +232,7 @@ internal class AggregatedDataProfileController(
         return modelAndView
     }
 
-    @GetMapping("/aggregated-data-profiles/create/endpoints")
+    @GetMapping("/create/endpoints")
     fun endpoints(
         @RequestParam connectorInstanceId: UUID,
     ): ModelAndView {
@@ -226,7 +243,7 @@ internal class AggregatedDataProfileController(
         }
     }
 
-    @GetMapping("/aggregated-data-profiles/relations/add/endpoints")
+    @GetMapping("/relations/add/endpoints")
     fun relationAddEndpoints(
         @RequestParam connectorInstanceId: UUID,
     ): ModelAndView {
@@ -237,7 +254,7 @@ internal class AggregatedDataProfileController(
         }
     }
 
-    @GetMapping("/aggregated-data-profiles/relations/edit/endpoints")
+    @GetMapping("/relations/edit/endpoints")
     fun relationEditEndpoints(
         @RequestParam connectorInstanceId: UUID,
     ): ModelAndView {
@@ -249,7 +266,6 @@ internal class AggregatedDataProfileController(
     }
 
     @PostMapping(
-        path = ["/aggregated-data-profiles"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     @Transactional
@@ -262,7 +278,7 @@ internal class AggregatedDataProfileController(
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/add :: adp-add-form").apply {
                 addObject("form", form)
                 addObject("errors", bindingResult)
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject(
                     "connectorEndpoints",
                     connectorInstanceRepository.findById(form.connectorInstanceId)
@@ -284,7 +300,6 @@ internal class AggregatedDataProfileController(
     }
 
     @PutMapping(
-        path = ["/aggregated-data-profiles"],
         consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
     fun edit(
@@ -293,16 +308,15 @@ internal class AggregatedDataProfileController(
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
-        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
-            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/edit :: profile-edit").apply {
+            val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/edit-panel :: profile-edit").apply {
                 addObject("errors", bindingResult)
                 addObject("form", form)
+                addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
                 addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
                 addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(instance.connector))
-                addObject("isCached", isCached)
             }
             return modelAndView
         }
@@ -319,73 +333,25 @@ internal class AggregatedDataProfileController(
         return details(aggregatedDataProfile.id, isHxRequest = true)
     }
 
-    @GetMapping("/aggregated-data-profiles/{id}/relations/create")
+    @GetMapping("/{id}/relations/create")
     fun relationCreate(
         @PathVariable id: UUID,
         @RequestParam(required = false) sourceId: String? = null,
     ): ModelAndView {
         val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
         val sources = sources(aggregatedDataProfile)
+        val connectorInstances = connectorInstanceRepository.findAllByOrderByNameAsc()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
             addObject("aggregatedDataProfileId", id)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("connectorEndpoints", connectorEndpointRepository.findAll())
+            addObject("connectorInstances", connectorInstances)
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnectorOrderByNameAsc(connectorInstances.first().connector))
             addObject("sources", sources)
             addObject("parentId", sourceId)
         }
         return modelAndView
     }
 
-    @PostMapping("/relations")
-    fun createRelation(
-        @Valid @ModelAttribute form: AddRelationForm,
-        bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse,
-    ): List<ModelAndView> {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
-        val sources = sources(aggregatedDataProfile)
-        val connectorInstance =
-            connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
-        val connectorEndpoints =
-            connectorInstance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
-
-        if (bindingResult.hasErrors()) {
-            val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add :: relation-add").apply {
-                addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
-                addObject("sources", sources)
-                addObject("errors", bindingResult)
-                addObject("form", form)
-                addObject("connectorInstances", connectorInstanceRepository.findAll())
-                addObject("connectorEndpoints", connectorEndpoints)
-            }
-
-            return listOf(modelAndView)
-        }
-
-        aggregatedDataProfile.addRelation(form)
-        aggregatedDataProfileRepository.save(aggregatedDataProfile)
-        if (aggregatedDataProfile.isActive) {
-            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
-        }
-
-        val relationsModelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
-            addObject("form", AggregatedDataProfileEditForm.from(aggregatedDataProfile))
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-            addObject("sources", sources)
-            addObject("aggregatedDataProfileId", aggregatedDataProfile.id)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("connectorEndpoints", connectorEndpointRepository.findAll())
-        }
-
-        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
-        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
-
-        return listOf(relationsModelAndView)
-    }
-
-    @GetMapping("/aggregated-data-profiles/{id}/relations/edit/{relationId}")
+    @GetMapping("/{id}/relations/edit/{relationId}")
     fun relationEdit(
         @PathVariable id: UUID,
         @PathVariable relationId: UUID,
@@ -397,58 +363,16 @@ internal class AggregatedDataProfileController(
         val isCached = cacheService.isCached(relation.id.toString())
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit").apply {
             addObject("sources", sources)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
             addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connector.connector))
             addObject("form", EditRelationForm.from(relation))
             addObject("isCached", isCached)
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
         }
         return modelAndView
     }
 
-    @PutMapping("/relations")
-    fun editRelation(
-        @Valid @ModelAttribute form: EditRelationForm,
-        bindingResult: BindingResult,
-        httpServletResponse: HttpServletResponse,
-    ): List<ModelAndView> {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
-        val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
-        val connectorInstance = connectorInstanceRepository.findById(form.connectorInstanceId).orElse(null)
-        val connectorEndpoints =
-            connectorInstance?.let { connectorEndpointRepository.findByConnector(it.connector) } ?: emptyList()
-        val isCached = cacheService.isCached(form.id.toString())
-
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
-            addObject("aggregatedDataProfileId", form.aggregatedDataProfileId)
-            addObject("sources", sources)
-            addObject("errors", bindingResult)
-            addObject("form", form)
-            addObject("connectorInstances", connectorInstanceRepository.findAll())
-            addObject("connectorEndpoints", connectorEndpoints)
-            addObject("isCached", isCached)
-        }
-        if (bindingResult.hasErrors()) {
-            return listOf(modelAndView)
-        }
-        aggregatedDataProfile.changeRelation(form)
-        aggregatedDataProfileRepository.save(aggregatedDataProfile)
-        if (aggregatedDataProfile.isActive) {
-            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
-        }
-
-        val refreshedTree = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-        }
-
-        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
-        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
-
-        return listOf(refreshedTree)
-    }
-
-    @GetMapping("/aggregated-data-profiles/{id}/relations/edit/{relationId}/delete")
+    @GetMapping("/{id}/relations/edit/{relationId}/delete")
     fun relationDelete(
         @PathVariable id: UUID,
         @PathVariable relationId: UUID,
@@ -463,33 +387,7 @@ internal class AggregatedDataProfileController(
         return modelAndView
     }
 
-    @DeleteMapping("/relations")
-    fun deleteRelation(
-        @Valid @ModelAttribute form: DeleteRelationForm,
-        httpServletResponse: HttpServletResponse,
-    ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
-        aggregatedDataProfile.removeRelation(form)
-        aggregatedDataProfileRepository.save(aggregatedDataProfile)
-        if (aggregatedDataProfile.isActive) {
-            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
-        }
-
-        val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/relations-panel :: relations-panel").apply {
-            addObject("aggregatedDataProfile", aggregatedDataProfile)
-            addObject("form", AggregatedDataProfileEditForm.from(aggregatedDataProfile))
-            addObject("relations", aggregatedDataProfile.relations.map { Relation.from(it) })
-        }
-
-        httpServletResponse.setHeader("HX-Push-Url", "/admin/aggregated-data-profiles/${aggregatedDataProfile.id}")
-        httpServletResponse.setHeader("HX-Retarget", "#panel-relations")
-        httpServletResponse.setHeader("HX-Reswap", "innerHTML")
-        httpServletResponse.setHeader("HX-Trigger", "close-modal")
-
-        return modelAndView
-    }
-
-    @DeleteMapping("/aggregated-data-profiles/{id}")
+    @DeleteMapping("/{id}")
     @Transactional
     fun deleteAggregatedDataProfile(
         @PathVariable id: UUID,
@@ -504,10 +402,44 @@ internal class AggregatedDataProfileController(
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
 
-        return list(query = "", pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
+        return list(pageable = Pageable.ofSize(PAGE_DEFAULT), isHxRequest = isHxRequest)
     }
 
-    @DeleteMapping("/aggregated-data-profiles/{id}/cache")
+    @PutMapping(
+        path = ["/{id}/cache"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+    )
+    fun editCache(
+        @PathVariable id: UUID,
+        @Valid @ModelAttribute form: AggregatedDataProfileCacheForm,
+        bindingResult: BindingResult,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
+                addObject("errors", bindingResult)
+                addObject("cacheForm", form)
+                addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
+                addObject("isCached", isCached)
+            }
+        }
+        aggregatedDataProfile.updateCacheSettings(
+            enabled = form.cacheEnabled,
+            timeToLive = form.cacheTimeToLive,
+        )
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
+        return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
+            addObject("cacheForm", AggregatedDataProfileCacheForm.from(aggregatedDataProfile))
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
+            addObject("isCached", isCached)
+        }
+    }
+
+    @DeleteMapping("/{id}/cache")
     fun evictAggregatedDataProfileCacheKey(
         @PathVariable id: UUID,
         httpServletResponse: HttpServletResponse,
@@ -519,7 +451,53 @@ internal class AggregatedDataProfileController(
         return details(id, true)
     }
 
-    @DeleteMapping("/aggregated-data-profiles/{id}/relation/{relationId}/cache")
+    @PutMapping(
+        path = ["/{id}/relation/{relationId}/cache"],
+        consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+    )
+    fun editRelationCache(
+        @PathVariable id: UUID,
+        @PathVariable relationId: UUID,
+        @Valid @ModelAttribute form: RelationCacheForm,
+        bindingResult: BindingResult,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val relation = aggregatedDataProfile.relations.first { it.id == relationId }
+        val isCached = cacheService.isCached(relation.id.toString())
+        val connectorInstance = connectorInstanceRepository.findById(relation.connectorInstanceId).orElseThrow()
+        val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
+        if (bindingResult.hasErrors()) {
+            return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
+                addObject("errors", bindingResult)
+                addObject("form", EditRelationForm.from(relation))
+                addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
+                addObject("sources", sources)
+                addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
+                addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectorInstance.connector))
+                addObject("isCached", isCached)
+            }
+        }
+        aggregatedDataProfile.updateRelationCacheSettings(
+            relationId = relationId,
+            enabled = form.cacheEnabled,
+            timeToLive = form.cacheTimeToLive,
+        )
+        aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        if (aggregatedDataProfile.isActive) {
+            aggregatedDataProfileService.reloadRoute(aggregatedDataProfile)
+        }
+        val updatedRelation = aggregatedDataProfile.relations.first { it.id == relationId }
+        return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: relation-edit").apply {
+            addObject("form", EditRelationForm.from(updatedRelation))
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
+            addObject("sources", sources)
+            addObject("connectorInstances", connectorInstanceRepository.findAllByOrderByNameAsc())
+            addObject("connectorEndpoints", connectorEndpointRepository.findByConnector(connectorInstance.connector))
+            addObject("isCached", isCached)
+        }
+    }
+
+    @DeleteMapping("/{id}/relation/{relationId}/cache")
     fun evictRelationCacheKey(
         @PathVariable id: UUID,
         @PathVariable relationId: UUID,
@@ -533,7 +511,7 @@ internal class AggregatedDataProfileController(
         return details(id, true)
     }
 
-    @GetMapping("/aggregated-data-profiles/{id}/versions/create")
+    @GetMapping("/{id}/versions/create")
     fun createVersionModal(
         @PathVariable id: UUID,
     ): ModelAndView {
@@ -547,7 +525,7 @@ internal class AggregatedDataProfileController(
         }
     }
 
-    @PostMapping("/aggregated-data-profiles/{id}/versions")
+    @PostMapping("/{id}/versions")
     fun createVersion(
         @PathVariable id: UUID,
         @Valid @ModelAttribute form: CreateVersionForm,
@@ -590,13 +568,55 @@ internal class AggregatedDataProfileController(
         }
     }
 
-    @PostMapping("/aggregated-data-profiles/{id}/activate")
+    @PostMapping("/{id}/finalize/preview")
+    fun finalizePreview(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val impact = aggregatedDataProfileService.previewFinalization(id)
+        return ModelAndView("fragments/internal/versioning/finalize-preview-modal")
+            .addObject("impact", impact)
+    }
+
+    @PostMapping("/{id}/finalize")
+    fun finalizeProfile(
+        @PathVariable id: UUID,
+        @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
+    ): ModelAndView {
+        aggregatedDataProfileService.finalizeProfile(id)
+        return details(id, isHxRequest)
+    }
+
+    @PostMapping("/{id}/activate")
     fun activateVersion(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
         aggregatedDataProfileService.activateVersion(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile)) {
+            aggregatedDataProfile.applySchema(aggregatedDataProfileSchemaService.generateSchema(aggregatedDataProfile))
+            aggregatedDataProfileRepository.save(aggregatedDataProfile)
+        }
         return details(id, isHxRequest)
+    }
+
+    @PostMapping("/{id}/schema/regenerate")
+    fun regenerateSchema(
+        @PathVariable id: UUID,
+    ): ModelAndView {
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow().also {
+            if (aggregatedDataProfileSchemaService.isSchemaGenerationSupported(it)) {
+                it.applySchema(aggregatedDataProfileSchemaService.generateSchema(it))
+                aggregatedDataProfileRepository.save(it)
+            } else if (it.schema != null) {
+                it.resetSchema()
+                aggregatedDataProfileRepository.save(it)
+            }
+        }
+        return ModelAndView("$BASE_FRAGMENT_ADP/schema-panel :: schema-panel").apply {
+            addObject("aggregatedDataProfile", aggregatedDataProfile.toDTO())
+            addObject("isSchemaSupported", aggregatedDataProfileSchemaService.isSchemaGenerationSupported(aggregatedDataProfile))
+        }
     }
 
     private fun sources(aggregatedDataProfile: AggregatedDataProfile) = aggregatedDataProfile.relations

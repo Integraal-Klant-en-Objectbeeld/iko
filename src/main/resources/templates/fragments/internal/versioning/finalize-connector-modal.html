@@ -1,0 +1,49 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<cds-modal
+    id="active-modal"
+    prevent-close-on-click-outside="true"
+    open="true"
+    size="md"
+>
+    <cds-modal-header>
+        <cds-modal-close-button></cds-modal-close-button>
+        <cds-modal-heading
+            >Finalize
+            <span th:text="|${connectorName} v${connectorVersion}|"></span
+        ></cds-modal-heading>
+    </cds-modal-header>
+    <cds-modal-body>
+        <p>
+            This will make the connector immutable. Are you sure you want to
+            finalize this connector?
+        </p>
+    </cds-modal-body>
+    <cds-modal-footer>
+        <cds-modal-footer-button data-modal-close="" kind="secondary"
+            >Cancel</cds-modal-footer-button
+        >
+        <cds-modal-footer-button
+            th:hx-post="@{|/admin/connectors/${connectorId}/finalize|}"
+            hx-target="#view-panel"
+            hx-swap="innerHTML"
+            hx-on::after-request="document.getElementById('active-modal')?.removeAttribute('open')"
+            kind="danger"
+            >Finalize</cds-modal-footer-button
+        >
+    </cds-modal-footer>
+</cds-modal>

@@ -57,7 +57,7 @@
                     size="lg"
                     name="connectorInstanceId"
                     th:value="${form != null ? form.connectorInstanceId : connectorInstances.first.id}"
-                    hx-get="/admin/aggregated-data-profiles/create/endpoints"
+                    hx-get="/admin/aggregated-data-profiles/relations/add/endpoints"
                     hx-trigger="cds-select-selected"
                     hx-target="#formRelationEndpoints"
                     th:attr="invalid=${errors?.getFieldError('connectorInstanceId') != null} ? 'true' : null,
@@ -69,6 +69,10 @@
                     >
                         (<span
                             th:text="${instance.connector.name + ' ' + instance.connector.version.value}"
+                        ></span>
+                        -
+                        <span
+                            th:text="${instance.connector.status.name()}"
                         ></span
                         >)
                         <span th:text="${instance.name}"></span>

@@ -16,6 +16,8 @@
 
 package com.ritense.iko.connectors.service
 
+import com.ritense.iko.camel.IkoConstants.Validation.CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN
+import com.ritense.iko.camel.IkoConstants.Validation.CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN
 import com.ritense.iko.connectors.domain.Connector
 import com.ritense.iko.connectors.domain.ConnectorEndpoint
 import com.ritense.iko.connectors.domain.ConnectorEndpointRole
@@ -28,12 +30,10 @@ import org.apache.camel.CamelContext
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.support.PluginHelper
 import org.apache.camel.support.ResourceHelper
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-@Service
-class ConnectorService(
+open class ConnectorService(
     private val connectorRepository: ConnectorRepository,
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
@@ -48,8 +48,8 @@ class ConnectorService(
      * Pattern: Parse YAML → Modify RouteDefinitions → Add via addRoutes()
      * This matches the existing AggregatedDataProfileService pattern.
      */
-    fun loadConnectorRoutes(connector: Connector) {
-        val groupName = "connector_${connector.id}"
+    open fun loadConnectorRoutes(connector: Connector) {
+        val groupName = "group:connector:${connector.id}"
 
         // Step 1: Create resource from YAML (filename must end in .yaml)
         val resource = ResourceHelper.fromString(
@@ -67,23 +67,36 @@ class ConnectorService(
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
 
-            // Set group on each route definition BEFORE adding to context
+            // Namespace routeId and from URI with tag:version BEFORE adding to context
             routeBuilder.routeCollection.routes.forEach { routeDef ->
                 routeDef.group(groupName)
+                with(routeDef.input) {
+                    id = "connector:${connector.tag}:${connector.version.value}:${routeDef.id}"
+                    uri = namespaceUri(uri, connector.version.value)
+                }
+            }
+
+            // Pre-check for duplicate route IDs
+            val existingRouteIds = camelContext.routes.map { it.routeId }.toSet()
+            val newRouteIds = routeBuilder.routeCollection.routes.map { it.input.id }.toSet()
+            val duplicates = newRouteIds.filter { it in existingRouteIds }
+            if (duplicates.isNotEmpty()) {
+                logger.debug { "Routes already loaded for connector ${connector.tag} v${connector.version}, skipping" }
+                return
             }
 
             // Add routes using standard CamelContext.addRoutes() - same pattern as AggregatedDataProfileService
             camelContext.addRoutes(routeBuilder)
         }
 
-        logger.debug { "Loaded ${builders.size} route builder(s) for connector ${connector.tag} with group $groupName" }
+        logger.debug { "Loaded ${builders.size} route builder(s) for connector [${connector.tag}] with group [$groupName]" }
     }
 
     /**
      * Validates connector YAML by attempting to parse it.
      * Returns true if valid, throws exception with details if invalid.
      */
-    fun validateConnectorCode(connectorCode: String, tag: String): Boolean {
+    open fun validateConnectorCode(connectorCode: String, tag: String): Boolean {
         val resource = ResourceHelper.fromString("$tag.yaml", connectorCode)
         val loader = PluginHelper.getRoutesLoader(camelContext)
 
@@ -95,12 +108,33 @@ class ConnectorService(
             val routeBuilder = builder as RouteBuilder
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
+
+            // Validate that from URIs match the connector's tag
+            routeBuilder.routeCollection.routes.forEach { routeDef ->
+                val fromUri = routeDef.input.uri
+                validateFromUri(fromUri, tag)
+            }
         }
 
         return true
     }
 
-    fun reloadConnectorRoutes(connector: Connector) {
+    private fun validateFromUri(uri: String, expectedTag: String) {
+        CONNECTOR_URI_REGEX.matchEntire(uri)?.let { match ->
+            require(match.groupValues[1] == expectedTag) {
+                "Route from URI '$uri' uses tag '${match.groupValues[1]}' but connector tag is '$expectedTag'"
+            }
+            return
+        }
+        TRANSFORM_URI_REGEX.matchEntire(uri)?.let { match ->
+            require(match.groupValues[1] == expectedTag) {
+                "Route from URI '$uri' uses tag '${match.groupValues[1]}' but connector tag is '$expectedTag'"
+            }
+            return
+        }
+    }
+
+    open fun reloadConnectorRoutes(connector: Connector) {
         removeConnectorRoutes(connector)
         loadConnectorRoutes(connector)
     }
@@ -108,8 +142,8 @@ class ConnectorService(
     /**
      * Removes all routes belonging to a connector using route groups.
      */
-    fun removeConnectorRoutes(connector: Connector) {
-        val groupName = "connector_${connector.id}"
+    open fun removeConnectorRoutes(connector: Connector) {
+        val groupName = "group:connector:${connector.id}"
         camelContext.getRoutesByGroup(groupName).forEach { route ->
             camelContext.routeController.stopRoute(route.id)
             camelContext.removeRoute(route.id)
@@ -117,12 +151,26 @@ class ConnectorService(
         logger.debug { "Removed routes for connector ${connector.tag} (group: $groupName)" }
     }
 
+    @Transactional
+    open fun finalizeConnector(id: UUID): Connector {
+        val connector = connectorRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Connector not found: $id") }
+
+        validateConnectorCode(connector.connectorCode, connector.tag)
+
+        val endpoints = connectorEndpointRepository.findByConnector(connector)
+        require(endpoints.isNotEmpty()) { "Connector must have at least one endpoint to be finalized" }
+
+        connector.finalize()
+        return connectorRepository.save(connector)
+    }
+
     /**
      * Activates a specific version of a Connector.
      * Deactivates any currently active version and loads routes for the new active version.
      */
     @Transactional
-    fun activateVersion(id: UUID) {
+    open fun activateVersion(id: UUID) {
         val connectorToActivate = connectorRepository.findById(id)
             .orElseThrow { NoSuchElementException("Connector not found: $id") }
 
@@ -132,16 +180,20 @@ class ConnectorService(
             return
         }
 
+        // Pre-validate before any state changes
+        validateConnectorCode(connectorToActivate.connectorCode, connectorToActivate.tag)
+
         // Find and deactivate currently active version
         val currentActive = connectorRepository.findByTagAndIsActiveTrue(connectorToActivate.tag)
         if (currentActive != null) {
             logger.debug { "Deactivating Connector ${currentActive.tag} v${currentActive.version}" }
-            removeConnectorRoutes(currentActive)
+            // Do NOT remove old routes — active ADPs may still depend on them.
+            // Old routes become orphans when ADPs are eventually updated/deactivated.
             currentActive.isActive = false
             connectorRepository.saveAndFlush(currentActive)
         }
 
-        // Activate new version
+        // Activate new version and load routes (coexists with old due to version-namespaced URIs)
         connectorToActivate.isActive = true
         connectorRepository.save(connectorToActivate)
         loadConnectorRoutes(connectorToActivate)
@@ -153,7 +205,7 @@ class ConnectorService(
      * The new version starts as inactive.
      */
     @Transactional
-    fun createNewVersion(sourceId: UUID, newVersion: String): Connector {
+    open fun createNewVersion(sourceId: UUID, newVersion: String): Connector {
         val source = connectorRepository.findById(sourceId)
             .orElseThrow { NoSuchElementException("Connector not found: $sourceId") }
 
@@ -212,5 +264,20 @@ class ConnectorService(
 
     companion object {
         private val logger = KotlinLogging.logger {}
+
+        private val CONNECTOR_URI_REGEX = Regex(CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN)
+        private val TRANSFORM_URI_REGEX = Regex(CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN)
+
+        internal fun namespaceUri(uri: String, version: String): String {
+            CONNECTOR_URI_REGEX.matchEntire(uri)?.let { match ->
+                return "direct:iko:connector:${match.groupValues[1]}:$version"
+            }
+            TRANSFORM_URI_REGEX.matchEntire(uri)?.let { match ->
+                val tag = match.groupValues[1]
+                val operation = match.groupValues[2]
+                return "direct:iko:endpoint:transform:$tag:$version$operation"
+            }
+            return uri
+        }
     }
 }

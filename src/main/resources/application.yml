@@ -121,6 +121,6 @@ iko:
     security:
         admin:
             rolesClaim: "roles"
-            authorities: "ROLE_ADMIN, ROLE_WT_BEHEER"
+            authorities: "ROLE_ADMIN"
     crypto:
         key: # ENV var

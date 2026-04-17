@@ -1,0 +1,67 @@
+<!--
+ Copyright (C) 2026 Ritense BV, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<div th:fragment="schema-panel" id="schema-panel-content">
+    <cds-tile>
+        <th:block th:if="${isSchemaSupported}">
+            <div th:if="${aggregatedDataProfile.schema != null}">
+                <cds-inline-notification
+                    kind="warning"
+                    title="Best effort"
+                    subtitle="This schema is generated on a best-effort basis."
+                    hide-close-button
+                    low-contrast
+                    style="margin-bottom: var(--cds-spacing-05)"
+                ></cds-inline-notification>
+                <div
+                    id="schema-editor"
+                    data-monaco
+                    data-language="json"
+                    data-readonly="true"
+                    data-format-json
+                    th:data-initial="${aggregatedDataProfile.schema}"
+                    data-theme="lightgray-theme"
+                    class="monaco-editor-style"
+                ></div>
+            </div>
+            <cds-inline-notification
+                th:if="${aggregatedDataProfile.schema == null}"
+                kind="info"
+                title="Schema not yet generated"
+                subtitle="Save the profile with a result transform change or click Regenerate to generate the schema."
+                hide-close-button
+            ></cds-inline-notification>
+            <cds-button
+                kind="primary"
+                th:hx-post="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}/schema/regenerate|}"
+                hx-target="#schema-panel-content"
+                hx-swap="outerHTML"
+                hx-on::before-request="this.setAttribute('disabled',''); this.textContent='Regenerating…';"
+                hx-on::after-request="this.removeAttribute('disabled'); this.textContent='Regenerate Schema';"
+                style="margin-top: var(--cds-spacing-05)"
+            >
+                Regenerate Schema
+            </cds-button>
+        </th:block>
+        <cds-inline-notification
+            th:if="${!isSchemaSupported}"
+            kind="info"
+            title="Schema generation not supported"
+            subtitle="Schema generation is only supported for profiles where all connector instances have an API specification URL configured."
+            hide-close-button
+        ></cds-inline-notification>
+    </cds-tile>
+</div>

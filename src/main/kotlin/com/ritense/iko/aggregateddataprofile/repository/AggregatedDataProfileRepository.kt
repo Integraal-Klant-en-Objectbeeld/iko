@@ -17,6 +17,7 @@
 package com.ritense.iko.aggregateddataprofile.repository
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
+import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -25,7 +26,6 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
-@Repository
 interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile, UUID> {
     fun findByName(name: String): AggregatedDataProfile?
 
@@ -37,41 +37,54 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         @Param("version") version: String,
     ): AggregatedDataProfile?
 
-    fun findAllByNameOrderByVersionDesc(name: String): List<AggregatedDataProfile>
-
     fun findAllByIsActiveTrue(): List<AggregatedDataProfile>
-    fun findAllByIsActiveTrue(pageable: Pageable = Pageable.unpaged()): Page<AggregatedDataProfile>
+
+    fun findAllByStatus(status: EntityStatus): List<AggregatedDataProfile>
 
     @Query(
         """
         SELECT  adp.id
         ,       adp.name
+        ,       adp.version
+        ,       adp.is_active AS active
+        ,       adp.status
         FROM    aggregated_data_profile adp
+        WHERE   (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         countQuery = """
         SELECT  count(*)
         FROM    aggregated_data_profile adp
+        WHERE   (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         nativeQuery = true,
     )
-    fun findAllBy(pageable: Pageable): Page<AggregatedDataProfileListItem>
+    fun findAllBy(
+        @Param("isActive") isActive: Boolean?,
+        pageable: Pageable,
+    ): Page<AggregatedDataProfileListItem>
 
     @Query(
         """
         SELECT  adp.id
         ,       adp.name
+        ,       adp.version
+        ,       adp.is_active AS active
+        ,       adp.status
         FROM    aggregated_data_profile adp
         WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        AND     (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         countQuery = """
         SELECT  COUNT(*)
         FROM    aggregated_data_profile adp
         WHERE   LOWER(adp.name) LIKE LOWER(CONCAT('%', :name, '%'))
+        AND     (:isActive IS NULL OR adp.is_active = :isActive)
         """,
         nativeQuery = true,
     )
     fun findAllByName(
         @Param("name") name: String,
+        @Param("isActive") isActive: Boolean?,
         pageable: Pageable,
     ): Page<AggregatedDataProfileListItem>
 
@@ -81,6 +94,7 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         ,       adp.name as name
         ,       adp.version.value as version
         ,       adp.isActive as active
+        ,       adp.status as status
         FROM    AggregatedDataProfile adp
         WHERE   adp.name = :name
         ORDER BY adp.version.value DESC
@@ -88,9 +102,17 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
     )
     fun findVersionsByName(@Param("name") name: String): List<AggregatedDataProfileVersionProjection>
 
+    @Query("SELECT COUNT(*) > 0 FROM aggregated_data_profile WHERE name COLLATE \"C\" = :name", nativeQuery = true)
+    fun existsByName(@Param("name") name: String): Boolean
+
     interface AggregatedDataProfileListItem {
         val id: String
         val name: String
+        val version: String
+        val active: Boolean
+        val status: String
+        val final: Boolean
+            get() = status == EntityStatus.FINAL.name
     }
 
     interface AggregatedDataProfileVersionProjection {
@@ -98,5 +120,6 @@ interface AggregatedDataProfileRepository : JpaRepository<AggregatedDataProfile,
         val name: String
         val version: String
         val active: Boolean
+        val status: EntityStatus
     }
 }

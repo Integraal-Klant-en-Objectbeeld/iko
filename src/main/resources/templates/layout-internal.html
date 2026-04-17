@@ -19,7 +19,6 @@
     <head>
         <meta charset="UTF-8" />
         <title>IKO Admin</title>
-
         <!-- Preconnects for faster resource loading -->
         <link rel="preconnect" href="https://unpkg.com" />
         <link rel="preconnect" href="https://1.www.s81c.com" />
@@ -134,13 +133,8 @@
             >
             </cds-header-menu-button>
 
-            <cds-header-name
-                href="javascript:void(0)"
-                hx-get="/admin"
-                hx-push-url="true"
-                hx-target="#view-panel"
-                prefix="IKO"
-                >[Platform]
+            <cds-header-name href="/admin" prefix="IKO">
+                [Platform]
             </cds-header-name>
 
             <cds-header-global-bar>
@@ -210,11 +204,10 @@
         </cds-header>
 
         <cds-side-nav
+            id="side-nav"
             th:fragment="side-nav"
             aria-label="Side navigation"
             role="navigation"
-            collapse-mode="rail"
-            collapsed
         >
             <cds-side-nav-items>
                 <cds-side-nav-link

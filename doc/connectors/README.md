@@ -20,18 +20,17 @@ This list contains common connector configuration examples:
 
 ### Connector Instance
 
-A connector instance is a deployment of a connector with specific configuration. Each instance has its own set of encrypted key-value configuration entries (host, credentials, tokens, etc.).
+A connector instance is a deployment of a connector with specific configuration. Each instance has its own set of encrypted key-value configuration entries (host, credentials, tokens, etc.) and an optional `apiSpecificationUrl` property for the OpenAPI specification URL.
 
 For example, you might have one "OpenZaak" connector but two instances pointing to different environments (test and production).
 
-Configuration values are stored encrypted in the database using AES-GCM. See [security.md](../security.md) for details.
+The `apiSpecificationUrl` property is stored as a plain-text column on the connector instance. At runtime, it is automatically injected into the `configProperties` variable so Camel routes can reference it as `${variable.configProperties.apiSpecificationUrl}`. Configuration values in the `config` map are stored encrypted in the database using AES-GCM. See [security.md](../security.md) for details.
 
 Typical configuration keys:
 
 | Key | Description |
 |---|---|
 | `host` | Base URL of the external system |
-| `specificationUri` | OpenAPI specification path |
 | `token` / `secret` | API authentication token |
 | `clientId` | OAuth2 client ID |
 | `clientSecret` | OAuth2 client secret |
@@ -62,3 +61,136 @@ Configuration values from the connector instance are injected using `REFERENCE` 
 Connectors, instances, endpoints, and roles are managed through the admin UI at `/admin/connectors`. The connector code editor uses Monaco for YAML editing with syntax highlighting.
 
 See [api-endpoints.md](../api-endpoints.md) for the full list of connector management HTTP endpoints.
+
+## Route Execution Flow
+
+The following diagram shows the execution sequence for a single connector invocation via the `/endpoints/**` REST API.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Security as Security Filter Chain
+    participant CnXfm as Connector Endpoint Transform
+    participant Conn as Connector Route
+    participant Ext as External API
+
+    Client->>Security: GET /endpoints/{connector}/{config}/{operation}?id=...
+    Security->>Security: validate JWT
+    Security->>CnXfm: direct:iko:endpoint:transform:{instance}.{operation}
+    CnXfm->>CnXfm: choice/when — set API parameter from id header if not already present
+    CnXfm->>CnXfm: removeHeaders — whitelist allowed query params
+    CnXfm->>Conn: direct:iko:connector:{tag}
+    Conn->>Conn: set auth headers (Token / JWT)
+    Conn->>Ext: HTTP request (whitelisted headers become query params / path params)
+    Ext-->>Conn: HTTP response
+    Conn->>Conn: unmarshal JSON → JsonNode
+    Conn-->>Client: JSON response
+```
+
+## Route Anatomy Reference
+
+The following constructs appear in most connector examples. This section explains what they do.
+
+### `errorHandler: noErrorHandler: {}`
+
+Disables Camel's default per-route error handler. Errors thrown in this route propagate up to IKO's global error handler (`GlobalErrorHandlerConfiguration`), which logs the `correlationId` for tracing and returns a structured error response to the caller. Connector endpoint transform routes should always declare this so errors are handled uniformly.
+
+### Conditional header defaulting (`choice/when`)
+
+Sets a header only if it is not already present on the exchange. Use a `choice/when` block with a `simple` null-check to provide sensible defaults for expected API parameters (path IDs, query parameters) without overwriting values that the caller may have already set.
+
+```yaml
+- choice:
+    when:
+        - simple: "${header.uuid} == null"
+          steps:
+              - setHeader:
+                    name: "uuid"
+                    jq:
+                        expression: ".idParam // header(\"id\") // empty"
+                        source: "variable:endpointTransformContext"
+```
+
+`source: "variable:endpointTransformContext"` evaluates the JQ expression against a context variable rather than the exchange body. `header("id")` reads the `id` Camel exchange header — set from the `?id=` query parameter or `/{id}` path variable on the `/endpoints/**` REST API. The final `// empty` produces no output if both are absent, leaving the header unset rather than setting it to null.
+
+### `removeHeaders` with `excludePattern`
+
+Strips all exchange headers except those matching the `excludePattern` pipe-separated list. This is the whitelist of query parameter names the external API accepts. Any headers not in this list — including ones set by earlier routing steps — are removed before the HTTP call so the API does not receive unexpected parameters.
+
+### `script: groovy:` (JWT authentication)
+
+Some APIs (OpenZaak, OpenDocumenten) require a JWT signed with a shared secret instead of a static token. The Groovy script reads `clientSecret` and `clientId` from `configProperties` (loaded from the encrypted connector instance config) and produces a signed HS256 JWT, which is set as the `Authorization: Bearer` header.
+
+### `toD: language:groovy: "rest-openapi:...#${variable.operation}?host=..."`
+
+The `rest-openapi` Camel component reads the OpenAPI specification at `apiSpecificationUrl` to determine the HTTP method, path template, and parameter types for the named operation (`${variable.operation}`). The `host` value overrides the server URL from the spec, allowing one spec to be used against different environments (test, production). The `toD` (dynamic `to`) is used because the full URI is constructed at runtime from exchange variables.
+
+After `rest-openapi` dispatches the HTTP call, headers matching the `excludePattern` from the previous `removeHeaders` step are forwarded as query parameters (for GET operations) or remain available to the component for path parameter substitution.
+
+### `unmarshal: json: {}`
+
+Parses the raw HTTP response bytes into a Jackson `JsonNode` object tree.
+
+## Mandatory Routes
+
+Every connector code definition must include exactly the routes described below. IKO's internal dispatcher architecture expects these `from` URI forms to exist; without them the connector cannot be invoked.
+
+### Route 1 — Connector Route (required)
+
+**URI pattern:** `direct:iko:connector:<tag>`
+
+Exactly one route with this `from` URI must be present. `<tag>` must exactly match the connector's `tag` field (enforced at finalization). This route performs the actual outbound HTTP call to the external system: it injects authentication headers, dispatches via `rest-openapi` or `toD: http:`, and unmarshals the response.
+
+```yaml
+- route:
+    id: "getResource"
+    errorHandler:
+      noErrorHandler: {}
+    from:
+      uri: "direct:iko:connector:<tag>"
+      steps:
+        # — set auth headers
+        # — toD: rest-openapi:...#${variable.operation}?host=...
+        # — unmarshal: json: {}
+```
+
+IKO's `ConnectorDispatcherRouteBuilder` registers `direct:iko:connector` as its own entry point and routes dynamically to `direct:iko:connector:<tag>:<version>` (the version suffix is added automatically at load time). The connector route must not attempt to call `direct:iko:connector` itself.
+
+### Route 2 — Endpoint Transform Route (optional, one per operation)
+
+**URI pattern:** `direct:iko:endpoint:transform:<tag>.<operation>`
+
+Zero or more routes with this form may be present. They run *before* the connector route and are responsible for:
+- Whitelisting query parameters via `removeHeaders` with `excludePattern`
+- Conditionally defaulting path/query parameters via `choice/when`
+- Setting any API-specific headers (e.g., `Accept-Crs`)
+
+Both `<tag>` and `<operation>` are required. `<tag>` must exactly match the connector's `tag` field. `<operation>` must match the endpoint operation name (e.g., `zaak_list`). Transform routes without an operation suffix are rejected at validation time.
+
+```yaml
+- route:
+    id: "transformZaakList"
+    errorHandler:
+      noErrorHandler: {}
+    from:
+      uri: "direct:iko:endpoint:transform:<tag>.zaak_list"
+      steps:
+        # — choice/when — conditional header defaults
+        # — removeHeaders — whitelist allowed query params
+```
+
+### The `direct:iko:*` namespace is reserved
+
+**Connector code must not define routes whose `from` URI starts with `direct:iko:` except for the two patterns above.**
+
+All other `direct:iko:*` URIs are owned by IKO's internal routing layer:
+
+| URI | Purpose |
+|---|---|
+| `direct:iko:connector` | Dispatcher: routes to the versioned connector route |
+| `direct:iko:endpoint:transform` | Dispatcher: routes to the versioned endpoint transform route |
+| `direct:iko:endpoint:validate` | Validates the endpoint + instance, resolves IDs |
+| `direct:iko:endpoint:auth` | RBAC check against connector endpoint roles |
+| `direct:iko:config` | Loads decrypted config properties from the connector instance |
+
+Defining a `from` route that conflicts with any of these URIs bypasses IKO's internal wiring and will cause unpredictable behavior. Custom connector-internal routes that chain between steps should use non-`direct:iko:*` URIs (e.g., `direct:<tag>:some-step`) or, preferably, inline `steps` within a single route.

@@ -36,10 +36,16 @@
 
                 <cds-layout>
                     <cds-tabs
-                        value="config"
+                        value="general"
                         type="contained"
                         class="cds--tabs cds--tabs--contained"
                     >
+                        <cds-tab
+                            id="tab-general"
+                            target="panel-general"
+                            value="general"
+                            >General</cds-tab
+                        >
                         <cds-tab
                             id="tab-config"
                             target="panel-config"
@@ -50,17 +56,77 @@
                             id="tab-roles"
                             target="panel-roles"
                             value="roles"
-                            selected=""
                         >
                             Roles
                         </cds-tab>
                     </cds-tabs>
 
                     <div
+                        id="panel-general"
+                        role="tabpanel"
+                        class="cds--tab-content cds--tab-content--interactive"
+                        aria-labelledby="tab-general"
+                    >
+                        <div id="instance-edit-form-container">
+                            <cds-tile th:fragment="instance-edit-form">
+                                <cds-content>
+                                    <cds-form-group
+                                        class="cds-theme-zone-white"
+                                        data-carbon-theme="white"
+                                    >
+                                        <cds-stack gap="7">
+                                            <cds-text-input
+                                                name="name"
+                                                th:value="${connectorInstance.name}"
+                                                th:attr="invalid=${errors?.getFieldError('name') != null} ? 'true' : null,
+                                                    invalid-text=${errors?.getFieldError('name')?.defaultMessage}"
+                                                th:disabled="${connector.final}"
+                                                required=""
+                                                label="Name"
+                                            ></cds-text-input>
+                                            <cds-text-input
+                                                name="reference"
+                                                th:value="${connectorInstance.tag}"
+                                                th:attr="invalid=${errors?.getFieldError('reference') != null} ? 'true' : null,
+                                                    invalid-text=${errors?.getFieldError('reference')?.defaultMessage}"
+                                                th:disabled="${connector.final}"
+                                                required=""
+                                                label="Reference"
+                                            ></cds-text-input>
+                                            <cds-text-input
+                                                name="apiSpecificationUrl"
+                                                th:value="${connectorInstance.apiSpecificationUrl}"
+                                                th:disabled="${connector.final}"
+                                                label="API Specification URL"
+                                                helper-text="Optional. URL to the OpenAPI specification."
+                                            ></cds-text-input>
+                                            <cds-form-item class="form-actions">
+                                                <cds-button
+                                                    id="instance-save-btn"
+                                                    th:disabled="${connector.final}"
+                                                    th:hx-put="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}|}"
+                                                    hx-target="#instance-edit-form-container"
+                                                    hx-include="#instance-edit-form-container *"
+                                                    hx-on::before-request="const b=document.getElementById('instance-save-btn'); if(b){ b.setAttribute('disabled',''); b.textContent='Saving\u2026'; }"
+                                                    hx-on::after-request="const b=document.getElementById('instance-save-btn'); if(b){ b.removeAttribute('disabled'); b.textContent='Save'; }"
+                                                    kind="primary"
+                                                >
+                                                    Save
+                                                </cds-button>
+                                            </cds-form-item>
+                                        </cds-stack>
+                                    </cds-form-group>
+                                </cds-content>
+                            </cds-tile>
+                        </div>
+                    </div>
+
+                    <div
                         id="panel-config"
                         role="tabpanel"
                         class="cds--tab-content cds--tab-content--interactive"
                         aria-labelledby="tab-config"
+                        hidden=""
                     >
                         <cds-table id="config-table" th:fragment="config-table">
                             <cds-table-toolbar slot="toolbar">
@@ -68,6 +134,7 @@
                                     <cds-button
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config|}"
                                         hx-target="#modal-container"
+                                        th:disabled="${connector.final}"
                                         kind="primary"
                                     >
                                         Add config
@@ -158,6 +225,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.final}"
                                         >
                                             <svg
                                                 focusable="false"
@@ -211,6 +279,7 @@
                     <div
                         id="panel-roles"
                         role="tabpanel"
+                        hidden=""
                         class="cds--tab-content cds--tab-content--interactive"
                         aria-labelledby="tab-roles"
                     >
@@ -220,6 +289,7 @@
                                     <cds-button
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/roles|}"
                                         hx-target="#modal-container"
+                                        th:disabled="${connector.final}"
                                         kind="primary"
                                     >
                                         Add role
@@ -273,6 +343,7 @@
                                             leave-delay-ms="0"
                                             close-on-activation
                                             hx-on:click="event.stopPropagation()"
+                                            th:disabled="${connector.final}"
                                         >
                                             <svg
                                                 focusable="false"

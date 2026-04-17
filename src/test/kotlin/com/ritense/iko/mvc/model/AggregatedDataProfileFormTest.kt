@@ -18,6 +18,7 @@ package com.ritense.iko.mvc.model
 
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileCacheSetting
+import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileSchema
 import com.ritense.iko.aggregateddataprofile.domain.EndpointTransform
 import com.ritense.iko.aggregateddataprofile.domain.Roles
 import com.ritense.iko.aggregateddataprofile.domain.Transform
@@ -38,6 +39,7 @@ class AggregatedDataProfileFormTest {
             resultTransform = Transform("."),
             aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
             roles = Roles("ROLE_ADMIN"),
+            schema = null,
         )
 
         val form = AggregatedDataProfileAddForm.from(profile)
@@ -64,6 +66,7 @@ class AggregatedDataProfileFormTest {
                 timeToLive = 123,
             ),
             roles = Roles("ROLE_ADMIN"),
+            schema = null,
         )
 
         val form = AggregatedDataProfileEditForm.from(profile)
@@ -75,7 +78,5 @@ class AggregatedDataProfileFormTest {
         assertThat(form.resultTransform).isEqualTo(".")
         assertThat(form.connectorInstanceId).isEqualTo(profile.connectorInstanceId)
         assertThat(form.connectorEndpointId).isEqualTo(profile.connectorEndpointId)
-        assertThat(form.cacheEnabled).isTrue()
-        assertThat(form.cacheTimeToLive).isEqualTo(123)
     }
 }

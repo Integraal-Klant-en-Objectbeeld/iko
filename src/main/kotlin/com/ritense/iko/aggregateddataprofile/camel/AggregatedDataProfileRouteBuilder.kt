@@ -23,6 +23,13 @@ import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.aggregateddataprofile.error.TransformResultTypeUnsupportedError
 import com.ritense.iko.cache.domain.toCacheable
 import com.ritense.iko.cache.processor.CacheProcessor
+import com.ritense.iko.camel.IkoConstants.Properties.RELATION_RELATION_PROPERTY_NAME_PROPERTY
+import com.ritense.iko.camel.IkoConstants.Variables.AUTHORITIES
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_VERSION_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
@@ -64,24 +71,25 @@ class AggregatedDataProfileRouteBuilder(
             .resultType(JsonNode::class.java)
             .end()
 
-        val groupName = "adp_${aggregatedDataProfile.id}"
+        val groupName = "group:adp:${aggregatedDataProfile.id}"
 
         // profile root route entrypoint
-        from("direct:aggregated_data_profile_${aggregatedDataProfile.id}")
-            .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_root")
+        from("direct:adp:${aggregatedDataProfile.id}")
+            .routeId("adp:${aggregatedDataProfile.name}:${aggregatedDataProfile.version.value}:route-root")
             .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[ADP Root]")
             .setVariable(
-                "authorities",
+                AUTHORITIES,
                 constant(aggregatedDataProfile.roles.asList()),
             )
             .to("direct:auth")
-            .to("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
-            .setVariable("connectorId", constant(connectorInstance.connector.id))
-            .setVariable("connector", constant(connectorInstance.connector.tag))
-            .setVariable("config", constant(connectorInstance.tag))
-            .setVariable("operation", constant(connectorEndpoint.operation))
+            .to("direct:adp:${aggregatedDataProfile.id}:endpoint-transform")
+            .setVariable(CONNECTOR_ID_VARIABLE, constant(connectorInstance.connector.id))
+            .setVariable(CONNECTOR_TAG_VARIABLE, constant(connectorInstance.connector.tag))
+            .setVariable(CONNECTOR_VERSION_VARIABLE, constant(connectorInstance.connector.version.value))
+            .setVariable(CONNECTOR_INSTANCE_TAG_VARIABLE, constant(connectorInstance.tag))
+            .setVariable(CONNECTOR_OPERATION_VARIABLE, constant(connectorEndpoint.operation))
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.iko("config"))
             .to(IkoRouteHelper.transform())
@@ -92,7 +100,7 @@ class AggregatedDataProfileRouteBuilder(
             .let {
                 if (level1Relations.isNotEmpty()) {
                     // enrich root exchange with multicast routes from relations
-                    it.enrich("direct:multicast_${aggregatedDataProfile.id}", PairAggregator)
+                    it.enrich("direct:multicast:${aggregatedDataProfile.id}", PairAggregator)
                 } else {
                     it
                 }
@@ -105,8 +113,8 @@ class AggregatedDataProfileRouteBuilder(
             }
             .marshal().json()
 
-        from("direct:aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
-            .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_endpoint_transform")
+        from("direct:adp:${aggregatedDataProfile.id}:endpoint-transform")
+            .routeId("adp:${aggregatedDataProfile.name}:${aggregatedDataProfile.version.value}:endpoint-transform")
             .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, endpointTransformExpression)
@@ -129,8 +137,8 @@ class AggregatedDataProfileRouteBuilder(
 
         // create multicast and build routes for relations
         if (level1Relations.isNotEmpty()) {
-            var multicast = from("direct:multicast_${aggregatedDataProfile.id}")
-                .routeId("aggregated_data_profile_${aggregatedDataProfile.id}_multicast")
+            var multicast = from("direct:multicast:${aggregatedDataProfile.id}")
+                .routeId("adp:${aggregatedDataProfile.name}:${aggregatedDataProfile.version.value}:multicast")
                 .group(groupName)
                 .multicast(MapAggregator)
                 .parallelProcessing()
@@ -160,7 +168,7 @@ class AggregatedDataProfileRouteBuilder(
             .end()
 
         from("direct:relation_${currentRelation.id}")
-            .routeId("relation_${currentRelation.id}_root")
+            .routeId("relation:${currentRelation.propertyName}:root")
             .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${aggregatedDataProfile.name}] <-- [${currentRelation.propertyName}]")
@@ -178,17 +186,17 @@ class AggregatedDataProfileRouteBuilder(
             .marshal().json()
             .choice()
             .`when` { ex -> ex.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, JsonNode::class.java).isArray }
-            .to("direct:relation_${currentRelation.id}_array")
+            .to("direct:relation:${currentRelation.id}:array")
             .`when` { ex -> ex.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, JsonNode::class.java).isObject }
-            .to("direct:relation_${currentRelation.id}_map")
+            .to("direct:relation:${currentRelation.id}:map")
             .otherwise()
             .throwException(
                 TransformResultTypeUnsupportedError(),
             )
             .endChoice()
 
-        from("direct:relation_${currentRelation.id}_map")
-            .routeId("relation_${currentRelation.id}_map")
+        from("direct:relation:${currentRelation.id}:map")
+            .routeId("relation:${currentRelation.propertyName}:map")
             .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("Endpoint mapping (Map): [${currentRelation.propertyName}]")
@@ -197,12 +205,12 @@ class AggregatedDataProfileRouteBuilder(
                     it.getIn().setHeader(key, value.asText())
                 }
             }
-            .to("direct:relation_${currentRelation.id}_loop")
+            .to("direct:relation:${currentRelation.id}:loop")
             .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
 
-        from("direct:relation_${currentRelation.id}_array")
-            .routeId("relation_${currentRelation.id}_array")
+        from("direct:relation:${currentRelation.id}:array")
+            .routeId("relation:${currentRelation.propertyName}:array")
             .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("Endpoint mapping (List): [${currentRelation.propertyName}]")
@@ -219,23 +227,24 @@ class AggregatedDataProfileRouteBuilder(
                     ex.getIn().setHeader(key, value.asText())
                 }
             }
-            .to("direct:relation_${currentRelation.id}_loop") // Executes the relation route
+            .to("direct:relation:${currentRelation.id}:loop") // Executes the relation route
             .end()
             .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
 
         // Executes each relation route
-        from("direct:relation_${currentRelation.id}_loop")
-            .routeId("relation_${currentRelation.id}_loop")
+        from("direct:relation:${currentRelation.id}:loop")
+            .routeId("relation:${currentRelation.propertyName}:loop")
             .group(groupName)
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
             .routeDescription("[${currentRelation.propertyName}] --> Endpoint")
             .unmarshal().json()
-            .setVariable("connectorId", constant(connectorInstance.connector.id))
-            .setVariable("connector", constant(connectorInstance.connector.tag))
-            .setVariable("config", constant(connectorInstance.tag))
-            .setVariable("operation", constant(connectorEndpoint.operation))
-            .setVariable("relationPropertyName", constant(currentRelation.propertyName))
+            .setVariable(CONNECTOR_ID_VARIABLE, constant(connectorInstance.connector.id))
+            .setVariable(CONNECTOR_TAG_VARIABLE, constant(connectorInstance.connector.tag))
+            .setVariable(CONNECTOR_VERSION_VARIABLE, constant(connectorInstance.connector.version.value))
+            .setVariable(CONNECTOR_INSTANCE_TAG_VARIABLE, constant(connectorInstance.tag))
+            .setVariable(CONNECTOR_OPERATION_VARIABLE, constant(connectorEndpoint.operation))
+            .setVariable(RELATION_RELATION_PROPERTY_NAME_PROPERTY, constant(currentRelation.propertyName))
             .to(IkoRouteHelper.endpoint("validate"))
             .to(IkoRouteHelper.iko("config"))
             .to(IkoRouteHelper.transform())
@@ -252,7 +261,7 @@ class AggregatedDataProfileRouteBuilder(
             .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
             .let {
                 if (relations.isNotEmpty()) {
-                    it.enrich("direct:multicast_${currentRelation.id}", PairAggregator)
+                    it.enrich("direct:multicast:${currentRelation.id}", PairAggregator)
                 } else {
                     it
                 }
@@ -260,8 +269,8 @@ class AggregatedDataProfileRouteBuilder(
 
         if (relations.isNotEmpty()) {
             // create new multicast processor
-            var multicast = from("direct:multicast_${currentRelation.id}")
-                .routeId("relation_${currentRelation.id}_multicast")
+            var multicast = from("direct:multicast:${currentRelation.id}")
+                .routeId("relation:${currentRelation.id}:multicast")
                 .group(groupName)
                 .multicast(MapAggregator)
                 .parallelProcessing()

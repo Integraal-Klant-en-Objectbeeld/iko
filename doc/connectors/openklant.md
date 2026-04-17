@@ -3,9 +3,10 @@
 ## Configuration
 
 The configuration properties of the objecten api are:
-- **host**: Base URL 
-- **specificationUri**: The specification uri 
+- **host**: Base URL
 - **token**: The token to use for authentication
+
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property.
 
 ## Endpoints
 
@@ -50,9 +51,46 @@ Copy the connector code down below and replace the `REFERENCE` with the refernce
                     groovy: |-
                         exchange.in.setHeader("Authorization", "Token ${exchange.getVariable('configProperties', Map).token}")
               - toD:
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.specificationUri}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
               - unmarshal:
                     json: {}
-
-
 ```
+
+## Route Execution Flow
+
+Both endpoints are list operations — there is no single-resource lookup and no `setHeaderIfAbsent` step.
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant XfmList as direct:iko:endpoint:transform:REFERENCE.klantcontactenList
+    participant Conn as direct:iko:connector:REFERENCE
+    participant OpenKlant as Open Klant API
+
+    Caller->>XfmList: exchange with caller-provided headers
+    XfmList->>XfmList: removeHeaders * (keep: filter and pagination headers)
+    XfmList-->>Caller: exchange with whitelisted headers
+    Caller->>Conn: exchange with whitelisted headers
+    Conn->>Conn: setHeader Accept: application/json
+    Conn->>Conn: Groovy: setHeader Authorization: Token <token>
+    Conn->>OpenKlant: GET /klantcontacten via rest-openapi
+    OpenKlant-->>Conn: HTTP 200 JSON response
+    Conn->>Conn: unmarshal JSON → JsonNode
+    Conn-->>Caller: JsonNode response body
+```
+
+## Route anatomy
+
+### Endpoint transform routes
+
+These routes only perform whitelisting — both endpoints are list operations with no single-resource lookup, so no `setHeaderIfAbsent` step is needed.
+
+**`removeHeaders`** — Whitelists the filter and pagination parameters accepted by each Open Klant endpoint. See [`removeHeaders`](README.md#removeheaders-with-excludepattern) in the Route Anatomy Reference.
+
+Note: the `klantcontactenList` and `actorenList` routes do not declare `errorHandler: noErrorHandler: {}`. Add this for consistency with other connector endpoint transform routes so errors are handled uniformly by IKO's global error handler. See [`errorHandler`](README.md#errorhandler-noerrorhandler) in the Route Anatomy Reference.
+
+### Connector route
+
+**`script: groovy:`** — Sets `Authorization: Token <token>` using the `token` value from the encrypted connector instance config.
+
+**`toD: language:groovy: "rest-openapi:..."`** — See [`toD: rest-openapi:`](README.md#tod-languagegroovy-rest-openapivariabledoperationhosturl) in the Route Anatomy Reference.

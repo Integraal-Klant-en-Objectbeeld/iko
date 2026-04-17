@@ -24,7 +24,7 @@ data class ConnectorCreateForm(
     val name: String,
     @field:NotBlank(message = "Please provide a reference.")
     val reference: String,
-    @field:NotBlank(message = "Please provide a connector code.")
+    @field:NotBlank(message = "Connector code must not be empty. Refer to the documentation for connector code requirements..")
     @field:ValidConnectorCode
     val connectorCode: String,
 )

@@ -24,6 +24,8 @@ import com.ritense.iko.camel.IkoConstants.Headers.ADP_VERSION_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.PROFILE_NAME
+import com.ritense.iko.camel.IkoConstants.Variables.PROFILE_VERSION
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
 import org.apache.camel.builder.RouteBuilder
 
@@ -45,14 +47,14 @@ class AggregatedDataProfileTemplatesRouteBuilder(
             .`when`(simple("\${exchangeProperty.testRun} == false"))
             .to("direct:aggregated-data-profile-container-params")
             .end()
-            .setVariable("profileName", header(ADP_PROFILE_NAME_PARAM_HEADER))
-            .setVariable("profileVersion", header(ADP_VERSION_PARAM_HEADER))
+            .setVariable(PROFILE_NAME, header(ADP_PROFILE_NAME_PARAM_HEADER))
+            .setVariable(PROFILE_VERSION, header(ADP_VERSION_PARAM_HEADER))
             .setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, header(ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER))
             .setVariable(IKO_CORRELATION_ID_VARIABLE, simple("\${exchangeId}"))
             .removeHeaders("adp_*")
             .process { exchange ->
-                val aggregatedDataProfileName = exchange.getVariable("profileName", String::class.java)
-                val aggregatedDataProfileVersion = exchange.getVariable("profileVersion", String::class.java)
+                val aggregatedDataProfileName = exchange.getVariable(PROFILE_NAME, String::class.java)
+                val aggregatedDataProfileVersion = exchange.getVariable(PROFILE_VERSION, String::class.java)
                 val aggregatedDataProfile =
                     when (exchange.getProperty("testRun", Boolean::class.java)) {
                         true -> {
@@ -69,6 +71,6 @@ class AggregatedDataProfileTemplatesRouteBuilder(
 
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
             }
-            .toD("direct:aggregated_data_profile_\${variable.aggregatedDataProfileId}")
+            .toD("direct:adp:\${variable.aggregatedDataProfileId}")
     }
 }

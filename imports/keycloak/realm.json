@@ -754,7 +754,7 @@
         "description" : "",
         "rootUrl" : "",
         "adminUrl" : "",
-        "baseUrl" : "",
+        "baseUrl" : "http://localhost:8080/admin",
         "surrogateAuthRequired" : false,
         "enabled" : true,
         "alwaysDisplayInConsole" : true,

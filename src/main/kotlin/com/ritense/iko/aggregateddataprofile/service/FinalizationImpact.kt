@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.connectors.camel
+package com.ritense.iko.aggregateddataprofile.service
 
-import com.ritense.iko.camel.IkoRouteHelper
-import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
-import org.apache.camel.builder.RouteBuilder
+import java.util.UUID
 
-class Connector : RouteBuilder() {
-    override fun configure() {
-        from(IkoRouteHelper.connector())
-            .routeId("connector")
-            .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
-            .toD(IkoRouteHelper.connector("\${variable.connector}"))
-    }
-}
+data class FinalizationImpact(
+    val adpId: UUID,
+    val adpName: String,
+    val adpVersion: String,
+    val connectorsToFinalize: List<ConnectorImpact>,
+    val canFinalize: Boolean,
+    val errors: List<String>,
+)
+
+data class ConnectorImpact(
+    val connectorId: UUID,
+    val connectorName: String,
+    val connectorTag: String,
+    val connectorVersion: String,
+    val affectedDraftAdps: List<AffectedAdp>,
+)
+
+data class AffectedAdp(
+    val id: UUID,
+    val name: String,
+    val version: String,
+)
