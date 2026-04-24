@@ -414,6 +414,26 @@ class ConnectorController(
         ),
     )
 
+    @GetMapping("/{id}/instances/{instanceId}/config/{configKey}/edit")
+    fun editConnectorInstanceConfigPage(
+        @PathVariable id: UUID,
+        @PathVariable instanceId: UUID,
+        @PathVariable configKey: String,
+    ): ModelAndView {
+        val instance =
+            connectorInstanceRepository
+                .findById(instanceId)
+                .orElseThrow { NoSuchElementException("Connector instance not found") }
+        return ModelAndView(
+            "fragments/internal/connector/form-create-connector-instance-config",
+            mapOf(
+                "connectorId" to id,
+                "instanceId" to instanceId,
+                "config" to ConnectorInstanceConfigEditForm(configKey, instance.config[configKey] ?: ""),
+            ),
+        )
+    }
+
     @PostMapping("/{id}/instances/{instanceId}/config")
     fun createConnectorInstanceConfigPage(
         @PathVariable id: UUID,

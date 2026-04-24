@@ -181,6 +181,7 @@
                                     <cds-table-cell
                                         class="pointer"
                                         th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config/${config.key}|}"
+                                        hx-trigger="click once"
                                     >
                                         <svg
                                             focusable="false"
@@ -259,6 +260,13 @@
                                                 Options
                                             </span>
                                             <cds-overflow-menu-body flipped="">
+                                                <cds-overflow-menu-item
+                                                    th:hx-get="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config/${config.key}/edit|}"
+                                                    hx-target="#modal-container"
+                                                    th:disabled="${connector.final}"
+                                                >
+                                                    Edit
+                                                </cds-overflow-menu-item>
                                                 <cds-overflow-menu-item
                                                     hx-confirm="Are you sure you want to delete this config?"
                                                     th:hx-delete="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}/config/${config.key}|}"
