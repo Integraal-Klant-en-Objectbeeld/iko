@@ -53,7 +53,7 @@ open class AggregatedDataProfileService(
         }
     }
 
-    fun removeRoute(aggregatedDataProfile: AggregatedDataProfile) {
+    open fun removeRoute(aggregatedDataProfile: AggregatedDataProfile) {
         val connectorDeps = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
 
         val groupName = "group:adp:${aggregatedDataProfile.id}"
@@ -69,7 +69,7 @@ open class AggregatedDataProfileService(
         }
     }
 
-    fun loadRoute(aggregatedDataProfile: AggregatedDataProfile) {
+    open fun loadRoute(aggregatedDataProfile: AggregatedDataProfile) {
         val requiredConnectors = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
         for (connector in requiredConnectors) {
             if (!routeDependencyService.isConnectorRouteLoaded(connector)) {
@@ -87,7 +87,7 @@ open class AggregatedDataProfileService(
         )
     }
 
-    fun reloadRoute(aggregatedDataProfile: AggregatedDataProfile) {
+    open fun reloadRoute(aggregatedDataProfile: AggregatedDataProfile) {
         removeRoute(aggregatedDataProfile)
         loadRoute(aggregatedDataProfile)
     }
@@ -97,7 +97,7 @@ open class AggregatedDataProfileService(
      * Deactivates any currently active version and loads routes for the new active version.
      */
     @Transactional
-    fun activateVersion(id: UUID) {
+    open fun activateVersion(id: UUID) {
         val profileToActivate = aggregatedDataProfileRepository.findById(id)
             .orElseThrow { NoSuchElementException("AggregatedDataProfile not found: $id") }
 
@@ -184,7 +184,7 @@ open class AggregatedDataProfileService(
         return aggregatedDataProfileRepository.save(newAdp)
     }
 
-    fun previewFinalization(id: UUID): FinalizationImpact {
+    open fun previewFinalization(id: UUID): FinalizationImpact {
         val adp = aggregatedDataProfileRepository.findById(id)
             .orElseThrow { NoSuchElementException("Profile not found: $id") }
         require(adp.status == EntityStatus.DRAFT) { "Already finalized" }
