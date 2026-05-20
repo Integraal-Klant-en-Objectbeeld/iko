@@ -26,6 +26,16 @@ For example, you might have one "OpenZaak" connector but two instances pointing 
 
 The `apiSpecificationUrl` property is stored as a plain-text column on the connector instance. At runtime, it is automatically injected into the `configProperties` variable so Camel routes can reference it as `${variable.configProperties.apiSpecificationUrl}`. Configuration values in the `config` map are stored encrypted in the database using AES-GCM. See [security.md](../security.md) for details.
 
+The following URI schemes are accepted for `apiSpecificationUrl`:
+
+| Scheme | Example | Resolved from |
+|---|---|---|
+| `https:` / `http:` | `https://api.bag.kadaster.nl/.../openapi.yaml` | Remote HTTP(S) URL |
+| `classpath:` | `classpath:pet-api.yaml` | Bundled inside the application JAR |
+| `file:` | `file:/openapi-specs/haalcentraal-brp-personen.yaml` | Filesystem path inside the container |
+
+For `file:` URIs, the repository's [`openapi-specs/`](../../openapi-specs/README.md) directory is mounted read-only at `/openapi-specs` on the `iko-application` container.
+
 Typical configuration keys:
 
 | Key | Description |

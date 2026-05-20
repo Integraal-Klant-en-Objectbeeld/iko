@@ -18,7 +18,10 @@ package com.ritense.iko.aggregateddataprofile.schema
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 
 class OpenApiMockGeneratorTest {
 
@@ -30,6 +33,29 @@ class OpenApiMockGeneratorTest {
 
         assertThat(openApi.info.title).isEqualTo("Pet Mock API")
         assertThat(openApi.paths).containsKey("/pets")
+    }
+
+    @Test
+    fun `loadSpec loads pet-api from filesystem via file URI`(@TempDir tmp: Path) {
+        val specFile = tmp.resolve("pet-api.yaml")
+        val classpathContent = javaClass.classLoader
+            .getResourceAsStream("pet-api.yaml")!!
+            .bufferedReader()
+            .readText()
+        specFile.toFile().writeText(classpathContent)
+
+        val openApi = generator.loadSpec("file:${specFile.toAbsolutePath()}")
+
+        assertThat(openApi.info.title).isEqualTo("Pet Mock API")
+        assertThat(openApi.paths).containsKey("/pets")
+    }
+
+    @Test
+    fun `loadSpec throws when file URI points to a missing file`() {
+        assertThatThrownBy {
+            generator.loadSpec("file:/nonexistent/path/openapi.yaml")
+        }.isInstanceOf(IllegalStateException::class.java)
+            .hasMessageContaining("File not found")
     }
 
     @Test

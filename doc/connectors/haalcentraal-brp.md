@@ -6,7 +6,7 @@ The configuration properties of openzaak are:
 - **host**: Base URL
 - **secret**: The token to use for authentication
 
-The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property (e.g. `https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml`).
+The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property. Either a remote URL (e.g. `https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml`) or a path to a file mounted into the container (e.g. `file:/openapi-specs/haalcentraal-brp-personen.yaml`) is accepted. The repository ships a pre-bundled copy of the BRP spec under [`openapi-specs/`](../../openapi-specs/README.md).
 
 ## Endpoints
 

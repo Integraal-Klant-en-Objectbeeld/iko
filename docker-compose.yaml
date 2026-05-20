@@ -12,6 +12,8 @@ services:
         env_file:
             - .env
             - .env-override.env
+        volumes:
+            - ./openapi-specs:/openapi-specs:ro
         depends_on:
             - iko-redis
 
