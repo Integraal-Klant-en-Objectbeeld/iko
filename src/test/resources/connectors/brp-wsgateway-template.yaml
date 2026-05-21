@@ -115,6 +115,6 @@
                     constant: "application/json; charset=utf-8"
               - toD:
                     id: "brp-personen-post"
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}&sslContextParameters=%23sslContextParameters\""
               - unmarshal:
                     json: {}

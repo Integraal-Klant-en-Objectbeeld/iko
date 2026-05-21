@@ -14,6 +14,7 @@ services:
             - .env-override.env
         volumes:
             - ./openapi-specs:/openapi-specs:ro
+            - ./certs:/certs:ro
         depends_on:
             - iko-redis
 
@@ -84,6 +85,17 @@ services:
             - ASPNETCORE_URLS=http://+:5010
         ports:
             - "5010:5010"
+
+    haalcentraal-personen-mtls:
+        container_name: iko-haalcentraal-personen-mtls
+        image: nginx:alpine
+        depends_on:
+            - haalcentraal-personen
+        ports:
+            - "8443:8443"
+        volumes:
+            - ./imports/brp/nginx-mtls.conf:/etc/nginx/nginx.conf:ro
+            - ./certs:/certs:ro
 
     openzaak:
         image: openzaak/open-zaak:1.20.0

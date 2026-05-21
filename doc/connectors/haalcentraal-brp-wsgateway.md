@@ -20,6 +20,28 @@ These values are stored encrypted in the database (AES-GCM) and decrypted into t
 
 The OpenAPI specification URL is set on the connector instance via the `apiSpecificationUrl` property (a plain-text column on `connector_instance`). Either a remote URL (e.g. `https://developer.rvig.nl/brp-api/personen/_attachments/openapi.yaml`) or a path to a file mounted into the container (e.g. `file:/openapi-specs/haalcentraal-brp-personen.yaml`) is accepted. The repository ships a pre-bundled copy of the BRP spec under [`openapi-specs/`](../../openapi-specs/README.md).
 
+## Local mTLS testing
+
+The `docker-compose.yaml` provides an nginx sidecar (`haalcentraal-personen-mtls`) that wraps the plain-HTTP BRP mock with mTLS on port 8443. The connector's `brp-personen-post` step opts in via `sslContextParameters=%23sslContextParameters`.
+
+### Connector instance config for local mTLS
+
+When the nginx sidecar is up, change the BRP connector instance's `host` config value to:
+
+```
+https://haalcentraal-personen-mtls:8443
+```
+
+(or `https://localhost:8443` when running IKO via `./gradlew bootRun` on the host). The `apiSpecificationUrl`, `tokenUrl`, `clientId`, `clientSecret`, and `audience` keys stay as they were — only `host` changes.
+
+### Where the certs live
+
+Dev certs are committed under [`certs/`](../../certs/README.md). The `client.jks` and `truststore.jks` are referenced by the global `SSLContextParameters` declared in `application.yml`. Inside docker the IKO container reads them from `/certs/` (via `.env-override.env`); on the host `./gradlew bootRun` reads them from `./certs/`. Both pick up the same files.
+
+### How the opt-in works
+
+The `SSLContextParameters` bean lives in the Camel registry under the name `sslContextParameters`. Any `toD` URI in any connector YAML that needs mTLS appends `?sslContextParameters=%23sslContextParameters` (the `%23` is the URL-encoded `#`). Routes without that query option use plain HTTPS with the JVM default trust store and present no client cert.
+
 ## Endpoints
 
 Haalcentraal BRP exposes a single operation in the bundled OpenAPI spec:
@@ -178,7 +200,7 @@ Copy the connector code below and replace `REFERENCE` with the connector's tag (
                     constant: "application/json; charset=utf-8"
               - toD:
                     id: "brp-personen-post"
-                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}&sslContextParameters=%23sslContextParameters\""
               - unmarshal:
                     json: {}
 ```
