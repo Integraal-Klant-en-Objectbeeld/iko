@@ -36,9 +36,9 @@ class CacheConfiguration {
         objectMapper: ObjectMapper,
     ) = CacheProcessor(
         cacheService,
-        objectMapper
+        objectMapper,
     )
 
     @Bean
-    fun tokenCacheProcessor(cacheService: CacheService, ) = TokenCacheProcessor(cacheService)
+    fun tokenCacheProcessor(cacheService: CacheService) = TokenCacheProcessor(cacheService)
 }
