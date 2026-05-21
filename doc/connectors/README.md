@@ -11,7 +11,8 @@ A connector defines *how* to communicate with an external system. It contains a 
 This list contains common connector configuration examples:
 
 - [BAG](./bag.md) -- Basisregistratie Adressen en Gebouwen (addresses and buildings)
-- [BRP](./haalcentraal-brp.md) -- Haal Centraal BRP (persons registry)
+- [BRP](./haalcentraal-brp.md) -- Haal Centraal BRP (persons registry, X-Api-Key auth)
+- [BRP wsGateway](./haalcentraal-brp-wsgateway.md) -- Haal Centraal BRP behind a Keycloak token-exchange gateway
 - [ObjectenAPI](objectenapi.md) -- Objects API
 - [OpenDocumenten](opendocumenten.md) -- Open Documenten (document management)
 - [OpenKlant](openklant.md) -- Open Klant (customer contacts)
