@@ -1,0 +1,120 @@
+- route:
+      id: "brp-wsgateway-personen-transform"
+      errorHandler:
+          noErrorHandler: {}
+      from:
+          uri: "direct:iko:endpoint:transform:brp-wsgateway.Personen"
+          steps:
+              - choice:
+                    id: "default-bsn-from-id-header"
+                    when:
+                        - simple: "${header.burgerservicenummer} == null"
+                          steps:
+                              - setHeader:
+                                    name: "burgerservicenummer"
+                                    jq:
+                                        expression: ".idParam // header(\"id\") // empty"
+                                        source: "variable:endpointTransformContext"
+              - setBody:
+                    id: "build-personen-search-body"
+                    jq: |
+                        {
+                           type: (if (header("type") != null) then header("type") else "RaadpleegMetBurgerservicenummer" end),
+                           fields: (if (header("fields") != null) then header("fields") | split(",") else ["burgerservicenummer","naam","geboorte","nationaliteiten","verblijfplaats","partners"] end),
+                           gemeenteVanInschrijving: header("gemeenteVanInschrijving"),
+                           inclusiefOverledenPersonen: header("inclusiefOverledenPersonen"),
+                           geboortedatum: header("geboortedatum"),
+                           geslachtsnaam: header("geslachtsnaam"),
+                           geslacht: header("geslacht"),
+                           voorvoegsel: header("voorvoegsel"),
+                           voornamen: header("voornamen"),
+                           burgerservicenummer: (header("burgerservicenummer") | split(",")),
+                           huisletter: header("huisletter"),
+                           huisnummer: header("huisnummer"),
+                           huisnummertoevoeging: header("huisnummertoevoeging"),
+                           postcode: header("postcode"),
+                           straat: header("straat"),
+                           nummeraanduidingIdentificatie: header("nummeraanduidingIdentificatie"),
+                           adresseerbaarObjectIdentificatie: header("adresseerbaarObjectIdentificatie")
+                        } | with_entries(select(.value!=null))
+              - removeHeaders:
+                    id: "whitelist-personen-search-headers"
+                    pattern: "*"
+                    excludePattern: "type|fields|gemeenteVanInschrijving|inclusiefOverledenPersonen|geboortedatum|geslachtsnaam|geslacht|voorvoegsel|voornamen|burgerservicenummer|huisletter|huisnummer|huisnummertoevoeging|postcode|straat|nummeraanduidingIdentificatie|adresseerbaarObjectIdentificatie"
+- route:
+      id: "brp-wsgateway-connector"
+      errorHandler:
+          noErrorHandler: {}
+      from:
+          uri: "direct:iko:connector:brp-wsgateway"
+          steps:
+              - setVariable:
+                    id: "save-brp-request-body"
+                    name: "brpRequestBody"
+                    simple: "${body}"
+              - to:
+                    id: "token-cache-lookup"
+                    uri: "bean:tokenCacheProcessor?method=lookup"
+              - choice:
+                    id: "if-token-not-cached"
+                    when:
+                        - simple: "${variable.accessToken} == null"
+                          steps:
+                              - removeHeaders:
+                                    pattern: "*"
+                              - setHeader:
+                                    name: "Content-Type"
+                                    constant: "application/x-www-form-urlencoded"
+                              - setHeader:
+                                    name: "CamelHttpMethod"
+                                    constant: "POST"
+                              - setBody:
+                                    id: "build-client-credentials-body"
+                                    simple: "grant_type=client_credentials&client_id=${variable.configProperties[clientId]}&client_secret=${variable.configProperties[clientSecret]}"
+                              - toD:
+                                    id: "keycloak-client-credentials-post"
+                                    uri: "language:groovy:\"${variable.configProperties.tokenUrl}?bridgeEndpoint=true\""
+                              - unmarshal:
+                                    json: {}
+                              - setVariable:
+                                    id: "extract-subject-token"
+                                    name: "subjectToken"
+                                    simple: "${body[access_token]}"
+                              - removeHeaders:
+                                    pattern: "*"
+                              - setHeader:
+                                    name: "Content-Type"
+                                    constant: "application/x-www-form-urlencoded"
+                              - setHeader:
+                                    name: "CamelHttpMethod"
+                                    constant: "POST"
+                              - setBody:
+                                    id: "build-token-exchange-body"
+                                    simple: "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&client_id=${variable.configProperties[clientId]}&client_secret=${variable.configProperties[clientSecret]}&subject_token=${variable.subjectToken}&requested_token_type=urn:ietf:params:oauth:token-type:access_token&audience=${variable.configProperties[audience]}"
+                              - toD:
+                                    id: "keycloak-token-exchange-post"
+                                    uri: "language:groovy:\"${variable.configProperties.tokenUrl}?bridgeEndpoint=true\""
+                              - unmarshal:
+                                    json: {}
+                              - to:
+                                    id: "token-cache-store"
+                                    uri: "bean:tokenCacheProcessor?method=store"
+              - setBody:
+                    id: "restore-brp-request-body"
+                    simple: "${variable.brpRequestBody}"
+              - removeHeaders:
+                    pattern: "*"
+              - setHeader:
+                    name: "Authorization"
+                    simple: "Bearer ${variable.accessToken}"
+              - setHeader:
+                    name: "Content-Type"
+                    constant: "application/json"
+              - setHeader:
+                    name: "Accept"
+                    constant: "application/json; charset=utf-8"
+              - toD:
+                    id: "brp-personen-post"
+                    uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
+              - unmarshal:
+                    json: {}

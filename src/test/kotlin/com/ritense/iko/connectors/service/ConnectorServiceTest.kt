@@ -67,8 +67,27 @@ class ConnectorServiceTest {
                 "direct:iko:connector:my-tag:1.0.0",
                 "2.0.0",
             )
-            // Already contains a colon after tag, so regex won't match
+            // Suffix starts with a digit (version), so it is NOT treated as an
+            // auxiliary suffix and the URI is left unchanged.
             assertThat(result).isEqualTo("direct:iko:connector:my-tag:1.0.0")
+        }
+
+        @Test
+        fun `namespaces auxiliary connector sub-route with version between tag and suffix`() {
+            val result = ConnectorService.namespaceUri(
+                "direct:iko:connector:brp-wsgateway:auth",
+                "1.0.0",
+            )
+            assertThat(result).isEqualTo("direct:iko:connector:brp-wsgateway:1.0.0:auth")
+        }
+
+        @Test
+        fun `does not modify auxiliary URI whose suffix starts with a digit`() {
+            val result = ConnectorService.namespaceUri(
+                "direct:iko:connector:brp-wsgateway:1auth",
+                "1.0.0",
+            )
+            assertThat(result).isEqualTo("direct:iko:connector:brp-wsgateway:1auth")
         }
     }
 }
