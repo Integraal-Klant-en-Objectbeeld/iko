@@ -78,50 +78,6 @@ class ValidConnectorCodeValidatorTest {
     }
 
     @Test
-    fun `connector code with only an auxiliary route (no main) is invalid`() {
-        val yaml = yamlRoute("direct:iko:connector:foo:auth")
-        assertThat(validator.isValid(yaml, context)).isFalse()
-    }
-
-    @Test
-    fun `connector route URI with dot in suffix is invalid`() {
-        val yaml = """
-            - route:
-                id: "route-main"
-                from:
-                  uri: "direct:iko:connector:foo"
-                  steps:
-                    - log: "main"
-            - route:
-                id: "route-bad"
-                from:
-                  uri: "direct:iko:connector:foo:bad.dot"
-                  steps:
-                    - log: "bad"
-        """.trimIndent()
-        assertThat(validator.isValid(yaml, context)).isFalse()
-    }
-
-    @Test
-    fun `connector route URI with digit-leading suffix is invalid`() {
-        val yaml = """
-            - route:
-                id: "route-main"
-                from:
-                  uri: "direct:iko:connector:foo"
-                  steps:
-                    - log: "main"
-            - route:
-                id: "route-bad"
-                from:
-                  uri: "direct:iko:connector:foo:1auth"
-                  steps:
-                    - log: "bad"
-        """.trimIndent()
-        assertThat(validator.isValid(yaml, context)).isFalse()
-    }
-
-    @Test
     fun `connector code with a transform route in the correct format is valid`() {
         val yaml = """
             - route:

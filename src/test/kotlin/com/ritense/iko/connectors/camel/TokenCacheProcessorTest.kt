@@ -18,6 +18,7 @@ package com.ritense.iko.connectors.camel
 
 import com.ritense.iko.cache.processor.TokenCacheProcessor
 import com.ritense.iko.cache.service.CacheService
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_ID_VARIABLE
 import org.apache.camel.Exchange
 import org.apache.camel.impl.DefaultCamelContext
 import org.apache.camel.support.DefaultExchange
@@ -35,23 +36,20 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import java.time.Duration
+import java.util.UUID
 
 class TokenCacheProcessorTest {
     private val cacheService: CacheService = mock()
     private val processor = TokenCacheProcessor(cacheService)
     private lateinit var camelContext: DefaultCamelContext
 
-    private val fullConfig = mapOf(
-        "tokenUrl" to "http://keycloak/realms/test/protocol/openid-connect/token",
-        "clientId" to "iko-brp-client",
-        "audience" to "haalcentraal",
-    )
+    private val instanceId = UUID.fromString("00000000-0000-0000-0000-000000000001")
+    private val expectedKey = "token:keycloak:$instanceId"
 
     @BeforeEach
     fun setup() {
         camelContext = DefaultCamelContext()
         camelContext.start()
-        whenever(cacheService.hashString(any())).thenReturn("HASH")
     }
 
     @AfterEach
@@ -59,15 +57,16 @@ class TokenCacheProcessorTest {
         camelContext.stop()
     }
 
-    private fun newExchange(): Exchange = DefaultExchange(camelContext)
+    private fun newExchange(): Exchange = DefaultExchange(camelContext).also {
+        it.setVariable(CONNECTOR_INSTANCE_ID_VARIABLE, instanceId)
+    }
 
     @Nested
     inner class Lookup {
         @Test
         fun `cache hit sets accessToken variable`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
-            whenever(cacheService.get("token:keycloak:HASH")).thenReturn("cached-token")
+            whenever(cacheService.get(expectedKey)).thenReturn("cached-token")
 
             processor.lookup(exchange)
 
@@ -78,8 +77,7 @@ class TokenCacheProcessorTest {
         @Test
         fun `cache miss leaves accessToken variable unset`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
-            whenever(cacheService.get("token:keycloak:HASH")).thenReturn(null)
+            whenever(cacheService.get(expectedKey)).thenReturn(null)
 
             processor.lookup(exchange)
 
@@ -87,41 +85,11 @@ class TokenCacheProcessorTest {
         }
 
         @Test
-        fun `missing configProperties variable is a no-op`() {
-            val exchange = newExchange()
+        fun `missing connectorInstanceId variable throws`() {
+            val exchange = DefaultExchange(camelContext)
 
-            processor.lookup(exchange)
-
-            assertThat(exchange.getVariable("accessToken")).isNull()
+            assertThrows<IllegalStateException> { processor.lookup(exchange) }
             verifyNoInteractions(cacheService)
-        }
-
-        @Test
-        fun `blank required config keys make lookup a no-op`() {
-            val exchange = newExchange()
-            exchange.setVariable(
-                "configProperties",
-                mapOf("tokenUrl" to "", "clientId" to "x", "audience" to "y"),
-            )
-
-            processor.lookup(exchange)
-
-            assertThat(exchange.getVariable("accessToken")).isNull()
-            verifyNoInteractions(cacheService)
-        }
-
-        @Test
-        fun `cache key includes hashed tokenUrl clientId and audience`() {
-            val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
-            whenever(cacheService.get(any())).thenReturn(null)
-
-            processor.lookup(exchange)
-
-            verify(cacheService).hashString(
-                eq("http://keycloak/realms/test/protocol/openid-connect/token|iko-brp-client|haalcentraal"),
-            )
-            verify(cacheService).get("token:keycloak:HASH")
         }
     }
 
@@ -130,14 +98,13 @@ class TokenCacheProcessorTest {
         @Test
         fun `well-formed response writes to cache and sets variable`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
             exchange.message.body = mapOf("access_token" to "new-token", "expires_in" to 300)
 
             processor.store(exchange)
 
             val ttl = argumentCaptor<Duration>()
             verify(cacheService).put(
-                eq("token:keycloak:HASH"),
+                eq(expectedKey),
                 eq("new-token"),
                 ttl.capture(),
             )
@@ -149,7 +116,6 @@ class TokenCacheProcessorTest {
         @Test
         fun `ttl is expires_in times 0_9 rounded down`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
             exchange.message.body = mapOf("access_token" to "t", "expires_in" to 60)
 
             processor.store(exchange)
@@ -162,7 +128,6 @@ class TokenCacheProcessorTest {
         @Test
         fun `ttl clamps to at least one second`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
             exchange.message.body = mapOf("access_token" to "t", "expires_in" to 1)
 
             processor.store(exchange)
@@ -175,7 +140,6 @@ class TokenCacheProcessorTest {
         @Test
         fun `missing access_token throws`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
             exchange.message.body = mapOf("expires_in" to 300)
 
             assertThrows<IllegalStateException> { processor.store(exchange) }
@@ -184,7 +148,6 @@ class TokenCacheProcessorTest {
         @Test
         fun `missing expires_in throws`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
             exchange.message.body = mapOf("access_token" to "t")
 
             assertThrows<IllegalArgumentException> { processor.store(exchange) }
@@ -193,20 +156,17 @@ class TokenCacheProcessorTest {
         @Test
         fun `zero expires_in throws`() {
             val exchange = newExchange()
-            exchange.setVariable("configProperties", fullConfig)
             exchange.message.body = mapOf("access_token" to "t", "expires_in" to 0)
 
             assertThrows<IllegalArgumentException> { processor.store(exchange) }
         }
 
         @Test
-        fun `missing configProperties is a no-op`() {
-            val exchange = newExchange()
+        fun `missing connectorInstanceId throws`() {
+            val exchange = DefaultExchange(camelContext)
             exchange.message.body = mapOf("access_token" to "t", "expires_in" to 300)
 
-            processor.store(exchange)
-
-            assertThat(exchange.getVariable("accessToken")).isNull()
+            assertThrows<IllegalStateException> { processor.store(exchange) }
             verifyNoInteractions(cacheService)
         }
     }

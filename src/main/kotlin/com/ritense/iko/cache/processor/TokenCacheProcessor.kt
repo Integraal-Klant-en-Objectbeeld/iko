@@ -17,15 +17,17 @@
 package com.ritense.iko.cache.processor
 
 import com.ritense.iko.cache.service.CacheService
+import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_ID_VARIABLE
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.Exchange
 import java.time.Duration
+import java.util.UUID
 
 class TokenCacheProcessor(
     private val cacheService: CacheService,
 ) {
     fun lookup(exchange: Exchange) {
-        val key = buildCacheKey(exchange) ?: return
+        val key = buildCacheKey(exchange)
         val cached = cacheService.get(key)
         if (cached != null) {
             exchange.setVariable(ACCESS_TOKEN_VARIABLE, cached)
@@ -36,7 +38,7 @@ class TokenCacheProcessor(
     }
 
     fun store(exchange: Exchange) {
-        val key = buildCacheKey(exchange) ?: return
+        val key = buildCacheKey(exchange)
 
         @Suppress("UNCHECKED_CAST")
         val body = exchange.message.getBody(Map::class.java) as? Map<String, Any?>
@@ -52,19 +54,10 @@ class TokenCacheProcessor(
         logger.debug { "Token cache PUT key='$key' ttlSec='$ttlSeconds'" }
     }
 
-    private fun buildCacheKey(exchange: Exchange): String? {
-        @Suppress("UNCHECKED_CAST")
-        val config = exchange.getVariable("configProperties", Map::class.java)
-            as? Map<String, String>
-            ?: return null
-        val tokenUrl = config["tokenUrl"].orEmpty()
-        val clientId = config["clientId"].orEmpty()
-        val audience = config["audience"].orEmpty()
-        if (tokenUrl.isBlank() || clientId.isBlank() || audience.isBlank()) {
-            return null
-        }
-        val hash = cacheService.hashString("$tokenUrl|$clientId|$audience")
-        return "token:keycloak:$hash"
+    private fun buildCacheKey(exchange: Exchange): String {
+        val instanceId = exchange.getVariable(CONNECTOR_INSTANCE_ID_VARIABLE, UUID::class.java)
+            ?: error("$CONNECTOR_INSTANCE_ID_VARIABLE variable not set; ensure direct:iko:endpoint:validate ran before this step")
+        return "token:keycloak:$instanceId"
     }
 
     companion object {

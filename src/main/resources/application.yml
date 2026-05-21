@@ -116,18 +116,6 @@ camel:
         backlog-size: 1000
         remove-on-dump: true
         trace-pattern: "*"
-    ssl:
-        key-managers:
-            key-password: ${IKO_KEY_PASSWORD:changeit}
-            key-store:
-                type: JKS
-                resource: ${IKO_KEYSTORE_RESOURCE:file:./certs/client.jks}
-                password: ${IKO_KEYSTORE_PASSWORD:changeit}
-        trust-managers:
-            key-store:
-                type: JKS
-                resource: ${IKO_TRUSTSTORE_RESOURCE:file:./certs/truststore.jks}
-                password: ${IKO_TRUSTSTORE_PASSWORD:changeit}
 
 iko:
     security:
@@ -139,9 +127,9 @@ iko:
 
 logging:
     level:
-        org.apache.camel.component.http: DEBUG
-        org.apache.camel.component.rest: DEBUG
-        org.apache.camel.component.rest.openapi: DEBUG
-        org.apache.hc.client5.http: DEBUG
-        org.apache.hc.client5.http.wire: DEBUG
-        org.apache.hc.client5.http.headers: DEBUG
+        org.apache.camel.component.http: INFO
+        org.apache.camel.component.rest: INFO
+        org.apache.camel.component.rest.openapi: INFO
+        org.apache.hc.client5.http: INFO
+        org.apache.hc.client5.http.wire: INFO
+        org.apache.hc.client5.http.headers: INFO

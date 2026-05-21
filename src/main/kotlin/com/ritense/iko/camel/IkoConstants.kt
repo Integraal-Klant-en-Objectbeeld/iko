@@ -54,9 +54,6 @@ object IkoConstants {
         // ConnectorService.namespaceUri idempotent on already-namespaced URIs.
         const val CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN = """^direct:iko:connector:([^:.]+)(:[A-Za-z][^:.]*)?$"""
 
-        // Main route only — at least one of these must exist per connector.
-        const val CONNECTOR_CODE_MAIN_CONNECTOR_ROUTE_PATTERN = """^direct:iko:connector:[^:.]+$"""
-
         const val CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN = """^direct:iko:endpoint:transform:([^:.]+)(\..*)?$"""
     }
 }
