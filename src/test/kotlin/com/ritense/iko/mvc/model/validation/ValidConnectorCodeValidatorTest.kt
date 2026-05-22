@@ -59,25 +59,6 @@ class ValidConnectorCodeValidatorTest {
     }
 
     @Test
-    fun `connector code with main route plus auxiliary suffix route is valid`() {
-        val yaml = """
-            - route:
-                id: "route-main"
-                from:
-                  uri: "direct:iko:connector:foo"
-                  steps:
-                    - log: "main"
-            - route:
-                id: "route-aux"
-                from:
-                  uri: "direct:iko:connector:foo:auth"
-                  steps:
-                    - log: "aux"
-        """.trimIndent()
-        assertThat(validator.isValid(yaml, context)).isTrue()
-    }
-
-    @Test
     fun `connector code with a transform route in the correct format is valid`() {
         val yaml = """
             - route:

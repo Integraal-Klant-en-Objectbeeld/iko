@@ -270,9 +270,7 @@ open class ConnectorService(
 
         internal fun namespaceUri(uri: String, version: String): String {
             CONNECTOR_URI_REGEX.matchEntire(uri)?.let { match ->
-                val tag = match.groupValues[1]
-                val suffix = match.groupValues[2] // empty when no auxiliary suffix
-                return "direct:iko:connector:$tag:$version$suffix"
+                return "direct:iko:connector:${match.groupValues[1]}:$version"
             }
             TRANSFORM_URI_REGEX.matchEntire(uri)?.let { match ->
                 val tag = match.groupValues[1]

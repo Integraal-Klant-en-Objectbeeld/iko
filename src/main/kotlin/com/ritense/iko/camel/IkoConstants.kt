@@ -48,11 +48,7 @@ object IkoConstants {
         const val ROLES_PATTERN = """^[A-Za-z0-9_-]+(,[A-Za-z0-9_-]+)*$"""
         const val WORD_CHARACTER_PATTERN = """^[A-Za-z0-9_-]+$"""
 
-        // Main route OR auxiliary sub-route. Group 1 = tag, group 2 = optional ":suffix".
-        // The auxiliary suffix MUST start with a letter so version-shaped strings
-        // (e.g. ":1.0.0") are NOT treated as auxiliary suffixes; this keeps
-        // ConnectorService.namespaceUri idempotent on already-namespaced URIs.
-        const val CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN = """^direct:iko:connector:([^:.]+)(:[A-Za-z][^:.]*)?$"""
+        const val CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN = """^direct:iko:connector:([^:.]+)$"""
 
         const val CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN = """^direct:iko:endpoint:transform:([^:.]+)(\..*)?$"""
     }
