@@ -32,8 +32,8 @@ import java.time.Duration
 @Component("adminSessionProperties")
 @ConfigurationProperties(prefix = "iko.security.admin.session")
 internal data class AdminSessionProperties(
-    val timeout: Duration = Duration.ofMinutes(30),
-    val warningBefore: Duration = Duration.ofMinutes(2),
+    var timeout: Duration = Duration.ofMinutes(30),
+    var warningBefore: Duration = Duration.ofMinutes(2),
 ) {
     val timeoutSeconds: Long get() = timeout.seconds
 
