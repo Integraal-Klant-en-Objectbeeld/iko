@@ -34,6 +34,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
 import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 
 @EnableWebSecurity
 @Configuration
@@ -140,6 +141,11 @@ class SecurityConfig {
                     .permitAll()
             }.csrf {
                 it.disable()
+            }.exceptionHandling { ex ->
+                ex.defaultAuthenticationEntryPointFor(
+                    HtmxAuthenticationEntryPoint(),
+                    RequestHeaderRequestMatcher("Hx-Request"),
+                )
             }
 
         return http.build()
