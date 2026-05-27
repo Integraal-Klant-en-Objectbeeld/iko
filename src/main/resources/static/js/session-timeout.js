@@ -52,6 +52,7 @@
             countdownTimer = setInterval(function () {
                 remaining -= 1;
                 countdownEl.textContent = remaining;
+                console.debug("[session-timeout] countdown: " + remaining + "s");
                 if (remaining <= 0) {
                     clearInterval(countdownTimer);
                     logout();
