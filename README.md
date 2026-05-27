@@ -67,6 +67,13 @@ Notes:
     - Disables OSIV (`spring.jpa.open-in-view=false`)
     - Camel YAML routes path: `classpath:camel/*.yaml`
     - Security: OAuth2/OIDC login for admin (roles claim + required admin roles configurable via `iko.security.admin.rolesClaim` / `iko.security.admin.authorities`) and JWT resource server for APIs (authorities from claim `resource_access.iko.roles`)
+    - Admin session timeout: the warning modal and server session are driven by `iko.security.admin.session.timeout` (default `30m`) and `iko.security.admin.session.warning-before` (default `2m`). The modal appears after `timeout - warning-before` of inactivity, then counts down for `warning-before`. `server.servlet.session.timeout` is bound to `timeout`, so they stay in sync.
+        - Override locally via `.env` (Spring relaxed binding):
+          ```
+          IKO_SECURITY_ADMIN_SESSION_TIMEOUT=30m
+          IKO_SECURITY_ADMIN_SESSION_WARNINGBEFORE=2m
+          ```
+        - For quick manual testing, use short values such as `45s` / `30s` (modal after 15s of inactivity).
 
 ---
 
