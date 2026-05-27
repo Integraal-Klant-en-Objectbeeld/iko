@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Ritense BV, the Netherlands.
+ * Copyright 2015-2022 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
