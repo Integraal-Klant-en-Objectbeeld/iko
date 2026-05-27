@@ -53,7 +53,6 @@
             countdownTimer = setInterval(function () {
                 remaining -= 1;
                 countdownEl.textContent = remaining;
-                console.debug("[session-timeout] countdown: " + remaining + "s");
                 if (remaining <= 0) {
                     clearInterval(countdownTimer);
                     logout();
@@ -73,6 +72,7 @@
             if (warningActive) return;
             clearTimeout(idleTimer);
             idleTimer = setTimeout(showWarning, idleMs);
+            console.debug("[session-timeout] inactivity timer refreshed");
         }
 
         function continueSession(event) {
