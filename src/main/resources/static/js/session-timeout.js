@@ -23,11 +23,14 @@
 
         const idleMs = (timeoutSec - warningSec) * 1000;
         // Keep-alive throttle: while the user is active, ping the server at
-        // most once per idle window. This stays within the session lifetime
-        // (timeout - warning leaves the warning window as margin), so genuine
-        // activity actually extends the server session instead of only
-        // resetting the in-browser timer.
-        const keepAliveThrottleMs = idleMs;
+        // most once per this interval so genuine activity actually extends the
+        // server session (not just the in-browser timer). Half the idle window
+        // keeps the ping comfortably ahead of the warning, capped at 60s so a
+        // long production timeout still refreshes frequently enough.
+        const keepAliveThrottleMs = Math.max(
+            Math.min(idleMs / 2, 60000),
+            1000,
+        );
         const countdownEl = document.getElementById(
             "session-timeout-countdown",
         );
