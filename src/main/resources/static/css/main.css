@@ -531,6 +531,12 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
 
 /* Modal */
 
+/* Prevent the session timeout modal's light DOM from flashing before the
+   Carbon cds-modal custom element is upgraded. */
+#session-timeout-modal:not(:defined) {
+    display: none;
+}
+
 cds-form-group {
     display: flex;
     flex-direction: column;

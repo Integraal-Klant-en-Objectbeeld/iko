@@ -62,6 +62,7 @@
         <script src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"></script>
         <script src="/assets/js/monaco-init.js"></script>
         <script src="/assets/js/main.js"></script>
+        <script src="/assets/js/session-timeout.js"></script>
 
         <!-- Dynamically load Carbon Web Components -->
         <script type="module">
@@ -335,6 +336,42 @@
             class="cds-theme-zone-g10"
             data-carbon-theme="g10"
         ></div>
+
+        <!-- Session timeout modal (rendered hidden; shown by session-timeout.js) -->
+        <cds-modal
+            id="session-timeout-modal"
+            class="cds-theme-zone-g10"
+            data-carbon-theme="g10"
+            prevent-close-on-click-outside="true"
+            th:data-timeout-seconds="${@adminSessionProperties.timeoutSeconds}"
+            th:data-warning-seconds="${@adminSessionProperties.warningBeforeSeconds}"
+        >
+            <cds-modal-header>
+                <cds-modal-heading>
+                    Uw sessie verloopt binnenkort
+                </cds-modal-heading>
+            </cds-modal-header>
+            <cds-modal-body>
+                U wordt over
+                <span id="session-timeout-countdown">0</span>
+                seconden automatisch afgemeld wegens inactiviteit. Wilt u
+                ingelogd blijven?
+            </cds-modal-body>
+            <cds-modal-footer>
+                <cds-modal-footer-button
+                    id="session-timeout-logout"
+                    kind="secondary"
+                >
+                    Afmelden
+                </cds-modal-footer-button>
+                <cds-modal-footer-button
+                    id="session-timeout-continue"
+                    kind="primary"
+                >
+                    Doorgaan
+                </cds-modal-footer-button>
+            </cds-modal-footer>
+        </cds-modal>
         <script type="text/javascript">
             // htmx.logAll();
             htmx.config.allowNestedOobSwaps = false;
