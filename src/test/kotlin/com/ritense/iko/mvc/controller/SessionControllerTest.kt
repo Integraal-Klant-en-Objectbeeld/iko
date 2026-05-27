@@ -17,19 +17,22 @@
 package com.ritense.iko.mvc.controller
 
 import jakarta.servlet.http.HttpServletRequest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.springframework.http.HttpStatus
 
 class SessionControllerTest {
     private val controller = SessionController()
 
     @Test
-    fun `ping touches the existing session to reset its inactivity timer`() {
+    fun `ping touches the existing session and returns 204`() {
         val request = mock<HttpServletRequest>()
 
-        controller.ping(request)
+        val response = controller.ping(request)
 
         verify(request).getSession(false)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
     }
 }

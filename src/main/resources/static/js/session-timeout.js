@@ -37,7 +37,8 @@
                 "s countdown",
         );
 
-        function logout() {
+        function logout(event) {
+            if (event) event.preventDefault();
             console.debug("[session-timeout] logging out");
             const form = document.createElement("form");
             form.method = "POST";
@@ -74,7 +75,8 @@
             idleTimer = setTimeout(showWarning, idleMs);
         }
 
-        function continueSession() {
+        function continueSession(event) {
+            if (event) event.preventDefault();
             console.debug("[session-timeout] continue clicked, pinging server");
             fetch("/admin/session/ping", { credentials: "same-origin" })
                 .then(function (response) {

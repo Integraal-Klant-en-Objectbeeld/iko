@@ -17,11 +17,10 @@
 package com.ritense.iko.mvc.controller
 
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
 
 /**
  * Keep-alive endpoint backing the "Continue" action of the session timeout
@@ -33,9 +32,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 @RequestMapping("/admin/session")
 internal class SessionController {
     @GetMapping("/ping")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun ping(request: HttpServletRequest) {
+    fun ping(request: HttpServletRequest): ResponseEntity<Void> {
         // Accessing the existing session resets its inactivity timer.
         request.getSession(false)
+        return ResponseEntity.noContent().build()
     }
 }
