@@ -41,6 +41,14 @@ class OpenApiMockGenerator(
             OpenAPIV3Parser().readContents(content).openAPI
                 ?: error("Failed to parse OpenAPI spec from classpath: $path")
         }
+        specUri.startsWith("file:") -> {
+            val path = specUri.removePrefix("file:")
+            val file = java.io.File(path)
+            if (!file.isFile) error("File not found: $path")
+            val content = file.readText()
+            OpenAPIV3Parser().readContents(content).openAPI
+                ?: error("Failed to parse OpenAPI spec from file: $path")
+        }
         else -> OpenAPIV3Parser().read(specUri)
             ?: error("Failed to fetch or parse OpenAPI spec from: $specUri")
     }
