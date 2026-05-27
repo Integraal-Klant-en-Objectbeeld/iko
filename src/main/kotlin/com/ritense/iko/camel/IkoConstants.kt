@@ -47,7 +47,9 @@ object IkoConstants {
     object Validation {
         const val ROLES_PATTERN = """^[A-Za-z0-9_-]+(,[A-Za-z0-9_-]+)*$"""
         const val WORD_CHARACTER_PATTERN = """^[A-Za-z0-9_-]+$"""
+
         const val CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN = """^direct:iko:connector:([^:.]+)$"""
+
         const val CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN = """^direct:iko:endpoint:transform:([^:.]+)(\..*)?$"""
     }
 }

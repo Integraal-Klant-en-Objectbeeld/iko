@@ -16,7 +16,6 @@
 
 package com.ritense.iko.mvc.model.validation
 
-import com.ritense.iko.camel.IkoConstants.Validation.CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.apache.camel.CamelContext
@@ -58,10 +57,6 @@ class ValidConnectorCodeValidator(
             routeBuilder.routeCollection.routes.map { it.input.uri }
         }
 
-        require(allUris.any { CONNECTOR_URI_REGEX.matches(it) }) {
-            "Connector code must contain at least one 'direct:iko:connector:<tag>' route"
-        }
-
         allUris.filter { TRANSFORM_PREFIX_REGEX.containsMatchIn(it) }.forEach { uri ->
             require(TRANSFORM_URI_REGEX.matches(uri)) {
                 "Transform route '$uri' must use format 'direct:iko:endpoint:transform:<tag>.<operation>'"
@@ -70,7 +65,6 @@ class ValidConnectorCodeValidator(
     }
 
     companion object {
-        private val CONNECTOR_URI_REGEX = Regex(CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN)
         private val TRANSFORM_URI_REGEX = Regex("""^direct:iko:endpoint:transform:[^:.]+\.[^:.]+$""")
         private val TRANSFORM_PREFIX_REGEX = Regex("""^direct:iko:endpoint:transform:""")
     }

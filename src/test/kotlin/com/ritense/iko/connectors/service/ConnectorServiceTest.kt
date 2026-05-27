@@ -67,7 +67,6 @@ class ConnectorServiceTest {
                 "direct:iko:connector:my-tag:1.0.0",
                 "2.0.0",
             )
-            // Already contains a colon after tag, so regex won't match
             assertThat(result).isEqualTo("direct:iko:connector:my-tag:1.0.0")
         }
     }

@@ -1,0 +1,25 @@
+#@no-log
+@client_id=iko-brp-client
+@secret=DiIBKNMSDoEjNyIEBb69U9G67Mw71srP
+POST http://keycloak:8082/auth/realms/valtimo/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id={{client_id}}
+    &client_secret={{secret}}
+
+> {%
+    client.global.set("token",response.body['access_token'])
+%}
+
+###
+#@no-log
+POST http://keycloak:8082/auth/realms/valtimo/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:token-exchange&client_id={{client_id}}
+    &client_secret={{secret}}&subject_token={{token}}&requested_token_type=urn:ietf:params:oauth:token-type:access_token
+    &audience=haalcentraal
+
+> {%
+   response.body['access_token']
+%}
