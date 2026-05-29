@@ -1,7 +1,12 @@
 server:
+    forward-headers-strategy: framework
     servlet:
         session:
             timeout: ${iko.security.admin.session.timeout:30m}
+            cookie:
+                http-only: true
+                same-site: lax
+                secure: ${SERVER_SERVLET_SESSION_COOKIE_SECURE:false}
 
 spring:
     application:

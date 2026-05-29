@@ -70,7 +70,7 @@ Key headers and variables used throughout Camel routes:
 
 1. **Actuator** (`/actuator/**`): Health/info public, rest requires `ROLE_ADMIN`. JWT stateless.
 2. **API** (`/endpoints/**`, `/aggregated-data-profiles/**`): JWT bearer tokens. Authorities from `resource_access.iko.roles` claim.
-3. **Admin UI** (`/admin/**`): OAuth2/OIDC via Keycloak. Requires at least one configured admin authority (`iko.security.admin.authorities`); roles are read from the OIDC ID token claim configured via `iko.security.admin.rolesClaim`. CSRF disabled.
+3. **Admin UI** (`/admin/**`): OAuth2/OIDC via Keycloak. Requires at least one configured admin authority (`iko.security.admin.authorities`); roles are read from the OIDC ID token claim configured via `iko.security.admin.rolesClaim`. CSRF is enforced via `CookieCsrfTokenRepository` (non-HttpOnly `XSRF-TOKEN` cookie + `X-XSRF-TOKEN` header), with an `htmx:configRequest` listener in `layout-internal.html` attaching the header to every mutating request. The `_csrf` form parameter is also accepted (used by the logout form). Both `JSESSIONID` and `XSRF-TOKEN` are issued with `SameSite=Lax`; their `Secure` flag is driven by the `SERVER_SERVLET_SESSION_COOKIE_SECURE` env var (false for local HTTP, true for HTTPS deployments). `server.forward-headers-strategy: framework` lets Spring honour `X-Forwarded-Proto` from the ingress.
 
 ## Coding Conventions
 
