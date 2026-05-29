@@ -167,4 +167,7 @@ class SecurityConfig {
 
     @Bean
     fun authRoute() = AuthRoute()
+
+    @Bean
+    fun userHeaderProcessor() = UserHeaderProcessor()
 }

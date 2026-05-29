@@ -52,7 +52,7 @@ Other operations may be defined in newer versions of the BRP spec; inspect the O
 
 ## Trace log identifiers
 
-Both routes and the meaningful steps inside them carry human-readable `id` values so Camel trace logs and error messages are searchable. The connector route is `REFERENCE-connector` (becomes `connector:REFERENCE:<version>:REFERENCE-connector` after version-namespacing at load time); the endpoint-transform route is `REFERENCE-personen-transform`. Step IDs to watch for: `token-cache-lookup`, `if-token-not-cached`, `keycloak-client-credentials-post`, `extract-subject-token`, `keycloak-token-exchange-post`, `token-cache-store`, `brp-personen-post`. Trivial `setHeader`/`removeHeaders` steps are intentionally unnamed to keep traces concise.
+Both routes and the meaningful steps inside them carry human-readable `id` values so Camel trace logs and error messages are searchable. The connector route is `REFERENCE-connector` (becomes `connector:REFERENCE:<version>:REFERENCE-connector` after version-namespacing at load time); the endpoint-transform route is `REFERENCE-personen-transform`. Step IDs to watch for: `token-cache-lookup`, `if-token-not-cached`, `keycloak-client-credentials-post`, `extract-subject-token`, `keycloak-token-exchange-post`, `token-cache-store`, `set-x-gebruiker-header`, `brp-personen-post`. Trivial `setHeader`/`removeHeaders` steps are intentionally unnamed to keep traces concise.
 
 ## Token caching
 
@@ -189,6 +189,9 @@ Copy the connector code below and replace `REFERENCE` with the connector's tag (
                     simple: "${variable.brpRequestBody}"
               - removeHeaders:
                     pattern: "*"
+              - to:
+                    id: "set-x-gebruiker-header"
+                    uri: "bean:userHeaderProcessor?method=addEmailHeader"
               - setHeader:
                     name: "Authorization"
                     simple: "Bearer ${variable.accessToken}"
@@ -239,6 +242,7 @@ sequenceDiagram
         Cache-->>Conn: variable.accessToken = cached token
     end
     Conn->>Conn: restore body from variable.brpRequestBody
+    Conn->>Conn: setHeader x-gebruiker: <email> from SecurityContext
     Conn->>Conn: setHeader Authorization: Bearer <accessToken>
     Conn->>Conn: setHeader Content-Type / Accept
     Conn->>BRP: POST /personen via rest-openapi (body = JSON search request)
@@ -270,6 +274,8 @@ Identical in shape to the X-Api-Key BRP connector: a `choice/when` defaults `bur
 **Map key access in Simple vs Groovy** — The two `setBody` steps above use bracket notation `${variable.configProperties[clientId]}` because Camel's Simple language OGNL treats `.clientId` as a method invocation on the `LinkedHashMap` (which fails with `Method with name: clientId not found`). The `toD` URI lines further down are wrapped in `language:groovy:"..."` and so use the dot form `${variable.configProperties.tokenUrl}` because Groovy's `.` operator does Map-property access.
 
 **`setBody simple: "${variable.brpRequestBody}"`** — Restores the BRP search body that the endpoint-transform built. `removeHeaders pattern: "*"` immediately after clears the OAuth-related headers so they do not leak into the BRP request.
+
+**`to: "bean:userHeaderProcessor?method=addEmailHeader"`** — Invokes the `UserHeaderProcessor` Spring bean. The bean reads the `email` claim from the current authentication (`Jwt` principal for API callers such as GZAC, `OidcUser` for the admin UI) and sets it as the `x-gebruiker` HTTP header so the WS Gateway can attribute the call to the logged-in employee. When no email is available the step logs a warning and proceeds without the header rather than failing the request.
 
 **`setHeader Authorization: Bearer ${variable.accessToken}`** — Sets the bearer token for the BRP call.
 

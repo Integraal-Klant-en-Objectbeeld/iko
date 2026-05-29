@@ -104,6 +104,9 @@
                     simple: "${variable.brpRequestBody}"
               - removeHeaders:
                     pattern: "*"
+              - to:
+                    id: "set-x-gebruiker-header"
+                    uri: "bean:userHeaderProcessor?method=addEmailHeader"
               - setHeader:
                     name: "Authorization"
                     simple: "Bearer ${variable.accessToken}"
