@@ -34,6 +34,9 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
 import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 
 @EnableWebSecurity
@@ -115,6 +118,7 @@ class SecurityConfig {
         oidcClientInitiatedLogoutSuccessHandler: OidcClientInitiatedLogoutSuccessHandler,
         @Value("\${iko.security.admin.rolesClaim:roles}") adminRolesClaim: String,
         @Value("\${iko.security.admin.authorities:ROLE_ADMIN}") adminAuthorities: Array<String>,
+        @Value("\${server.servlet.session.cookie.secure:false}") cookieSecure: Boolean,
     ): SecurityFilterChain {
         http
             .securityMatcher("/admin/**", "/oauth2/**", "/login/**", "/logout/**")
@@ -139,9 +143,19 @@ class SecurityConfig {
                     .hasAnyAuthority(*adminAuthorities)
                     .requestMatchers("/oauth2/**", "/login/**", "/logout")
                     .permitAll()
-            }.csrf {
-                it.disable()
-            }.exceptionHandling { ex ->
+            }.csrf { csrf ->
+                val repository =
+                    CookieCsrfTokenRepository.withHttpOnlyFalse().apply {
+                        setCookieCustomizer { cookie ->
+                            cookie.sameSite("Lax")
+                            cookie.secure(cookieSecure)
+                            cookie.path("/")
+                        }
+                    }
+                csrf.csrfTokenRepository(repository)
+                csrf.csrfTokenRequestHandler(CsrfTokenRequestAttributeHandler())
+            }.addFilterAfter(CsrfCookieFilter(), BasicAuthenticationFilter::class.java)
+            .exceptionHandling { ex ->
                 ex.defaultAuthenticationEntryPointFor(
                     HtmxAuthenticationEntryPoint(),
                     RequestHeaderRequestMatcher("Hx-Request"),

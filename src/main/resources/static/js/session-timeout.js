@@ -50,11 +50,7 @@
         function logout(event) {
             if (event) event.preventDefault();
             console.debug("[session-timeout] logging out");
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = "/logout";
-            document.body.appendChild(form);
-            form.submit();
+            window.ikoLogout();
         }
 
         function startCountdown() {
