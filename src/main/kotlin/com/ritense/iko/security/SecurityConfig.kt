@@ -34,8 +34,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
 import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
+import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 
@@ -148,13 +148,13 @@ class SecurityConfig {
                     CookieCsrfTokenRepository.withHttpOnlyFalse().apply {
                         setCookieCustomizer { cookie ->
                             cookie.sameSite("Lax")
-                            cookie.secure(cookieSecure)
+                            cookie.secure(cookieSecure) // true in prod over HTTPS
                             cookie.path("/")
                         }
                     }
                 csrf.csrfTokenRepository(repository)
                 csrf.csrfTokenRequestHandler(CsrfTokenRequestAttributeHandler())
-            }.addFilterAfter(CsrfCookieFilter(), BasicAuthenticationFilter::class.java)
+            }.addFilterAfter(CsrfCookieFilter(), CsrfFilter::class.java)
             .exceptionHandling { ex ->
                 ex.defaultAuthenticationEntryPointFor(
                     HtmxAuthenticationEntryPoint(),

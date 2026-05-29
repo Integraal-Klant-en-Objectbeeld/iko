@@ -35,7 +35,7 @@ internal class CsrfCookieFilter : OncePerRequestFilter() {
         filterChain: FilterChain,
     ) {
         val csrfToken = request.getAttribute(CsrfToken::class.java.name) as? CsrfToken
-        csrfToken?.token
+        csrfToken?.token // Enforce getting the token on each request, so token is refreshed
         filterChain.doFilter(request, response)
     }
 }
