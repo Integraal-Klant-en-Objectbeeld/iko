@@ -202,6 +202,10 @@
                                 </cds-structured-list-row>
                             </cds-structured-list-body>
                         </cds-structured-list>
+                        <p
+                            class="iko-version-line"
+                            th:text="|Version ${@buildProperties.version} (${#temporals.format(@buildProperties.time, 'yyyy-MM-dd', 'UTC')})|"
+                        ></p>
                     </cds-tab-panel>
                 </cds-tab-panels>
             </cds-header-panel>
