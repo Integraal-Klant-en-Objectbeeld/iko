@@ -18,5 +18,8 @@ package com.ritense.iko.logging.repository
 
 import com.ritense.iko.logging.domain.LoggingEvent
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
-internal interface LoggingEventRepository : JpaRepository<LoggingEvent, Long>
+internal interface LoggingEventRepository :
+    JpaRepository<LoggingEvent, Long>,
+    JpaSpecificationExecutor<LoggingEvent>

@@ -1,0 +1,145 @@
+<!--
+ Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<th:block th:fragment="logging-detail-modal">
+    <cds-modal
+        open
+        size="lg"
+        id="logging-detail-modal"
+        prevent-close-on-click-outside
+    >
+        <cds-modal-header>
+            <cds-modal-close-button></cds-modal-close-button>
+            <cds-modal-heading>Log Event Detail</cds-modal-heading>
+        </cds-modal-header>
+        <cds-modal-body>
+            <cds-structured-list>
+                <cds-structured-list-body>
+                    <cds-structured-list-row>
+                        <cds-structured-list-cell
+                            ><strong
+                                >Timestamp</strong
+                            ></cds-structured-list-cell
+                        >
+                        <cds-structured-list-cell
+                            th:text="${#temporals.format(event.timestampDateTime, 'dd-MM-yyyy HH:mm:ss.SSS')}"
+                        ></cds-structured-list-cell>
+                    </cds-structured-list-row>
+                    <cds-structured-list-row>
+                        <cds-structured-list-cell
+                            ><strong>Level</strong></cds-structured-list-cell
+                        >
+                        <cds-structured-list-cell>
+                            <cds-tag
+                                th:type="${event.level == 'ERROR' ? 'red' :
+                                           event.level == 'WARN'  ? 'yellow' :
+                                           event.level == 'INFO'  ? 'blue' :
+                                           event.level == 'DEBUG' ? 'cool-gray' : 'gray'}"
+                                th:text="${event.level}"
+                            ></cds-tag>
+                        </cds-structured-list-cell>
+                    </cds-structured-list-row>
+                    <cds-structured-list-row>
+                        <cds-structured-list-cell
+                            ><strong>Logger</strong></cds-structured-list-cell
+                        >
+                        <cds-structured-list-cell
+                            th:text="${event.loggerName}"
+                        ></cds-structured-list-cell>
+                    </cds-structured-list-row>
+                    <cds-structured-list-row>
+                        <cds-structured-list-cell
+                            ><strong>Thread</strong></cds-structured-list-cell
+                        >
+                        <cds-structured-list-cell
+                            th:text="${event.threadName}"
+                        ></cds-structured-list-cell>
+                    </cds-structured-list-row>
+                    <cds-structured-list-row>
+                        <cds-structured-list-cell
+                            ><strong>Message</strong></cds-structured-list-cell
+                        >
+                        <cds-structured-list-cell
+                            th:text="${event.formattedMessage}"
+                            style="
+                                white-space: pre-wrap;
+                                word-break: break-word;
+                            "
+                        ></cds-structured-list-cell>
+                    </cds-structured-list-row>
+                </cds-structured-list-body>
+            </cds-structured-list>
+
+            <th:block th:if="${!event.properties.isEmpty()}">
+                <h5
+                    style="
+                        margin: var(--cds-spacing-05) 0 var(--cds-spacing-03);
+                    "
+                >
+                    Properties
+                </h5>
+                <cds-structured-list>
+                    <cds-structured-list-head>
+                        <cds-structured-list-header-row>
+                            <cds-structured-list-header-cell
+                                >Key</cds-structured-list-header-cell
+                            >
+                            <cds-structured-list-header-cell
+                                >Value</cds-structured-list-header-cell
+                            >
+                        </cds-structured-list-header-row>
+                    </cds-structured-list-head>
+                    <cds-structured-list-body>
+                        <cds-structured-list-row
+                            th:each="prop : ${event.properties}"
+                        >
+                            <cds-structured-list-cell
+                                th:text="${prop.id.mappedKey}"
+                            ></cds-structured-list-cell>
+                            <cds-structured-list-cell
+                                th:text="${prop.mappedValue}"
+                            ></cds-structured-list-cell>
+                        </cds-structured-list-row>
+                    </cds-structured-list-body>
+                </cds-structured-list>
+            </th:block>
+
+            <th:block th:if="${!#strings.isEmpty(event.stacktrace)}">
+                <h5
+                    style="
+                        margin: var(--cds-spacing-05) 0 var(--cds-spacing-03);
+                    "
+                >
+                    Stacktrace
+                </h5>
+                <cds-code-snippet
+                    type="multi"
+                    th:text="${event.stacktrace}"
+                    style="max-height: 20rem"
+                ></cds-code-snippet>
+            </th:block>
+        </cds-modal-body>
+        <cds-modal-footer>
+            <cds-modal-footer-button
+                kind="secondary"
+                data-modal-close
+                onclick="document.getElementById('logging-detail-modal').open = false; document.getElementById('modal-container').innerHTML = '';"
+            >
+                Close
+            </cds-modal-footer-button>
+        </cds-modal-footer>
+    </cds-modal>
+</th:block>
