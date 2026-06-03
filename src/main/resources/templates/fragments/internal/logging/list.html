@@ -74,7 +74,7 @@
                         <cds-select
                             name="level"
                             size="md"
-                            th:value="${filter?.level} ?: ''"
+                            th:attr="value=${filter?.level != null and !#strings.isEmpty(filter.level)} ? ${filter.level} : null"
                         >
                             <cds-select-item value=""
                                 >Log level</cds-select-item
