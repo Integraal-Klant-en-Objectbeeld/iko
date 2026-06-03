@@ -27,6 +27,7 @@ import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.PROFILE_NAME
 import com.ritense.iko.camel.IkoConstants.Variables.PROFILE_VERSION
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
+import com.ritense.iko.logging.MdcContextProcessor
 import org.apache.camel.builder.RouteBuilder
 
 class AggregatedDataProfileTemplatesRouteBuilder(
@@ -71,6 +72,7 @@ class AggregatedDataProfileTemplatesRouteBuilder(
 
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
             }
+            .process(MdcContextProcessor())
             .toD("direct:adp:\${variable.aggregatedDataProfileId}")
     }
 }
