@@ -19,7 +19,29 @@ package com.ritense.iko.logging.repository
 import com.ritense.iko.logging.domain.LoggingEvent
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 internal interface LoggingEventRepository :
     JpaRepository<LoggingEvent, Long>,
-    JpaSpecificationExecutor<LoggingEvent>
+    JpaSpecificationExecutor<LoggingEvent> {
+
+    @Modifying
+    @Query("DELETE FROM LoggingEventProperty p WHERE p.id.eventId IN (SELECT e.eventId FROM LoggingEvent e WHERE e.timestamp < :threshold)")
+    fun deletePropertiesOlderThan(
+        @Param("threshold") threshold: Long,
+    ): Int
+
+    @Modifying
+    @Query("DELETE FROM LoggingEventException x WHERE x.id.eventId IN (SELECT e.eventId FROM LoggingEvent e WHERE e.timestamp < :threshold)")
+    fun deleteExceptionsOlderThan(
+        @Param("threshold") threshold: Long,
+    ): Int
+
+    @Modifying
+    @Query("DELETE FROM LoggingEvent e WHERE e.timestamp < :threshold")
+    fun deleteEventsOlderThan(
+        @Param("threshold") threshold: Long,
+    ): Int
+}
