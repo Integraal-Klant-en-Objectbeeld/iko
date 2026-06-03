@@ -26,110 +26,49 @@
             <cds-modal-heading>Log Event Detail</cds-modal-heading>
         </cds-modal-header>
         <cds-modal-body>
-            <cds-structured-list>
-                <cds-structured-list-body>
-                    <cds-structured-list-row>
-                        <cds-structured-list-cell
-                            ><strong
-                                >Timestamp</strong
-                            ></cds-structured-list-cell
-                        >
-                        <cds-structured-list-cell
-                            th:text="${#temporals.format(event.timestampDateTime, 'dd-MM-yyyy HH:mm:ss.SSS')}"
-                        ></cds-structured-list-cell>
-                    </cds-structured-list-row>
-                    <cds-structured-list-row>
-                        <cds-structured-list-cell
-                            ><strong>Level</strong></cds-structured-list-cell
-                        >
-                        <cds-structured-list-cell>
-                            <cds-tag
-                                th:type="${event.level == 'ERROR' ? 'red' :
-                                           event.level == 'WARN'  ? 'yellow' :
-                                           event.level == 'INFO'  ? 'blue' :
-                                           event.level == 'DEBUG' ? 'cool-gray' : 'gray'}"
-                                th:text="${event.level}"
-                            ></cds-tag>
-                        </cds-structured-list-cell>
-                    </cds-structured-list-row>
-                    <cds-structured-list-row>
-                        <cds-structured-list-cell
-                            ><strong>Logger</strong></cds-structured-list-cell
-                        >
-                        <cds-structured-list-cell
-                            th:text="${event.loggerName}"
-                        ></cds-structured-list-cell>
-                    </cds-structured-list-row>
-                    <cds-structured-list-row>
-                        <cds-structured-list-cell
-                            ><strong>Thread</strong></cds-structured-list-cell
-                        >
-                        <cds-structured-list-cell
-                            th:text="${event.threadName}"
-                        ></cds-structured-list-cell>
-                    </cds-structured-list-row>
-                    <cds-structured-list-row>
-                        <cds-structured-list-cell
-                            ><strong>Message</strong></cds-structured-list-cell
-                        >
-                        <cds-structured-list-cell
-                            th:text="${event.formattedMessage}"
-                            style="
-                                white-space: pre-wrap;
-                                word-break: break-word;
-                            "
-                        ></cds-structured-list-cell>
-                    </cds-structured-list-row>
-                </cds-structured-list-body>
-            </cds-structured-list>
+            <dl class="app--log-detail">
+                <dt>Timestamp</dt>
+                <dd
+                    th:text="${#temporals.format(event.timestampDateTime, 'dd-MM-yyyy HH:mm:ss.SSS')}"
+                ></dd>
+
+                <dt>Level</dt>
+                <dd>
+                    <cds-tag
+                        th:type="${event.level == 'ERROR' ? 'red' :
+                                   event.level == 'WARN'  ? 'yellow' :
+                                   event.level == 'INFO'  ? 'blue' :
+                                   event.level == 'DEBUG' ? 'cool-gray' : 'gray'}"
+                        th:text="${event.level}"
+                    ></cds-tag>
+                </dd>
+
+                <dt>Logger</dt>
+                <dd th:text="${event.loggerName}"></dd>
+
+                <dt>Thread</dt>
+                <dd th:text="${event.threadName}"></dd>
+
+                <dt>Message</dt>
+                <dd
+                    class="app--log-pre"
+                    th:text="${event.formattedMessage}"
+                ></dd>
+            </dl>
 
             <th:block th:if="${!event.properties.isEmpty()}">
-                <h5
-                    style="
-                        margin: var(--cds-spacing-05) 0 var(--cds-spacing-03);
-                    "
-                >
-                    Properties
-                </h5>
-                <cds-structured-list>
-                    <cds-structured-list-head>
-                        <cds-structured-list-header-row>
-                            <cds-structured-list-header-cell
-                                >Key</cds-structured-list-header-cell
-                            >
-                            <cds-structured-list-header-cell
-                                >Value</cds-structured-list-header-cell
-                            >
-                        </cds-structured-list-header-row>
-                    </cds-structured-list-head>
-                    <cds-structured-list-body>
-                        <cds-structured-list-row
-                            th:each="prop : ${event.properties}"
-                        >
-                            <cds-structured-list-cell
-                                th:text="${prop.id.mappedKey}"
-                            ></cds-structured-list-cell>
-                            <cds-structured-list-cell
-                                th:text="${prop.mappedValue}"
-                            ></cds-structured-list-cell>
-                        </cds-structured-list-row>
-                    </cds-structured-list-body>
-                </cds-structured-list>
+                <h5 class="app--log-detail-heading">Properties</h5>
+                <dl class="app--log-detail">
+                    <th:block th:each="prop : ${event.properties}">
+                        <dt th:text="${prop.id.mappedKey}"></dt>
+                        <dd th:text="${prop.mappedValue}"></dd>
+                    </th:block>
+                </dl>
             </th:block>
 
             <th:block th:if="${!#strings.isEmpty(event.stacktrace)}">
-                <h5
-                    style="
-                        margin: var(--cds-spacing-05) 0 var(--cds-spacing-03);
-                    "
-                >
-                    Stacktrace
-                </h5>
-                <cds-code-snippet
-                    type="multi"
-                    th:text="${event.stacktrace}"
-                    style="max-height: 20rem"
-                ></cds-code-snippet>
+                <h5 class="app--log-detail-heading">Stacktrace</h5>
+                <pre class="app--log-pre" th:text="${event.stacktrace}"></pre>
             </th:block>
         </cds-modal-body>
         <cds-modal-footer>
