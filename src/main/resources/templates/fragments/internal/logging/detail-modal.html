@@ -66,9 +66,15 @@
                 </dl>
             </th:block>
 
-            <th:block th:if="${!#strings.isEmpty(event.stacktrace)}">
+            <th:block th:if="${!event.exceptions.isEmpty()}">
                 <h5 class="app--log-detail-heading">Stacktrace</h5>
-                <pre class="app--log-pre" th:text="${event.stacktrace}"></pre>
+                <div class="app--log-stacktrace">
+                    <div
+                        class="app--log-frame"
+                        th:each="ex : ${event.exceptions}"
+                        th:text="${ex.traceLine}"
+                    ></div>
+                </div>
             </th:block>
         </cds-modal-body>
         <cds-modal-footer>

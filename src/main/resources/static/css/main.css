@@ -726,3 +726,19 @@ cds-form-item {
     max-height: 20rem;
     overflow: auto;
 }
+
+.app--log-stacktrace {
+    max-height: 20rem;
+    overflow: auto;
+    padding: var(--cds-spacing-03);
+    background: var(--cds-layer-accent, #e0e0e0);
+    font-family: var(--cds-code-02-font-family, monospace);
+    font-size: var(--cds-code-01-font-size, 0.75rem);
+}
+
+.app--log-frame {
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding-left: 2ch;
+    text-indent: -2ch;
+}
