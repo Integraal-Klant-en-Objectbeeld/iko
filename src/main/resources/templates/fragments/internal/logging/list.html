@@ -414,5 +414,22 @@
                 </div>`;
                 form.dispatchEvent(new Event("submit"));
             });
+
+        // Close the filter overlay when clicking outside it (attach once)
+        if (!window.__ikoLoggingFilterOutsideHandler) {
+            window.__ikoLoggingFilterOutsideHandler = true;
+            document.addEventListener("click", function (event) {
+                const panel = document.getElementById("logging-filter-panel");
+                if (!panel || panel.style.display === "none") return;
+                const toggle = document.getElementById("toggle-filter-btn");
+                if (
+                    panel.contains(event.target) ||
+                    (toggle && toggle.contains(event.target))
+                ) {
+                    return;
+                }
+                panel.style.display = "none";
+            });
+        }
     </script>
 </th:block>
