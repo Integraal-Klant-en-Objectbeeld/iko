@@ -36,7 +36,7 @@ spring:
         default-timeout: 600 #seconds = 10min
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        #driver-class-name: com.mysql.cj.jdbc.Driver
+        driver-class-name: org.postgresql.Driver
         password: #external
         hikari:
             auto-commit: false
@@ -128,6 +128,11 @@ camel:
         trace-pattern: "*"
 
 iko:
+    logging:
+        retentionInMinutes: ${IKO_LOGGING_RETENTIONINMINUTES:30240}
+        deletionCron: ${IKO_LOGGING_DELETIONCRON:0 0 4 * * ?}
+        db:
+            enabled: ${IKO_LOGGING_DB_ENABLED:false}
     security:
         admin:
             rolesClaim: "roles"
