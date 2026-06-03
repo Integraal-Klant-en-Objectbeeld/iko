@@ -694,6 +694,6 @@ cds-form-item {
 .app--logging-filter-actions {
     display: flex;
     gap: var(--cds-spacing-03);
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-block-start: var(--cds-spacing-06);
 }
