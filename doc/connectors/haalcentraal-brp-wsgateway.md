@@ -42,6 +42,106 @@ Dev certs are committed under [`certs/`](../../certs/README.md). The `client.jks
 
 The `SSLContextParameters` bean lives in the Camel registry under the name `sslContextParameters`. Any `toD` URI in any connector YAML that needs mTLS appends `?sslContextParameters=%23sslContextParameters` (the `%23` is the URL-encoded `#`). Routes without that query option use plain HTTPS with the JVM default trust store and present no client cert.
 
+## Kubernetes mTLS configuration
+
+When deploying IKO via the Helm chart with mTLS-enabled connectors, you must provide the client keystore and truststore as Kubernetes Secrets and configure Camel's SSL context via `extraConfigMaps`.
+
+### Step 1: Create the TLS Secret
+
+Create a Secret containing your JKS files:
+
+```bash
+kubectl create secret generic iko-mtls-certs \
+  --from-file=client.jks=/path/to/client.jks \
+  --from-file=truststore.jks=/path/to/truststore.jks
+```
+
+The Secret can be created via any method (kubectl, SealedSecrets, external-secrets-operator, Vault, etc.) — IKO only requires a Secret with the expected keys at the referenced name.
+
+### Step 2: Mount the Secret into the pod
+
+In your Helm values file, add `extraVolumes` and `extraVolumeMounts`:
+
+```yaml
+extraVolumes:
+  - name: mtls-certs
+    secret:
+      secretName: iko-mtls-certs
+
+extraVolumeMounts:
+  - name: mtls-certs
+    mountPath: /certs
+    readOnly: true
+```
+
+### Step 3: Configure Camel SSL context
+
+Use `extraConfigMaps` to provide an `application.yaml` with the Camel SSL settings:
+
+```yaml
+extraConfigMaps:
+  - name: iko-camel-ssl-config
+    mode: mount
+    mountPath: /config
+    data:
+      application.yaml: |
+        camel:
+          ssl:
+            config:
+              key-managers:
+                key-store:
+                  resource: file:/certs/client.jks
+                  password: changeit
+                  type: JKS
+              trust-managers:
+                key-store:
+                  resource: file:/certs/truststore.jks
+                  password: changeit
+                  type: JKS
+```
+
+Spring Boot auto-loads `application.yaml` from `/config/` when present.
+
+### Step 4: Update the connector instance
+
+Set the connector instance's `host` config value to the mTLS-enabled endpoint URL (e.g., `https://brp-api.example.nl:8443`).
+
+### Complete values example
+
+```yaml
+extraVolumes:
+  - name: mtls-certs
+    secret:
+      secretName: iko-mtls-certs
+
+extraVolumeMounts:
+  - name: mtls-certs
+    mountPath: /certs
+    readOnly: true
+
+extraConfigMaps:
+  - name: iko-camel-ssl-config
+    mode: mount
+    mountPath: /config
+    data:
+      application.yaml: |
+        camel:
+          ssl:
+            config:
+              key-managers:
+                key-store:
+                  resource: file:/certs/client.jks
+                  password: changeit
+                  type: JKS
+              trust-managers:
+                key-store:
+                  resource: file:/certs/truststore.jks
+                  password: changeit
+                  type: JKS
+```
+
+**Note:** Replace `changeit` with your actual keystore passwords. For production, consider using a Secret for the passwords and referencing them via environment variable substitution.
+
 ## Endpoints
 
 Haalcentraal BRP exposes a single operation in the bundled OpenAPI spec:
