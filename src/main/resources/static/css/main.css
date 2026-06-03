@@ -407,6 +407,18 @@ cds-table-header-cell.col-width-30 {
     width: 30%;
 }
 
+.col-width-20 {
+    width: 20%;
+    min-inline-size: 12rem;
+    white-space: nowrap;
+}
+
+.col-width-15 {
+    width: 12%;
+    min-inline-size: 8rem;
+    white-space: nowrap;
+}
+
 cds-table-row {
     cursor: pointer;
 }
