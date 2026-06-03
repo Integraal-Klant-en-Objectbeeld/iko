@@ -74,7 +74,7 @@
                         <cds-select
                             name="level"
                             size="md"
-                            th:value="${filter?.level}"
+                            th:value="${filter?.level} ?: ''"
                         >
                             <cds-select-item value=""
                                 >Log level</cds-select-item
