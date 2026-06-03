@@ -53,4 +53,10 @@ internal class LoggingEventService(
 
     @Transactional(readOnly = true)
     fun findById(eventId: Long): LoggingEvent = repository.findById(eventId).orElseThrow { NoSuchElementException("Log event not found: $eventId") }
+        .also {
+            // Initialise LAZY collections inside the tx; OSIV is disabled so the
+            // detail modal would otherwise hit LazyInitializationException.
+            it.properties.size
+            it.exceptions.size
+        }
 }
