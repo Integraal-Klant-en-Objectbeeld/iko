@@ -74,18 +74,21 @@
                         <cds-select
                             name="level"
                             size="md"
-                            th:value="${filter?.level} ?: 'TRACE'"
+                            th:value="${filter?.level}"
                         >
-                            <cds-select-item value="TRACE"
-                                >TRACE</cds-select-item
+                            <cds-select-item value=""
+                                >Log level</cds-select-item
                             >
+                            <cds-select-item value="ERROR"
+                                >ERROR</cds-select-item
+                            >
+                            <cds-select-item value="WARN">WARN</cds-select-item>
+                            <cds-select-item value="INFO">INFO</cds-select-item>
                             <cds-select-item value="DEBUG"
                                 >DEBUG</cds-select-item
                             >
-                            <cds-select-item value="INFO">INFO</cds-select-item>
-                            <cds-select-item value="WARN">WARN</cds-select-item>
-                            <cds-select-item value="ERROR"
-                                >ERROR</cds-select-item
+                            <cds-select-item value="TRACE"
+                                >TRACE</cds-select-item
                             >
                         </cds-select>
                     </div>
@@ -391,7 +394,7 @@
                     el.value = "";
                 });
                 form.querySelectorAll("cds-select").forEach((el) => {
-                    el.value = "TRACE";
+                    el.value = "";
                 });
                 // Reset properties to one empty row
                 const rows = document.getElementById("logging-properties-rows");

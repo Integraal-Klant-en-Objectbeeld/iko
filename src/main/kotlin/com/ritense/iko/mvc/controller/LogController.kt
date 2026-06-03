@@ -20,7 +20,6 @@ import com.ritense.iko.logging.service.LoggingEventService
 import com.ritense.iko.mvc.controller.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_LOGGING
 import com.ritense.iko.mvc.controller.HomeController.Companion.HX_REQUEST_HEADER
-import com.ritense.iko.mvc.controller.HomeController.Companion.PAGE_DEFAULT
 import com.ritense.iko.mvc.model.LoggingFilter
 import com.ritense.iko.security.SecurityContextHelper
 import org.springframework.data.domain.Pageable
@@ -41,7 +40,7 @@ internal class LogController(
     @GetMapping
     fun list(
         filter: LoggingFilter,
-        @PageableDefault(size = PAGE_DEFAULT, sort = ["timestamp"], direction = DESC) pageable: Pageable,
+        @PageableDefault(size = LOG_PAGE_DEFAULT, sort = ["timestamp"], direction = DESC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView = if (isHxRequest) {
         val page = loggingEventService.search(filter, pageable)
@@ -64,7 +63,7 @@ internal class LogController(
     @GetMapping("/filter")
     fun filter(
         filter: LoggingFilter,
-        @PageableDefault(size = PAGE_DEFAULT, sort = ["timestamp"], direction = DESC) pageable: Pageable,
+        @PageableDefault(size = LOG_PAGE_DEFAULT, sort = ["timestamp"], direction = DESC) pageable: Pageable,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): List<ModelAndView> {
         val page = loggingEventService.search(filter, pageable)
@@ -107,5 +106,9 @@ internal class LogController(
             "logging-detail-modal",
             mapOf("event" to event),
         )
+    }
+
+    companion object {
+        const val LOG_PAGE_DEFAULT = 50
     }
 }
