@@ -30,7 +30,7 @@
             <form
                 id="logging-filter-form"
                 hx-get="/admin/logs/filter"
-                hx-trigger="change delay:300ms, submit"
+                hx-trigger="input changed delay:300ms, change delay:300ms, submit"
                 hx-target="#log-search-results"
                 hx-swap="outerHTML"
                 hx-include="#logging-filter-form"
