@@ -17,10 +17,11 @@
 package com.ritense.iko.logging
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import java.time.Duration
 
 @ConfigurationProperties(prefix = "iko.logging")
 internal data class LoggingProperties(
-    var retentionInMinutes: Long = 30240,
+    var retention: Duration = Duration.ofDays(21),
     var deletionCron: String = "0 0 4 * * ?",
     var db: Db = Db(),
 ) {

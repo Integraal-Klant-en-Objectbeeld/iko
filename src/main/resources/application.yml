@@ -129,7 +129,7 @@ camel:
 
 iko:
     logging:
-        retentionInMinutes: ${IKO_LOGGING_RETENTIONINMINUTES:30240}
+        retention: ${IKO_LOGGING_RETENTION:21d}
         deletionCron: ${IKO_LOGGING_DELETIONCRON:0 0 4 * * ?}
         db:
             enabled: ${IKO_LOGGING_DB_ENABLED:false}

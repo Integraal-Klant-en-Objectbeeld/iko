@@ -22,7 +22,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 @Service
 internal class LoggingEventDeletionService(
@@ -34,7 +33,7 @@ internal class LoggingEventDeletionService(
     fun deleteOldLogs() {
         val threshold =
             Instant.now()
-                .minus(properties.retentionInMinutes, ChronoUnit.MINUTES)
+                .minus(properties.retention)
                 .toEpochMilli()
         repository.deletePropertiesOlderThan(threshold)
         repository.deleteExceptionsOlderThan(threshold)

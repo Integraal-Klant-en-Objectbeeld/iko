@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -44,16 +45,16 @@ internal class LoggingEventDeletionServiceIntegrationTest : BaseIntegrationTest(
     @Autowired
     private lateinit var entityManager: EntityManager
 
-    private var originalRetention: Long = 0L
+    private var originalRetention: Duration = Duration.ZERO
 
     @BeforeEach
     fun captureRetention() {
-        originalRetention = properties.retentionInMinutes
+        originalRetention = properties.retention
     }
 
     @AfterEach
     fun restoreRetention() {
-        properties.retentionInMinutes = originalRetention
+        properties.retention = originalRetention
     }
 
     private fun insertEvent(
@@ -107,7 +108,7 @@ internal class LoggingEventDeletionServiceIntegrationTest : BaseIntegrationTest(
     @Test
     fun `deleteOldLogs removes events and children older than retention and keeps recent rows`() {
         // Use a 1-minute retention so that events 2 minutes old are pruned
-        properties.retentionInMinutes = 1L
+        properties.retention = Duration.ofMinutes(1)
 
         val oldTimestamp = Instant.now().minus(2, ChronoUnit.MINUTES).toEpochMilli()
         val recentTimestamp = Instant.now().toEpochMilli()
@@ -164,7 +165,7 @@ internal class LoggingEventDeletionServiceIntegrationTest : BaseIntegrationTest(
     @Test
     fun `deleteOldLogs with no old events does not delete any rows`() {
         // Use a 1-minute retention
-        properties.retentionInMinutes = 1L
+        properties.retention = Duration.ofMinutes(1)
 
         val recentTimestamp = Instant.now().toEpochMilli()
         insertEvent(8003L, recentTimestamp, "fresh event", "INFO")
