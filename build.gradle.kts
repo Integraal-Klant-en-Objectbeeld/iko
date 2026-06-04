@@ -123,6 +123,8 @@ dependencies {
 
     // Logging
     implementation(libs.kotlin.logging)
+    implementation(libs.logback.classic.db)
+    implementation(libs.logback.core.db)
 
     // Kotlin
     implementation(libs.kotlin.reflect)
