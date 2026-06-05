@@ -28,9 +28,10 @@
                             hx-put="/admin/aggregated-data-profiles"
                             hx-target="#profile-edit"
                             hx-swap="outerHTML"
-                            hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
-                            hx-on::before-request="const b=document.getElementById('profile-save-btn'); if(b){ b.setAttribute('disabled',''); b.textContent='Saving…'; }"
-                            hx-on::after-request="const b=document.getElementById('profile-save-btn'); if(b){ b.removeAttribute('disabled'); b.textContent='Save'; }"
+                            data-swap-errors="true"
+                            data-save-btn-id="profile-save-btn"
+                            data-saving-text="Saving…"
+                            data-saved-text="Save"
                         >
                             <cds-form-group
                                 id="form-group"
@@ -251,7 +252,7 @@
                                                 type="submit"
                                                 id="profile-save-btn"
                                                 th:disabled="${aggregatedDataProfile.final}"
-                                                hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
+                                                data-submit-form-id="profile-edit-form"
                                             >
                                                 Save
                                             </cds-button>

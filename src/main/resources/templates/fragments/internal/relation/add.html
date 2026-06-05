@@ -219,7 +219,7 @@
                 hx-include="#relation-add-form *"
                 hx-target="#relation-add"
                 hx-swap="outerHTML"
-                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                data-swap-errors="true"
             >
                 Save
                 <svg

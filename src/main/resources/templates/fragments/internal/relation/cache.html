@@ -34,7 +34,7 @@
                 name="cacheEnabledToggle"
                 label-text="Cache enabled"
                 aria-labelledby="cacheEnabled-label"
-                hx-on:cds-toggle-changed="document.querySelector('#relationCacheEnabledHidden').value = this.checked;"
+                data-toggle-target="#relationCacheEnabledHidden"
                 th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
                              invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
                              checked=${form?.cacheEnabled}"
@@ -84,7 +84,7 @@
                 hx-target="#relation-edit"
                 hx-swap="innerHTML"
                 hx-include="#relation-cache-form *"
-                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                data-swap-errors="true"
             >
                 Save cache
             </cds-button>

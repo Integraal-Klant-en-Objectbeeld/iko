@@ -30,7 +30,7 @@
                             name="cacheEnabledToggle"
                             label-text="Cache enabled"
                             aria-labelledby="cacheEnabled-label"
-                            hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
+                            data-toggle-target="#adpCacheEnabledHidden"
                             th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
                                              checked=${cacheForm?.cacheEnabled}"
@@ -83,7 +83,7 @@
                             hx-target="#cache-panel"
                             hx-swap="outerHTML"
                             hx-include="#cache-form *"
-                            hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                            data-swap-errors="true"
                         >
                             Save
                         </cds-button>

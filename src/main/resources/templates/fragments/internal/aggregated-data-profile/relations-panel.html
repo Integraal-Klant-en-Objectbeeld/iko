@@ -32,7 +32,7 @@
                             label="Profile root"
                             class="pointer"
                             active
-                            th:hx-on:mousedown="@{document.querySelector('#selectedSourceId').value = ${aggregatedDataProfile.id}}"
+                            th:data-set-source-id="${aggregatedDataProfile.id}"
                         >
                             <svg
                                 focusable="false"
@@ -62,7 +62,7 @@
                                 th:each="relation : ${relations}"
                                 th:if="${relation.sourceId == aggregatedDataProfile.id}"
                                 th:label="|${relation.propertyName}|"
-                                hx-on:mousedown="document.querySelector('#selectedSourceId').value = this.getAttribute('data-source-id')"
+                                data-set-source-id-from-attr="data-source-id"
                                 th:hx-get="@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${relation.id}}"
                                 hx-trigger="mousedown consume"
                                 hx-target="#selected-relation"
@@ -86,7 +86,7 @@
                         th:each="child : ${relations}"
                         th:if="${parent != null and child.sourceId == parent.id}"
                         th:label="|${child.propertyName}|"
-                        hx-on:mousedown="document.querySelector('#selectedSourceId').value = this.getAttribute('data-source-id')"
+                        data-set-source-id-from-attr="data-source-id"
                         th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/edit/' + ${child.id}},
                                  hx-trigger='mousedown consume',
                                  hx-target='#selected-relation',
@@ -106,7 +106,7 @@
                     th:disabled="${aggregatedDataProfile.final}"
                     th:attr="
                                     hx-get=@{'/admin/aggregated-data-profiles/' + ${aggregatedDataProfile.id} + '/relations/create'},
-                                    hx-vals=|js:{ sourceId: document.querySelector('#selectedSourceId').value }|,
+                                    hx-include='#selectedSourceId',
                                     hx-target='#selected-relation',
                                     hx-swap='innerHTML',
                                     hx-push-url='false'"
@@ -132,6 +132,7 @@
                 <input
                     type="hidden"
                     id="selectedSourceId"
+                    name="sourceId"
                     th:value="${aggregatedDataProfile.id}"
                 />
             </cds-tile>

@@ -81,6 +81,11 @@
             th:attr="nonce=${cspNonce}"
             src="/assets/js/session-timeout.js"
         ></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/admin-ui.js"
+            defer
+        ></script>
 
         <!-- Dynamically load Carbon Web Components -->
         <script type="module" th:attr="nonce=${cspNonce}">
@@ -210,10 +215,7 @@
                                 </cds-structured-list-row>
                                 <cds-structured-list-row>
                                     <cds-structured-list-cell>
-                                        <cds-link
-                                            href="#"
-                                            onclick="window.ikoLogout(); return false;"
-                                        >
+                                        <cds-link href="#" id="logout-link">
                                             Afmelden
                                         </cds-link>
                                     </cds-structured-list-cell>
@@ -237,9 +239,8 @@
         >
             <cds-side-nav-items>
                 <cds-side-nav-link
-                    href="javascript:void(0)"
+                    href="#"
                     hx-get="/admin/aggregated-data-profiles"
-                    hx-on::after-request="document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));this?.toggleAttribute('active');"
                     hx-push-url="true"
                     hx-target="#view-panel"
                 >
@@ -269,11 +270,8 @@
                     Aggregated Data Profiles
                 </cds-side-nav-link>
                 <cds-side-nav-link
-                    href="javascript:void(0)"
+                    href="#"
                     hx-get="/admin/connectors"
-                    hx-on::after-request="
- document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
- this?.toggleAttribute('active');"
                     hx-push-url="true"
                     hx-target="#view-panel"
                 >
@@ -296,9 +294,8 @@
                     Connectors
                 </cds-side-nav-link>
                 <cds-side-nav-link
-                    href="javascript:void(0)"
+                    href="#"
                     hx-get="/admin/logs"
-                    hx-on::after-request="document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));this?.toggleAttribute('active');"
                     hx-push-url="true"
                     hx-target="#view-panel"
                 >
@@ -336,7 +333,7 @@
                         >
                             <cds-breadcrumb-item>
                                 <cds-breadcrumb-link
-                                    href="javascript:void(0)"
+                                    href="#"
                                     hx-get="/admin"
                                     hx-push-url="true"
                                     hx-target="#view-panel"
@@ -348,7 +345,7 @@
                                 th:each="breadcrumb, iter : ${entries}"
                             >
                                 <cds-breadcrumb-link
-                                    href="javascript:void(0)"
+                                    href="#"
                                     th:hx-get="${breadcrumb[1]}"
                                     hx-push-url="true"
                                     hx-target="#view-panel"
@@ -421,57 +418,6 @@
                 </cds-modal-footer-button>
             </cds-modal-footer>
         </cds-modal>
-        <script type="text/javascript" th:attr="nonce=${cspNonce}">
-            // htmx.logAll();
-            htmx.config.allowNestedOobSwaps = false;
-
-            document.body.addEventListener("close-modal", () => {
-                document
-                    .querySelector("#modal-container #active-modal")
-                    .removeAttribute("open");
-            });
-
-            function getCookieValue(name) {
-                const match = document.cookie.match(
-                    new RegExp(
-                        "(?:^|; )" +
-                            name.replace(/[.$?*|{}()[\]\\/+^]/g, "\\$&") +
-                            "=([^;]*)"
-                    )
-                );
-                return match ? decodeURIComponent(match[1]) : null;
-            }
-
-            document.body.addEventListener("htmx:configRequest", (event) => {
-                const method = (event.detail.verb || "get").toLowerCase();
-                if (
-                    method === "get" ||
-                    method === "head" ||
-                    method === "options"
-                ) {
-                    return;
-                }
-                const token = getCookieValue("XSRF-TOKEN");
-                if (token) {
-                    event.detail.headers["X-XSRF-TOKEN"] = token;
-                }
-            });
-
-            window.ikoLogout = function () {
-                const form = document.createElement("form");
-                form.method = "POST";
-                form.action = "/logout";
-                const token = getCookieValue("XSRF-TOKEN");
-                if (token) {
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = "_csrf";
-                    input.value = token;
-                    form.appendChild(input);
-                }
-                document.body.appendChild(form);
-                form.submit();
-            };
-        </script>
+        <!-- Inline script body moved to /assets/js/admin-ui.js -->
     </body>
 </html>

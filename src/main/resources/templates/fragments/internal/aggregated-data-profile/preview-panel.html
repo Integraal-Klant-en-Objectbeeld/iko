@@ -71,7 +71,7 @@
                             hx-target="#preview-panel"
                             hx-swap="outerHTML"
                             hx-include="[id='endpointTransformContext'], [id='resultTransform'], [id='name'], [id='version']"
-                            hx-on::before-request="this.dataset.label=this.textContent; this.textContent='Testing…'; this.setAttribute('disabled','');"
+                            data-before-request-label="testing"
                         >
                             Get results
                         </cds-button>

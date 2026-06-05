@@ -47,4 +47,9 @@ class CspNonceFilterTest {
         }
         assertThat(nonceOf()).isNotEqualTo(nonceOf())
     }
+
+    @Test
+    fun `admin CSP template does not contain unsafe-eval`() {
+        assertThat(ADMIN_CSP_TEMPLATE).doesNotContain("'unsafe-eval'")
+    }
 }

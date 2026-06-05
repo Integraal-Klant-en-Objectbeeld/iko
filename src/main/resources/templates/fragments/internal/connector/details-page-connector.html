@@ -87,9 +87,12 @@
                                 hx-include="#connectorCode"
                                 hx-target="#connector-code"
                                 hx-swap="outerHTML"
-                                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                                data-swap-errors="true"
                                 style="display: none"
-                                onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
+                                data-toggle-editor-mode="save"
+                                data-save-btn-ref="save-button"
+                                data-edit-btn-ref="edit-code-button"
+                                data-editor-id="connector-editor"
                                 th:disabled="${connector.final}"
                             >
                                 Save
@@ -97,7 +100,10 @@
 
                             <cds-button
                                 id="edit-code-button"
-                                onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
+                                data-toggle-editor-mode="edit"
+                                data-save-btn-ref="save-button"
+                                data-edit-btn-ref="edit-code-button"
+                                data-editor-id="connector-editor"
                                 th:disabled="${connector.final}"
                             >
                                 Edit code
@@ -210,7 +216,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg
@@ -322,7 +328,6 @@
                                     hx-target="#view-panel"
                                     hx-push-url="true"
                                     role="link"
-                                    onclick="document.addEventListener('click', (e) => {if (e.target.closest('.app--table-cell-actions')) {e.stopImmediatePropagation();}});"
                                     class="app--table-row-clickable"
                                 >
                                     <cds-table-cell
@@ -341,7 +346,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg

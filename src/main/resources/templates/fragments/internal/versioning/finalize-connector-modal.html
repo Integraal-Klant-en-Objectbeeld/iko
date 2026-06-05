@@ -41,7 +41,7 @@
             th:hx-post="@{|/admin/connectors/${connectorId}/finalize|}"
             hx-target="#view-panel"
             hx-swap="innerHTML"
-            hx-on::after-request="document.getElementById('active-modal')?.removeAttribute('open')"
+            data-after-request-close-modal="true"
             kind="danger"
             >Finalize</cds-modal-footer-button
         >

@@ -41,9 +41,9 @@ import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 
-private const val ADMIN_CSP_TEMPLATE =
+internal const val ADMIN_CSP_TEMPLATE =
     "default-src 'self'; " +
-        "script-src {nonce} 'strict-dynamic' 'unsafe-eval' https: 'self'; " +
+        "script-src {nonce} 'strict-dynamic' https: 'self'; " +
         "style-src 'self' 'unsafe-inline' https:; " +
         "img-src 'self' data:; " +
         "font-src 'self' https:; " +

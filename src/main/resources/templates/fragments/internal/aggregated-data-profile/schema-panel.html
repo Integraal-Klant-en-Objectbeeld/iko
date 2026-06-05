@@ -49,8 +49,7 @@
                 th:hx-post="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}/schema/regenerate|}"
                 hx-target="#schema-panel-content"
                 hx-swap="outerHTML"
-                hx-on::before-request="this.setAttribute('disabled',''); this.textContent='Regenerating…';"
-                hx-on::after-request="this.removeAttribute('disabled'); this.textContent='Regenerate Schema';"
+                data-loading-text="Regenerating…"
                 style="margin-top: var(--cds-spacing-05)"
             >
                 Regenerate Schema

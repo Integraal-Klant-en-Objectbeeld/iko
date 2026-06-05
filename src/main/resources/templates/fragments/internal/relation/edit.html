@@ -243,7 +243,7 @@
                 th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/edit/' + ${form.id} + '/delete'} "
                 hx-target="#modal-container"
                 hx-swap="innerHTML"
-                hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
+                data-after-request-open-modal="cds-modal"
                 hx-push-url="false"
                 type="button"
             >
@@ -272,7 +272,7 @@
                 hx-target="#relation-edit"
                 hx-swap="innerHTML"
                 hx-include="#relation-edit-form *"
-                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                data-swap-errors="true"
             >
                 Save
                 <svg

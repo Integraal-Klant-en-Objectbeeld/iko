@@ -107,8 +107,9 @@
                                                     th:hx-put="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}|}"
                                                     hx-target="#instance-edit-form-container"
                                                     hx-include="#instance-edit-form-container *"
-                                                    hx-on::before-request="const b=document.getElementById('instance-save-btn'); if(b){ b.setAttribute('disabled',''); b.textContent='Saving\u2026'; }"
-                                                    hx-on::after-request="const b=document.getElementById('instance-save-btn'); if(b){ b.removeAttribute('disabled'); b.textContent='Save'; }"
+                                                    data-save-btn-id="instance-save-btn"
+                                                    data-saving-text="Saving\u2026"
+                                                    data-saved-text="Save"
                                                     kind="primary"
                                                 >
                                                     Save
@@ -224,7 +225,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg
@@ -342,7 +343,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg
