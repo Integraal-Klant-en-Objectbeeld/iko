@@ -25,11 +25,15 @@
 
         <!-- HTMX -->
         <script
+            th:attr="nonce=${cspNonce}"
             src="https://unpkg.com/htmx.org@2.0.4"
             integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
             crossorigin="anonymous"
         ></script>
-        <script src="https://unpkg.com/htmx.org/dist/ext/transition.js"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="https://unpkg.com/htmx.org/dist/ext/transition.js"
+        ></script>
 
         <!-- Carbon v11 -->
         <link
@@ -50,22 +54,41 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"
         />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"
+        ></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"
+        ></script>
 
         <!-- Application stylesheet -->
         <link rel="stylesheet" href="/assets/css/main.css" />
 
-        <script src="/assets/js/jq.js" type="application/javascript"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/jq.js"
+            type="application/javascript"
+        ></script>
 
         <!--  Monaco Editor -->
-        <script src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"></script>
-        <script src="/assets/js/monaco-init.js"></script>
-        <script src="/assets/js/main.js"></script>
-        <script src="/assets/js/session-timeout.js"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"
+        ></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/monaco-init.js"
+        ></script>
+        <script th:attr="nonce=${cspNonce}" src="/assets/js/main.js"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/session-timeout.js"
+        ></script>
 
         <!-- Dynamically load Carbon Web Components -->
-        <script type="module">
+        <script type="module" th:attr="nonce=${cspNonce}">
             const VERSION = window.CARBON_CDN_VERSION || "v2.47.0";
 
             const components = [
@@ -403,7 +426,7 @@
                 </cds-modal-footer-button>
             </cds-modal-footer>
         </cds-modal>
-        <script type="text/javascript">
+        <script type="text/javascript" th:attr="nonce=${cspNonce}">
             // htmx.logAll();
             htmx.config.allowNestedOobSwaps = false;
 

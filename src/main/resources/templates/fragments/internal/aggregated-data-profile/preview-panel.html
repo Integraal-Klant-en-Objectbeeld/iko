@@ -204,7 +204,10 @@
                         </div>
                     </div>
 
-                    <script type="application/javascript">
+                    <script
+                        type="application/javascript"
+                        th:attr="nonce=${cspNonce}"
+                    >
                         // Helper: pretty-print anything
                         function pretty(v) {
                             try {
