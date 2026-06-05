@@ -48,7 +48,7 @@ private const val ADMIN_CSP_TEMPLATE =
         "img-src 'self' data:; " +
         "font-src 'self' https:; " +
         "connect-src 'self' https:; " +
-        "worker-src 'self' blob:; " +
+        "worker-src 'self'; " +
         "object-src 'none'; " +
         "base-uri 'self'"
 

@@ -331,6 +331,10 @@ cds-tile {
     }
 }
 
+.debug-grid {
+    flex-direction: column;
+}
+
 .debug-grid + .debug-grid {
     margin-top: 2rem;
 }

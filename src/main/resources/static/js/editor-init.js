@@ -77,8 +77,6 @@
             mode: "ace/mode/" + mapLanguage(language),
             value: initialValue,
             showPrintMargin: false,
-            minLines: 10,
-            maxLines: Infinity,
         });
 
         // Position cursor at start rather than end
@@ -86,6 +84,22 @@
         editor.moveCursorTo(0, 0);
 
         el._editor = editor;
+
+        // Paint at the container's final size immediately so the editor does
+        // not visibly snap when content/data lands later.
+        editor.resize(true);
+
+        // The editor may be mounted inside a hidden Carbon tab panel
+        // (display:none), so Ace measures a 0px container. Re-measure only when
+        // the container's size actually changes (e.g. its tab becomes visible);
+        // an unchanged size makes resize() a no-op, so no visible jump.
+        if (typeof ResizeObserver !== "undefined") {
+            const observer = new ResizeObserver(function () {
+                editor.resize();
+            });
+            observer.observe(el);
+            editor._resizeObserver = observer;
+        }
 
         if (textAreaSelector) {
             const textArea = document.querySelector(textAreaSelector);
@@ -111,6 +125,9 @@
     function disposeEditors(root) {
         root.querySelectorAll("[data-monaco]").forEach(function (el) {
             if (el._editor) {
+                if (el._editor._resizeObserver) {
+                    el._editor._resizeObserver.disconnect();
+                }
                 el._editor.destroy();
                 el._editor = null;
                 el.innerHTML = "";
