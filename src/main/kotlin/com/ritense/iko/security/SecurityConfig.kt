@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Ritense BV, the Netherlands.
+ * Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
 import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository
+import org.springframework.security.web.csrf.CsrfFilter
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 
 @EnableWebSecurity
 @Configuration
@@ -114,6 +118,7 @@ class SecurityConfig {
         oidcClientInitiatedLogoutSuccessHandler: OidcClientInitiatedLogoutSuccessHandler,
         @Value("\${iko.security.admin.rolesClaim:roles}") adminRolesClaim: String,
         @Value("\${iko.security.admin.authorities:ROLE_ADMIN}") adminAuthorities: Array<String>,
+        @Value("\${server.servlet.session.cookie.secure:false}") cookieSecure: Boolean,
     ): SecurityFilterChain {
         http
             .securityMatcher("/admin/**", "/oauth2/**", "/login/**", "/logout/**")
@@ -138,8 +143,23 @@ class SecurityConfig {
                     .hasAnyAuthority(*adminAuthorities)
                     .requestMatchers("/oauth2/**", "/login/**", "/logout")
                     .permitAll()
-            }.csrf {
-                it.disable()
+            }.csrf { csrf ->
+                val repository =
+                    CookieCsrfTokenRepository.withHttpOnlyFalse().apply {
+                        setCookieCustomizer { cookie ->
+                            cookie.sameSite("Lax")
+                            cookie.secure(cookieSecure) // true in prod over HTTPS
+                            cookie.path("/")
+                        }
+                    }
+                csrf.csrfTokenRepository(repository)
+                csrf.csrfTokenRequestHandler(CsrfTokenRequestAttributeHandler())
+            }.addFilterAfter(CsrfCookieFilter(), CsrfFilter::class.java)
+            .exceptionHandling { ex ->
+                ex.defaultAuthenticationEntryPointFor(
+                    HtmxAuthenticationEntryPoint(),
+                    RequestHeaderRequestMatcher("Hx-Request"),
+                )
             }
 
         return http.build()

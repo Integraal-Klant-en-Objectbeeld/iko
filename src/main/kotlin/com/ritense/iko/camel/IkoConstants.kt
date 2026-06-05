@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Ritense BV, the Netherlands.
+ * Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,9 @@ object IkoConstants {
     object Validation {
         const val ROLES_PATTERN = """^[A-Za-z0-9_-]+(,[A-Za-z0-9_-]+)*$"""
         const val WORD_CHARACTER_PATTERN = """^[A-Za-z0-9_-]+$"""
+
         const val CONNECTOR_CODE_CONNECTOR_ROUTE_PATTERN = """^direct:iko:connector:([^:.]+)$"""
+
         const val CONNECTOR_CODE_ENDPOINT_TRANSFORM_ROUTE_PATTERN = """^direct:iko:endpoint:transform:([^:.]+)(\..*)?$"""
     }
 }

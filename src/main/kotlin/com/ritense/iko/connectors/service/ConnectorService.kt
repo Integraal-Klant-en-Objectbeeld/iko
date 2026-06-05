@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Ritense BV, the Netherlands.
+ * Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,16 +69,19 @@ open class ConnectorService(
 
             // Namespace routeId and from URI with tag:version BEFORE adding to context
             routeBuilder.routeCollection.routes.forEach { routeDef ->
+                val originalRouteId = routeDef.id
+                val namespacedRouteId = "connector:${connector.tag}:${connector.version.value}:$originalRouteId"
                 routeDef.group(groupName)
+                routeDef.id = namespacedRouteId
                 with(routeDef.input) {
-                    id = "connector:${connector.tag}:${connector.version.value}:${routeDef.id}"
+                    id = namespacedRouteId
                     uri = namespaceUri(uri, connector.version.value)
                 }
             }
 
             // Pre-check for duplicate route IDs
             val existingRouteIds = camelContext.routes.map { it.routeId }.toSet()
-            val newRouteIds = routeBuilder.routeCollection.routes.map { it.input.id }.toSet()
+            val newRouteIds = routeBuilder.routeCollection.routes.map { it.id }.toSet()
             val duplicates = newRouteIds.filter { it in existingRouteIds }
             if (duplicates.isNotEmpty()) {
                 logger.debug { "Routes already loaded for connector ${connector.tag} v${connector.version}, skipping" }

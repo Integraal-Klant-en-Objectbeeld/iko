@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 Ritense BV, the Netherlands.
+ * Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,14 @@ class OpenApiMockGenerator(
                 ?: error("Classpath resource not found: $path")
             OpenAPIV3Parser().readContents(content).openAPI
                 ?: error("Failed to parse OpenAPI spec from classpath: $path")
+        }
+        specUri.startsWith("file:") -> {
+            val path = specUri.removePrefix("file:")
+            val file = java.io.File(path)
+            if (!file.isFile) error("File not found: $path")
+            val content = file.readText()
+            OpenAPIV3Parser().readContents(content).openAPI
+                ?: error("Failed to parse OpenAPI spec from file: $path")
         }
         else -> OpenAPIV3Parser().read(specUri)
             ?: error("Failed to fetch or parse OpenAPI spec from: $specUri")

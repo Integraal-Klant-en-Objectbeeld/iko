@@ -67,6 +67,31 @@ Notes:
     - Disables OSIV (`spring.jpa.open-in-view=false`)
     - Camel YAML routes path: `classpath:camel/*.yaml`
     - Security: OAuth2/OIDC login for admin (roles claim + required admin roles configurable via `iko.security.admin.rolesClaim` / `iko.security.admin.authorities`) and JWT resource server for APIs (authorities from claim `resource_access.iko.roles`)
+    - Admin session timeout: the warning modal and server session are driven by `iko.security.admin.session.timeout` (default `30m`) and `iko.security.admin.session.warning-before` (default `2m`). The modal appears after `timeout - warning-before` of inactivity, then counts down for `warning-before`. `server.servlet.session.timeout` is bound to `timeout`, so they stay in sync.
+        - Override locally via `.env` (Spring relaxed binding):
+          ```
+          IKO_SECURITY_ADMIN_SESSION_TIMEOUT=30m
+          IKO_SECURITY_ADMIN_SESSION_WARNINGBEFORE=2m
+          ```
+        - For quick manual testing, use short values such as `45s` / `30s` (modal after 15s of inactivity).
+    - Session cookie security: `SERVER_SERVLET_SESSION_COOKIE_SECURE` controls the `Secure` flag on both the `JSESSIONID` and `XSRF-TOKEN` cookies. Leave `false` for local HTTP development (`http://localhost:8080`); set to `true` in any environment that serves the admin UI over HTTPS (production behind a TLS-terminating proxy). The cookies are always issued with `SameSite=Lax`; `server.forward-headers-strategy: framework` lets Spring honour `X-Forwarded-Proto` from the ingress.
+      ```
+      SERVER_SERVLET_SESSION_COOKIE_SECURE=false
+      ```
+    - Camel SSL context (optional, mTLS): when a connector calls an HTTPS endpoint that requires mutual TLS, configure a global Camel `SSLContextParameters` via these properties. They are picked up by Camel Spring Boot auto-configuration and applied to outbound HTTP components. Omit them entirely if no connector needs mTLS.
+      ```
+      # mTLS key material (client certificate IKO presents)
+      CAMEL_SSL_KEYMANAGERS_KEYPASSWORD=changeit
+      CAMEL_SSL_KEYMANAGERS_KEYSTORE_TYPE=JKS
+      CAMEL_SSL_KEYMANAGERS_KEYSTORE_RESOURCE=file:./certs/client.jks
+      CAMEL_SSL_KEYMANAGERS_KEYSTORE_PASSWORD=changeit
+
+      # Trust material (CAs IKO trusts for the remote server cert)
+      CAMEL_SSL_TRUSTMANAGERS_KEYSTORE_TYPE=JKS
+      CAMEL_SSL_TRUSTMANAGERS_KEYSTORE_RESOURCE=file:./certs/truststore.jks
+      CAMEL_SSL_TRUSTMANAGERS_KEYSTORE_PASSWORD=changeit
+      ```
+      Dev keystores and a regeneration script live under [`certs/`](./certs/README.md); replace with real key material in deployed environments and source the passwords from a secret store rather than `.env`.
 
 ---
 

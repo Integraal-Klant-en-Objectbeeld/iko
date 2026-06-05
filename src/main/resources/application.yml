@@ -1,3 +1,13 @@
+server:
+    forward-headers-strategy: framework
+    servlet:
+        session:
+            timeout: ${iko.security.admin.session.timeout:30m}
+            cookie:
+                http-only: true
+                same-site: lax
+                secure: ${SERVER_SERVLET_SESSION_COOKIE_SECURE:false}
+
 spring:
     application:
         name: IKO
@@ -122,5 +132,17 @@ iko:
         admin:
             rolesClaim: "roles"
             authorities: "ROLE_ADMIN"
+            session:
+                timeout: 30m
+                warning-before: 2m
     crypto:
         key: # ENV var
+
+logging:
+    level:
+        org.apache.camel.component.http: INFO
+        org.apache.camel.component.rest: INFO
+        org.apache.camel.component.rest.openapi: INFO
+        org.apache.hc.client5.http: INFO
+        org.apache.hc.client5.http.wire: INFO
+        org.apache.hc.client5.http.headers: INFO
