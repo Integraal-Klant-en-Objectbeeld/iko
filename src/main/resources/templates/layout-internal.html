@@ -18,6 +18,7 @@
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
     <head>
         <meta charset="UTF-8" />
+        <meta name="csp-nonce" th:attr="content=${cspNonce}" />
         <title>IKO Admin</title>
         <!-- Preconnects for faster resource loading -->
         <link rel="preconnect" href="https://unpkg.com" />
@@ -72,14 +73,14 @@
             type="application/javascript"
         ></script>
 
-        <!--  Monaco Editor -->
+        <!-- Ace Editor -->
         <script
             th:attr="nonce=${cspNonce}"
-            src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"
+            src="/assets/js/ace/ace.js"
         ></script>
         <script
             th:attr="nonce=${cspNonce}"
-            src="/assets/js/monaco-init.js"
+            src="/assets/js/editor-init.js"
         ></script>
         <script th:attr="nonce=${cspNonce}" src="/assets/js/main.js"></script>
         <script

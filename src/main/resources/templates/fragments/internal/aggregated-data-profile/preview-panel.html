@@ -114,7 +114,7 @@
                                 >
                                 </textarea>
 
-                                <!-- Monaco container for Endpoint Transform Context -->
+                                <!-- Editor container for Endpoint Transform Context -->
                                 <div
                                     id="endpointTransformContextEditor"
                                     data-monaco
@@ -138,7 +138,7 @@
                                 >
                                 </textarea>
 
-                                <!-- Monaco container for test result -->
+                                <!-- Editor container for test result -->
                                 <div
                                     id="testResult-editor"
                                     data-readonly="true"
@@ -190,7 +190,7 @@
                                 <textarea id="output" name="output" hidden>
                                 </textarea>
 
-                                <!-- Monaco container -->
+                                <!-- Editor container -->
                                 <div
                                     id="output-editor"
                                     data-readonly="true"
@@ -219,12 +219,9 @@
                             }
                         }
 
-                        function getMonacoEditor(selector) {
+                        function getEditor(selector) {
                             const el = document.querySelector(selector);
-                            if (!el) return null;
-                            return monaco?.editor
-                                ?.getEditors()
-                                ?.find((e) => e.getContainerDomNode() === el);
+                            return el ? el._editor : null;
                         }
 
                         document
@@ -240,7 +237,7 @@
 
                                 try {
                                     const testResultEditor =
-                                        getMonacoEditor("#testResult-editor");
+                                        getEditor("#testResult-editor");
                                     jsonEl = testResultEditor
                                         ? testResultEditor.getValue()
                                         : document.getElementById("testResult")
@@ -250,15 +247,14 @@
                                     errEl.textContent =
                                         "Invalid JSON: " + e.message;
                                     outEl.value = "";
-                                    const editor =
-                                        getMonacoEditor("#output-editor");
+                                    const editor = getEditor("#output-editor");
                                     if (editor) editor.setValue("");
                                     return;
                                 }
 
                                 try {
                                     const queryEditor =
-                                        getMonacoEditor("#query-editor");
+                                        getEditor("#query-editor");
                                     let program = queryEditor
                                         ? queryEditor.getValue()
                                         : document.getElementById("query")
@@ -276,9 +272,8 @@
                                               );
                                     outEl.value = output;
 
-                                    // Update Monaco editor
-                                    const editor =
-                                        getMonacoEditor("#output-editor");
+                                    // Update Ace editor
+                                    const editor = getEditor("#output-editor");
                                     if (editor) editor.setValue(output);
                                 } catch (e) {
                                     const queryEditorElement =
@@ -289,8 +284,7 @@
                                     errEl.textContent =
                                         "jq error: " + (e?.message || e);
                                     outEl.textContent = "";
-                                    const editor =
-                                        getMonacoEditor("#output-editor");
+                                    const editor = getEditor("#output-editor");
                                     if (editor) editor.setValue("");
                                 }
                             });
