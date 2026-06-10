@@ -93,7 +93,7 @@
                     size="lg"
                     name="connectorEndpointId"
                     required
-                    th:disabled="${aggregatedDataProfile.final}"
+                    th:disabled="${aggregatedDataProfile?.final}"
                     th:value="${#lists.isEmpty(connectorEndpoints) ? '' : (form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints[0].id)}"
                     th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null or (errors != null and #lists.isEmpty(connectorEndpoints))} ? 'true' : null,
                              invalid-text=${(errors != null and #lists.isEmpty(connectorEndpoints)) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorEndpointId')?.defaultMessage}"
