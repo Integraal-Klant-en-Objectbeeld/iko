@@ -275,18 +275,26 @@ document.body.addEventListener("htmx:beforeSwap", function (event) {
 
 // ---------------------------------------------------------------------------
 // hx-on:click="event.stopPropagation()" replacement:
-// overflow-menu elements with data-stop-propagation="true"
+// overflow-menu elements with data-stop-propagation="true".
+// Must be a bubble listener on the element itself: a capture listener on
+// document.body stops the click before it reaches the menu trigger inside
+// the component's shadow DOM, so the overflow menu never opens. A bubble
+// listener here still prevents the click from reaching the clickable table
+// row (htmx hx-get) above it.
 // ---------------------------------------------------------------------------
-document.body.addEventListener(
-    "click",
-    function (event) {
-        var el = event.target.closest("[data-stop-propagation]");
-        if (el) {
-            event.stopPropagation();
-        }
-    },
-    true
-);
+function bindStopPropagation() {
+    document
+        .querySelectorAll("[data-stop-propagation]")
+        .forEach(function (el) {
+            if (el._stopPropagationBound) return;
+            el._stopPropagationBound = true;
+            el.addEventListener("click", function (event) {
+                event.stopPropagation();
+            });
+        });
+}
+document.addEventListener("DOMContentLoaded", bindStopPropagation);
+document.body.addEventListener("htmx:load", bindStopPropagation);
 
 // ---------------------------------------------------------------------------
 // relation/delete.html: cancel button opens/closes the modal
@@ -398,19 +406,21 @@ document.body.addEventListener("cds-toggle-changed", function (event) {
 });
 
 // ---------------------------------------------------------------------------
-// connector/details-page-connector.html: toggleEditorMode buttons
-// Save button: data-editor-save-btn, Edit button: data-editor-edit-btn
-// Both carry data-editor-id and data-save-btn-ref and data-edit-btn-ref
+// connector/details-page-connector.html: editor save/edit buttons.
+// Event delegation keyed by data-* attributes — one listener for all such
+// buttons, no inline onclick (CSP-safe).
 // ---------------------------------------------------------------------------
 document.body.addEventListener("click", function (event) {
     var btn = event.target.closest("[data-toggle-editor-mode]");
     if (!btn) return;
     var editMode = btn.dataset.toggleEditorMode === "edit";
-    var saveBtnId = btn.dataset.saveBtnRef;
-    var editBtnId = btn.dataset.editBtnRef;
-    var editorId = btn.dataset.editorId;
     if (typeof toggleEditorMode === "function") {
-        toggleEditorMode(editMode, saveBtnId, editBtnId, editorId);
+        toggleEditorMode(
+            editMode,
+            btn.dataset.saveBtnRef,
+            btn.dataset.editBtnRef,
+            btn.dataset.editorId,
+        );
     }
 });
 

@@ -397,7 +397,7 @@ cds-form.adp-add-form cds-form-item {
         flex-direction: column;
     }
 
-    .monaco-editor-style {
+    .ace-editor-style {
         overflow: auto;
     }
 }
@@ -512,8 +512,12 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
     }
 }
 
-/* Monaco Editor */
-.monaco-editor-style {
+/* Ace Editor */
+.ace-editor-style {
+    /* position:relative anchors Ace's absolutely-positioned .ace_scroller to
+       this container; without it the scroller can escape to <body> after an
+       HTMX swap remount and render behind the fixed side-nav. */
+    position: relative;
     width: 100%;
     height: 300px;
     box-sizing: border-box;
@@ -525,11 +529,12 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
     overflow: hidden;
 }
 
-.monaco-editor-style-full-height {
+.ace-editor-style-full-height {
+    position: relative;
     height: 100vh;
 }
 
-.monaco-error {
+.ace-error {
     color: #da1e28;
     font-size: 0.75rem;
     line-height: 1rem;
@@ -537,11 +542,11 @@ cds-modal-footer-button[kind="secondary"]::part(button) {
     display: none;
 }
 
-.monaco-error.show {
+.ace-error.show {
     display: block;
 }
 
-.monaco-editor-error {
+.ace-editor-error {
     border: 2px solid var(--cds-button-danger-primary, #da1e28);
 }
 

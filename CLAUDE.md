@@ -99,8 +99,8 @@ Key headers and variables used throughout Camel routes:
 - **HTMX:** Progressive enhancement; pages must work without JS. Controllers return fragments when `HX-Request: true` header is present, full pages otherwise.
 - **Carbon Design System:** Use `cds-*` web components and Carbon CSS grid/spacing tokens. Avoid hardcoded pixel values; use `var(--cds-spacing-*)`.
 - **Static assets:** served from `src/main/resources/static/` at `/assets/**`.
-- **Monaco editor:** Integrated for JQ expression editing (`js/monaco-init.js`, `js/monaco-jq.js`).
-- **JQ in browser:** Client-side JQ via WebAssembly (`js/jq.js`, `js/jq.wasm`).
+- **Ace editor:** Integrated for connector code / JQ / JSON editing (`js/editor-init.js`, vendored `js/ace/`). Mounts on `[data-ace]` elements; configured for strict CSP (`useStrictCSP`, no eval, `worker-src 'self'`); editor CSS served via `css/ace-editor.css`.
+- **Content-Security-Policy:** The admin chain (`/admin/**`) enforces a nonce-based CSP via `CspNonceFilter`. `script-src` is strict (`'nonce-..' 'strict-dynamic'`, no `unsafe-eval`/`unsafe-inline`); `style-src` keeps `'unsafe-inline'` because Carbon (Lit) web components apply dynamic inline style attributes. Every `<script>` carries `th:attr="nonce=${cspNonce}"`. No inline `hx-on`/`onclick`/`hx-vals="js:"`; admin JS lives in `js/admin-ui.js` with `htmx.config.allowEval=false`. (Client-side JQ Wasm preview was removed.)
 
 ## Key Dependencies
 

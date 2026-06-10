@@ -117,12 +117,12 @@
                                 <!-- Editor container for Endpoint Transform Context -->
                                 <div
                                     id="endpointTransformContextEditor"
-                                    data-monaco
+                                    data-ace
                                     data-language="json"
                                     data-textarea="#endpointTransformContext"
                                     th:data-initial="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}"
                                     data-theme="lightgray-theme"
-                                    class="monaco-editor-style"
+                                    class="ace-editor-style"
                                 ></div>
                             </cds-form-item>
                         </div>
@@ -142,12 +142,12 @@
                                 <div
                                     id="testResult-editor"
                                     data-readonly="true"
-                                    data-monaco
+                                    data-ace
                                     data-language="json"
                                     data-textarea="#testResult"
                                     th:data-initial="${testResult}"
                                     data-theme="lightgray-theme"
-                                    class="monaco-editor-style"
+                                    class="ace-editor-style"
                                 ></div>
                             </cds-form-item>
                         </div>
@@ -216,12 +216,12 @@
                 <h4>Stacktrace:</h4>
                 <div
                     id="kotlin-stacktrace-viewer"
-                    data-monaco
+                    data-ace
                     data-language="json"
                     data-readonly="true"
                     data-theme="lightgray-theme"
                     th:data-initial="${exception != null ? exception.getStacktrace() : ''}"
-                    class="monaco-editor-style-full-height"
+                    class="ace-editor-style-full-height"
                 ></div>
             </div>
         </div>

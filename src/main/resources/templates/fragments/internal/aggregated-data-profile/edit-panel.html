@@ -175,17 +175,17 @@
                                             <!-- Editor container -->
                                             <div
                                                 id="endpoint-transform-editor"
-                                                data-monaco
+                                                data-ace
                                                 data-language="jq"
                                                 data-textarea="#endpointTransformCode"
                                                 th:data-initial="${form?.endpointTransform}"
                                                 data-theme="lightgray-theme"
                                                 th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                                             ></div>
                                             <div
-                                                id="endpoint-transform-monaco-error"
-                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                                                id="endpoint-transform-ace-error"
+                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'ace-error show' : 'ace-error'"
                                             >
                                                 <span
                                                     th:if="${errors?.getFieldError('endpointTransform') != null}"
@@ -229,17 +229,17 @@
                                             <!-- Editor container -->
                                             <div
                                                 id="result-transform-editor"
-                                                data-monaco
+                                                data-ace
                                                 data-language="jq"
                                                 data-textarea="#resultTransformCode"
                                                 th:data-initial="${form?.resultTransform}"
                                                 data-theme="lightgray-theme"
                                                 th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                                             ></div>
                                             <div
-                                                id="result-transform-monaco-error"
-                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                                                id="result-transform-ace-error"
+                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-error show' : 'ace-error'"
                                             >
                                                 <span
                                                     th:if="${errors?.getFieldError('resultTransform') != null}"

@@ -40,7 +40,15 @@
 
     function initEditor(el) {
         if (el._editor) {
-            return;
+            // htmx's settle phase restores the server-rendered attributes on
+            // same-id nodes ~20ms after an outerHTML swap, wiping the classes
+            // Ace put on the container (ace_editor, ace-chrome) when the
+            // editor was created by an earlier htmx:load/afterSwap. If those
+            // classes are gone the editor is visually broken — rebuild it.
+            if (el.classList.contains("ace_editor")) {
+                return;
+            }
+            disposeEditor(el);
         }
 
         const language = el.getAttribute("data-language") || "text";
@@ -113,21 +121,34 @@
     }
 
     function initAllEditors() {
-        document.querySelectorAll("[data-monaco]").forEach(initEditor);
+        document.querySelectorAll("[data-ace]").forEach(initEditor);
+    }
+
+    function disposeEditor(el) {
+        if (el && el._editor) {
+            if (el._editor._resizeObserver) {
+                el._editor._resizeObserver.disconnect();
+            }
+            el._editor.destroy();
+            el._editor = null;
+            el.innerHTML = "";
+        }
     }
 
     function disposeEditors(root) {
-        root.querySelectorAll("[data-monaco]").forEach(function (el) {
-            if (el._editor) {
-                if (el._editor._resizeObserver) {
-                    el._editor._resizeObserver.disconnect();
-                }
-                el._editor.destroy();
-                el._editor = null;
-                el.innerHTML = "";
-            }
-        });
+        root.querySelectorAll("[data-ace]").forEach(disposeEditor);
     }
+
+    // Before a request that will replace an editor's markup, tear the editor
+    // down so the swapped-in node re-inits cleanly. The triggering element
+    // names the editor via data-editor-id. Needed because morph/reuse swaps can
+    // keep the old node (and its _editor), making initEditor early-return.
+    document.addEventListener("htmx:beforeRequest", function (e) {
+        const editorId = e.detail?.elt?.getAttribute?.("data-editor-id");
+        if (editorId) {
+            disposeEditor(document.getElementById(editorId));
+        }
+    });
 
     // Init on page load
     document.addEventListener("DOMContentLoaded", initAllEditors);
@@ -135,8 +156,22 @@
     // Init after HTMX swaps
     document.addEventListener("htmx:afterSwap", initAllEditors);
 
+    // htmx:load fires for every newly inserted node, including server
+    // retargeted (HX-Retarget) swaps where htmx:afterSwap can be missed.
+    // initEditor guards on el._editor, so this is idempotent.
+    document.addEventListener("htmx:load", initAllEditors);
+
     // Init after HTMX response errors (if swap was skipped)
     document.addEventListener("htmx:responseError", initAllEditors);
+
+    // The settle phase can wipe Ace's container classes (see initEditor);
+    // re-check once settling is done.
+    document.addEventListener("htmx:afterSettle", initAllEditors);
+
+    // Explicit server-driven re-init: responses that swap in editor markup can
+    // send `HX-Trigger: reinitAceEditors`; htmx dispatches it as a DOM event
+    // after the swap settles, so editors mount reliably.
+    document.addEventListener("reinitAceEditors", initAllEditors);
 
     // Handle 422 validation errors via htmx:afterRequest
     document.addEventListener("htmx:afterRequest", function (e) {
@@ -144,7 +179,7 @@
         const trigger = e.detail.elt;
         const editorSelector = trigger.getAttribute("data-editor-selector");
 
-        const errorBox = document.getElementById("monaco-error");
+        const errorBox = document.getElementById("ace-error");
         const editor = editorSelector
             ? document.querySelector(editorSelector)
             : null;
@@ -162,13 +197,13 @@
                 errorBox.style.display = "block";
                 errorBox.textContent = xhr.responseText;
             }
-            editor.classList.add("monaco-editor-error");
+            editor.classList.add("ace-editor-error");
         } else if (xhr.status >= 200 && xhr.status < 300) {
             if (errorBox) {
                 errorBox.style.display = "none";
                 errorBox.textContent = "";
             }
-            editor.classList.remove("monaco-editor-error");
+            editor.classList.remove("ace-editor-error");
         }
     });
 

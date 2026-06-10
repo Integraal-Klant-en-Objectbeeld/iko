@@ -26,8 +26,8 @@
         <!-- HTMX -->
         <script
             th:attr="nonce=${cspNonce}"
-            src="https://unpkg.com/htmx.org@2.0.4"
-            integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+            src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
+            integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
             crossorigin="anonymous"
         ></script>
         <script
@@ -73,6 +73,12 @@
         <script
             th:attr="nonce=${cspNonce}"
             src="/assets/js/ace/ace.js"
+        ></script>
+        <!-- Preload theme so setTheme resolves synchronously; lazy script-injection
+             after an HTMX swap leaves the editor without .ace-chrome until it lands -->
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/ace/theme-chrome.js"
         ></script>
         <script
             th:attr="nonce=${cspNonce}"

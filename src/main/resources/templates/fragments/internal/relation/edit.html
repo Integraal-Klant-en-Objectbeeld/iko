@@ -139,17 +139,17 @@
                 <!-- Editor container -->
                 <div
                     id="endpoint-transform-editor"
-                    data-monaco
+                    data-ace
                     data-language="jq"
                     data-textarea="#sourceToEndpointMappingCode"
                     th:data-initial="${form?.sourceToEndpointMapping}"
                     data-theme="lightgray-theme"
                     th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                 ></div>
                 <div
-                    id="source-to-endpoint-transform-monaco-error"
-                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-error show' : 'monaco-error'"
+                    id="source-to-endpoint-transform-ace-error"
+                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'ace-error show' : 'ace-error'"
                 >
                     <span
                         th:if="${errors?.getFieldError('sourceToEndpointMapping') != null}"
@@ -199,17 +199,17 @@
 
                 <div
                     id="result-transform-editor-edit"
-                    data-monaco
+                    data-ace
                     data-language="jq"
                     data-textarea="#resultTransformCodeEdit"
                     th:data-initial="${form?.resultTransform}"
                     data-theme="lightgray-theme"
                     th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                 ></div>
                 <div
-                    id="result-transform-monaco-error-edit"
-                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                    id="result-transform-ace-error-edit"
+                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-error show' : 'ace-error'"
                 >
                     <span
                         th:if="${errors?.getFieldError('resultTransform') != null}"
