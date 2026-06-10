@@ -119,8 +119,8 @@
                                     id="endpointTransformContextEditor"
                                     data-ace
                                     data-language="json"
-                                    data-textarea="#endpointTransformContext"
                                     data-format-json
+                                    data-textarea="#endpointTransformContext"
                                     th:data-initial="${endpointTransformContext != null ? endpointTransformContext : defaultEndpointTransformContext}"
                                     data-theme="lightgray-theme"
                                     class="ace-editor-style"
@@ -146,7 +146,6 @@
                                     data-ace
                                     data-language="json"
                                     data-textarea="#testResult"
-                                    data-format-json
                                     th:data-initial="${testResult}"
                                     data-theme="lightgray-theme"
                                     class="ace-editor-style"
@@ -222,7 +221,6 @@
                     data-language="json"
                     data-readonly="true"
                     data-theme="lightgray-theme"
-                    data-format-json
                     th:data-initial="${exception != null ? exception.getStacktrace() : ''}"
                     class="ace-editor-style-full-height"
                 ></div>

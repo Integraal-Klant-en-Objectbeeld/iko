@@ -135,7 +135,6 @@
                     data-ace
                     data-language="jq"
                     data-textarea="#sourceToEndpointMappingCodeAdd"
-                    data-format-json
                     th:data-initial="${form != null ? form.sourceToEndpointMapping : '{}'}"
                     data-theme="lightgray-theme"
                     th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
@@ -193,7 +192,6 @@
                     data-ace
                     data-language="jq"
                     data-textarea="#resultTransformAdd"
-                    data-format-json
                     th:data-initial="${form != null ? form.resultTransform : '.'}"
                     data-theme="lightgray-theme"
                     th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
