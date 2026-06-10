@@ -44,7 +44,10 @@ import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 internal const val ADMIN_CSP_TEMPLATE =
     "default-src 'self'; " +
         "script-src {nonce} 'strict-dynamic' https: 'self'; " +
-        "style-src {nonce} 'self' https://1.www.s81c.com https://unpkg.com https://cdnjs.cloudflare.com; " +
+        // 'unsafe-inline' is required: Carbon (Lit-based) web components apply
+        // dynamic inline style="" attributes at runtime, and CSP nonces/hashes
+        // do not apply to style attributes. script-src stays strict.
+        "style-src 'self' 'unsafe-inline' https://1.www.s81c.com https://unpkg.com https://cdnjs.cloudflare.com; " +
         "img-src 'self' data:; " +
         "font-src 'self' https:; " +
         "connect-src 'self' https:; " +

@@ -54,13 +54,16 @@ class CspNonceFilterTest {
     }
 
     @Test
-    fun `admin CSP template style-src does not contain unsafe-inline`() {
-        val styleSrc =
+    fun `admin CSP template script-src does not contain unsafe-inline`() {
+        // script-src must stay strict (no unsafe-inline). style-src intentionally
+        // keeps 'unsafe-inline' because Carbon (Lit) web components apply dynamic
+        // inline style attributes that nonces/hashes cannot cover.
+        val scriptSrc =
             ADMIN_CSP_TEMPLATE
                 .split(";")
                 .map { it.trim() }
-                .firstOrNull { it.startsWith("style-src") }
-        assertThat(styleSrc).isNotNull
-        assertThat(styleSrc).doesNotContain("'unsafe-inline'")
+                .firstOrNull { it.startsWith("script-src") }
+        assertThat(scriptSrc).isNotNull
+        assertThat(scriptSrc).doesNotContain("'unsafe-inline'")
     }
 }
