@@ -80,6 +80,12 @@
             th:attr="nonce=${cspNonce}"
             src="/assets/js/ace/theme-chrome.js"
         ></script>
+        <!-- Autocompletion (popup CSS is vendored in ace-editor.css; runtime
+             injection is disabled by useStrictCSP) -->
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/ace/ext-language_tools.js"
+        ></script>
         <script
             th:attr="nonce=${cspNonce}"
             src="/assets/js/editor-init.js"

@@ -25,6 +25,66 @@
     // cannot reset it to false.
     ace.config.set("useStrictCSP", true);
 
+    // Execute the language_tools module (the static <script> only registers
+    // its ace.define factory) so the autocompletion editor options exist.
+    ace.require("ace/ext/language_tools");
+
+    // jq has no Ace mode, so completions come from a static word list
+    // (jq 1.6 keywords and builtins).
+    var JQ_KEYWORDS = [
+        "if", "then", "elif", "else", "end", "as", "def", "reduce",
+        "foreach", "try", "catch", "label", "import", "include", "and", "or",
+    ];
+    var JQ_BUILTINS = [
+        "add", "all", "any", "arrays", "ascii_downcase", "ascii_upcase",
+        "booleans", "builtins", "capture", "ceil", "combinations", "contains",
+        "debug", "del", "delpaths", "empty", "endswith", "env", "error",
+        "explode", "fabs", "first", "flatten", "floor", "from_entries",
+        "fromdate", "fromdateiso8601", "fromjson", "getpath", "group_by",
+        "gsub", "halt", "halt_error", "has", "implode", "in", "index",
+        "indices", "infinite", "input", "input_line_number", "inputs",
+        "inside", "isinfinite", "isnan", "isnormal", "iterables", "join",
+        "keys", "keys_unsorted", "last", "leaf_paths", "length", "limit",
+        "ltrimstr", "map", "map_values", "match", "max", "max_by", "min",
+        "min_by", "mktime", "nan", "not", "now", "nth", "nulls", "numbers",
+        "objects", "path", "paths", "pow", "range", "recurse", "repeat",
+        "reverse", "rindex", "round", "rtrimstr", "scalars", "scan",
+        "select", "setpath", "sort", "sort_by", "split", "splits", "sqrt",
+        "startswith", "stderr", "strings", "strftime", "strptime", "sub",
+        "test", "to_entries", "todate", "todateiso8601", "tojson",
+        "tonumber", "tostream", "tostring", "transpose", "type", "unique",
+        "unique_by", "until", "utf8bytelength", "values", "walk", "while",
+        "with_entries",
+    ];
+    // Context fields IKO exposes to endpoint transforms; the resulting
+    // headers are added to the selected connector endpoint request.
+    var JQ_IKO_CONTEXT = ["idParam", "sortParams", "filterParams"];
+    var jqCompleter = {
+        getCompletions: function (editor, session, pos, prefix, callback) {
+            callback(
+                null,
+                JQ_KEYWORDS.map(function (word) {
+                    return { caption: word, value: word, meta: "keyword", score: 50 };
+                }).concat(
+                    JQ_BUILTINS.map(function (word) {
+                        return { caption: word, value: word, meta: "builtin", score: 100 };
+                    }),
+                    JQ_IKO_CONTEXT.map(function (word) {
+                        // Caption shows the dotted form; the inserted value has
+                        // no dot because Ace's completion prefix stops at "." —
+                        // typing ".id" replaces only "id".
+                        return {
+                            caption: "." + word,
+                            value: word,
+                            meta: "iko-context",
+                            score: 200,
+                        };
+                    }),
+                ),
+            );
+        },
+    };
+
     function mapLanguage(lang) {
         if (lang === "json") return "json";
         if (lang === "yaml") return "yaml";
@@ -80,6 +140,15 @@
             value: initialValue,
             showPrintMargin: false,
         });
+
+        if (language === "jq" && !isReadOnly) {
+            editor.setOptions({
+                // Array form replaces the default completers (snippet/keyword
+                // ones are useless in the plain-text mode jq runs in).
+                enableBasicAutocompletion: [jqCompleter],
+                enableLiveAutocompletion: true,
+            });
+        }
 
         // Position cursor at start rather than end
         editor.clearSelection();
