@@ -21,14 +21,7 @@
     data-carbon-theme="white"
 >
     <div class="form-column">
-        <div
-            class="form-row"
-            style="
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            "
-        >
+        <div class="form-row relation-cache-row">
             <cds-toggle
                 id="cacheEnabledToggle"
                 name="cacheEnabledToggle"
@@ -56,7 +49,7 @@
                 max="31536000000"
                 label="Time to live"
                 helper-text="Milliseconds"
-                style="width: 300px"
+                class="cache-ttl-input"
                 th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
                                    invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
                                    value=${form?.cacheTimeToLive}"

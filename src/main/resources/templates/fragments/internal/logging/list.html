@@ -24,8 +24,7 @@
         <!-- Filter overlay form (hidden by default, toggled by funnel button) -->
         <div
             id="logging-filter-panel"
-            class="app--logging-filter-panel"
-            style="display: none"
+            class="app--logging-filter-panel logging-filter-hidden"
         >
             <form
                 id="logging-filter-form"
@@ -65,7 +64,7 @@
                                 placeholder="hh:mm"
                                 th:value="${filter?.fromTime}"
                                 size="md"
-                                style="width: 6rem"
+                                class="logging-time-input"
                             ></cds-text-input>
                         </div>
                     </div>
@@ -111,7 +110,7 @@
                                 placeholder="hh:mm"
                                 th:value="${filter?.toTime}"
                                 size="md"
-                                style="width: 6rem"
+                                class="logging-time-input"
                             ></cds-text-input>
                         </div>
                     </div>
@@ -268,7 +267,7 @@
             <!-- Toolbar -->
             <cds-table-toolbar slot="toolbar">
                 <cds-table-toolbar-content>
-                    <div style="flex: 1"></div>
+                    <div class="toolbar-spacer"></div>
                     <cds-button
                         kind="ghost"
                         size="md"

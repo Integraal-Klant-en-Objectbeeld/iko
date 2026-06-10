@@ -18,18 +18,12 @@
     // Strict-CSP config: no eval, no blob worker
     ace.config.set("basePath", "/assets/js/ace");
     ace.config.set("loadWorkerFromBlob", false);
-    // Nonce for Ace's injected <style> tags. Not all ace-builds versions
-    // expose this config key; guard so an unknown-key error cannot abort init.
-    // style-src keeps 'unsafe-inline' until Phase 5, which switches to a static
-    // theme <link> if no usable nonce hook exists.
-    try {
-        ace.config.set(
-            "nonce",
-            document.querySelector("meta[name='csp-nonce']")?.content,
-        );
-    } catch (e) {
-        /* ace version lacks nonce config key */
-    }
+    // Prevent Ace from injecting inline <style> tags (ace-builds 1.44.0 does not
+    // expose a nonce config key). All Ace CSS is served as a static <link> via
+    // /assets/css/ace-editor.css, so inline injection is unnecessary.
+    // Must be called before any editor is created so the Editor constructor
+    // cannot reset it to false.
+    ace.config.set("useStrictCSP", true);
 
     function mapLanguage(lang) {
         if (lang === "json") return "json";

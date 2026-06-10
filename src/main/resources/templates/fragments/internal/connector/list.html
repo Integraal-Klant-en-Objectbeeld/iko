@@ -60,7 +60,7 @@
                     </svg>
                     <span slot="tooltip-content">Filters</span>
                     <cds-overflow-menu-body flipped="">
-                        <cds-overflow-menu-item style="pointer-events: none">
+                        <cds-overflow-menu-item class="overflow-filter-wrapper">
                             <cds-checkbox
                                 id="active-filter-toggle"
                                 th:checked="${isActive == null or isActive}"
@@ -71,7 +71,7 @@
                                 hx-trigger="cds-checkbox-changed"
                                 hx-vals='{"page":"0"}'
                                 data-hx-dynamic-params="isActive:eventChecked,size:paginationSize,query:searchBarQuery,sort:urlSort"
-                                style="pointer-events: auto"
+                                class="pointer-events-auto"
                                 >Active only</cds-checkbox
                             >
                         </cds-overflow-menu-item>

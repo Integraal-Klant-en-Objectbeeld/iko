@@ -18,7 +18,6 @@
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="csp-nonce" th:attr="content=${cspNonce}" />
         <title>IKO Admin</title>
         <!-- Preconnects for faster resource loading -->
         <link rel="preconnect" href="https://unpkg.com" />
@@ -66,6 +65,9 @@
 
         <!-- Application stylesheet -->
         <link rel="stylesheet" href="/assets/css/main.css" />
+
+        <!-- Ace Editor static CSS (prevents 'unsafe-inline' in style-src) -->
+        <link rel="stylesheet" href="/assets/css/ace-editor.css" />
 
         <!-- Ace Editor -->
         <script

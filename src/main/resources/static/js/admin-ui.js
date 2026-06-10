@@ -422,7 +422,7 @@ document.body.addEventListener("click", function (event) {
     if (!btn) return;
     var panel = document.getElementById("logging-filter-panel");
     if (!panel) return;
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
+    panel.classList.toggle("logging-filter-hidden");
 });
 
 // ---------------------------------------------------------------------------
@@ -546,7 +546,7 @@ document.body.addEventListener("click", function (event) {
 (function () {
     document.addEventListener("click", function (event) {
         var panel = document.getElementById("logging-filter-panel");
-        if (!panel || panel.style.display === "none") return;
+        if (!panel || panel.classList.contains("logging-filter-hidden")) return;
         var toggle = document.getElementById("toggle-filter-btn");
         if (
             panel.contains(event.target) ||
@@ -554,6 +554,6 @@ document.body.addEventListener("click", function (event) {
         ) {
             return;
         }
-        panel.style.display = "none";
+        panel.classList.add("logging-filter-hidden");
     });
 })();

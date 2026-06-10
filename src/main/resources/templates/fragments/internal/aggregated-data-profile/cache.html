@@ -54,22 +54,14 @@
                             max="31536000000"
                             label="Time to live"
                             helper-text="Milliseconds"
-                            style="width: 200px"
+                            class="cache-ttl-input-narrow"
                             th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
                                              value=${cacheForm?.cacheTimeToLive}"
                         >
                         </cds-number-input>
                     </div>
-                    <div
-                        class="form-actions"
-                        style="
-                            display: flex;
-                            flex-direction: row;
-                            gap: var(--cds-spacing-05);
-                            justify-content: flex-end;
-                        "
-                    >
+                    <div class="form-actions cache-form-actions">
                         <cds-button
                             kind="danger"
                             hx-confirm="Are you sure?"

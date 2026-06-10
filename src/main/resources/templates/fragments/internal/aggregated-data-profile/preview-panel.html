@@ -32,7 +32,7 @@
                 Error
             </cds-tab>
         </cds-tabs>
-        <div style="margin-top: 1rem">
+        <div class="preview-panel-tabs-body">
             <div
                 id="panel-result"
                 role="tabpanel"
@@ -198,9 +198,9 @@
                             ></cds-table-cell>
                             <cds-table-cell
                                 th:text="${trace.status}"
-                                th:style="${trace.status == 'OK' ? 'color: var(--cds-support-success);' :
-                                            trace.status == 'FAILED' ? 'color: var(--cds-support-error);' :
-                                            trace.status == 'IN_PROGRESS' ? 'color: var(--cds-support-info);' : ''}"
+                                th:class="${trace.status == 'OK' ? 'trace-status-ok' :
+                                            trace.status == 'FAILED' ? 'trace-status-failed' :
+                                            trace.status == 'IN_PROGRESS' ? 'trace-status-in-progress' : ''}"
                             >
                             </cds-table-cell>
                         </cds-table-row>

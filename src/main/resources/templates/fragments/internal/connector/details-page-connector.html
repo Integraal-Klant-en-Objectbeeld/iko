@@ -72,14 +72,7 @@
                         aria-labelledby="tab-connector-code"
                         class="cds--tab-content cds--tab-content--interactive"
                     >
-                        <div
-                            style="
-                                display: flex;
-                                flex-flow: row;
-                                justify-content: flex-end;
-                                align-items: center;
-                            "
-                        >
+                        <div class="connector-code-actions-row">
                             <cds-button
                                 id="save-button"
                                 type="submit"
@@ -88,7 +81,7 @@
                                 hx-target="#connector-code"
                                 hx-swap="outerHTML"
                                 data-swap-errors="true"
-                                style="display: none"
+                                class="editor-save-btn"
                                 data-toggle-editor-mode="save"
                                 data-save-btn-ref="save-button"
                                 data-edit-btn-ref="edit-code-button"
@@ -111,7 +104,7 @@
                         </div>
                         <div
                             id="connector-code"
-                            style="margin: 0.5em"
+                            class="connector-code-wrapper"
                             th:fragment="connector-code"
                         >
                             <textarea
@@ -122,12 +115,7 @@
                             ></textarea>
 
                             <div
-                                class="cds--form-item"
-                                style="
-                                    display: flex;
-                                    flex-direction: column;
-                                    height: calc(100vh - 15rem);
-                                "
+                                class="cds--form-item editor-full-height-container"
                             >
                                 <!-- Editor container -->
                                 <div
@@ -137,8 +125,7 @@
                                     data-textarea="#connectorCode"
                                     data-readonly="true"
                                     th:data-initial="${connector.connectorCode}"
-                                    style="flex: 1; min-height: 200px"
-                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'monaco-editor-style monaco-editor-error editor-flex-fill' : 'monaco-editor-style editor-flex-fill'"
                                 ></div>
 
                                 <div

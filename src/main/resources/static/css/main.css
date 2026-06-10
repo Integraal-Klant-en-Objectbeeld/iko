@@ -758,3 +758,140 @@ cds-form-item {
     padding-left: 2ch;
     text-indent: -2ch;
 }
+
+/* Phase 5 — inline-style replacements */
+
+/* Connector code editor panel */
+.connector-code-actions-row {
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.editor-save-btn {
+    display: none;
+}
+
+.connector-code-wrapper {
+    margin: 0.5em;
+}
+
+.editor-full-height-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 15rem);
+}
+
+.editor-flex-fill {
+    flex: 1;
+    min-height: 200px;
+}
+
+/* SVG inline <style> replacement (.cls-1 was defined in an inline <style> inside connector-instance SVG) */
+.svg-cls-1,
+.cls-1 {
+    fill: none;
+}
+
+/* SVG attribute style replacement (mix-blend-mode on SVG rect fill) */
+.svg-multiply {
+    mix-blend-mode: multiply;
+}
+
+/* Finalize preview modal */
+.finalize-modal-list {
+    margin: var(--cds-spacing-03) 0;
+    padding-left: var(--cds-spacing-06);
+    list-style-type: disc;
+}
+
+.finalize-modal-list-item {
+    margin-bottom: var(--cds-spacing-03);
+}
+
+.finalize-modal-affected {
+    margin-top: var(--cds-spacing-02);
+    color: var(--cds-text-secondary);
+}
+
+/* Logging panel */
+.logging-filter-hidden {
+    display: none;
+}
+
+.logging-time-input {
+    width: 6rem;
+}
+
+.toolbar-spacer {
+    flex: 1;
+}
+
+/* Relations tree */
+.relations-tree-container {
+    margin-bottom: 1rem;
+}
+
+/* Cache forms */
+.relation-cache-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cache-ttl-input {
+    width: 300px;
+}
+
+.cache-ttl-input-narrow {
+    width: 200px;
+}
+
+.cache-form-actions {
+    display: flex;
+    flex-direction: row;
+    gap: var(--cds-spacing-05);
+    justify-content: flex-end;
+}
+
+/* Schema panel */
+.schema-notification-mb {
+    margin-bottom: var(--cds-spacing-05);
+}
+
+.schema-regen-btn-mt {
+    margin-top: var(--cds-spacing-05);
+}
+
+/* Overflow menu pointer-events helpers */
+.overflow-filter-wrapper {
+    pointer-events: none;
+}
+
+.pointer-events-auto {
+    pointer-events: auto;
+}
+
+/* Preview panel */
+.preview-panel-tabs-body {
+    margin-top: 1rem;
+}
+
+/* Trace status colours (replaces th:style dynamic colour) */
+.trace-status-ok {
+    color: var(--cds-support-success);
+}
+
+.trace-status-failed {
+    color: var(--cds-support-error);
+}
+
+.trace-status-in-progress {
+    color: var(--cds-support-info);
+}
+
+/* Dropdown full width */
+.dropdown-full-width {
+    width: 100%;
+}
