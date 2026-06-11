@@ -30,6 +30,7 @@ data class AddRelationForm(
     val connectorInstanceId: UUID,
     val connectorEndpointId: UUID,
     @field:NotBlank(message = "Please provide a mapping.")
+    @field:ValidTransform
     val sourceToEndpointMapping: String,
     @field:NotBlank(message = "Please define a transform expression.")
     @field:ValidTransform
