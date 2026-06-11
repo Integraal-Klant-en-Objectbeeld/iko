@@ -24,17 +24,17 @@
                     subtitle="This schema is generated on a best-effort basis."
                     hide-close-button
                     low-contrast
-                    style="margin-bottom: var(--cds-spacing-05)"
+                    class="schema-notification-mb"
                 ></cds-inline-notification>
                 <div
                     id="schema-editor"
-                    data-monaco
+                    data-ace
                     data-language="json"
                     data-readonly="true"
                     data-format-json
                     th:data-initial="${aggregatedDataProfile.schema}"
                     data-theme="lightgray-theme"
-                    class="monaco-editor-style"
+                    class="ace-editor-style"
                 ></div>
             </div>
             <cds-inline-notification
@@ -49,9 +49,8 @@
                 th:hx-post="@{|/admin/aggregated-data-profiles/${aggregatedDataProfile.id}/schema/regenerate|}"
                 hx-target="#schema-panel-content"
                 hx-swap="outerHTML"
-                hx-on::before-request="this.setAttribute('disabled',''); this.textContent='Regenerating…';"
-                hx-on::after-request="this.removeAttribute('disabled'); this.textContent='Regenerate Schema';"
-                style="margin-top: var(--cds-spacing-05)"
+                data-loading-text="Regenerating…"
+                class="schema-regen-btn-mt"
             >
                 Regenerate Schema
             </cds-button>

@@ -107,8 +107,9 @@
                                                     th:hx-put="@{|/admin/connectors/${connector.id}/instances/${connectorInstance.id}|}"
                                                     hx-target="#instance-edit-form-container"
                                                     hx-include="#instance-edit-form-container *"
-                                                    hx-on::before-request="const b=document.getElementById('instance-save-btn'); if(b){ b.setAttribute('disabled',''); b.textContent='Saving\u2026'; }"
-                                                    hx-on::after-request="const b=document.getElementById('instance-save-btn'); if(b){ b.removeAttribute('disabled'); b.textContent='Save'; }"
+                                                    data-save-btn-id="instance-save-btn"
+                                                    data-saving-text="Saving\u2026"
+                                                    data-saved-text="Save"
                                                     kind="primary"
                                                 >
                                                     Save
@@ -192,13 +193,7 @@
                                             height="16"
                                             viewBox="0 0 32 32"
                                         >
-                                            <defs>
-                                                <style>
-                                                    .cls-1 {
-                                                        fill: none;
-                                                    }
-                                                </style>
-                                            </defs>
+                                            <defs></defs>
                                             <title>view</title>
                                             <path
                                                 d="M30.94,15.66A16.69,16.69,0,0,0,16,5,16.69,16.69,0,0,0,1.06,15.66a1,1,0,0,0,0,.68A16.69,16.69,0,0,0,16,27,16.69,16.69,0,0,0,30.94,16.34,1,1,0,0,0,30.94,15.66ZM16,25c-5.3,0-10.9-3.93-12.93-9C5.1,10.93,10.7,7,16,7s10.9,3.93,12.93,9C26.9,21.07,21.3,25,16,25Z"
@@ -224,7 +219,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg
@@ -342,7 +337,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg

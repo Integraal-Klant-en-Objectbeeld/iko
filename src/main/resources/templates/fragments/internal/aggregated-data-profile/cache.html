@@ -30,7 +30,7 @@
                             name="cacheEnabledToggle"
                             label-text="Cache enabled"
                             aria-labelledby="cacheEnabled-label"
-                            hx-on:cds-toggle-changed="document.querySelector('#adpCacheEnabledHidden').value = this.checked;"
+                            data-toggle-target="#adpCacheEnabledHidden"
                             th:attr="invalid=${errors?.getFieldError('cacheEnabled') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('cacheEnabled')?.defaultMessage},
                                              checked=${cacheForm?.cacheEnabled}"
@@ -54,22 +54,14 @@
                             max="31536000000"
                             label="Time to live"
                             helper-text="Milliseconds"
-                            style="width: 200px"
+                            class="cache-ttl-input-narrow"
                             th:attr="invalid=${errors?.getFieldError('cacheTimeToLive') != null} ? 'true' : null,
                                              invalid-text=${errors?.getFieldError('cacheTimeToLive')?.defaultMessage},
                                              value=${cacheForm?.cacheTimeToLive}"
                         >
                         </cds-number-input>
                     </div>
-                    <div
-                        class="form-actions"
-                        style="
-                            display: flex;
-                            flex-direction: row;
-                            gap: var(--cds-spacing-05);
-                            justify-content: flex-end;
-                        "
-                    >
+                    <div class="form-actions cache-form-actions">
                         <cds-button
                             kind="danger"
                             hx-confirm="Are you sure?"
@@ -83,7 +75,7 @@
                             hx-target="#cache-panel"
                             hx-swap="outerHTML"
                             hx-include="#cache-form *"
-                            hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                            data-swap-errors="true"
                         >
                             Save
                         </cds-button>

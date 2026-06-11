@@ -72,14 +72,7 @@
                         aria-labelledby="tab-connector-code"
                         class="cds--tab-content cds--tab-content--interactive"
                     >
-                        <div
-                            style="
-                                display: flex;
-                                flex-flow: row;
-                                justify-content: flex-end;
-                                align-items: center;
-                            "
-                        >
+                        <div class="connector-code-actions-row">
                             <cds-button
                                 id="save-button"
                                 type="submit"
@@ -87,9 +80,12 @@
                                 hx-include="#connectorCode"
                                 hx-target="#connector-code"
                                 hx-swap="outerHTML"
-                                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
-                                style="display: none"
-                                onclick="toggleEditorMode(false, 'save-button', 'edit-code-button', 'connector-editor');"
+                                data-swap-errors="true"
+                                class="editor-save-btn"
+                                data-toggle-editor-mode="save"
+                                data-save-btn-ref="save-button"
+                                data-edit-btn-ref="edit-code-button"
+                                data-editor-id="connector-editor"
                                 th:disabled="${connector.final}"
                             >
                                 Save
@@ -97,7 +93,10 @@
 
                             <cds-button
                                 id="edit-code-button"
-                                onclick="toggleEditorMode(true, 'save-button', 'edit-code-button', 'connector-editor');"
+                                data-toggle-editor-mode="edit"
+                                data-save-btn-ref="save-button"
+                                data-edit-btn-ref="edit-code-button"
+                                data-editor-id="connector-editor"
                                 th:disabled="${connector.final}"
                             >
                                 Edit code
@@ -105,7 +104,7 @@
                         </div>
                         <div
                             id="connector-code"
-                            style="margin: 0.5em"
+                            class="connector-code-wrapper"
                             th:fragment="connector-code"
                         >
                             <textarea
@@ -116,28 +115,22 @@
                             ></textarea>
 
                             <div
-                                class="cds--form-item"
-                                style="
-                                    display: flex;
-                                    flex-direction: column;
-                                    height: calc(100vh - 15rem);
-                                "
+                                class="cds--form-item editor-full-height-container"
                             >
-                                <!-- Monaco container -->
+                                <!-- Editor container -->
                                 <div
                                     id="connector-editor"
-                                    data-monaco
+                                    data-ace
                                     data-language="yaml"
                                     data-textarea="#connectorCode"
                                     data-readonly="true"
                                     th:data-initial="${connector.connectorCode}"
-                                    style="flex: 1; min-height: 200px"
-                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'ace-editor-style ace-editor-error editor-flex-fill' : 'ace-editor-style editor-flex-fill'"
                                 ></div>
 
                                 <div
-                                    id="monaco-error"
-                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'monaco-error show' : 'monaco-error'"
+                                    id="ace-error"
+                                    th:class="${(errors?.getFieldError('connectorCode') != null) or (connectorCodeError != null)} ? 'ace-error show' : 'ace-error'"
                                     th:text="${errors?.getFieldError('connectorCode')?.defaultMessage ?: connectorCodeError}"
                                 ></div>
                             </div>
@@ -210,7 +203,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg
@@ -322,7 +315,6 @@
                                     hx-target="#view-panel"
                                     hx-push-url="true"
                                     role="link"
-                                    onclick="document.addEventListener('click', (e) => {if (e.target.closest('.app--table-cell-actions')) {e.stopImmediatePropagation();}});"
                                     class="app--table-row-clickable"
                                 >
                                     <cds-table-cell
@@ -341,7 +333,7 @@
                                             enter-delay-ms="3000"
                                             leave-delay-ms="0"
                                             close-on-activation
-                                            hx-on:click="event.stopPropagation()"
+                                            data-stop-propagation="true"
                                             th:disabled="${connector.final}"
                                         >
                                             <svg

@@ -52,8 +52,8 @@ function toggleEditorMode(editMode, saveBtn, editBtn, editorEl) {
         editorElElement.setAttribute('data-readonly', 'true');
     }
 
-    const editor = editorElElement._monacoEditor;
+    const editor = editorElElement._editor;
     if (editor) {
-        editor.updateOptions({ readOnly: !editMode });
+        editor.setReadOnly(!editMode);
     }
 }
