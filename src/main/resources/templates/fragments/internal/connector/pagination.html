@@ -28,13 +28,7 @@
         hx-target="#search-results"
         hx-swap="outerHTML"
         hx-push-url="true"
-        hx-vals="js:{
-                      size: document.querySelector('#pagination-container').pageSize,
-                      page: document.querySelector('#pagination-container').page - 1,
-                      query: document.querySelector('#search-bar').value,
-                      isActive: document.querySelector('#active-filter-toggle')?.checked ?? true,
-                      sort: new URLSearchParams(window.location.search).get('sort') || ''
-                    }"
+        data-hx-dynamic-params="size:paginationSize,page:paginationPage,query:searchBarQuery,isActive:activeFilterToggle,sort:urlSort"
     >
         <cds-select-item value="10">10</cds-select-item>
         <cds-select-item value="20">20</cds-select-item>

@@ -25,7 +25,7 @@
                 <cds-dropdown
                     name="sourceId"
                     size="lg"
-                    style="width: 100%"
+                    class="dropdown-full-width"
                     helper-text=""
                     title-text="From"
                     label="Select a from"
@@ -93,7 +93,7 @@
                     size="lg"
                     name="connectorEndpointId"
                     required
-                    th:disabled="${aggregatedDataProfile.final}"
+                    th:disabled="${aggregatedDataProfile?.final}"
                     th:value="${#lists.isEmpty(connectorEndpoints) ? '' : (form?.connectorEndpointId != null ? form.connectorEndpointId : connectorEndpoints[0].id)}"
                     th:attr="invalid=${errors?.getFieldError('connectorEndpointId') != null or (errors != null and #lists.isEmpty(connectorEndpoints))} ? 'true' : null,
                              invalid-text=${(errors != null and #lists.isEmpty(connectorEndpoints)) ? 'No endpoints configured for selected connector' : errors?.getFieldError('connectorEndpointId')?.defaultMessage}"
@@ -136,20 +136,20 @@
                 >
                 </textarea>
 
-                <!-- Monaco container -->
+                <!-- Editor container -->
                 <div
                     id="endpoint-transform-editor"
-                    data-monaco
+                    data-ace
                     data-language="jq"
                     data-textarea="#sourceToEndpointMappingCode"
                     th:data-initial="${form?.sourceToEndpointMapping}"
                     data-theme="lightgray-theme"
                     th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                 ></div>
                 <div
-                    id="source-to-endpoint-transform-monaco-error"
-                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'monaco-error show' : 'monaco-error'"
+                    id="source-to-endpoint-transform-ace-error"
+                    th:class="${errors?.getFieldError('sourceToEndpointMapping') != null} ? 'ace-error show' : 'ace-error'"
                 >
                     <span
                         th:if="${errors?.getFieldError('sourceToEndpointMapping') != null}"
@@ -199,17 +199,17 @@
 
                 <div
                     id="result-transform-editor-edit"
-                    data-monaco
+                    data-ace
                     data-language="jq"
                     data-textarea="#resultTransformCodeEdit"
                     th:data-initial="${form?.resultTransform}"
                     data-theme="lightgray-theme"
                     th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                 ></div>
                 <div
-                    id="result-transform-monaco-error-edit"
-                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                    id="result-transform-ace-error-edit"
+                    th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-error show' : 'ace-error'"
                 >
                     <span
                         th:if="${errors?.getFieldError('resultTransform') != null}"
@@ -243,7 +243,7 @@
                 th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${form.aggregatedDataProfileId} + '/relations/edit/' + ${form.id} + '/delete'} "
                 hx-target="#modal-container"
                 hx-swap="innerHTML"
-                hx-on::after-request="document.querySelector('cds-modal')?.setAttribute('open', 'true');"
+                data-after-request-open-modal="cds-modal"
                 hx-push-url="false"
                 type="button"
             >
@@ -272,7 +272,7 @@
                 hx-target="#relation-edit"
                 hx-swap="innerHTML"
                 hx-include="#relation-edit-form *"
-                hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
+                data-swap-errors="true"
             >
                 Save
                 <svg

@@ -24,8 +24,7 @@
         <!-- Filter overlay form (hidden by default, toggled by funnel button) -->
         <div
             id="logging-filter-panel"
-            class="app--logging-filter-panel"
-            style="display: none"
+            class="app--logging-filter-panel logging-filter-hidden"
         >
             <form
                 id="logging-filter-form"
@@ -65,7 +64,7 @@
                                 placeholder="hh:mm"
                                 th:value="${filter?.fromTime}"
                                 size="md"
-                                style="width: 6rem"
+                                class="logging-time-input"
                             ></cds-text-input>
                         </div>
                     </div>
@@ -111,7 +110,7 @@
                                 placeholder="hh:mm"
                                 th:value="${filter?.toTime}"
                                 size="md"
-                                style="width: 6rem"
+                                class="logging-time-input"
                             ></cds-text-input>
                         </div>
                     </div>
@@ -144,7 +143,7 @@
                                     kind="ghost"
                                     size="md"
                                     type="button"
-                                    onclick="this.closest('.app--logging-property-row').remove(); document.getElementById('logging-filter-form').dispatchEvent(new Event('submit'));"
+                                    data-remove-property-row="true"
                                 >
                                     <svg
                                         slot="icon"
@@ -185,7 +184,7 @@
                                     kind="ghost"
                                     size="md"
                                     type="button"
-                                    onclick="this.closest('.app--logging-property-row').remove(); document.getElementById('logging-filter-form').dispatchEvent(new Event('submit'));"
+                                    data-remove-property-row="true"
                                 >
                                     <svg
                                         slot="icon"
@@ -268,17 +267,14 @@
             <!-- Toolbar -->
             <cds-table-toolbar slot="toolbar">
                 <cds-table-toolbar-content>
-                    <div style="flex: 1"></div>
+                    <div class="toolbar-spacer"></div>
                     <cds-button
                         kind="ghost"
                         size="md"
                         id="toggle-filter-btn"
                         type="button"
                         title="Filter"
-                        onclick="
-                        const panel = document.getElementById('logging-filter-panel');
-                        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-                    "
+                        data-toggle-logging-filter="true"
                     >
                         <svg
                             slot="icon"
@@ -311,11 +307,8 @@
                         hx-swap="outerHTML"
                         hx-push-url="true"
                         hx-trigger="cds-table-header-cell-sort"
-                        hx-vals="js:{
-                        sort: 'timestamp,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
-                        size: document.querySelector('#log-pagination-container')?.pageSize || 10,
-                        page: 0
-                    }"
+                        hx-vals='{"page":"0"}'
+                        data-hx-dynamic-params="sort:headerCellSortTimestamp,size:logPaginationSize"
                     >
                         Timestamp
                     </cds-table-header-cell>
@@ -345,10 +338,7 @@
         hx-target="#log-search-results"
         hx-swap="outerHTML"
         hx-push-url="true"
-        hx-vals="js:{
-            size: document.querySelector('#log-pagination-container').pageSize,
-            page: document.querySelector('#log-pagination-container').page - 1
-        }"
+        data-hx-dynamic-params="size:logPaginationSize,page:logPaginationPage"
     >
         <cds-select-item value="10">10</cds-select-item>
         <cds-select-item value="20">20</cds-select-item>
@@ -357,79 +347,5 @@
         <cds-select-item value="50">50</cds-select-item>
     </cds-pagination>
 
-    <script>
-        // Add property row
-        document
-            .getElementById("add-property-btn")
-            ?.addEventListener("click", function () {
-                const rows = document.getElementById("logging-properties-rows");
-                const count = rows.querySelectorAll(
-                    ".app--logging-property-row"
-                ).length;
-                const div = document.createElement("div");
-                div.className = "app--logging-property-row";
-                div.innerHTML = `
-                <cds-text-input name="properties[${count}].key" placeholder="Key" size="md"></cds-text-input>
-                <cds-text-input name="properties[${count}].value" placeholder="Value" size="md"></cds-text-input>
-                <cds-button kind="ghost" size="md" type="button"
-                    onclick="this.closest('.app--logging-property-row').remove(); document.getElementById('logging-filter-form').dispatchEvent(new Event('submit'));">
-                    <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"
-                        width="16" height="16" viewBox="0 0 32 32">
-                        <path d="M12 12H14V24H12zM18 12H20V24H18z"></path>
-                        <path d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path>
-                    </svg>
-                </cds-button>`;
-                rows.appendChild(div);
-            });
-
-        // Clear filter
-        document
-            .getElementById("clear-filter-btn")
-            ?.addEventListener("click", function () {
-                const form = document.getElementById("logging-filter-form");
-                form.reset();
-                // Reset all cds inputs
-                form.querySelectorAll("cds-text-input").forEach((el) => {
-                    el.value = "";
-                });
-                form.querySelectorAll("cds-select").forEach((el) => {
-                    el.value = "";
-                });
-                // Reset properties to one empty row
-                const rows = document.getElementById("logging-properties-rows");
-                rows.innerHTML = `
-                <div class="app--logging-property-row">
-                    <cds-text-input name="properties[0].key" placeholder="Key" size="md"></cds-text-input>
-                    <cds-text-input name="properties[0].value" placeholder="Value" size="md"></cds-text-input>
-                    <cds-button kind="ghost" size="md" type="button"
-                        onclick="this.closest('.app--logging-property-row').remove(); document.getElementById('logging-filter-form').dispatchEvent(new Event('submit'));">
-                        <svg slot="icon" focusable="false" preserveAspectRatio="xMidYMid meet"
-                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true"
-                            width="16" height="16" viewBox="0 0 32 32">
-                            <path d="M12 12H14V24H12zM18 12H20V24H18z"></path>
-                            <path d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"></path>
-                        </svg>
-                    </cds-button>
-                </div>`;
-                form.dispatchEvent(new Event("submit"));
-            });
-
-        // Close the filter overlay when clicking outside it (attach once)
-        if (!window.__ikoLoggingFilterOutsideHandler) {
-            window.__ikoLoggingFilterOutsideHandler = true;
-            document.addEventListener("click", function (event) {
-                const panel = document.getElementById("logging-filter-panel");
-                if (!panel || panel.style.display === "none") return;
-                const toggle = document.getElementById("toggle-filter-btn");
-                if (
-                    panel.contains(event.target) ||
-                    (toggle && toggle.contains(event.target))
-                ) {
-                    return;
-                }
-                panel.style.display = "none";
-            });
-        }
-    </script>
+    <!-- Logging filter JS moved to /assets/js/admin-ui.js -->
 </th:block>

@@ -218,6 +218,9 @@ class ConnectorController(
         if (bindingResult.hasErrors()) {
             httpServletResponse.setHeader("HX-Retarget", "#connector-code")
             httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+            // After-Settle: fires once the swapped content is in the DOM so the
+            // editor element exists when initAllEditors runs.
+            httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
 
             return ModelAndView(
                 "fragments/internal/connector/details-page-connector :: connector-code",
@@ -236,6 +239,7 @@ class ConnectorController(
 
         httpServletResponse.setHeader("HX-Retarget", "#connector-code")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
+        httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
         httpServletResponse.setHeader("HX-Reswap", "outerHTML")
 
         return ModelAndView(

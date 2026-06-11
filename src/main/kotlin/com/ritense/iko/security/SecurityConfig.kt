@@ -37,7 +37,23 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
 import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
+import org.springframework.security.web.header.HeaderWriterFilter
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
+
+internal const val ADMIN_CSP_TEMPLATE =
+    "default-src 'self'; " +
+        "script-src {nonce} 'strict-dynamic' https: 'self'; " +
+        // 'unsafe-inline' is required: Carbon (Lit-based) web components apply
+        // dynamic inline style="" attributes at runtime, and CSP nonces/hashes
+        // do not apply to style attributes. script-src stays strict.
+        "style-src 'self' 'unsafe-inline' https://1.www.s81c.com https://unpkg.com https://cdnjs.cloudflare.com; " +
+        "img-src 'self' data:; " +
+        "font-src 'self' https:; " +
+        "connect-src 'self' https:; " +
+        "worker-src 'self'; " +
+        "object-src 'none'; " +
+        "base-uri 'self'"
 
 @EnableWebSecurity
 @Configuration
@@ -155,6 +171,11 @@ class SecurityConfig {
                 csrf.csrfTokenRepository(repository)
                 csrf.csrfTokenRequestHandler(CsrfTokenRequestAttributeHandler())
             }.addFilterAfter(CsrfCookieFilter(), CsrfFilter::class.java)
+            .addFilterBefore(CspNonceFilter(ADMIN_CSP_TEMPLATE), HeaderWriterFilter::class.java)
+            .headers { headers ->
+                headers.referrerPolicy { it.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN) }
+                headers.httpStrictTransportSecurity { } // default: max-age + includeSubDomains, secure requests only
+            }
             .exceptionHandling { ex ->
                 ex.defaultAuthenticationEntryPointFor(
                     HtmxAuthenticationEntryPoint(),

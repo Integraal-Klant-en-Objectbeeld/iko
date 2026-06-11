@@ -28,10 +28,7 @@
         hx-target="#log-search-results"
         hx-swap="outerHTML"
         hx-push-url="true"
-        hx-vals="js:{
-            size: document.querySelector('#log-pagination-container').pageSize,
-            page: document.querySelector('#log-pagination-container').page - 1
-        }"
+        data-hx-dynamic-params="size:logPaginationSize,page:logPaginationPage"
     >
         <cds-select-item value="10">10</cds-select-item>
         <cds-select-item value="20">20</cds-select-item>

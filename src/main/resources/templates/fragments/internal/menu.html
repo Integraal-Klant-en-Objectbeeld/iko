@@ -23,10 +23,7 @@
         hx-transition="true"
         hx-target="#view-panel"
         hx-push-url="true"
-        hx-on::after-request="
-         document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
-         this?.toggleAttribute('active');"
-        href="javascript:void(0);"
+        href="#"
     >
     </cds-side-nav-link>
 </cds-side-nav-items>
