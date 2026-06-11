@@ -31,6 +31,7 @@ data class EditRelationForm(
     override val id: UUID,
     override val sourceId: UUID,
     @field:NotBlank(message = "Please provide a mapping.")
+    @field:ValidTransform
     val sourceToEndpointMapping: String,
     @field:NotBlank(message = "Please provide a transform expression.")
     @field:ValidTransform
