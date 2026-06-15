@@ -232,12 +232,16 @@ class ConnectorController(
             )
         }
 
+        val previousCode = connector.connectorCode
         connector.connectorCode = form.connectorCode
-        connectorRepository.save(connector)
         if (connector.isActive) {
+            // Load the new routes before persisting; only commit the code once Camel accepts it.
             connectorService.reloadConnectorRoutes(connector)
                 .onFailure { e ->
                     logger.error(e) { "Failed to reload routes for connector ${connector.tag} v${connector.version}" }
+                    // Restore the previous working routes and discard the broken code (never persisted).
+                    connector.connectorCode = previousCode
+                    connectorService.reloadConnectorRoutes(connector)
                     bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Failed to load connector routes")
                 }
         }
@@ -255,6 +259,8 @@ class ConnectorController(
                 ),
             )
         }
+
+        connectorRepository.save(connector)
 
         httpServletResponse.setHeader("HX-Retarget", "#connector-code")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
