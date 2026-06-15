@@ -137,6 +137,48 @@ open class ConnectorService(
     }
 
     /**
+     * Creates a new active connector, loading its routes before persisting so a broken
+     * connector is never saved. On route-load failure any partial routes are removed and
+     * the failure is returned without persisting.
+     */
+    @Transactional
+    open fun createConnector(name: String, reference: String, connectorCode: String): Result<Connector> = runCatching {
+        val connector = Connector(
+            id = UUID.randomUUID(),
+            name = name,
+            tag = reference,
+            connectorCode = connectorCode,
+            isActive = true,
+        )
+        loadConnectorRoutes(connector).getOrElse { e ->
+            removeConnectorRoutes(connector)
+            throw e
+        }
+        connectorRepository.save(connector)
+        connector
+    }
+
+    /**
+     * Updates a connector's code, reloading its routes before persisting. On route-load
+     * failure the previous code and routes are restored and the broken code is never saved.
+     */
+    @Transactional
+    open fun updateConnectorCode(connector: Connector, newCode: String): Result<Connector> = runCatching {
+        validateConnectorCode(newCode, connector.tag)
+        val previousCode = connector.connectorCode
+        connector.connectorCode = newCode
+        if (connector.isActive) {
+            reloadConnectorRoutes(connector).getOrElse { e ->
+                connector.connectorCode = previousCode
+                reloadConnectorRoutes(connector)
+                throw e
+            }
+        }
+        connectorRepository.save(connector)
+        connector
+    }
+
+    /**
      * Removes all routes belonging to a connector using route groups.
      */
     open fun removeConnectorRoutes(connector: Connector) {

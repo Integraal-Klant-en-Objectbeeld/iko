@@ -209,58 +209,16 @@ class ConnectorController(
         connector.ensureDraft()
 
         if (!bindingResult.hasErrors()) {
-            try {
-                connectorService.validateConnectorCode(form.connectorCode, connector.tag)
-            } catch (e: Exception) {
-                bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Invalid connector code")
-            }
-        }
-
-        if (bindingResult.hasErrors()) {
-            httpServletResponse.setHeader("HX-Retarget", "#connector-code")
-            httpServletResponse.setHeader("HX-Reswap", "outerHTML")
-            // After-Settle: fires once the swapped content is in the DOM so the
-            // editor element exists when initAllEditors runs.
-            httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
-
-            return ModelAndView(
-                "fragments/internal/connector/details-page-connector :: connector-code",
-                mapOf(
-                    "connector" to form,
-                    "errors" to bindingResult,
-                ),
-            )
-        }
-
-        val previousCode = connector.connectorCode
-        connector.connectorCode = form.connectorCode
-        if (connector.isActive) {
-            // Load the new routes before persisting; only commit the code once Camel accepts it.
-            connectorService.reloadConnectorRoutes(connector)
+            connectorService.updateConnectorCode(connector, form.connectorCode)
                 .onFailure { e ->
-                    logger.error(e) { "Failed to reload routes for connector ${connector.tag} v${connector.version}" }
-                    // Restore the previous working routes and discard the broken code (never persisted).
-                    connector.connectorCode = previousCode
-                    connectorService.reloadConnectorRoutes(connector)
-                    bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Failed to load connector routes")
+                    logger.error(e) { "Failed to update connector ${connector.tag} v${connector.version}" }
+                    bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Invalid connector code")
                 }
         }
 
         if (bindingResult.hasErrors()) {
-            httpServletResponse.setHeader("HX-Retarget", "#connector-code")
-            httpServletResponse.setHeader("HX-Reswap", "outerHTML")
-            httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
-
-            return ModelAndView(
-                "fragments/internal/connector/details-page-connector :: connector-code",
-                mapOf(
-                    "connector" to form,
-                    "errors" to bindingResult,
-                ),
-            )
+            return connectorCodeError(form, bindingResult, httpServletResponse)
         }
-
-        connectorRepository.save(connector)
 
         httpServletResponse.setHeader("HX-Retarget", "#connector-code")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
@@ -271,6 +229,26 @@ class ConnectorController(
             "fragments/internal/connector/details-page-connector :: connector-code",
             mapOf(
                 "connector" to connector.toDTO(),
+            ),
+        )
+    }
+
+    private fun connectorCodeError(
+        form: ConnectorEditForm,
+        bindingResult: BindingResult,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        httpServletResponse.setHeader("HX-Retarget", "#connector-code")
+        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+        // After-Settle: fires once the swapped content is in the DOM so the
+        // editor element exists when initAllEditors runs.
+        httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
+
+        return ModelAndView(
+            "fragments/internal/connector/details-page-connector :: connector-code",
+            mapOf(
+                "connector" to form,
+                "errors" to bindingResult,
             ),
         )
     }
@@ -324,21 +302,9 @@ class ConnectorController(
             )
         }
 
-        val connector =
-            Connector(
-                id = UUID.randomUUID(),
-                name = form.name,
-                tag = form.reference,
-                connectorCode = form.connectorCode,
-                isActive = true,
-            )
-
-        connectorRepository.save(connector)
-
-        connectorService.loadConnectorRoutes(connector)
+        val result = connectorService.createConnector(form.name, form.reference, form.connectorCode)
             .onFailure { e ->
-                logger.error(e) { "Failed to load routes for new connector ${connector.tag}" }
-                connectorRepository.delete(connector)
+                logger.error(e) { "Failed to create connector ${form.reference}" }
                 bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Failed to load connector routes")
             }
 
@@ -352,6 +318,7 @@ class ConnectorController(
             )
         }
 
+        val connector = result.getOrThrow()
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
