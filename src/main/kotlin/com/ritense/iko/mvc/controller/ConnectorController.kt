@@ -36,6 +36,7 @@ import com.ritense.iko.mvc.model.connector.ConnectorInstanceConfigEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
 import com.ritense.iko.security.SecurityContextHelper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
@@ -235,6 +236,24 @@ class ConnectorController(
         connectorRepository.save(connector)
         if (connector.isActive) {
             connectorService.reloadConnectorRoutes(connector)
+                .onFailure { e ->
+                    logger.error(e) { "Failed to reload routes for connector ${connector.tag} v${connector.version}" }
+                    bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Failed to load connector routes")
+                }
+        }
+
+        if (bindingResult.hasErrors()) {
+            httpServletResponse.setHeader("HX-Retarget", "#connector-code")
+            httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+            httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
+
+            return ModelAndView(
+                "fragments/internal/connector/details-page-connector :: connector-code",
+                mapOf(
+                    "connector" to form,
+                    "errors" to bindingResult,
+                ),
+            )
         }
 
         httpServletResponse.setHeader("HX-Retarget", "#connector-code")
@@ -309,7 +328,23 @@ class ConnectorController(
             )
 
         connectorRepository.save(connector)
+
         connectorService.loadConnectorRoutes(connector)
+            .onFailure { e ->
+                logger.error(e) { "Failed to load routes for new connector ${connector.tag}" }
+                connectorRepository.delete(connector)
+                bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Failed to load connector routes")
+            }
+
+        if (bindingResult.hasErrors()) {
+            return ModelAndView(
+                "fragments/internal/connector/form-create-connector :: form",
+                mapOf(
+                    "connector" to form,
+                    "errors" to bindingResult,
+                ),
+            )
+        }
 
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
@@ -878,6 +913,8 @@ class ConnectorController(
     }
 
     companion object {
+        private val logger = KotlinLogging.logger {}
+
         fun hxRequest(
             isHxRequest: Boolean,
             template: String,

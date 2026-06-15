@@ -48,26 +48,22 @@ open class ConnectorService(
      * Pattern: Parse YAML → Modify RouteDefinitions → Add via addRoutes()
      * This matches the existing AggregatedDataProfileService pattern.
      */
-    open fun loadConnectorRoutes(connector: Connector) {
+    open fun loadConnectorRoutes(connector: Connector): Result<Unit> = runCatching {
         val groupName = "group:connector:${connector.id}"
 
-        // Step 1: Create resource from YAML (filename must end in .yaml)
         val resource = ResourceHelper.fromString(
             "${connector.tag}.yaml",
             connector.connectorCode,
         )
 
-        // Step 2: Parse YAML to RoutesBuilder objects WITHOUT loading into context
         val loader = PluginHelper.getRoutesLoader(camelContext)
         val builders = loader.findRoutesBuilders(listOf(resource))
 
-        // Step 3: For each builder, configure it, modify route definitions, then add to context
         builders.forEach { builder ->
             val routeBuilder = builder as RouteBuilder
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
 
-            // Namespace routeId and from URI with tag:version BEFORE adding to context
             routeBuilder.routeCollection.routes.forEach { routeDef ->
                 val originalRouteId = routeDef.id
                 val namespacedRouteId = "connector:${connector.tag}:${connector.version.value}:$originalRouteId"
@@ -79,16 +75,14 @@ open class ConnectorService(
                 }
             }
 
-            // Pre-check for duplicate route IDs
             val existingRouteIds = camelContext.routes.map { it.routeId }.toSet()
             val newRouteIds = routeBuilder.routeCollection.routes.map { it.id }.toSet()
             val duplicates = newRouteIds.filter { it in existingRouteIds }
             if (duplicates.isNotEmpty()) {
                 logger.debug { "Routes already loaded for connector ${connector.tag} v${connector.version}, skipping" }
-                return
+                return@runCatching
             }
 
-            // Add routes using standard CamelContext.addRoutes() - same pattern as AggregatedDataProfileService
             camelContext.addRoutes(routeBuilder)
         }
 
@@ -137,9 +131,9 @@ open class ConnectorService(
         }
     }
 
-    open fun reloadConnectorRoutes(connector: Connector) {
+    open fun reloadConnectorRoutes(connector: Connector): Result<Unit> {
         removeConnectorRoutes(connector)
-        loadConnectorRoutes(connector)
+        return loadConnectorRoutes(connector)
     }
 
     /**
@@ -199,7 +193,7 @@ open class ConnectorService(
         // Activate new version and load routes (coexists with old due to version-namespaced URIs)
         connectorToActivate.isActive = true
         connectorRepository.save(connectorToActivate)
-        loadConnectorRoutes(connectorToActivate)
+        loadConnectorRoutes(connectorToActivate).getOrThrow()
         logger.debug { "Activated Connector ${connectorToActivate.tag} v${connectorToActivate.version}" }
     }
 
