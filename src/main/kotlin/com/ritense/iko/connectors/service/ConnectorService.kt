@@ -64,6 +64,10 @@ open class ConnectorService(
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
 
+            require(routeBuilder.routeCollection.routes.isNotEmpty()) {
+                "Connector code for [${connector.tag}] v${connector.version.value} contains no route"
+            }
+
             routeBuilder.routeCollection.routes.forEach { routeDef ->
                 val originalRouteId = routeDef.id
                 val namespacedRouteId = "connector:${connector.tag}:${connector.version.value}:$originalRouteId"
@@ -84,6 +88,9 @@ open class ConnectorService(
             }
 
             camelContext.addRoutes(routeBuilder)
+            newRouteIds.forEach { routeId ->
+                logger.info { "Loaded connector route [$routeId] for connector [${connector.tag}] v${connector.version.value}" }
+            }
         }
 
         logger.debug { "Loaded ${builders.size} route builder(s) for connector [${connector.tag}] with group [$groupName]" }
