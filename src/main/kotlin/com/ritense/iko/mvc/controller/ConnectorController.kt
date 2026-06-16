@@ -36,6 +36,7 @@ import com.ritense.iko.mvc.model.connector.ConnectorInstanceConfigEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceEditForm
 import com.ritense.iko.mvc.model.connector.ConnectorInstanceRolesEditForm
 import com.ritense.iko.security.SecurityContextHelper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
@@ -208,33 +209,15 @@ class ConnectorController(
         connector.ensureDraft()
 
         if (!bindingResult.hasErrors()) {
-            try {
-                connectorService.validateConnectorCode(form.connectorCode, connector.tag)
-            } catch (e: Exception) {
-                bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Invalid connector code")
-            }
+            connectorService.updateConnectorCode(connector, form.connectorCode)
+                .onFailure { e ->
+                    logger.error(e) { "Failed to update connector ${connector.tag} v${connector.version}" }
+                    bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Invalid connector code")
+                }
         }
 
         if (bindingResult.hasErrors()) {
-            httpServletResponse.setHeader("HX-Retarget", "#connector-code")
-            httpServletResponse.setHeader("HX-Reswap", "outerHTML")
-            // After-Settle: fires once the swapped content is in the DOM so the
-            // editor element exists when initAllEditors runs.
-            httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
-
-            return ModelAndView(
-                "fragments/internal/connector/details-page-connector :: connector-code",
-                mapOf(
-                    "connector" to form,
-                    "errors" to bindingResult,
-                ),
-            )
-        }
-
-        connector.connectorCode = form.connectorCode
-        connectorRepository.save(connector)
-        if (connector.isActive) {
-            connectorService.reloadConnectorRoutes(connector)
+            return connectorCodeError(form, bindingResult, httpServletResponse)
         }
 
         httpServletResponse.setHeader("HX-Retarget", "#connector-code")
@@ -246,6 +229,26 @@ class ConnectorController(
             "fragments/internal/connector/details-page-connector :: connector-code",
             mapOf(
                 "connector" to connector.toDTO(),
+            ),
+        )
+    }
+
+    private fun connectorCodeError(
+        form: ConnectorEditForm,
+        bindingResult: BindingResult,
+        httpServletResponse: HttpServletResponse,
+    ): ModelAndView {
+        httpServletResponse.setHeader("HX-Retarget", "#connector-code")
+        httpServletResponse.setHeader("HX-Reswap", "outerHTML")
+        // After-Settle: fires once the swapped content is in the DOM so the
+        // editor element exists when initAllEditors runs.
+        httpServletResponse.setHeader("HX-Trigger-After-Settle", "reinitAceEditors")
+
+        return ModelAndView(
+            "fragments/internal/connector/details-page-connector :: connector-code",
+            mapOf(
+                "connector" to form,
+                "errors" to bindingResult,
             ),
         )
     }
@@ -299,18 +302,23 @@ class ConnectorController(
             )
         }
 
-        val connector =
-            Connector(
-                id = UUID.randomUUID(),
-                name = form.name,
-                tag = form.reference,
-                connectorCode = form.connectorCode,
-                isActive = true,
+        val result = connectorService.createConnector(form.name, form.reference, form.connectorCode)
+            .onFailure { e ->
+                logger.error(e) { "Failed to create connector ${form.reference}" }
+                bindingResult.rejectValue("connectorCode", "invalid", e.message ?: "Failed to load connector routes")
+            }
+
+        if (bindingResult.hasErrors()) {
+            return ModelAndView(
+                "fragments/internal/connector/form-create-connector :: form",
+                mapOf(
+                    "connector" to form,
+                    "errors" to bindingResult,
+                ),
             )
+        }
 
-        connectorRepository.save(connector)
-        connectorService.loadConnectorRoutes(connector)
-
+        val connector = result.getOrThrow()
         httpServletResponse.setHeader("HX-Push-Url", "/admin/connectors/${connector.id}")
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Trigger", "close-modal")
@@ -878,6 +886,8 @@ class ConnectorController(
     }
 
     companion object {
+        private val logger = KotlinLogging.logger {}
+
         fun hxRequest(
             isHxRequest: Boolean,
             template: String,

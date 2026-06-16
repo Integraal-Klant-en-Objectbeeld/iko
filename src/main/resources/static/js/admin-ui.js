@@ -425,6 +425,34 @@ document.body.addEventListener("click", function (event) {
 });
 
 // ---------------------------------------------------------------------------
+// connector/form-create-connector.html: keep the connector code in sync with
+// the reference field. The default code carries a `direct:iko:connector:CHANGEME`
+// placeholder; as the user types the reference, rewrite the token so they don't
+// have to edit the YAML by hand. Tracks the last-applied token per editor.
+// ---------------------------------------------------------------------------
+document.body.addEventListener("input", function (event) {
+    var field = event.target;
+    if (!field || field.getAttribute("name") !== "reference") return;
+    var editorEl = document.getElementById("connectorCodeEditor");
+    if (!editorEl || !editorEl._editor) return;
+
+    var prefix = "direct:iko:connector:";
+    var oldToken =
+        editorEl._refToken != null ? editorEl._refToken : "CHANGEME";
+    var newToken = field.value || "";
+    if (newToken === oldToken) return;
+
+    var escaped = oldToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    var pattern = new RegExp(escaped ? prefix + escaped : prefix, "g");
+    var code = editorEl._editor.getValue();
+    var updated = code.replace(pattern, prefix + newToken);
+    if (updated !== code) {
+        editorEl._editor.setValue(updated, -1);
+    }
+    editorEl._refToken = newToken;
+});
+
+// ---------------------------------------------------------------------------
 // logging/list.html: toggle filter panel button
 // ---------------------------------------------------------------------------
 document.body.addEventListener("click", function (event) {
