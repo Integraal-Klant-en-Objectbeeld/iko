@@ -129,6 +129,7 @@ class AggregatedDataProfileRouteBuilder(
                     }
 
                     null -> return@process
+
                     else -> throw TransformResultTypeUnsupportedError(
                         type = endpointTransformResult::class.java.simpleName,
                     )
