@@ -46,15 +46,21 @@ class JsonSchemaInferrer(
                 }
                 schema
             }
+
             node.isArray -> {
                 schema.put("type", "array")
                 if (node.size() > 0) schema.set<ObjectNode>("items", inferShape(node.first()))
                 schema
             }
+
             node.isTextual -> schema.apply { put("type", "string") }
+
             node.isInt -> schema.apply { put("type", "integer") }
+
             node.isNumber -> schema.apply { put("type", "number") }
+
             node.isBoolean -> schema.apply { put("type", "boolean") }
+
             else -> schema.apply { put("type", "null") }
         }
     }

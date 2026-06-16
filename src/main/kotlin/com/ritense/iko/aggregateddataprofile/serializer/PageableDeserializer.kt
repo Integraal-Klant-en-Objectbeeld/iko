@@ -138,6 +138,7 @@ class PageableDeserializer : JsonDeserializer<Pageable>() {
         }
         return when {
             node.isTextual -> parseSortFromString(node.asText())
+
             node.isArray -> {
                 val orders = node.mapNotNull { parseOrder(it) }
                 if (orders.isEmpty()) Sort.unsorted() else Sort.by(orders)
