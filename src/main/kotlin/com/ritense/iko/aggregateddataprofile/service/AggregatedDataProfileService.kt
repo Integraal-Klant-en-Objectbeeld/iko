@@ -73,7 +73,7 @@ open class AggregatedDataProfileService(
         val requiredConnectors = routeDependencyService.resolveConnectorDependencies(aggregatedDataProfile)
         for (connector in requiredConnectors) {
             if (!routeDependencyService.isConnectorRouteLoaded(connector)) {
-                connectorService.loadConnectorRoutes(connector)
+                connectorService.loadConnectorRoutes(connector).getOrThrow()
             }
         }
         camelContext.addRoutes(

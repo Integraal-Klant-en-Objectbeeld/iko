@@ -16,15 +16,18 @@
 
 package com.ritense.iko.mvc.model.connector
 
+import com.ritense.iko.mvc.model.validation.UniqueConnector
+import com.ritense.iko.mvc.model.validation.UniqueConnectorCheck
 import com.ritense.iko.mvc.model.validation.ValidConnectorCode
 import jakarta.validation.constraints.NotBlank
 
+@UniqueConnectorCheck
 data class ConnectorCreateForm(
     @field:NotBlank(message = "Please provide a name.")
     val name: String,
     @field:NotBlank(message = "Please provide a reference.")
-    val reference: String,
+    override val reference: String,
     @field:NotBlank(message = "Connector code must not be empty. Refer to the documentation for connector code requirements..")
     @field:ValidConnectorCode
     val connectorCode: String,
-)
+) : UniqueConnector

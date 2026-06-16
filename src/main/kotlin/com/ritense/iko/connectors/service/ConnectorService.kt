@@ -48,26 +48,26 @@ open class ConnectorService(
      * Pattern: Parse YAML → Modify RouteDefinitions → Add via addRoutes()
      * This matches the existing AggregatedDataProfileService pattern.
      */
-    open fun loadConnectorRoutes(connector: Connector) {
+    open fun loadConnectorRoutes(connector: Connector): Result<Unit> = runCatching {
         val groupName = "group:connector:${connector.id}"
 
-        // Step 1: Create resource from YAML (filename must end in .yaml)
         val resource = ResourceHelper.fromString(
             "${connector.tag}.yaml",
             connector.connectorCode,
         )
 
-        // Step 2: Parse YAML to RoutesBuilder objects WITHOUT loading into context
         val loader = PluginHelper.getRoutesLoader(camelContext)
         val builders = loader.findRoutesBuilders(listOf(resource))
 
-        // Step 3: For each builder, configure it, modify route definitions, then add to context
         builders.forEach { builder ->
             val routeBuilder = builder as RouteBuilder
             routeBuilder.setCamelContext(camelContext)
             routeBuilder.configure()
 
-            // Namespace routeId and from URI with tag:version BEFORE adding to context
+            require(routeBuilder.routeCollection.routes.isNotEmpty()) {
+                "Connector code for [${connector.tag}] v${connector.version.value} contains no route"
+            }
+
             routeBuilder.routeCollection.routes.forEach { routeDef ->
                 val originalRouteId = routeDef.id
                 val namespacedRouteId = "connector:${connector.tag}:${connector.version.value}:$originalRouteId"
@@ -79,17 +79,18 @@ open class ConnectorService(
                 }
             }
 
-            // Pre-check for duplicate route IDs
             val existingRouteIds = camelContext.routes.map { it.routeId }.toSet()
             val newRouteIds = routeBuilder.routeCollection.routes.map { it.id }.toSet()
             val duplicates = newRouteIds.filter { it in existingRouteIds }
             if (duplicates.isNotEmpty()) {
                 logger.debug { "Routes already loaded for connector ${connector.tag} v${connector.version}, skipping" }
-                return
+                return@runCatching
             }
 
-            // Add routes using standard CamelContext.addRoutes() - same pattern as AggregatedDataProfileService
             camelContext.addRoutes(routeBuilder)
+            newRouteIds.forEach { routeId ->
+                logger.info { "Loaded connector route [$routeId] for connector [${connector.tag}] v${connector.version.value}" }
+            }
         }
 
         logger.debug { "Loaded ${builders.size} route builder(s) for connector [${connector.tag}] with group [$groupName]" }
@@ -137,9 +138,51 @@ open class ConnectorService(
         }
     }
 
-    open fun reloadConnectorRoutes(connector: Connector) {
+    open fun reloadConnectorRoutes(connector: Connector): Result<Unit> {
         removeConnectorRoutes(connector)
-        loadConnectorRoutes(connector)
+        return loadConnectorRoutes(connector)
+    }
+
+    /**
+     * Creates a new active connector, loading its routes before persisting so a broken
+     * connector is never saved. On route-load failure any partial routes are removed and
+     * the failure is returned without persisting.
+     */
+    @Transactional
+    open fun createConnector(name: String, reference: String, connectorCode: String): Result<Connector> = runCatching {
+        val connector = Connector(
+            id = UUID.randomUUID(),
+            name = name,
+            tag = reference,
+            connectorCode = connectorCode,
+            isActive = true,
+        )
+        loadConnectorRoutes(connector).getOrElse { e ->
+            removeConnectorRoutes(connector)
+            throw e
+        }
+        connectorRepository.save(connector)
+        connector
+    }
+
+    /**
+     * Updates a connector's code, reloading its routes before persisting. On route-load
+     * failure the previous code and routes are restored and the broken code is never saved.
+     */
+    @Transactional
+    open fun updateConnectorCode(connector: Connector, newCode: String): Result<Connector> = runCatching {
+        validateConnectorCode(newCode, connector.tag)
+        val previousCode = connector.connectorCode
+        connector.connectorCode = newCode
+        if (connector.isActive) {
+            reloadConnectorRoutes(connector).getOrElse { e ->
+                connector.connectorCode = previousCode
+                reloadConnectorRoutes(connector)
+                throw e
+            }
+        }
+        connectorRepository.save(connector)
+        connector
     }
 
     /**
@@ -199,7 +242,7 @@ open class ConnectorService(
         // Activate new version and load routes (coexists with old due to version-namespaced URIs)
         connectorToActivate.isActive = true
         connectorRepository.save(connectorToActivate)
-        loadConnectorRoutes(connectorToActivate)
+        loadConnectorRoutes(connectorToActivate).getOrThrow()
         logger.debug { "Activated Connector ${connectorToActivate.tag} v${connectorToActivate.version}" }
     }
 
