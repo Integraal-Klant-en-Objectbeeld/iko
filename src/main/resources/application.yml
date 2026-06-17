@@ -98,16 +98,25 @@ spring:
                     authorities-claim-name: "[resource_access][iko][roles]"
 
 management:
+    server:
+        port: 9090
     endpoints:
         web:
             exposure:
                 include: "health,info,prometheus"
             base-path: /actuator
+        access:
+            default: none
     endpoint:
         health:
-            show-details: when_authorized
+            access: read-only
+            show-details: always
+            probes:
+                enabled: true
+        info:
+            access: read-only
         prometheus:
-            enabled: true
+            access: read-only
 
 info:
     app:
