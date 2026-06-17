@@ -34,11 +34,13 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority
 import org.springframework.security.oauth2.server.resource.authentication.ExpressionJwtGrantedAuthoritiesConverter
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
 import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
 import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy
+import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 
 internal const val ADMIN_CSP_TEMPLATE =
@@ -58,32 +60,6 @@ internal const val ADMIN_CSP_TEMPLATE =
 @EnableWebSecurity
 @Configuration
 class SecurityConfig {
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    @Bean
-    fun actuatorSecurityFilterChain(
-        http: HttpSecurity,
-        jwtAuthenticationConverter: JwtAuthenticationConverter,
-    ): SecurityFilterChain {
-        http
-            .securityMatcher("/actuator/**")
-            .oauth2Login { oauth2 -> oauth2.disable() }
-            .oauth2ResourceServer { oauth2 ->
-                oauth2.jwt { jwt ->
-                    jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
-                }
-            }.sessionManagement { session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }.authorizeHttpRequests { authorize ->
-                authorize
-                    .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info")
-                    .permitAll()
-                    .anyRequest()
-                    .hasAnyAuthority("ROLE_ADMIN")
-            }
-
-        return http.build()
-    }
-
     @Order(Ordered.LOWEST_PRECEDENCE - 1000)
     @Bean
     fun apiSecurityFilterChain(
@@ -180,6 +156,10 @@ class SecurityConfig {
                 ex.defaultAuthenticationEntryPointFor(
                     HtmxAuthenticationEntryPoint(),
                     RequestHeaderRequestMatcher("Hx-Request"),
+                )
+                ex.defaultAuthenticationEntryPointFor(
+                    LoginUrlAuthenticationEntryPoint("/oauth2/authorization/keycloak"),
+                    AnyRequestMatcher.INSTANCE,
                 )
             }
 

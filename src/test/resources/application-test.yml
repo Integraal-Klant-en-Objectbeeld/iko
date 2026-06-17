@@ -33,6 +33,10 @@ logging:
         com.ritense.iko: DEBUG
         org.springframework.security: DEBUG
 
+management:
+    server:
+        port: 0
+
 camel:
     main:
         tracing: true # for debugging
