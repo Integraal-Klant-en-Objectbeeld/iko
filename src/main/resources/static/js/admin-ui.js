@@ -54,12 +54,10 @@ document.body.addEventListener("close-modal", function () {
 });
 
 // ---------------------------------------------------------------------------
-// Logout — triggered by id="logout-link"
+// Logout — exposed as window.ikoLogout (also used by session-timeout.js) and
+// triggered by id="logout-link"
 // ---------------------------------------------------------------------------
-document.body.addEventListener("click", function (event) {
-    const link = event.target.closest("#logout-link");
-    if (!link) return;
-    event.preventDefault();
+window.ikoLogout = function () {
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/logout";
@@ -73,6 +71,13 @@ document.body.addEventListener("click", function (event) {
     }
     document.body.appendChild(form);
     form.submit();
+};
+
+document.body.addEventListener("click", function (event) {
+    const link = event.target.closest("#logout-link");
+    if (!link) return;
+    event.preventDefault();
+    window.ikoLogout();
 });
 
 // ---------------------------------------------------------------------------
