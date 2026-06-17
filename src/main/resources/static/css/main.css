@@ -666,6 +666,12 @@ cds-form-item {
 }
 
 /* Logging filter overlay */
+.logging-disabled-notification {
+    display: block;
+    margin-bottom: var(--cds-spacing-05);
+    max-inline-size: 100%;
+}
+
 .app--logging-panel-anchor {
     position: relative;
 }

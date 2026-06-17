@@ -16,6 +16,7 @@
 
 package com.ritense.iko.mvc.controller
 
+import com.ritense.iko.logging.LoggingProperties
 import com.ritense.iko.logging.service.LoggingEventService
 import com.ritense.iko.mvc.controller.ConnectorController.Companion.hxRequest
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_LOGGING
@@ -36,6 +37,7 @@ import org.springframework.web.servlet.ModelAndView
 @RequestMapping("/admin/logs")
 internal class LogController(
     private val loggingEventService: LoggingEventService,
+    private val loggingProperties: LoggingProperties,
 ) {
     @GetMapping
     fun list(
@@ -48,6 +50,7 @@ internal class LogController(
             addObject("events", page.content)
             addObject("page", page)
             addObject("filter", filter)
+            addObject("loggingDbEnabled", loggingProperties.db.enabled)
         }
     } else {
         val page = loggingEventService.search(filter, pageable)
@@ -55,6 +58,7 @@ internal class LogController(
             addObject("events", page.content)
             addObject("page", page)
             addObject("filter", filter)
+            addObject("loggingDbEnabled", loggingProperties.db.enabled)
             addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
             addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
         }
@@ -87,6 +91,7 @@ internal class LogController(
                     addObject("events", page.content)
                     addObject("page", page)
                     addObject("filter", filter)
+                    addObject("loggingDbEnabled", loggingProperties.db.enabled)
                     addObject("username", SecurityContextHelper.getUserPropertyByKey("name"))
                     addObject("email", SecurityContextHelper.getUserPropertyByKey("email"))
                 },
