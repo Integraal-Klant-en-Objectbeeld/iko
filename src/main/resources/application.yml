@@ -113,6 +113,8 @@ management:
             show-details: always
             probes:
                 enabled: true
+        info:
+            access: read-only
         prometheus:
             access: read-only
 
