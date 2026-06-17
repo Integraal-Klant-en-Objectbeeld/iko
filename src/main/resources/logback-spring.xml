@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
+  ~
+  ~ Licensed under EUPL, Version 1.2 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" basis,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <springProperty scope="local" name="dsUrl" source="spring.datasource.url" />
+    <springProperty scope="local" name="dsUser" source="spring.datasource.username" />
+    <springProperty scope="local" name="dsPass" source="spring.datasource.password" />
+    <springProperty
+        scope="local"
+        name="dsDriver"
+        source="spring.datasource.driver-class-name"
+        defaultValue="org.postgresql.Driver"
+    />
+
+    <appender name="IKODB" class="ch.qos.logback.classic.db.DBAppender">
+        <insertHeaders>true</insertHeaders>
+        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
+            <dataSource class="org.postgresql.ds.PGSimpleDataSource">
+                <url>${dsUrl}</url>
+                <user>${dsUser}</user>
+                <password>${dsPass}</password>
+            </dataSource>
+        </connectionSource>
+        <filter class="com.ritense.iko.logging.LogDbReadyFilter">
+            <jdbcUrl>${dsUrl}</jdbcUrl>
+            <username>${dsUser}</username>
+            <password>${dsPass}</password>
+            <driverClassName>${dsDriver}</driverClassName>
+        </filter>
+    </appender>
+
+    <appender name="IKODBASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <neverBlock>true</neverBlock>
+        <maxFlushTime>5000</maxFlushTime>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="IKODB" />
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="IKODBASYNC" />
+    </root>
+</configuration>

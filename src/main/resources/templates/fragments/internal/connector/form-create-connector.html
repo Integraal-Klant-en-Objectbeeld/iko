@@ -76,12 +76,12 @@
                         >
                         <div
                             id="connectorCodeEditor"
-                            data-monaco
+                            data-ace
                             data-language="yaml"
                             th:attr="data-initial=${connector?.connectorCode ?: defaultConnectorCode}"
                             data-textarea="#connectorCodeField"
                             data-theme="lightgray-theme"
-                            th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                            th:class="${errors?.getFieldError('connectorCode') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                         ></div>
                         <textarea
                             id="connectorCodeField"
@@ -90,7 +90,7 @@
                             th:text="${connector?.connectorCode}"
                         ></textarea>
                         <div
-                            th:class="${errors?.getFieldError('connectorCode') != null} ? 'monaco-error show' : 'monaco-error'"
+                            th:class="${errors?.getFieldError('connectorCode') != null} ? 'ace-error show' : 'ace-error'"
                             th:text="${errors?.getFieldError('connectorCode')?.defaultMessage}"
                         ></div>
                     </div>

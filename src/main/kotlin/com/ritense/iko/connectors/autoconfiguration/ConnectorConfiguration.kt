@@ -108,12 +108,13 @@ class ConnectorConfiguration(
         val connectorService = event.applicationContext.getBean(ConnectorService::class.java)
         // Only load active connectors at startup
         connectorRepository.findAllByIsActiveTrue().forEach { connector ->
-            try {
-                connectorService.loadConnectorRoutes(connector)
-                logger.debug { "Loaded routes for active connector: ${connector.tag} v${connector.version}" }
-            } catch (e: Exception) {
-                logger.error(e) { "Failed to load connector ${connector.tag} v${connector.version}" }
-            }
+            connectorService.loadConnectorRoutes(connector)
+                .onSuccess {
+                    logger.debug { "Loaded routes for active connector: ${connector.tag} v${connector.version}" }
+                }
+                .onFailure { e ->
+                    logger.error(e) { "Failed to load connector ${connector.tag} v${connector.version}" }
+                }
         }
     }
 

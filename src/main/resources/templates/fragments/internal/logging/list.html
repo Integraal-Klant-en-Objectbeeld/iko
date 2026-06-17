@@ -1,0 +1,361 @@
+<!--
+ Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<th:block th:fragment="logging-list">
+    <div
+        th:replace="~{layout-internal :: breadcrumb (${ {{'Logging', '/admin/logs'}} })}"
+    ></div>
+    <div th:replace="~{layout-internal :: page-header (title='Logging')}"></div>
+
+    <cds-inline-notification
+        th:if="${loggingDbEnabled == false}"
+        kind="warning"
+        title="Logging disabled"
+        subtitle="No new recordings are captured."
+        hide-close-button
+        low-contrast
+        class="logging-disabled-notification"
+    ></cds-inline-notification>
+
+    <div class="app--logging-panel-anchor">
+        <!-- Filter overlay form (hidden by default, toggled by funnel button) -->
+        <div
+            id="logging-filter-panel"
+            class="app--logging-filter-panel logging-filter-hidden"
+        >
+            <form
+                id="logging-filter-form"
+                hx-get="/admin/logs/filter"
+                hx-trigger="input changed delay:300ms, change delay:300ms, submit"
+                hx-target="#log-search-results"
+                hx-swap="outerHTML"
+                hx-include="#logging-filter-form"
+                hx-push-url="true"
+            >
+                <div class="app--logging-filter-grid">
+                    <div class="app--logging-filter-col">
+                        <label class="cds--label">Message</label>
+                        <cds-text-input
+                            name="message"
+                            placeholder="Message"
+                            th:value="${filter?.message}"
+                            size="md"
+                        ></cds-text-input>
+                    </div>
+                    <div class="app--logging-filter-col">
+                        <label class="cds--label">From timestamp</label>
+                        <div class="app--logging-filter-datetime">
+                            <cds-date-picker
+                                date-format="Y-m-d"
+                                name="fromDate"
+                                th:value="${filter?.fromDate}"
+                            >
+                                <cds-date-picker-input
+                                    kind="single"
+                                    placeholder="YYYY-MM-DD"
+                                    size="md"
+                                ></cds-date-picker-input>
+                            </cds-date-picker>
+                            <cds-text-input
+                                name="fromTime"
+                                placeholder="hh:mm"
+                                th:value="${filter?.fromTime}"
+                                size="md"
+                                class="logging-time-input"
+                            ></cds-text-input>
+                        </div>
+                    </div>
+                    <div class="app--logging-filter-col">
+                        <label class="cds--label">Log level</label>
+                        <cds-select
+                            name="level"
+                            size="md"
+                            th:attr="value=${filter?.level != null and !#strings.isEmpty(filter.level)} ? ${filter.level} : null"
+                        >
+                            <cds-select-item value=""
+                                >Log level</cds-select-item
+                            >
+                            <cds-select-item value="ERROR"
+                                >ERROR</cds-select-item
+                            >
+                            <cds-select-item value="WARN">WARN</cds-select-item>
+                            <cds-select-item value="INFO">INFO</cds-select-item>
+                            <cds-select-item value="DEBUG"
+                                >DEBUG</cds-select-item
+                            >
+                            <cds-select-item value="TRACE"
+                                >TRACE</cds-select-item
+                            >
+                        </cds-select>
+                    </div>
+                    <div class="app--logging-filter-col">
+                        <label class="cds--label">To timestamp</label>
+                        <div class="app--logging-filter-datetime">
+                            <cds-date-picker
+                                date-format="Y-m-d"
+                                name="toDate"
+                                th:value="${filter?.toDate}"
+                            >
+                                <cds-date-picker-input
+                                    kind="single"
+                                    placeholder="YYYY-MM-DD"
+                                    size="md"
+                                ></cds-date-picker-input>
+                            </cds-date-picker>
+                            <cds-text-input
+                                name="toTime"
+                                placeholder="hh:mm"
+                                th:value="${filter?.toTime}"
+                                size="md"
+                                class="logging-time-input"
+                            ></cds-text-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Properties rows -->
+                <div class="app--logging-filter-section">
+                    <label class="cds--label">Properties</label>
+                    <div id="logging-properties-rows">
+                        <th:block
+                            th:if="${filter != null and !filter.properties.isEmpty()}"
+                        >
+                            <div
+                                class="app--logging-property-row"
+                                th:each="prop, iterStat : ${filter.properties}"
+                            >
+                                <cds-text-input
+                                    th:name="|properties[${iterStat.index}].key|"
+                                    th:value="${prop.key}"
+                                    placeholder="Key"
+                                    size="md"
+                                ></cds-text-input>
+                                <cds-text-input
+                                    th:name="|properties[${iterStat.index}].value|"
+                                    th:value="${prop.value}"
+                                    placeholder="Value"
+                                    size="md"
+                                ></cds-text-input>
+                                <cds-button
+                                    kind="ghost"
+                                    size="md"
+                                    type="button"
+                                    data-remove-property-row="true"
+                                >
+                                    <svg
+                                        slot="icon"
+                                        focusable="false"
+                                        preserveAspectRatio="xMidYMid meet"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 32 32"
+                                    >
+                                        <path
+                                            d="M12 12H14V24H12zM18 12H20V24H18z"
+                                        ></path>
+                                        <path
+                                            d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"
+                                        ></path>
+                                    </svg>
+                                </cds-button>
+                            </div>
+                        </th:block>
+                        <th:block
+                            th:if="${filter == null or filter.properties.isEmpty()}"
+                        >
+                            <div class="app--logging-property-row">
+                                <cds-text-input
+                                    name="properties[0].key"
+                                    placeholder="Key"
+                                    size="md"
+                                ></cds-text-input>
+                                <cds-text-input
+                                    name="properties[0].value"
+                                    placeholder="Value"
+                                    size="md"
+                                ></cds-text-input>
+                                <cds-button
+                                    kind="ghost"
+                                    size="md"
+                                    type="button"
+                                    data-remove-property-row="true"
+                                >
+                                    <svg
+                                        slot="icon"
+                                        focusable="false"
+                                        preserveAspectRatio="xMidYMid meet"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 32 32"
+                                    >
+                                        <path
+                                            d="M12 12H14V24H12zM18 12H20V24H18z"
+                                        ></path>
+                                        <path
+                                            d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"
+                                        ></path>
+                                    </svg>
+                                </cds-button>
+                            </div>
+                        </th:block>
+                    </div>
+                    <cds-button
+                        kind="primary"
+                        size="md"
+                        type="button"
+                        id="add-property-btn"
+                    >
+                        Add property
+                        <svg
+                            slot="icon"
+                            focusable="false"
+                            preserveAspectRatio="xMidYMid meet"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            aria-hidden="true"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 32 32"
+                        >
+                            <path
+                                d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                            ></path>
+                        </svg>
+                    </cds-button>
+                </div>
+
+                <div class="app--logging-filter-actions">
+                    <cds-button
+                        kind="tertiary"
+                        size="md"
+                        type="button"
+                        id="clear-filter-btn"
+                    >
+                        Clear
+                        <svg
+                            slot="icon"
+                            focusable="false"
+                            preserveAspectRatio="xMidYMid meet"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            aria-hidden="true"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 32 32"
+                        >
+                            <path d="M12 12H14V24H12zM18 12H20V24H18z"></path>
+                            <path
+                                d="M4 6V8H6V28a2 2 0 002 2H24a2 2 0 002-2V8h2V6zM8 28V8H24V28zM12 2H20V4H12z"
+                            ></path>
+                        </svg>
+                    </cds-button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data table -->
+        <cds-table id="log-table">
+            <!-- Toolbar -->
+            <cds-table-toolbar slot="toolbar">
+                <cds-table-toolbar-content>
+                    <div class="toolbar-spacer"></div>
+                    <cds-button
+                        kind="ghost"
+                        size="md"
+                        id="toggle-filter-btn"
+                        type="button"
+                        title="Filter"
+                        data-toggle-logging-filter="true"
+                    >
+                        <svg
+                            slot="icon"
+                            focusable="false"
+                            preserveAspectRatio="xMidYMid meet"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            aria-hidden="true"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 32 32"
+                        >
+                            <path
+                                d="M18 28L14 28 14 18 4 7 4 4 28 4 28 7 18 18 18 28zM16.76 17L26 6.68 26 6 6 6 6 6.68 15.24 17 16 17.84 16.76 17z"
+                            ></path>
+                        </svg>
+                    </cds-button>
+                </cds-table-toolbar-content>
+            </cds-table-toolbar>
+
+            <!-- Header -->
+            <cds-table-head th:if="${!#lists.isEmpty(events)}">
+                <cds-table-header-row>
+                    <cds-table-header-cell
+                        is-sortable
+                        size="md"
+                        class="col-width-20"
+                        hx-get="/admin/logs/filter"
+                        hx-target="#log-search-results"
+                        hx-swap="outerHTML"
+                        hx-push-url="true"
+                        hx-trigger="cds-table-header-cell-sort"
+                        hx-vals='{"page":"0"}'
+                        data-hx-dynamic-params="sort:headerCellSortTimestamp,size:logPaginationSize"
+                    >
+                        Timestamp
+                    </cds-table-header-cell>
+                    <cds-table-header-cell class="col-width-15">
+                        Log level
+                    </cds-table-header-cell>
+                    <cds-table-header-cell> Message </cds-table-header-cell>
+                </cds-table-header-row>
+            </cds-table-head>
+
+            <th:block
+                th:insert="~{fragments/internal/logging/filter-results :: logging-filter-results}"
+            ></th:block>
+        </cds-table>
+    </div>
+
+    <!-- Pagination -->
+    <cds-pagination
+        id="log-pagination-container"
+        size="md"
+        th:attr="page=${page.number + 1},
+                 totalPages=${page.totalPages},
+                 total-items=${page.totalElements},
+                 page-size=${page.size}"
+        hx-trigger="cds-pagination-changed-current from:closest cds-pagination, cds-page-sizes-select-changed from:closest cds-pagination"
+        hx-get="/admin/logs/filter"
+        hx-target="#log-search-results"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        data-hx-dynamic-params="size:logPaginationSize,page:logPaginationPage"
+    >
+        <cds-select-item value="10">10</cds-select-item>
+        <cds-select-item value="20">20</cds-select-item>
+        <cds-select-item value="30">30</cds-select-item>
+        <cds-select-item value="40">40</cds-select-item>
+        <cds-select-item value="50">50</cds-select-item>
+    </cds-pagination>
+
+    <!-- Logging filter JS moved to /assets/js/admin-ui.js -->
+</th:block>

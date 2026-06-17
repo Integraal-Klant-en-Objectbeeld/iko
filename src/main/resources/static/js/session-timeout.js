@@ -117,7 +117,9 @@
                         logout();
                     }
                 })
-                .catch(logout);
+                .catch(function () {
+                    logout();
+                });
         }
 
         document

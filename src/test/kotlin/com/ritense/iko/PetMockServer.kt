@@ -114,6 +114,7 @@ object PetMockServer {
                                 )
 
                             "DELETE" -> MockResponse().setResponseCode(204)
+
                             else -> MockResponse().setResponseCode(405)
                         }
                     }

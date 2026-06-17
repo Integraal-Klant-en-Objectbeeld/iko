@@ -35,14 +35,11 @@
                     size="lg"
                     hx-get="/admin/aggregated-data-profiles/filter"
                     hx-params="*"
-                    hx-trigger="input delay:600ms, keyup[key=='Enter']"
+                    hx-trigger="input changed delay:600ms"
                     hx-target="#search-results"
                     hx-swap="outerHTML"
                     hx-push-url="true"
-                    hx-vals="js:{
-                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true,
-                        sort: new URLSearchParams(window.location.search).get('sort') || ''
-                    }"
+                    data-hx-dynamic-params="isActive:activeFilterToggle,sort:urlSort"
                 >
                 </cds-table-toolbar-search>
                 <cds-overflow-menu>
@@ -63,7 +60,7 @@
                     </svg>
                     <span slot="tooltip-content">Filters</span>
                     <cds-overflow-menu-body flipped="">
-                        <cds-overflow-menu-item style="pointer-events: none">
+                        <cds-overflow-menu-item class="overflow-filter-wrapper">
                             <cds-checkbox
                                 id="active-filter-toggle"
                                 th:checked="${isActive == null or isActive}"
@@ -72,14 +69,9 @@
                                 hx-swap="outerHTML"
                                 hx-push-url="true"
                                 hx-trigger="cds-checkbox-changed"
-                                hx-vals="js:{
-                                    isActive: event.detail.checked,
-                                    size: document.querySelector('#pagination-container')?.pageSize || 10,
-                                    page: 0,
-                                    query: document.querySelector('#search-bar')?.value || '',
-                                    sort: new URLSearchParams(window.location.search).get('sort') || ''
-                                }"
-                                style="pointer-events: auto"
+                                hx-vals='{"page":"0"}'
+                                data-hx-dynamic-params="isActive:eventChecked,size:paginationSize,query:searchBarQuery,sort:urlSort"
+                                class="pointer-events-auto"
                                 >Active only</cds-checkbox
                             >
                         </cds-overflow-menu-item>
@@ -120,13 +112,7 @@
                     hx-swap="outerHTML"
                     hx-push-url="true"
                     hx-trigger="cds-table-header-cell-sort"
-                    hx-vals="js:{
-                        sort: 'name,' + ({ none: '', ascending: 'ASC', descending: 'DESC' }[event.detail.sortDirection] ?? ''),
-                        size: document.querySelector('#pagination-container').pageSize,
-                        page: document.querySelector('#pagination-container').page - 1,
-                        query: document.querySelector('#search-bar').value,
-                        isActive: document.querySelector('#active-filter-toggle')?.checked ?? true
-                        }"
+                    data-hx-dynamic-params="sort:headerCellSortName,size:paginationSize,page:paginationPage,query:searchBarQuery,isActive:activeFilterToggle"
                 >
                     Name
                 </cds-table-header-cell>
@@ -154,13 +140,7 @@
         hx-target="#search-results"
         hx-swap="outerHTML"
         hx-push-url="true"
-        hx-vals="js:{
-                      size: document.querySelector('#pagination-container').pageSize,
-                      page: document.querySelector('#pagination-container').page - 1,
-                      query: document.querySelector('#search-bar').value,
-                      isActive: document.querySelector('#active-filter-toggle')?.checked ?? true,
-                      sort: new URLSearchParams(window.location.search).get('sort') || ''
-                    }"
+        data-hx-dynamic-params="size:paginationSize,page:paginationPage,query:searchBarQuery,isActive:activeFilterToggle,sort:urlSort"
     >
         <cds-select-item value="10">10</cds-select-item>
         <cds-select-item value="20">20</cds-select-item>

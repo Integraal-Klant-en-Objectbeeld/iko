@@ -41,6 +41,7 @@ class OpenApiMockGenerator(
             OpenAPIV3Parser().readContents(content).openAPI
                 ?: error("Failed to parse OpenAPI spec from classpath: $path")
         }
+
         specUri.startsWith("file:") -> {
             val path = specUri.removePrefix("file:")
             val file = java.io.File(path)
@@ -49,6 +50,7 @@ class OpenApiMockGenerator(
             OpenAPIV3Parser().readContents(content).openAPI
                 ?: error("Failed to parse OpenAPI spec from file: $path")
         }
+
         else -> OpenAPIV3Parser().read(specUri)
             ?: error("Failed to fetch or parse OpenAPI spec from: $specUri")
     }
@@ -142,17 +144,23 @@ class OpenApiMockGenerator(
             }
             obj
         }
+
         "array" -> {
             val arr = mapper.createArrayNode()
             schema.items?.let { arr.add(generateNode(it as Schema<*>, openApi, depth + 1, visited)) }
             arr
         }
+
         "string" -> TextNode.valueOf(
             schema.example?.toString() ?: schema.enum?.firstOrNull()?.toString() ?: "example",
         )
+
         "integer" -> IntNode.valueOf((schema.example as? Int) ?: 0)
+
         "number" -> DoubleNode.valueOf((schema.example as? Number)?.toDouble() ?: 0.0)
+
         "boolean" -> BooleanNode.FALSE
+
         null -> {
             if (!schema.properties.isNullOrEmpty()) {
                 generateByType(
@@ -165,6 +173,7 @@ class OpenApiMockGenerator(
                 NullNode.instance
             }
         }
+
         else -> NullNode.instance
     }
 }

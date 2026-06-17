@@ -28,9 +28,10 @@
                             hx-put="/admin/aggregated-data-profiles"
                             hx-target="#profile-edit"
                             hx-swap="outerHTML"
-                            hx-on::before-swap="if (event.detail.isError) { event.detail.shouldSwap = true; event.detail.isError = false; }"
-                            hx-on::before-request="const b=document.getElementById('profile-save-btn'); if(b){ b.setAttribute('disabled',''); b.textContent='Saving…'; }"
-                            hx-on::after-request="const b=document.getElementById('profile-save-btn'); if(b){ b.removeAttribute('disabled'); b.textContent='Save'; }"
+                            data-swap-errors="true"
+                            data-save-btn-id="profile-save-btn"
+                            data-saving-text="Saving…"
+                            data-saved-text="Save"
                         >
                             <cds-form-group
                                 id="form-group"
@@ -171,20 +172,20 @@
                                             >
                                             </textarea>
 
-                                            <!-- Monaco container -->
+                                            <!-- Editor container -->
                                             <div
                                                 id="endpoint-transform-editor"
-                                                data-monaco
+                                                data-ace
                                                 data-language="jq"
                                                 data-textarea="#endpointTransformCode"
                                                 th:data-initial="${form?.endpointTransform}"
                                                 data-theme="lightgray-theme"
                                                 th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                                             ></div>
                                             <div
-                                                id="endpoint-transform-monaco-error"
-                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                                                id="endpoint-transform-ace-error"
+                                                th:class="${errors?.getFieldError('endpointTransform') != null} ? 'ace-error show' : 'ace-error'"
                                             >
                                                 <span
                                                     th:if="${errors?.getFieldError('endpointTransform') != null}"
@@ -225,20 +226,20 @@
                                             >
                                             </textarea>
 
-                                            <!-- Monaco container -->
+                                            <!-- Editor container -->
                                             <div
                                                 id="result-transform-editor"
-                                                data-monaco
+                                                data-ace
                                                 data-language="jq"
                                                 data-textarea="#resultTransformCode"
                                                 th:data-initial="${form?.resultTransform}"
                                                 data-theme="lightgray-theme"
                                                 th:attr="data-readonly=${aggregatedDataProfile.final} ? 'true' : null"
-                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-editor-style monaco-editor-error' : 'monaco-editor-style'"
+                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-editor-style ace-editor-error' : 'ace-editor-style'"
                                             ></div>
                                             <div
-                                                id="result-transform-monaco-error"
-                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'monaco-error show' : 'monaco-error'"
+                                                id="result-transform-ace-error"
+                                                th:class="${errors?.getFieldError('resultTransform') != null} ? 'ace-error show' : 'ace-error'"
                                             >
                                                 <span
                                                     th:if="${errors?.getFieldError('resultTransform') != null}"
@@ -251,7 +252,7 @@
                                                 type="submit"
                                                 id="profile-save-btn"
                                                 th:disabled="${aggregatedDataProfile.final}"
-                                                hx-on:click="document.getElementById('profile-edit-form')?.requestSubmit()"
+                                                data-submit-form-id="profile-edit-form"
                                             >
                                                 Save
                                             </cds-button>

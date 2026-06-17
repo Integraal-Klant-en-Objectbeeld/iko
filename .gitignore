@@ -69,3 +69,6 @@ Desktop.ini
 
 # Codelayer
 /thoughts/
+
+# Riptide artifacts (cloud-synced)
+.humanlayer/tasks/

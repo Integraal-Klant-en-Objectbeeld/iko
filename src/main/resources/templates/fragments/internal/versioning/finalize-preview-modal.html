@@ -35,26 +35,17 @@
 
         <div th:if="${!#lists.isEmpty(impact.connectorsToFinalize)}">
             <p>The following connectors will also be finalized:</p>
-            <ul
-                style="
-                    margin: var(--cds-spacing-03) 0;
-                    padding-left: var(--cds-spacing-06);
-                    list-style-type: disc;
-                "
-            >
+            <ul class="finalize-modal-list">
                 <li
                     th:each="conn : ${impact.connectorsToFinalize}"
-                    style="margin-bottom: var(--cds-spacing-03)"
+                    class="finalize-modal-list-item"
                 >
                     <strong
                         th:text="|${conn.connectorName} (${conn.connectorTag}) v${conn.connectorVersion}|"
                     ></strong>
                     <div
                         th:if="${!#lists.isEmpty(conn.affectedDraftAdps)}"
-                        style="
-                            margin-top: var(--cds-spacing-02);
-                            color: var(--cds-text-secondary);
-                        "
+                        class="finalize-modal-affected"
                     >
                         <span>Also referenced by: </span>
                         <span
@@ -87,7 +78,7 @@
             th:hx-post="@{|/admin/aggregated-data-profiles/${impact.adpId}/finalize|}"
             hx-target="#view-panel"
             hx-swap="innerHTML"
-            hx-on::after-request="document.getElementById('active-modal')?.removeAttribute('open')"
+            data-after-request-close-modal="true"
             th:disabled="${!impact.canFinalize}"
             th:attr="aria-disabled=${!impact.canFinalize} ? 'true' : null"
             kind="danger"

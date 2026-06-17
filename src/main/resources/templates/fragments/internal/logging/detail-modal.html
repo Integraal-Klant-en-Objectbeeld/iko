@@ -1,0 +1,90 @@
+<!--
+ Copyright 2026 Den Haag, Ritense, Rotterdam, Utrecht, the Netherlands.
+
+ Licensed under EUPL, Version 1.2 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<th:block th:fragment="logging-detail-modal">
+    <cds-modal
+        open
+        size="lg"
+        id="logging-detail-modal"
+        prevent-close-on-click-outside
+    >
+        <cds-modal-header>
+            <cds-modal-close-button></cds-modal-close-button>
+            <cds-modal-heading>Log Event Detail</cds-modal-heading>
+        </cds-modal-header>
+        <cds-modal-body>
+            <dl class="app--log-detail">
+                <dt>Timestamp</dt>
+                <dd
+                    th:text="${#temporals.format(event.timestampDateTime, 'dd-MM-yyyy HH:mm:ss.SSS')}"
+                ></dd>
+
+                <dt>Level</dt>
+                <dd>
+                    <cds-tag
+                        th:type="${event.level == 'ERROR' ? 'red' :
+                                   event.level == 'WARN'  ? 'yellow' :
+                                   event.level == 'INFO'  ? 'blue' :
+                                   event.level == 'DEBUG' ? 'cool-gray' : 'gray'}"
+                        th:text="${event.level}"
+                    ></cds-tag>
+                </dd>
+
+                <dt>Logger</dt>
+                <dd th:text="${event.loggerName}"></dd>
+
+                <dt>Thread</dt>
+                <dd th:text="${event.threadName}"></dd>
+
+                <dt>Message</dt>
+                <dd
+                    class="app--log-pre"
+                    th:text="${event.formattedMessage}"
+                ></dd>
+            </dl>
+
+            <th:block th:if="${!event.properties.isEmpty()}">
+                <h5 class="app--log-detail-heading">Properties</h5>
+                <dl class="app--log-detail">
+                    <th:block th:each="prop : ${event.properties}">
+                        <dt th:text="${prop.id.mappedKey}"></dt>
+                        <dd th:text="${prop.mappedValue}"></dd>
+                    </th:block>
+                </dl>
+            </th:block>
+
+            <th:block th:if="${!event.exceptions.isEmpty()}">
+                <h5 class="app--log-detail-heading">Stacktrace</h5>
+                <div class="app--log-stacktrace">
+                    <div
+                        class="app--log-frame"
+                        th:each="ex : ${event.exceptions}"
+                        th:text="${ex.traceLine}"
+                    ></div>
+                </div>
+            </th:block>
+        </cds-modal-body>
+        <cds-modal-footer>
+            <cds-modal-footer-button
+                kind="secondary"
+                data-modal-close
+                data-close-logging-modal="true"
+            >
+                Close
+            </cds-modal-footer-button>
+        </cds-modal-footer>
+    </cds-modal>
+</th:block>

@@ -25,11 +25,15 @@
 
         <!-- HTMX -->
         <script
-            src="https://unpkg.com/htmx.org@2.0.4"
-            integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+            th:attr="nonce=${cspNonce}"
+            src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
+            integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
             crossorigin="anonymous"
         ></script>
-        <script src="https://unpkg.com/htmx.org/dist/ext/transition.js"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="https://unpkg.com/htmx.org/dist/ext/transition.js"
+        ></script>
 
         <!-- Carbon v11 -->
         <link
@@ -50,22 +54,55 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"
         />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"
+        ></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/yaml.min.js"
+        ></script>
 
         <!-- Application stylesheet -->
         <link rel="stylesheet" href="/assets/css/main.css" />
 
-        <script src="/assets/js/jq.js" type="application/javascript"></script>
+        <!-- Ace Editor static CSS (prevents 'unsafe-inline' in style-src) -->
+        <link rel="stylesheet" href="/assets/css/ace-editor.css" />
 
-        <!--  Monaco Editor -->
-        <script src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"></script>
-        <script src="/assets/js/monaco-init.js"></script>
-        <script src="/assets/js/main.js"></script>
-        <script src="/assets/js/session-timeout.js"></script>
+        <!-- Ace Editor -->
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/ace/ace.js"
+        ></script>
+        <!-- Preload theme so setTheme resolves synchronously; lazy script-injection
+             after an HTMX swap leaves the editor without .ace-chrome until it lands -->
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/ace/theme-chrome.js"
+        ></script>
+        <!-- Autocompletion (popup CSS is vendored in ace-editor.css; runtime
+             injection is disabled by useStrictCSP) -->
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/ace/ext-language_tools.js"
+        ></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/editor-init.js"
+        ></script>
+        <script th:attr="nonce=${cspNonce}" src="/assets/js/main.js"></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/session-timeout.js"
+        ></script>
+        <script
+            th:attr="nonce=${cspNonce}"
+            src="/assets/js/admin-ui.js"
+            defer
+        ></script>
 
         <!-- Dynamically load Carbon Web Components -->
-        <script type="module">
+        <script type="module" th:attr="nonce=${cspNonce}">
             const VERSION = window.CARBON_CDN_VERSION || "v2.47.0";
 
             const components = [
@@ -192,10 +229,7 @@
                                 </cds-structured-list-row>
                                 <cds-structured-list-row>
                                     <cds-structured-list-cell>
-                                        <cds-link
-                                            href="#"
-                                            onclick="window.ikoLogout(); return false;"
-                                        >
+                                        <cds-link href="#" id="logout-link">
                                             Afmelden
                                         </cds-link>
                                     </cds-structured-list-cell>
@@ -219,9 +253,8 @@
         >
             <cds-side-nav-items>
                 <cds-side-nav-link
-                    href="javascript:void(0)"
+                    href="#"
                     hx-get="/admin/aggregated-data-profiles"
-                    hx-on::after-request="document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));this?.toggleAttribute('active');"
                     hx-push-url="true"
                     hx-target="#view-panel"
                 >
@@ -251,11 +284,8 @@
                     Aggregated Data Profiles
                 </cds-side-nav-link>
                 <cds-side-nav-link
-                    href="javascript:void(0)"
+                    href="#"
                     hx-get="/admin/connectors"
-                    hx-on::after-request="
- document.querySelectorAll('cds-side-nav-link').forEach(e => e.removeAttribute('active'));
- this?.toggleAttribute('active');"
                     hx-push-url="true"
                     hx-target="#view-panel"
                 >
@@ -277,6 +307,29 @@
                     </svg>
                     Connectors
                 </cds-side-nav-link>
+                <cds-side-nav-link
+                    href="#"
+                    hx-get="/admin/logs"
+                    hx-push-url="true"
+                    hx-target="#view-panel"
+                >
+                    <svg
+                        aria-hidden="true"
+                        fill="currentColor"
+                        focusable="false"
+                        height="16"
+                        preserveAspectRatio="xMidYMid meet"
+                        slot="title-icon"
+                        viewBox="0 0 32 32"
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            d="M28 6H4a2 2 0 00-2 2v16a2 2 0 002 2h24a2 2 0 002-2V8a2 2 0 00-2-2zm0 18H4V8h24zM6 12h14v2H6zM6 16h10v2H6z"
+                        ></path>
+                    </svg>
+                    Logging
+                </cds-side-nav-link>
             </cds-side-nav-items>
         </cds-side-nav>
 
@@ -294,7 +347,7 @@
                         >
                             <cds-breadcrumb-item>
                                 <cds-breadcrumb-link
-                                    href="javascript:void(0)"
+                                    href="#"
                                     hx-get="/admin"
                                     hx-push-url="true"
                                     hx-target="#view-panel"
@@ -306,7 +359,7 @@
                                 th:each="breadcrumb, iter : ${entries}"
                             >
                                 <cds-breadcrumb-link
-                                    href="javascript:void(0)"
+                                    href="#"
                                     th:hx-get="${breadcrumb[1]}"
                                     hx-push-url="true"
                                     hx-target="#view-panel"
@@ -350,8 +403,10 @@
             class="cds-theme-zone-g10"
             data-carbon-theme="g10"
             prevent-close-on-click-outside="true"
-            th:data-timeout-seconds="${@adminSessionProperties.timeoutSeconds}"
-            th:data-warning-seconds="${@adminSessionProperties.warningBeforeSeconds}"
+            th:with="timeoutSeconds=${@adminSessionProperties.timeoutSeconds},
+                     warningSeconds=${@adminSessionProperties.warningBeforeSeconds}"
+            th:data-timeout-seconds="${timeoutSeconds}"
+            th:data-warning-seconds="${warningSeconds}"
         >
             <cds-modal-header>
                 <cds-modal-heading>
@@ -379,57 +434,6 @@
                 </cds-modal-footer-button>
             </cds-modal-footer>
         </cds-modal>
-        <script type="text/javascript">
-            // htmx.logAll();
-            htmx.config.allowNestedOobSwaps = false;
-
-            document.body.addEventListener("close-modal", () => {
-                document
-                    .querySelector("#modal-container #active-modal")
-                    .removeAttribute("open");
-            });
-
-            function getCookieValue(name) {
-                const match = document.cookie.match(
-                    new RegExp(
-                        "(?:^|; )" +
-                            name.replace(/[.$?*|{}()[\]\\/+^]/g, "\\$&") +
-                            "=([^;]*)"
-                    )
-                );
-                return match ? decodeURIComponent(match[1]) : null;
-            }
-
-            document.body.addEventListener("htmx:configRequest", (event) => {
-                const method = (event.detail.verb || "get").toLowerCase();
-                if (
-                    method === "get" ||
-                    method === "head" ||
-                    method === "options"
-                ) {
-                    return;
-                }
-                const token = getCookieValue("XSRF-TOKEN");
-                if (token) {
-                    event.detail.headers["X-XSRF-TOKEN"] = token;
-                }
-            });
-
-            window.ikoLogout = function () {
-                const form = document.createElement("form");
-                form.method = "POST";
-                form.action = "/logout";
-                const token = getCookieValue("XSRF-TOKEN");
-                if (token) {
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = "_csrf";
-                    input.value = token;
-                    form.appendChild(input);
-                }
-                document.body.appendChild(form);
-                form.submit();
-            };
-        </script>
+        <!-- Inline script body moved to /assets/js/admin-ui.js -->
     </body>
 </html>
