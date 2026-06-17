@@ -2,7 +2,7 @@
 
 ### Integraal Klant & Objectbeeld (IKO)
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square)  
+![Version: 1.4.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square)  
 
 IKO is a Kotlin/Spring Boot Application that uses Apache Camel to integrate with external systems via connectors. It ships with an admin UI and a Docker-based local environment.
 
@@ -92,6 +92,16 @@ Notes:
       CAMEL_SSL_TRUSTMANAGERS_KEYSTORE_PASSWORD=changeit
       ```
       Dev keystores and a regeneration script live under [`certs/`](./certs/README.md); replace with real key material in deployed environments and source the passwords from a secret store rather than `.env`.
+    - Logging: request/route logging events can be persisted to the database and pruned on a schedule via the `iko.logging` properties.
+        - `iko.logging.db.enabled` (default `false`): feature flag that toggles persisting logging events to the database. Leave `false` to disable DB logging entirely.
+        - `iko.logging.retention` (default `21d`): how long persisted logging events are kept before the deletion job removes them. Accepts a Spring `Duration` (e.g. `21d`, `48h`).
+        - `iko.logging.deletionCron` (default `0 0 4 * * ?`): Spring cron expression controlling when the deletion job runs (daily at 04:00 by default).
+        - Override locally via `.env` (Spring relaxed binding):
+          ```
+          IKO_LOGGING_DB_ENABLED=false
+          IKO_LOGGING_RETENTION=21d
+          IKO_LOGGING_DELETIONCRON=0 0 4 * * ?
+          ```
 
 ---
 
