@@ -184,4 +184,17 @@ internal class LogControllerIntegrationTest : BaseIntegrationTest() {
                     .with(csrf()),
             ).andExpect(status().isOk)
     }
+
+    @Test
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
+    fun `GET logs shows disabled banner when logging db disabled`() {
+        mockMvc
+            .perform(
+                get("/admin/logs")
+                    .header("Hx-Request", "true")
+                    .with(csrf()),
+            ).andExpect(status().isOk)
+            .andExpect(content().string(containsString("Logging disabled")))
+            .andExpect(content().string(containsString("No new recordings are captured.")))
+    }
 }

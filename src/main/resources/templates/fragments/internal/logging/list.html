@@ -20,6 +20,16 @@
     ></div>
     <div th:replace="~{layout-internal :: page-header (title='Logging')}"></div>
 
+    <cds-inline-notification
+        th:if="${loggingDbEnabled == false}"
+        kind="warning"
+        title="Logging disabled"
+        subtitle="No new recordings are captured."
+        hide-close-button
+        low-contrast
+        class="logging-disabled-notification"
+    ></cds-inline-notification>
+
     <div class="app--logging-panel-anchor">
         <!-- Filter overlay form (hidden by default, toggled by funnel button) -->
         <div
