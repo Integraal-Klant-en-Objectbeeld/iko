@@ -74,8 +74,8 @@ internal class AggregatedDataProfileController(
         @PathVariable id: UUID,
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
-        val instance = connectorInstanceRepository.getReferenceById(aggregatedDataProfile.connectorInstanceId)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
+        val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         val endpoints = connectorEndpointRepository.findByConnector(instance.connector)
         val availableSources = sources(aggregatedDataProfile)
         val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
@@ -307,7 +307,7 @@ internal class AggregatedDataProfileController(
         bindingResult: BindingResult,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(form.id).orElseThrow()
         val instance = connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElseThrow()
         if (bindingResult.hasErrors()) {
             val modelAndView = ModelAndView("$BASE_FRAGMENT_ADP/edit-panel :: profile-edit").apply {
@@ -338,7 +338,7 @@ internal class AggregatedDataProfileController(
         @PathVariable id: UUID,
         @RequestParam(required = false) sourceId: String? = null,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         val sources = sources(aggregatedDataProfile)
         val connectorInstances = connectorInstanceRepository.findAllByOrderByNameAsc()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/add").apply {
@@ -356,7 +356,7 @@ internal class AggregatedDataProfileController(
         @PathVariable id: UUID,
         @PathVariable relationId: UUID,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         val relation = aggregatedDataProfile.relations.find { it.id == relationId }
         val connector = connectorInstanceRepository.findById(relation?.connectorInstanceId!!).orElseThrow()
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == relationId.toString() } }
@@ -377,7 +377,7 @@ internal class AggregatedDataProfileController(
         @PathVariable id: UUID,
         @PathVariable relationId: UUID,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         val modelAndView = ModelAndView("$BASE_FRAGMENT_RELATION/delete").apply {
             addObject(
                 "form",
@@ -394,7 +394,7 @@ internal class AggregatedDataProfileController(
         @RequestHeader(HX_REQUEST_HEADER) isHxRequest: Boolean = false,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         aggregatedDataProfileService.removeRoute(aggregatedDataProfile)
         aggregatedDataProfileRepository.delete(aggregatedDataProfile)
 
@@ -414,7 +414,7 @@ internal class AggregatedDataProfileController(
         @Valid @ModelAttribute form: AggregatedDataProfileCacheForm,
         bindingResult: BindingResult,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         val isCached = cacheService.isCached(aggregatedDataProfile.id.toString())
         if (bindingResult.hasErrors()) {
             return ModelAndView("$BASE_FRAGMENT_ADP/cache :: cache-panel").apply {
@@ -444,7 +444,7 @@ internal class AggregatedDataProfileController(
         @PathVariable id: UUID,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         cacheService.evictByPrefix(aggregatedDataProfile.id.toString())
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
         httpServletResponse.setHeader("HX-Reswap", "innerHTML")
@@ -461,7 +461,7 @@ internal class AggregatedDataProfileController(
         @Valid @ModelAttribute form: RelationCacheForm,
         bindingResult: BindingResult,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         val relation = aggregatedDataProfile.relations.first { it.id == relationId }
         val isCached = cacheService.isCached(relation.id.toString())
         val connectorInstance = connectorInstanceRepository.findById(relation.connectorInstanceId).orElseThrow()
@@ -503,7 +503,7 @@ internal class AggregatedDataProfileController(
         @PathVariable relationId: UUID,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(id)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(id).orElseThrow()
         val relation = aggregatedDataProfile.relations.first { it.id == relationId }
         cacheService.evictByPrefix(relation.id.toString())
         httpServletResponse.setHeader("HX-Retarget", "#view-panel")
