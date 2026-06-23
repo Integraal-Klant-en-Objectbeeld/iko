@@ -236,7 +236,7 @@ internal class AggregatedDataProfileController(
     fun endpoints(
         @RequestParam connectorInstanceId: UUID,
     ): ModelAndView {
-        val connector = connectorInstanceRepository.getReferenceById(connectorInstanceId)
+        val connector = connectorInstanceRepository.findById(connectorInstanceId).orElseThrow()
         val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
         return ModelAndView("$BASE_FRAGMENT_ADP/add :: connectorEndpoints").apply {
             addObject("connectorEndpoints", endpoints)
@@ -247,7 +247,7 @@ internal class AggregatedDataProfileController(
     fun relationAddEndpoints(
         @RequestParam connectorInstanceId: UUID,
     ): ModelAndView {
-        val connector = connectorInstanceRepository.getReferenceById(connectorInstanceId)
+        val connector = connectorInstanceRepository.findById(connectorInstanceId).orElseThrow()
         val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
         return ModelAndView("$BASE_FRAGMENT_RELATION/add :: connectorEndpoints").apply {
             addObject("connectorEndpoints", endpoints)
@@ -258,7 +258,7 @@ internal class AggregatedDataProfileController(
     fun relationEditEndpoints(
         @RequestParam connectorInstanceId: UUID,
     ): ModelAndView {
-        val connector = connectorInstanceRepository.getReferenceById(connectorInstanceId)
+        val connector = connectorInstanceRepository.findById(connectorInstanceId).orElseThrow()
         val endpoints = connectorEndpointRepository.findByConnector(connector.connector)
         return ModelAndView("$BASE_FRAGMENT_RELATION/edit :: connectorEndpoints").apply {
             addObject("connectorEndpoints", endpoints)

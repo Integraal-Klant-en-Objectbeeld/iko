@@ -30,7 +30,7 @@ class UniqueRelationValidator(
         context: ConstraintValidatorContext,
     ): Boolean {
         if (form.propertyName.isBlank()) return false
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(form.aggregatedDataProfileId).orElseThrow()
         val existing = aggregatedDataProfile.relations.find { it.id == form.id }
         val duplicateOnSameLevel = aggregatedDataProfile.relations
             .any { it.propertyName == form.propertyName && it.sourceId == form.sourceId }
