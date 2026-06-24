@@ -1,0 +1,90 @@
+name: iko-e2e
+
+# End-to-end stack for the Playwright suite (e2e/).
+#
+# Brings up the built app image (same Dockerfile as snapshot-releases.yml) plus
+# Postgres, Redis and a live Keycloak importing the `valtimo` realm. Keycloak runs
+# with `--hostname keycloak` so its issuer URI resolves inside the compose network
+# (no /etc/hosts hack). The app's OAuth2 issuer URIs point at the in-network
+# `http://keycloak:8082/auth/realms/valtimo`, while the browser/token clients on the
+# host reach Keycloak via the published 8082 port (same host:port, so issuer matches).
+#
+# Actuator is published on 9090 for the readiness gate (scripts/wait-for-health.sh).
+#
+# Phase 3 adds the mounted Flyway seed (/seed) + SPRING_FLYWAY_LOCATIONS.
+# Phase 5 adds the BRP personen mock and the resource-server JWT role env.
+
+services:
+
+    iko-app:
+        container_name: iko-e2e-app
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+            - "9090:9090"
+        environment:
+            # Fixed Base64 AES-256 key — must match the key used to encrypt any
+            # seeded connector_instance_config ciphertext (Phase 5).
+            IKO_CRYPTO_KEY: AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=
+            # Datasource
+            SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/iko-db
+            SPRING_DATASOURCE_USERNAME: iko-admin
+            SPRING_DATASOURCE_PASSWORD: secret
+            # Redis
+            SPRING_DATA_REDIS_HOST: redis
+            SPRING_DATA_REDIS_PORT: "6379"
+            # OAuth2 / OIDC — admin UI login (authorization code) against live Keycloak
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID: iko
+            SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: ThisIsNotASecret
+            SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8082/auth/realms/valtimo
+            # Resource server — JWT issuer for the public REST API
+            SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8082/auth/realms/valtimo
+            # Cookies over plain HTTP for the local/CI e2e run
+            SERVER_SERVLET_SESSION_COOKIE_SECURE: "false"
+        depends_on:
+            postgres:
+                condition: service_started
+            redis:
+                condition: service_healthy
+            keycloak:
+                condition: service_started
+
+    postgres:
+        container_name: iko-e2e-postgres
+        image: 'postgres:latest'
+        environment:
+            - POSTGRES_DB=iko-db
+            - POSTGRES_PASSWORD=secret
+            - POSTGRES_USER=iko-admin
+        ports:
+            - "5432:5432"
+
+    redis:
+        container_name: iko-e2e-redis
+        image: redis:8.4.0-alpine
+        ports:
+            - "6379:6379"
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 5s
+
+    keycloak:
+        container_name: iko-e2e-keycloak
+        image: quay.io/keycloak/keycloak:24.0.1
+        ports:
+            - "8082:8082"
+        environment:
+            KEYCLOAK_ADMIN: admin
+            KEYCLOAK_ADMIN_PASSWORD: admin
+            KC_HTTP_RELATIVE_PATH: /auth
+            PROXY_ADDRESS_FORWARDING: "true"
+            KC_HTTP_ENABLED: "true"
+            KC_HTTPS_ENABLED: "false"
+        volumes:
+            - ./imports/keycloak:/opt/keycloak/data/import
+        command: "start-dev --import-realm --http-port=8082 --hostname keycloak --http-enabled=true"
