@@ -148,3 +148,67 @@ VALUES ('e2e00002-0000-0000-0000-000000000001', 'e2e-instance-01',
 INSERT INTO connector_endpoint (id, name, connector_id, operation)
 VALUES ('e2e00003-0000-0000-0000-000000000001', 'e2e-endpoint-01',
         'e2e00001-0000-0000-0000-000000000001', 'GetThings');
+
+-- ============================================================================
+-- Phase 4: baseline Aggregated Data Profiles
+-- ============================================================================
+-- Provide enough baseline ADP rows (>= one page of 10) so the ADP list spans
+-- multiple pages regardless of which create/edit specs ran first, making the
+-- pagination assertions order-independent. Mirrors the Connector baseline above.
+--
+-- Every profile references the single seeded connector instance + endpoint
+-- (e2e00002-...01 / e2e00003-...01) so create/edit specs can reuse the same
+-- known connectorInstanceId / connectorEndpointId the Add form pre-selects.
+--
+-- The ADP list defaults to "active only" and sorts by name ascending, so each
+-- profile is inserted with is_active = TRUE and a zero-padded numeric name suffix
+-- that sorts deterministically. They are status = FINAL so they are stable
+-- (no Delete action, immutable) and never collide with the DRAFT rows the
+-- create/edit specs add on top. (name, version) is unique and only one active
+-- version per name is allowed; each baseline name is distinct so all stay active.
+--
+-- endpoint_transform / transform carry valid JQ (matching the Add form defaults:
+-- '{}' for the endpoint transform, '.' for the result transform). roles is set
+-- to ROLE_ADMIN, a realm role the e2e `admin` user holds.
+INSERT INTO aggregated_data_profile (
+    id, name, version, is_active, status,
+    connector_instance_id, connector_endpoint_id,
+    endpoint_transform, transform, roles, cache_enabled, cache_ttl
+)
+VALUES
+    ('e2e00004-0000-0000-0000-000000000001', 'e2e-adp-01', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000002', 'e2e-adp-02', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000003', 'e2e-adp-03', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000004', 'e2e-adp-04', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000005', 'e2e-adp-05', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000006', 'e2e-adp-06', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000007', 'e2e-adp-07', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000008', 'e2e-adp-08', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000009', 'e2e-adp-09', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000010', 'e2e-adp-10', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000011', 'e2e-adp-11', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0),
+    ('e2e00004-0000-0000-0000-000000000012', 'e2e-adp-12', '1.0.0', TRUE, 'FINAL',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0);
