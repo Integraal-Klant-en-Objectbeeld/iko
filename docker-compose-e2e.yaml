@@ -13,6 +13,12 @@ name: iko-e2e
 #
 # Phase 3 adds the mounted Flyway seed (/seed) + SPRING_FLYWAY_LOCATIONS.
 # Phase 5 adds the BRP personen mock and the resource-server JWT role env.
+#
+# The baseline seed lives in e2e/seed/V9999.01.01.1__e2e_baseline.sql and is
+# mounted read-only into the app container at /seed. SPRING_FLYWAY_LOCATIONS adds
+# that filesystem location alongside the bundled classpath migrations so Flyway
+# applies the V9999 baseline on boot. The seed is intentionally not checked into
+# src/, so it can never run against a production database.
 
 services:
 
@@ -43,6 +49,12 @@ services:
             SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8082/auth/realms/valtimo
             # Cookies over plain HTTP for the local/CI e2e run
             SERVER_SERVLET_SESSION_COOKIE_SECURE: "false"
+            # Run the bundled classpath migrations plus the mounted /seed baseline
+            # (e2e/seed). The seed adds namespaced `e2e-conn-*` connectors so the
+            # Connectors list spans multiple pages independent of test order.
+            SPRING_FLYWAY_LOCATIONS: classpath:db/migration,filesystem:/seed
+        volumes:
+            - ./e2e/seed:/seed:ro
         depends_on:
             postgres:
                 condition: service_started
