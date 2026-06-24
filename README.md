@@ -121,6 +121,42 @@ Notes:
 
 ---
 
+### End-to-end tests (Playwright)
+
+A Playwright end-to-end suite lives under [`e2e/`](./e2e). It drives a **fully running stack** through a real browser (Admin UI OAuth2/OIDC login, Connectors and Aggregated Data Profiles screens) and over raw HTTP (the public REST API, including the Camel per-endpoint / per-profile role checks).
+
+The suite does **not** start the app itself — it always targets an already-running stack. `docker-compose-e2e.yaml` brings up the built app image plus Postgres, Redis, a live Keycloak (`valtimo` realm) and a BRP personen mock, and mounts the deterministic Flyway seed in `e2e/seed/` (kept out of `src/` so it can never reach a real database).
+
+Run it locally:
+```bash
+# 1. Bring up the full e2e stack (app + Postgres + Redis + Keycloak + BRP mock)
+docker compose -f docker-compose-e2e.yaml up -d --build
+
+# 2. Wait until the app reports readiness (actuator published on 9090)
+./scripts/wait-for-health.sh http://localhost:9090/actuator/health/readiness
+
+# 3. Install dependencies + browsers and run the suite
+cd e2e
+npm ci
+npx playwright install --with-deps
+npx playwright test
+
+# 4. Inspect the HTML report
+npx playwright show-report
+
+# 5. Tear the stack down (removes volumes)
+cd ..
+docker compose -f docker-compose-e2e.yaml down -v
+```
+
+Useful extras:
+- `npm run typecheck` (in `e2e/`) type-checks the suite without running it (`tsc --noEmit`).
+- Configuration (base URLs, Keycloak realm/client, seeded users) lives in `e2e/fixtures/env.ts` and is overridable via `E2E_*` environment variables; the defaults match `docker-compose-e2e.yaml`.
+
+> CI runs this suite automatically on release-candidate branches — see [End-to-end (Playwright)](#end-to-end-playwright-githubworkflowse2eyml) below.
+
+---
+
 ### Admin UI
 - URL: `http://localhost:8080/admin`
 - Tutorial (Aggregated Data Profile):
@@ -145,6 +181,13 @@ Notes:
     - `snapshot-YYYYMMDDHHmm`
     - `branch-<name>` for non-main branches
 - Adds OCI labels/annotations (title, description, revision, source, created).
+
+#### End-to-end (Playwright) (`.github/workflows/e2e.yml`)
+- Triggered on `push` to release-candidate branches only (`rc/X.Y.Z`, e.g. `rc/1.5.0`), matching the repo's `rc/*` branch convention.
+- Boots the full e2e stack via `docker-compose-e2e.yaml` (built app image + Postgres + Redis + live Keycloak + BRP mock).
+- Gates on the actuator readiness probe (`scripts/wait-for-health.sh`) before running the Playwright suite against the running app.
+- Tears the stack down (`down -v`) and archives the Playwright HTML report as a build artifact (7-day retention), even on failure.
+- It does **not** run on `pull_request` or on `main`; to exercise it, push (or open) a `rc/X.Y.Z` branch.
 
 #### Manual release workflow (`.github/workflows/start-manual-release.yml`)
 This workflow is used to cut a formal release that publishes a versioned container image and a GitHub Release.
