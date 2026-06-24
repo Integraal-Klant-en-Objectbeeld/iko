@@ -40,15 +40,24 @@ export default defineConfig({
             use: { ...devices["Desktop Chrome"] },
         },
         {
-            // Authenticated feature specs (connectors, adp) reuse the saved session.
-            // Login smoke is excluded so it does not run pre-authenticated.
+            // Authenticated Admin UI feature specs (connectors, adp) reuse the
+            // saved session. Login smoke and the headless API specs are excluded so
+            // they do not run pre-authenticated in a browser.
             name: "chromium",
-            testIgnore: [/auth\.setup\.ts/, /admin\/login\.spec\.ts/],
+            testMatch: /admin\/.*\.spec\.ts/,
+            testIgnore: [/admin\/login\.spec\.ts/],
             use: {
                 ...devices["Desktop Chrome"],
                 storageState: STORAGE_STATE,
             },
             dependencies: ["setup"],
+        },
+        {
+            // Public REST API specs — pure HTTP, no browser/session. Acquire a JWT
+            // via the password-grant fixture (fixtures/api-token.ts) and hit the
+            // secured `/endpoints` and `/aggregated-data-profiles` routes.
+            name: "api",
+            testMatch: /api\/.*\.spec\.ts/,
         },
     ],
 });

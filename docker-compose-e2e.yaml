@@ -12,7 +12,9 @@ name: iko-e2e
 # Actuator is published on 9090 for the readiness gate (scripts/wait-for-health.sh).
 #
 # Phase 3 adds the mounted Flyway seed (/seed) + SPRING_FLYWAY_LOCATIONS.
-# Phase 5 adds the BRP personen mock and the resource-server JWT role env.
+# Phase 5 adds the BRP personen mock, the bundled OpenAPI spec mount
+# (/openapi-specs) and the resource-server JWT role env so `admin`'s realm roles
+# become authorities and satisfy the Camel per-profile / per-endpoint checks.
 #
 # The baseline seed lives in e2e/seed/V9999.01.01.1__e2e_baseline.sql and is
 # mounted read-only into the app container at /seed. SPRING_FLYWAY_LOCATIONS adds
@@ -47,20 +49,49 @@ services:
             SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8082/auth/realms/valtimo
             # Resource server — JWT issuer for the public REST API
             SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8082/auth/realms/valtimo
+            # The repo realm does not populate resource_access.iko.roles (the
+            # production default authorities-claim-name), so map the realm roles to
+            # authorities instead. The `iko` client's "realm roles" protocol mapper
+            # in imports/keycloak/realm.json emits them as a top-level multivalued
+            # `roles` claim (claim.name=roles), and its audience mapper sets aud=iko.
+            # So the authorities claim is `roles` and the audience stays `iko`
+            # (the production default), making `admin`'s ROLE_ADMIN an authority that
+            # satisfies the Camel per-profile / per-endpoint checks.
+            #
+            # NOTE: the structure outline proposed [realm_access][roles] + audience
+            # `account`; that does not match this realm's `iko` client mappers (the
+            # access token has no realm_access claim and aud=iko), so the value below
+            # reflects the tokens the realm actually issues. Audience stays `iko`
+            # (the application.yml default), so it is not overridden here.
+            #
+            # The underscores at the hyphen positions are deliberate:
+            # authorities-claim-name is read via @Value (SecurityConfig), and Spring's
+            # relaxed env binding maps SPRING_..._AUTHORITIES_CLAIM_NAME ->
+            # spring.security.oauth2.resourceserver.jwt.authorities-claim-name.
+            SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUTHORITIES_CLAIM_NAME: "[roles]"
             # Cookies over plain HTTP for the local/CI e2e run
             SERVER_SERVLET_SESSION_COOKIE_SECURE: "false"
             # Run the bundled classpath migrations plus the mounted /seed baseline
             # (e2e/seed). The seed adds namespaced `e2e-conn-*` connectors so the
             # Connectors list spans multiple pages independent of test order.
             SPRING_FLYWAY_LOCATIONS: classpath:db/migration,filesystem:/seed
+            # The seed's BRP connector code embeds Camel ${variable...} expressions;
+            # disable Flyway placeholder replacement so they are stored verbatim
+            # (mirrors application-test.yml). Production migrations use no ${} placeholders.
+            SPRING_FLYWAY_PLACEHOLDER_REPLACEMENT: "false"
         volumes:
             - ./e2e/seed:/seed:ro
+            # Bundled OpenAPI documents the seeded connectors reference via
+            # apiSpecificationUrl=file:/openapi-specs/<file>.yaml (BRP personen).
+            - ./openapi-specs:/openapi-specs:ro
         depends_on:
             postgres:
                 condition: service_started
             redis:
                 condition: service_healthy
             keycloak:
+                condition: service_started
+            haalcentraal-personen:
                 condition: service_started
 
     postgres:
@@ -100,3 +131,15 @@ services:
         volumes:
             - ./imports/keycloak:/opt/keycloak/data/import
         command: "start-dev --import-realm --http-port=8082 --hostname keycloak --http-enabled=true"
+
+    # BRP personen mock — the one external system the in-scope API specs hit.
+    # Plain HTTP (no mTLS sidecar): the seeded `e2e-brp` connector calls it
+    # in-network at http://haalcentraal-personen:5010 via rest-openapi.
+    haalcentraal-personen:
+        container_name: iko-e2e-haalcentraal-personen
+        image: ghcr.io/brp-api/personen-mock:2.7.0-latest
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Release
+            - ASPNETCORE_URLS=http://+:5010
+        ports:
+            - "5010:5010"

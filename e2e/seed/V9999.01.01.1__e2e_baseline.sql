@@ -212,3 +212,91 @@ VALUES
     ('e2e00004-0000-0000-0000-000000000012', 'e2e-adp-12', '1.0.0', TRUE, 'FINAL',
      'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
      '{}', '.', 'ROLE_ADMIN', FALSE, 0);
+
+-- ============================================================================
+-- Phase 5: BRP personen connector + instance + endpoint + ADP (API flow)
+-- ============================================================================
+-- The public REST API specs (`/endpoints/...` and `/aggregated-data-profiles/...`)
+-- need a connector whose route makes a real external call. This block seeds a
+-- self-contained BRP "personen" connector that, when invoked, POSTs a
+-- RaadpleegMetBurgerservicenummer search to the in-network personen mock
+-- (`haalcentraal-personen:5010`) via Camel `rest-openapi`, using the bundled
+-- OpenAPI document mounted at file:/openapi-specs/haalcentraal-brp-personen.yaml.
+--
+-- The connector route is deliberately simpler than the production
+-- brp-wsgateway template (no Keycloak token exchange / mTLS): the e2e mock is
+-- plain HTTP and unauthenticated. The route builds a minimal valid PersonenQuery
+-- body so the GET `/endpoints/.../Personen` route resolves to a real 200 from the
+-- mock. The mock answers any valid query with HTTP 200 and a `{ "type", "personen" }`
+-- envelope (an unknown BSN simply yields an empty `personen` array), so the spec
+-- can assert on the envelope without depending on a specific seeded BSN.
+--
+-- The connector tag (`e2e-brp`), instance tag (`e2e-brp-instance`) and operation
+-- (`Personen`) are the path segments the `/endpoints/{connector}/{config}/{operation}`
+-- route is invoked with.
+INSERT INTO connector (id, name, tag, version, is_active, status, connector_code)
+VALUES ('e2e00005-0000-0000-0000-000000000001', 'e2e-brp', 'e2e-brp', '1.0.0', TRUE, 'FINAL',
+        '- route:
+    id: "direct:iko:connector:e2e-brp"
+    errorHandler:
+        noErrorHandler: { }
+    from:
+        uri: "direct:iko:connector:e2e-brp"
+        steps:
+            - removeHeaders: "CamelHttp*"
+            - setHeader:
+                name: "CamelHttpMethod"
+                constant: "POST"
+            - setHeader:
+                name: "Content-Type"
+                constant: "application/json; charset=utf-8"
+            - setHeader:
+                name: "Accept"
+                constant: "application/json; charset=utf-8"
+            - setBody:
+                constant: "{\"type\":\"RaadpleegMetBurgerservicenummer\",\"burgerservicenummer\":[\"999993653\"],\"fields\":[\"burgerservicenummer\",\"naam\"]}"
+            - toD:
+                uri: "language:groovy:\"rest-openapi:${variable.configProperties.apiSpecificationUrl}#${variable.operation}?host=${variable.configProperties.host}\""
+            - unmarshal:
+                json: { }');
+
+-- Instance config (host + apiSpecificationUrl) stored as AES-GCM ciphertext,
+-- encrypted with the fixed e2e IKO_CRYPTO_KEY that docker-compose-e2e.yaml sets.
+-- Regenerate these values with e2e/seed/encrypt-config.mjs if the key changes.
+INSERT INTO connector_instance (id, name, connector_id, tag, api_specification_url)
+VALUES ('e2e00006-0000-0000-0000-000000000001', 'e2e-brp-instance',
+        'e2e00005-0000-0000-0000-000000000001', 'e2e-brp-instance', NULL);
+
+INSERT INTO connector_instance_config (connector_instance_id, key, value)
+VALUES
+    -- host: http://haalcentraal-personen:5010
+    ('e2e00006-0000-0000-0000-000000000001', 'host',
+     '4APAMKuUmMWgYj/gZSNb0k8DLyVwAyx2WY6j6QO2EDNBtKgyT2VuH2E8iZWu5yw5iifHbL8YvZY2lA97TA=='),
+    -- apiSpecificationUrl: file:/openapi-specs/haalcentraal-brp-personen.yaml
+    ('e2e00006-0000-0000-0000-000000000001', 'apiSpecificationUrl',
+     'nWHGOMQbKmYpB2cyASAVUAD8G95PcwtaQUpEaBsgXAUlAIeTnDO4BiUq1Jblm4wzDVM/oH1Uwj1y/X1epjS+7gB6pOk+V2GK3l2uBKXr');
+
+INSERT INTO connector_endpoint (id, name, connector_id, operation)
+VALUES ('e2e00007-0000-0000-0000-000000000001', 'Personen',
+        'e2e00005-0000-0000-0000-000000000001', 'Personen');
+
+-- connector_endpoint_role grants ROLE_ADMIN on the BRP endpoint+instance pair so
+-- the Camel per-endpoint role check (EndpointAuthRouteBuilder) passes for `admin`.
+INSERT INTO connector_endpoint_role (id, connector_endpoint_id, connector_instance_id, role)
+VALUES ('e2e00008-0000-0000-0000-000000000001',
+        'e2e00007-0000-0000-0000-000000000001',
+        'e2e00006-0000-0000-0000-000000000001',
+        'ROLE_ADMIN');
+
+-- An ADP exposing the same BRP endpoint via `/aggregated-data-profiles/{name}`.
+-- roles=ROLE_ADMIN satisfies the per-profile Camel check (AuthRoute); the result
+-- transform passes the mock envelope through unchanged ('.').
+INSERT INTO aggregated_data_profile (
+    id, name, version, is_active, status,
+    connector_instance_id, connector_endpoint_id,
+    endpoint_transform, transform, roles, cache_enabled, cache_ttl
+)
+VALUES
+    ('e2e00009-0000-0000-0000-000000000001', 'e2e-brp-personen', '1.0.0', TRUE, 'FINAL',
+     'e2e00006-0000-0000-0000-000000000001', 'e2e00007-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0);
