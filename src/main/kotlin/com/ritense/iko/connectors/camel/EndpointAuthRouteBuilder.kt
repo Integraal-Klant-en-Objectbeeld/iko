@@ -16,6 +16,7 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.ritense.iko.OsivSafeReference
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_ENDPOINT_ID_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_ID_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
@@ -27,6 +28,7 @@ import org.apache.camel.builder.RouteBuilder
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.UUID
 
+@OsivSafeReference("getReferenceById results are only passed as query parameters; Hibernate reads the id and never initializes the proxy")
 class EndpointAuthRouteBuilder(
     val connectorEndpointRepository: ConnectorEndpointRepository,
     val connectorInstanceRepository: ConnectorInstanceRepository,
