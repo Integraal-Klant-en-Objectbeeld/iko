@@ -57,7 +57,7 @@ internal class RelationController(
         bindingResult: org.springframework.validation.BindingResult,
         httpServletResponse: HttpServletResponse,
     ): List<ModelAndView> {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(form.aggregatedDataProfileId).orElseThrow()
         val sources = sources(aggregatedDataProfile)
         val connectorInstance =
             connectorInstanceRepository.findById(aggregatedDataProfile.connectorInstanceId).orElse(null)
@@ -106,7 +106,7 @@ internal class RelationController(
         bindingResult: org.springframework.validation.BindingResult,
         httpServletResponse: HttpServletResponse,
     ): List<ModelAndView> {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(form.aggregatedDataProfileId).orElseThrow()
         val sources = sources(aggregatedDataProfile).apply { this.removeIf { it.id == form.id.toString() } }
         val connectorInstance = connectorInstanceRepository.findById(form.connectorInstanceId).orElse(null)
         val connectorEndpoints =
@@ -149,7 +149,7 @@ internal class RelationController(
         @Valid @ModelAttribute form: DeleteRelationForm,
         httpServletResponse: HttpServletResponse,
     ): ModelAndView {
-        val aggregatedDataProfile = aggregatedDataProfileRepository.getReferenceById(form.aggregatedDataProfileId)
+        val aggregatedDataProfile = aggregatedDataProfileRepository.findById(form.aggregatedDataProfileId).orElseThrow()
         aggregatedDataProfile.removeRelation(form)
         aggregatedDataProfileRepository.save(aggregatedDataProfile)
         if (aggregatedDataProfile.isActive) {

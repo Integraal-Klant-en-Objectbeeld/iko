@@ -145,6 +145,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockwebserver)
+    testImplementation(libs.archunit)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
