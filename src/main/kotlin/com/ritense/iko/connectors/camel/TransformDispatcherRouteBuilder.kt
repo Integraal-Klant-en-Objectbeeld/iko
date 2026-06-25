@@ -16,6 +16,7 @@
 
 package com.ritense.iko.connectors.camel
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_VERSION_VARIABLE
@@ -28,6 +29,17 @@ class TransformDispatcherRouteBuilder : RouteBuilder() {
         from(IkoRouteHelper.transform())
             .routeId("transform-dispatcher")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+            // Endpoint transform routes commonly build their request body with a `setBody: jq:`
+            // step. Since Camel 4.18 the jq language throws InvalidPayloadException when the
+            // message body is null (e.g. a GET request without a body), because the body can no
+            // longer be converted to a JsonNode. Seed an empty JSON object as the payload when no
+            // body is present so jq expressions have a valid input to evaluate against.
+            .process { exchange ->
+                val body = exchange.message.body
+                if (body == null || (body is String && body.isBlank())) {
+                    exchange.message.body = JsonNodeFactory.instance.objectNode()
+                }
+            }
             .choice()
             .`when` { exchange ->
                 exchange.context.hasEndpoint(
