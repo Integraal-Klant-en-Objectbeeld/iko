@@ -104,7 +104,12 @@ class SecurityConfig {
 
     @Bean
     fun oidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository: ClientRegistrationRepository) = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository).apply {
+        // Used when Keycloak RP-initiated logout can be performed (id token present).
         setPostLogoutRedirectUri("{baseUrl}/admin")
+        // Fallback when there is no id token to build an end-session request
+        // (e.g. the session/token already expired): without this the handler
+        // redirects to "/" instead of the admin entry point.
+        setDefaultTargetUrl("/admin")
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE - 100)
