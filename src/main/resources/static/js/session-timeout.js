@@ -7,8 +7,10 @@
             return;
         }
 
-        const timeoutSec = parseInt(modal.dataset.timeoutSeconds, 10);
-        const warningSec = parseInt(modal.dataset.warningSeconds, 10);
+        // These start from the values rendered at login but are updated from
+        // each ping response as the Keycloak refresh token slides.
+        let timeoutSec = parseInt(modal.dataset.timeoutSeconds, 10);
+        let warningSec = parseInt(modal.dataset.warningSeconds, 10);
         if (
             !Number.isFinite(timeoutSec) ||
             !Number.isFinite(warningSec) ||
@@ -21,13 +23,13 @@
             return;
         }
 
-        const idleMs = (timeoutSec - warningSec) * 1000;
+        let idleMs = (timeoutSec - warningSec) * 1000;
         // Keep-alive throttle: while the user is active, ping the server at
         // most once per this interval so genuine activity actually extends the
         // server session (not just the in-browser timer). Half the idle window
         // keeps the ping comfortably ahead of the warning, capped at 60s so a
         // long production timeout still refreshes frequently enough.
-        const keepAliveThrottleMs = Math.max(
+        let keepAliveThrottleMs = Math.max(
             Math.min(idleMs / 2, 60000),
             1000,
         );
@@ -73,10 +75,48 @@
             startCountdown();
         }
 
+        // Adopt the refreshed timeout/warning returned by a ping so the
+        // countdown tracks the (slid) Keycloak refresh-token expiry instead of
+        // the initial render values.
+        function applyTimeout(data) {
+            if (!data) return;
+            const nextTimeout = parseInt(data.timeoutSeconds, 10);
+            const nextWarning = parseInt(data.warningSeconds, 10);
+            if (
+                !Number.isFinite(nextTimeout) ||
+                !Number.isFinite(nextWarning) ||
+                nextTimeout <= nextWarning
+            ) {
+                console.warn(
+                    "[session-timeout] ignoring invalid ping timeout/warning",
+                    { nextTimeout, nextWarning },
+                );
+                return;
+            }
+            timeoutSec = nextTimeout;
+            warningSec = nextWarning;
+            idleMs = (timeoutSec - warningSec) * 1000;
+            keepAliveThrottleMs = Math.max(
+                Math.min(idleMs / 2, 60000),
+                1000,
+            );
+        }
+
+        // Refresh the Keycloak token at the server. Resolves with the parsed
+        // {timeoutSeconds, warningSeconds} JSON on success, or rejects on a
+        // non-OK response (e.g. 401 when the refresh failed) so the caller can
+        // log out.
         function pingServer() {
             lastServerContact = Date.now();
             console.debug("[session-timeout] keep-alive ping");
-            return fetch("/admin/session/ping", { credentials: "same-origin" });
+            return fetch("/admin/session/ping", {
+                credentials: "same-origin",
+            }).then(function (response) {
+                if (!response.ok) {
+                    return Promise.reject(response.status);
+                }
+                return response.json();
+            });
         }
 
         function resetTimer() {
@@ -92,7 +132,14 @@
             if (warningActive) return;
             resetTimer();
             if (Date.now() - lastServerContact >= keepAliveThrottleMs) {
-                pingServer().catch(function () {});
+                pingServer()
+                    .then(function (data) {
+                        applyTimeout(data);
+                        resetTimer();
+                    })
+                    .catch(function () {
+                        logout();
+                    });
             }
         }
 
@@ -107,15 +154,12 @@
             if (event) event.preventDefault();
             console.debug("[session-timeout] continue clicked");
             pingServer()
-                .then(function (response) {
+                .then(function (data) {
                     warningActive = false;
                     clearInterval(countdownTimer);
                     modal.removeAttribute("open");
-                    if (response.ok) {
-                        resetTimer();
-                    } else {
-                        logout();
-                    }
+                    applyTimeout(data);
+                    resetTimer();
                 })
                 .catch(function () {
                     logout();
