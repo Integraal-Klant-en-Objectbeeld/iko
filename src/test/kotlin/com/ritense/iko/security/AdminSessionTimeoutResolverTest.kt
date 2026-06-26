@@ -29,6 +29,7 @@ import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
+import java.util.Base64
 
 class AdminSessionTimeoutResolverTest {
     private val now = Instant.parse("2026-06-26T12:00:00Z")
@@ -113,6 +114,53 @@ class AdminSessionTimeoutResolverTest {
 
         assertThat(result.timeoutSeconds).isEqualTo(1800)
         assertThat(result.warningSeconds).isEqualTo(120)
+    }
+
+    @Test
+    fun `derives timeout from the refresh-token JWT exp claim when the stored expiry is null`() {
+        // Spring leaves OAuth2RefreshToken.expiresAt null (it ignores refresh_expires_in);
+        // the exp claim in the JWT payload (now + 300s) must be used instead.
+        stubRefreshTokenJwt(expSeconds = now.plusSeconds(300).epochSecond)
+
+        val result = resolver.resolve(authentication)
+
+        assertThat(result.timeoutSeconds).isEqualTo(300)
+        assertThat(result.warningSeconds).isEqualTo(120)
+    }
+
+    @Test
+    fun `falls back to static defaults when the refresh token is opaque (not a JWT)`() {
+        val client = mock<OAuth2AuthorizedClient>()
+        whenever(client.refreshToken).thenReturn(OAuth2RefreshToken("opaque-token-no-dots", now, null))
+        stubAuthorizedClient(client)
+
+        val result = resolver.resolve(authentication)
+
+        assertThat(result.timeoutSeconds).isEqualTo(1800)
+        assertThat(result.warningSeconds).isEqualTo(120)
+    }
+
+    @Test
+    fun `falls back to static defaults when the JWT payload has no exp claim`() {
+        val payload = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString("""{"sub":"admin"}""".toByteArray())
+        val client = mock<OAuth2AuthorizedClient>()
+        whenever(client.refreshToken).thenReturn(OAuth2RefreshToken("header.$payload.sig", now, null))
+        stubAuthorizedClient(client)
+
+        val result = resolver.resolve(authentication)
+
+        assertThat(result.timeoutSeconds).isEqualTo(1800)
+        assertThat(result.warningSeconds).isEqualTo(120)
+    }
+
+    private fun stubRefreshTokenJwt(expSeconds: Long) {
+        val payload = Base64.getUrlEncoder().withoutPadding()
+            .encodeToString("""{"exp":$expSeconds}""".toByteArray())
+        val client = mock<OAuth2AuthorizedClient>()
+        // expiresAt left null, mirroring what Spring actually stores for Keycloak.
+        whenever(client.refreshToken).thenReturn(OAuth2RefreshToken("header.$payload.sig", now, null))
+        stubAuthorizedClient(client)
     }
 
     private fun stubRefreshTokenExpiringAt(expiresAt: Instant) {
