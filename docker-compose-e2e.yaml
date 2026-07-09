@@ -90,7 +90,11 @@ services:
             redis:
                 condition: service_healthy
             keycloak:
-                condition: service_started
+                # The app fetches the Keycloak issuer's OIDC metadata eagerly at
+                # boot (OAuth2 client + resource-server issuer-uri). Wait until the
+                # realm's well-known endpoint answers, otherwise the app crashes on
+                # startup with "Connection refused" before Keycloak finishes importing.
+                condition: service_healthy
             haalcentraal-personen:
                 condition: service_started
 
@@ -131,6 +135,19 @@ services:
         volumes:
             - ./imports/keycloak:/opt/keycloak/data/import
         command: "start-dev --import-realm --http-port=8082 --hostname keycloak --http-enabled=true"
+        # The Keycloak image ships no curl/wget, so probe the realm's well-known
+        # endpoint over bash's /dev/tcp. This is the exact URL the app fetches at
+        # boot, so a healthy Keycloak guarantees the app's issuer lookup succeeds.
+        healthcheck:
+            test:
+                - "CMD"
+                - "bash"
+                - "-c"
+                - "exec 3<>/dev/tcp/localhost/8082; printf 'GET /auth/realms/valtimo/.well-known/openid-configuration HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3; head -n 1 <&3 | grep -q '200 OK'"
+            interval: 5s
+            timeout: 5s
+            retries: 30
+            start_period: 20s
 
     # BRP personen mock — the one external system the in-scope API specs hit.
     # Plain HTTP (no mTLS sidecar): the seeded `e2e-brp` connector calls it

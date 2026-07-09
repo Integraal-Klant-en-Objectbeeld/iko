@@ -52,6 +52,10 @@ jobs:
                 working-directory: e2e
                 run: npx playwright test
 
+            -   name: Dump stack logs on failure
+                if: failure()
+                run: docker compose -f docker-compose-e2e.yaml logs --no-color --timestamps
+
             -   name: Tear down e2e stack
                 if: always()
                 run: docker compose -f docker-compose-e2e.yaml down -v
