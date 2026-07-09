@@ -44,6 +44,10 @@ springBoot {
     buildInfo()
 }
 
+// Transient dependency of spring-boot-starter-web (embedded Tomcat).
+// Override addresses https://nvd.nist.gov/vuln/detail/CVE-2026-55276 and https://nvd.nist.gov/vuln/detail/CVE-2026-53434
+extra["tomcat.version"] = "10.1.56"
+
 dependencyManagement {
     dependencies {
         // Transient dependency of spring boot gradle plugin. Override addresses https://nvd.nist.gov/vuln/detail/CVE-2025-48924
