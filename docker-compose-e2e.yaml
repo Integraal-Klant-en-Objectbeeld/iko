@@ -4,10 +4,14 @@ name: iko-e2e
 #
 # Brings up the built app image (same Dockerfile as snapshot-releases.yml) plus
 # Postgres, Redis and a live Keycloak importing the `valtimo` realm. Keycloak runs
-# with `--hostname keycloak` so its issuer URI resolves inside the compose network
-# (no /etc/hosts hack). The app's OAuth2 issuer URIs point at the in-network
-# `http://keycloak:8082/auth/realms/valtimo`, while the browser/token clients on the
-# host reach Keycloak via the published 8082 port (same host:port, so issuer matches).
+# with `--hostname keycloak` so every issuer / authorization / logout URL it emits
+# uses `http://keycloak:8082`. The app's OAuth2 issuer URIs point at the in-network
+# `http://keycloak:8082/auth/realms/valtimo` and resolve via Docker DNS. The
+# password-grant API specs hit the published 8082 port directly (issuer matches,
+# since Keycloak stamps `keycloak:8082` regardless), but the browser-driven
+# auth-code flow is redirected to the `keycloak` host and must resolve it too —
+# so the host running Playwright maps `127.0.0.1 keycloak` in /etc/hosts (see the
+# e2e workflow and the local setup in CLAUDE.md).
 #
 # Actuator is published on 9090 for the readiness gate (scripts/wait-for-health.sh).
 #

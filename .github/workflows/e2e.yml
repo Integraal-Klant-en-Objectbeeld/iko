@@ -34,6 +34,16 @@ jobs:
                     cache: npm
                     cache-dependency-path: e2e/package-lock.json
 
+            # Keycloak runs with a fixed `--hostname keycloak`, so every issuer /
+            # authorization / logout URL it emits uses `http://keycloak:8082`. The
+            # browser-driven OAuth2 auth-code flow is redirected to that host and must
+            # resolve it, otherwise Chromium fails with net::ERR_NAME_NOT_RESOLVED.
+            # In-network (app -> Keycloak) and the password-grant API specs resolve it
+            # via Docker DNS, but the host running Playwright does not. Map it to the
+            # published loopback port, mirroring the documented local setup.
+            -   name: Map Keycloak hostname to loopback
+                run: echo "127.0.0.1 keycloak" | sudo tee -a /etc/hosts
+
             -   name: Bring up e2e stack
                 run: docker compose -f docker-compose-e2e.yaml up -d --build
 
