@@ -27,10 +27,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
+import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest
+import org.springframework.security.oauth2.client.endpoint.RestClientRefreshTokenTokenResponseClient
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -176,23 +175,18 @@ class SecurityConfig {
     }
 
     /**
-     * Authorized-client manager backed by a refresh-token provider. Used by the
-     * session keep-alive ping to exchange the stored refresh token for a new one
-     * at Keycloak, which slides the SSO idle timeout and yields a fresh
-     * `refresh_expires_in` for the recomputed session timeout.
+     * Token-response client for the OAuth2 refresh-token grant. The session
+     * keep-alive ping calls this directly (rather than going through an
+     * [org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager],
+     * which only refreshes when the *access* token is expired) so that every
+     * ping performs a real refresh round-trip to Keycloak. That both slides the
+     * SSO idle timeout and surfaces a revoked/expired refresh token as an
+     * [org.springframework.security.oauth2.core.OAuth2AuthorizationException],
+     * letting the ping log the admin out instead of silently extending a dead
+     * session.
      */
     @Bean
-    fun authorizedClientManager(
-        clientRegistrationRepository: ClientRegistrationRepository,
-        authorizedClientService: OAuth2AuthorizedClientService,
-    ): OAuth2AuthorizedClientManager = AuthorizedClientServiceOAuth2AuthorizedClientManager(
-        clientRegistrationRepository,
-        authorizedClientService,
-    ).apply {
-        setAuthorizedClientProvider(
-            OAuth2AuthorizedClientProviderBuilder.builder().refreshToken().build(),
-        )
-    }
+    fun refreshTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> = RestClientRefreshTokenTokenResponseClient()
 
     @Bean
     fun authRoute() = AuthRoute()
