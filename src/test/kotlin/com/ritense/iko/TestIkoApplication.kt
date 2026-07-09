@@ -24,6 +24,7 @@ import org.springframework.boot.runApplication
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.jwt.JwtDecoder
 
@@ -44,6 +45,10 @@ internal class IkoTestConfiguration {
     @Bean
     @Primary
     fun clientRegistrationRepository(): ClientRegistrationRepository = mock(ClientRegistrationRepository::class.java)
+
+    @Bean
+    @Primary
+    fun authorizedClientService(): OAuth2AuthorizedClientService = mock(OAuth2AuthorizedClientService::class.java)
 }
 
 fun main(args: Array<String>) {

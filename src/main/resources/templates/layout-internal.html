@@ -403,10 +403,8 @@
             class="cds-theme-zone-g10"
             data-carbon-theme="g10"
             prevent-close-on-click-outside="true"
-            th:with="timeoutSeconds=${@adminSessionProperties.timeoutSeconds},
-                     warningSeconds=${@adminSessionProperties.warningBeforeSeconds}"
-            th:data-timeout-seconds="${timeoutSeconds}"
-            th:data-warning-seconds="${warningSeconds}"
+            th:data-timeout-seconds="${sessionTimeoutSeconds}"
+            th:data-warning-seconds="${sessionWarningSeconds}"
         >
             <cds-modal-header>
                 <cds-modal-heading>

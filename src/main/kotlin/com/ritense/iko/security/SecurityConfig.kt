@@ -27,6 +27,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -100,7 +104,12 @@ class SecurityConfig {
 
     @Bean
     fun oidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository: ClientRegistrationRepository) = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository).apply {
+        // Used when Keycloak RP-initiated logout can be performed (id token present).
         setPostLogoutRedirectUri("{baseUrl}/admin")
+        // Fallback when there is no id token to build an end-session request
+        // (e.g. the session/token already expired): without this the handler
+        // redirects to "/" instead of the admin entry point.
+        setDefaultTargetUrl("/admin")
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE - 100)
@@ -164,6 +173,25 @@ class SecurityConfig {
             }
 
         return http.build()
+    }
+
+    /**
+     * Authorized-client manager backed by a refresh-token provider. Used by the
+     * session keep-alive ping to exchange the stored refresh token for a new one
+     * at Keycloak, which slides the SSO idle timeout and yields a fresh
+     * `refresh_expires_in` for the recomputed session timeout.
+     */
+    @Bean
+    fun authorizedClientManager(
+        clientRegistrationRepository: ClientRegistrationRepository,
+        authorizedClientService: OAuth2AuthorizedClientService,
+    ): OAuth2AuthorizedClientManager = AuthorizedClientServiceOAuth2AuthorizedClientManager(
+        clientRegistrationRepository,
+        authorizedClientService,
+    ).apply {
+        setAuthorizedClientProvider(
+            OAuth2AuthorizedClientProviderBuilder.builder().refreshToken().build(),
+        )
     }
 
     @Bean
