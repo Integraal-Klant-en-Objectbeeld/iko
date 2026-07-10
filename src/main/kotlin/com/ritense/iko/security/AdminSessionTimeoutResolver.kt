@@ -16,15 +16,8 @@
 
 package com.ritense.iko.security
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.security.core.Authentication
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
-import org.springframework.security.oauth2.core.OAuth2RefreshToken
+import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Component
-import java.time.Clock
-import java.time.Instant
-import java.util.Base64
 
 /**
  * Per-session admin UI timeout, in seconds. The countdown shown by the
@@ -36,68 +29,35 @@ internal data class SessionTimeout(
 )
 
 /**
- * Resolves the admin UI session timeout from the logged-in user's Keycloak
- * refresh-token expiry rather than the static [AdminSessionProperties] config.
+ * Resolves the admin UI session timeout by querying the servlet [HttpSession]
+ * directly, rather than re-parsing the Keycloak refresh token on every page
+ * render.
  *
- * The timeout is the number of seconds remaining on the refresh token, which
- * represents "time until forced re-login". The warning window is derived as
- * `min(configured warning-before, timeout / 2)` so the JS `timeoutSec >
- * warningSec` guard always holds.
+ * The session's `maxInactiveInterval` is the authoritative "time until the
+ * server ends the session for inactivity". It is initialised from
+ * `server.servlet.session.timeout` at login and re-seeded from the refreshed
+ * Keycloak `refresh_expires_in` on every keep-alive ping (see
+ * [com.ritense.iko.mvc.controller.SessionController]), so reading it here yields
+ * the same token-driven timeout without any token/JWT plumbing.
  *
- * Spring's default token-response converter only populates the *access* token
- * expiry (`expires_in`); it ignores Keycloak's non-standard `refresh_expires_in`,
- * so [OAuth2RefreshToken.getExpiresAt] is virtually always `null`. Keycloak
- * refresh tokens are JWTs carrying an `exp` claim, so when the stored expiry is
- * missing this reads `exp` straight from the token payload.
- *
- * If the authorized client, refresh token or its expiry cannot be read (no
- * client, opaque/unparseable token, missing `exp`), this falls back to the
- * static [AdminSessionProperties] defaults so an admin is never locked out by a
- * transient store issue.
+ * The warning window is derived as `min(configured warning-before, timeout / 2)`
+ * so the JS `timeoutSec > warningSec` guard always holds. When no session is
+ * available (or its interval is non-positive, i.e. "never expires") this falls
+ * back to the static [AdminSessionProperties] defaults so the modal is always
+ * driven by sane values.
  */
 @Component
 internal class AdminSessionTimeoutResolver(
-    private val authorizedClientService: OAuth2AuthorizedClientService,
     private val adminSessionProperties: AdminSessionProperties,
-    private val clock: Clock = Clock.systemUTC(),
-    private val objectMapper: ObjectMapper = ObjectMapper(),
 ) {
-    fun resolve(authentication: Authentication): SessionTimeout {
-        val refreshToken = authorizedClientService
-            .loadAuthorizedClient<OAuth2AuthorizedClient>(REGISTRATION_ID, authentication.name)
-            ?.refreshToken
-
-        val expiresAt = refreshToken?.expiresAt
-            ?: refreshToken?.tokenValue?.let { refreshTokenJwtExpiry(it) }
-
-        val timeoutSeconds = expiresAt
-            ?.let { (it.epochSecond - clock.instant().epochSecond).coerceAtLeast(0) }
+    fun resolve(session: HttpSession?): SessionTimeout {
+        val timeoutSeconds = session?.maxInactiveInterval
+            ?.toLong()
+            ?.takeIf { it > 0 }
             ?: adminSessionProperties.timeoutSeconds
 
         val warningSeconds = minOf(adminSessionProperties.warningBeforeSeconds, timeoutSeconds / 2)
 
         return SessionTimeout(timeoutSeconds, warningSeconds)
-    }
-
-    /**
-     * Reads the `exp` claim (epoch seconds) from a Keycloak refresh-token JWT
-     * without verifying the signature: the token is held server-side and was
-     * issued by Keycloak over TLS, so this is only extracting the expiry already
-     * decided by the realm. Returns `null` for any non-JWT/opaque token, a
-     * malformed payload or a missing/non-numeric `exp`, driving the static
-     * fallback.
-     */
-    private fun refreshTokenJwtExpiry(tokenValue: String): Instant? = runCatching {
-        val parts = tokenValue.split(".")
-        if (parts.size < 2) return null
-        val payload = Base64.getUrlDecoder().decode(parts[1])
-        objectMapper.readTree(payload)
-            .get("exp")
-            ?.takeIf { it.isNumber }
-            ?.let { Instant.ofEpochSecond(it.asLong()) }
-    }.getOrNull()
-
-    companion object {
-        private const val REGISTRATION_ID = "keycloak"
     }
 }

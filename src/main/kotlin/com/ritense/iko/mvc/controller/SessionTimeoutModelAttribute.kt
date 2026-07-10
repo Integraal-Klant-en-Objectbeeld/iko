@@ -17,6 +17,7 @@
 package com.ritense.iko.mvc.controller
 
 import com.ritense.iko.security.AdminSessionTimeoutResolver
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.Authentication
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -33,11 +34,11 @@ internal class SessionTimeoutModelAttribute(
     private val adminSessionTimeoutResolver: AdminSessionTimeoutResolver,
 ) {
     @ModelAttribute
-    fun sessionTimeout(authentication: Authentication?, model: Model) {
+    fun sessionTimeout(authentication: Authentication?, request: HttpServletRequest, model: Model) {
         if (authentication == null) {
             return
         }
-        val timeout = adminSessionTimeoutResolver.resolve(authentication)
+        val timeout = adminSessionTimeoutResolver.resolve(request.getSession(false))
         model.addAttribute("sessionTimeoutSeconds", timeout.timeoutSeconds)
         model.addAttribute("sessionWarningSeconds", timeout.warningSeconds)
     }
