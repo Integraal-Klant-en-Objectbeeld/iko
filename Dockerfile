@@ -1,4 +1,4 @@
-FROM amazoncorretto:21 AS build
+FROM eclipse-temurin:21-alpine AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN chmod +x /app/gradlew
 RUN ./gradlew :build -x integrationTest -x spotlessCheck
 
 # also set platform for final image
-FROM amazoncorretto:21
+FROM eclipse-temurin:21-alpine
 
 WORKDIR /app
 
