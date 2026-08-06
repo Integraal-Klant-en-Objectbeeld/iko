@@ -18,6 +18,7 @@ package com.ritense.iko.connectors.camel
 
 import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
+import com.ritense.iko.connectors.processor.TraceSpanProcessor
 import org.apache.camel.builder.RouteBuilder
 
 class ConnectorDispatcherRouteBuilder : RouteBuilder() {
@@ -25,6 +26,7 @@ class ConnectorDispatcherRouteBuilder : RouteBuilder() {
         from(IkoRouteHelper.connector())
             .routeId("connector-dispatcher")
             .routeConfigurationId(GLOBAL_ERROR_HANDLER_CONFIGURATION)
+            .process(TraceSpanProcessor())
             .toD(IkoRouteHelper.connector("\${variable.connectorTag}:\${variable.connectorVersion}"))
     }
 }
