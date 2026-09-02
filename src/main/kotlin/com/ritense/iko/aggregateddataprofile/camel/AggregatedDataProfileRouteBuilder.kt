@@ -17,6 +17,7 @@
 package com.ritense.iko.aggregateddataprofile.camel
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
@@ -30,10 +31,13 @@ import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_INSTANCE_TAG_VARIA
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_VERSION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.DEBUG_PRE_AGGREGATION_JSON_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.DEBUG_PRE_RESULT_TRANSFORM_JSON_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import com.ritense.iko.camel.IkoRouteHelper
 import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFIGURATION
+import com.ritense.iko.camel.TraceBodyJsonProcessor
 import com.ritense.iko.connectors.error.ConnectorEndpointNotFound
 import com.ritense.iko.connectors.error.ConnectorInstanceNotFound
 import com.ritense.iko.connectors.repository.ConnectorEndpointRepository
@@ -50,6 +54,7 @@ class AggregatedDataProfileRouteBuilder(
     private val connectorInstanceRepository: ConnectorInstanceRepository,
     private val connectorEndpointRepository: ConnectorEndpointRepository,
     private val cacheProcessor: CacheProcessor,
+    private val objectMapper: ObjectMapper,
 ) : RouteBuilder(camelContext) {
 
     override fun configure() {
@@ -100,11 +105,13 @@ class AggregatedDataProfileRouteBuilder(
             .let {
                 if (level1Relations.isNotEmpty()) {
                     // enrich root exchange with multicast routes from relations
-                    it.enrich("direct:multicast:${aggregatedDataProfile.id}", PairAggregator)
+                    it.process(TraceBodyJsonProcessor(objectMapper, DEBUG_PRE_AGGREGATION_JSON_VARIABLE))
+                        .enrich("direct:multicast:${aggregatedDataProfile.id}", PairAggregator)
                 } else {
                     it
                 }
             }
+            .process(TraceBodyJsonProcessor(objectMapper, DEBUG_PRE_RESULT_TRANSFORM_JSON_VARIABLE))
             // transform adp result
             .transform(jq(aggregatedDataProfile.resultTransform.expression))
             .process {
@@ -207,6 +214,7 @@ class AggregatedDataProfileRouteBuilder(
                 }
             }
             .to("direct:relation:${currentRelation.id}:loop")
+            .process(TraceBodyJsonProcessor(objectMapper, DEBUG_PRE_RESULT_TRANSFORM_JSON_VARIABLE))
             .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
 
@@ -230,6 +238,7 @@ class AggregatedDataProfileRouteBuilder(
             }
             .to("direct:relation:${currentRelation.id}:loop") // Executes the relation route
             .end()
+            .process(TraceBodyJsonProcessor(objectMapper, DEBUG_PRE_RESULT_TRANSFORM_JSON_VARIABLE))
             .transform(jq(currentRelation.resultTransform.expression))
             .unmarshal().json()
 
@@ -262,7 +271,8 @@ class AggregatedDataProfileRouteBuilder(
             .removeVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE)
             .let {
                 if (relations.isNotEmpty()) {
-                    it.enrich("direct:multicast:${currentRelation.id}", PairAggregator)
+                    it.process(TraceBodyJsonProcessor(objectMapper, DEBUG_PRE_AGGREGATION_JSON_VARIABLE))
+                        .enrich("direct:multicast:${currentRelation.id}", PairAggregator)
                 } else {
                     it
                 }

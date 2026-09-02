@@ -23,6 +23,9 @@
             <cds-tab id="tab-trace" target="panel-trace" value="trace">
                 Trace
             </cds-tab>
+            <cds-tab id="tab-flow" target="panel-flow" value="flow">
+                Flow
+            </cds-tab>
             <cds-tab
                 id="tab-error"
                 target="panel-error"
@@ -209,6 +212,43 @@
                 </cds-table>
             </div>
             <div
+                id="panel-flow"
+                role="tabpanel"
+                aria-labelledby="tab-flow"
+                hidden=""
+            >
+                <p
+                    th:if="${traceGraphJson == null}"
+                    class="trace-diagram-empty"
+                >
+                    Run "Get results" to visualise the trace flow.
+                </p>
+                <div
+                    th:if="${traceGraphJson != null}"
+                    class="trace-flow-controls"
+                >
+                    <span class="trace-flow-controls-label">Detail level</span>
+                    <cds-toggle
+                        id="trace-flow-mode"
+                        size="sm"
+                        hide-label
+                        label-a="Advanced"
+                        label-b="Simple"
+                    ></cds-toggle>
+                </div>
+                <!-- Server-produced graph JSON; th:utext to keep it unescaped
+                     (Jackson output, not user HTML). Non-executable. -->
+                <script
+                    type="application/json"
+                    id="trace-graph-data"
+                    th:utext="${traceGraphJson != null ? traceGraphJson : '{}'}"
+                ></script>
+                <div
+                    data-trace-diagram="#trace-graph-data"
+                    class="trace-diagram"
+                ></div>
+            </div>
+            <div
                 id="panel-error"
                 role="tabpanel"
                 aria-labelledby="tab-error"
@@ -227,4 +267,75 @@
             </div>
         </div>
     </cds-tile>
+
+    <!-- Detail modal for a clicked Flow node/link. Populated by
+         trace-diagram-init.js (openTraceModal). Left = per-step field list;
+         right = Input (top) and Output/Response or Error (bottom). -->
+    <cds-modal id="trace-step-modal" size="lg">
+        <cds-modal-header>
+            <cds-modal-close-button></cds-modal-close-button>
+            <cds-modal-heading>
+                <span id="trace-modal-label"></span>
+                <span id="trace-modal-pills"></span>
+                <cds-tag
+                    id="trace-modal-status"
+                    type="gray"
+                    size="sm"
+                ></cds-tag>
+            </cds-modal-heading>
+        </cds-modal-header>
+        <cds-modal-body>
+            <!-- Two tabs inside the modal: step Details (default; per-type fields incl. read-only Ace
+                 code viewers) and the raw Exchange input/output (Ace viewers). Each editor owns its own
+                 scroll and autosizes, so the modal body never overflows — no fade mask. -->
+            <cds-tabs id="trace-modal-tabs" value="details">
+                <cds-tab
+                    id="trace-modal-tab-details"
+                    target="trace-modal-panel-details"
+                    value="details"
+                >
+                    Details
+                </cds-tab>
+                <cds-tab
+                    id="trace-modal-tab-exchange"
+                    target="trace-modal-panel-exchange"
+                    value="exchange"
+                >
+                    Exchange
+                </cds-tab>
+            </cds-tabs>
+
+            <div
+                id="trace-modal-panel-details"
+                role="tabpanel"
+                aria-labelledby="trace-modal-tab-details"
+            >
+                <!-- Field rows (incl. JQ / context code blocks) built by openTraceModal. -->
+                <div id="trace-modal-fields"></div>
+            </div>
+
+            <div
+                id="trace-modal-panel-exchange"
+                role="tabpanel"
+                aria-labelledby="trace-modal-tab-exchange"
+                hidden=""
+            >
+                <!-- Both sections use the same label/value grid as the Details tab, filled by
+                     openTraceModal (buildDetailGrid). -->
+                <div id="trace-modal-input-section">
+                    <h5 class="trace-modal-section-title">Exchange input</h5>
+                    <div id="trace-modal-input-fields"></div>
+                </div>
+                <div id="trace-modal-output-section" hidden="">
+                    <h5 class="trace-modal-section-title">Exchange output</h5>
+                    <div id="trace-modal-output-fields"></div>
+                </div>
+            </div>
+        </cds-modal-body>
+        <cds-modal-footer>
+            <cds-modal-footer-button kind="primary" data-modal-close>
+                Close
+            </cds-modal-footer-button>
+        </cds-modal-footer>
+    </cds-modal>
 </div>
