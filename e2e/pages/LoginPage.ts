@@ -35,22 +35,24 @@ export class LoginPage {
     /** Open the header switcher panel and click `#logout-link`; admin-ui.js builds a POST form to /logout with the CSRF token. */
     async logout(): Promise<void> {
         // #logout-link lives inside the collapsed cds-header-panel#switcher-panel
-        // (positioned off-canvas until expanded). The toggle action sets
-        // expanded="true" on the panel, but Carbon hydration can drop an early
-        // click — so poll: click the toggle only while the panel is collapsed,
-        // and wait until it reports expanded before clicking logout. Clicking
-        // only when collapsed avoids toggling it back closed.
+        // (positioned off-canvas until expanded). The toggle action adds the
+        // `expanded` attribute, but Carbon hydration can drop an early click —
+        // so poll: click the toggle only while the panel is collapsed, and wait
+        // until it reports expanded before clicking logout. Clicking only when
+        // collapsed avoids toggling it back closed.
+        // Presence, not value: Carbon web-components <= v2.47 set
+        // expanded="true", >= v2.60 uses toggleAttribute (empty value).
         const panel = this.page.locator("#switcher-panel");
         const toggle = this.page.locator(
             'cds-header-global-action[panel-id="switcher-panel"]',
         );
+        const isExpanded = () =>
+            panel.evaluate((el) => el.hasAttribute("expanded"));
         await expect(async () => {
-            if ((await panel.getAttribute("expanded")) !== "true") {
+            if (!(await isExpanded())) {
                 await toggle.click();
             }
-            await expect(panel).toHaveAttribute("expanded", "true", {
-                timeout: 1000,
-            });
+            expect(await isExpanded()).toBe(true);
         }).toPass({ timeout: 15000 });
         await this.page.locator("#logout-link").click();
         // Logout is a multi-hop chain: POST /logout -> Keycloak end-session ->
