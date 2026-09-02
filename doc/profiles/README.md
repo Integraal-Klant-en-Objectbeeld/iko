@@ -82,7 +82,7 @@ When a profile is requested via `GET /aggregated-data-profiles/{name}?id={extern
 
 ## Debug / Testing
 
-Profiles can be tested via the admin UI debug panel (`POST /admin/aggregated-data-profiles/debug`). This enables Camel's BacklogTracer and returns both the JSON result and a trace of all Camel route events, which is useful for diagnosing transformation and routing issues.
+Profiles can be tested via the admin UI **Preview** tab. This enables Camel's BacklogTracer for the single request and shows the JSON result, a flat trace, and a visual **Flow** graph of every step — useful for diagnosing transformation and routing issues. See [Debugging a profile (Preview / Flow)](./debugging.md).
 
 ## Managing Profiles
 

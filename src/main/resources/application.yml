@@ -151,6 +151,8 @@ iko:
                 warning-before: 2m
     crypto:
         key: # ENV var
+    debug:
+        show-headers: ${IKO_DEBUG_SHOW_HEADERS:false}
 
 logging:
     level:
