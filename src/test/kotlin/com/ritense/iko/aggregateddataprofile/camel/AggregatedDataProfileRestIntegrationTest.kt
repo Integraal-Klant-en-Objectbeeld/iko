@@ -16,9 +16,13 @@
 
 package com.ritense.iko.aggregateddataprofile.camel
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.BaseIntegrationTest
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.service.CacheService
+import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import org.apache.camel.CamelContext
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
@@ -34,6 +38,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.request
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.Base64
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @AutoConfigureMockMvc
 internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() {
@@ -52,6 +58,9 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
     @Autowired
     private lateinit var objectMapper: com.fasterxml.jackson.databind.ObjectMapper
+
+    @Autowired
+    private lateinit var camelContext: CamelContext
 
     @Test
     @WithMockUser(roles = ["ADMIN"])
@@ -189,6 +198,89 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
             }
             .hasSize(2)
     }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `Concurrent relation requests with distinct residents never mutate the shared context and resolve their own data`() {
+        // The relation branch reads the per-request endpointTransformContext variable and injects the
+        // parent body under `.source`. Under Camel's shallow-copy multicast/split semantics that ObjectNode
+        // is shared by reference across sibling branches, so mutating it in place lets one branch (or, under
+        // the shared default pool, one request) observe another's `.source`. The fix deep-copies before the
+        // write. This test drives the deployed relation route directly with two distinct residents in parallel
+        // and asserts (a) the caller-owned context ObjectNode is never mutated in place -- the deterministic
+        // regression guard that fails on the pre-fix in-place mutation -- and (b) each request resolves its own
+        // resident's owner.
+        val profile = aggregatedDataProfileRepository.findByName("pet-household")
+            ?: throw AssertionError("Profile with name pet-household not found in repository")
+        val ownerRelation = profile.relations.first { it.propertyName == "owner" }
+        val relationUri = "direct:relation_${ownerRelation.id}"
+
+        // Two residents mapped to two distinct owners: ownerId 1 -> "Alice", ownerId 5 -> "Eva".
+        val residents = listOf(
+            ResidentCase(idParam = "resident-A", ownerId = 1, expectedOwner = "Alice"),
+            ResidentCase(idParam = "resident-B", ownerId = 5, expectedOwner = "Eva"),
+        )
+
+        val producerTemplate = camelContext.createProducerTemplate()
+        val executor = Executors.newFixedThreadPool(residents.size)
+        try {
+            val futures = residents.map { resident ->
+                executor.submit<ResidentResult> {
+                    // A fresh, caller-owned context per request. If the relation branch mutates this in place,
+                    // it gains a `source` field; the fix keeps it as the immutable request context.
+                    val sharedContext: ObjectNode = objectMapper.createObjectNode().apply {
+                        put("idParam", resident.idParam)
+                        set<JsonNode>("sortParams", objectMapper.createObjectNode())
+                        set<JsonNode>("filterParams", objectMapper.createObjectNode())
+                    }
+                    val parentBody: JsonNode = objectMapper.createObjectNode().put("ownerId", resident.ownerId)
+
+                    val result = producerTemplate.send(relationUri) { exchange ->
+                        exchange.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, sharedContext)
+                        exchange.message.body = parentBody
+                    }
+                    result.exception?.let { throw it }
+
+                    ResidentResult(
+                        contextMutatedInPlace = sharedContext.has("source"),
+                        responseBody = result.message.getBody(String::class.java),
+                        expectedOwner = resident.expectedOwner,
+                    )
+                }
+            }
+
+            val results = futures.map { it.get(30, TimeUnit.SECONDS) }
+
+            results.forEach { result ->
+                assertThat(result.contextMutatedInPlace)
+                    .withFailMessage {
+                        "Relation branch mutated the shared endpointTransformContext in place " +
+                            "(a `source` field leaked onto the caller's request context); it must deep-copy first"
+                    }
+                    .isFalse()
+                assertThat(result.responseBody)
+                    .withFailMessage {
+                        "Expected relation to resolve owner '${result.expectedOwner}', got '${result.responseBody}'"
+                    }
+                    .contains(result.expectedOwner)
+            }
+        } finally {
+            executor.shutdownNow()
+            producerTemplate.stop()
+        }
+    }
+
+    private data class ResidentCase(
+        val idParam: String,
+        val ownerId: Int,
+        val expectedOwner: String,
+    )
+
+    private data class ResidentResult(
+        val contextMutatedInPlace: Boolean,
+        val responseBody: String?,
+        val expectedOwner: String,
+    )
 
     @Test
     @WithMockUser(roles = ["UNKNOWN"])
