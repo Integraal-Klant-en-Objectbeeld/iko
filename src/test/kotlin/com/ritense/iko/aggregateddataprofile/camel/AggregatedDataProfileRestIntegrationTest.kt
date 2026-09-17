@@ -24,6 +24,7 @@ import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch
@@ -42,6 +43,9 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
 
     @Autowired
     private lateinit var cacheService: CacheService
+
+    @Autowired
+    private lateinit var redisTemplate: StringRedisTemplate
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -149,6 +153,41 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
                 .withFailMessage { "Cache should contain an entry for profile $profileName (${profile.id})" }
                 .isTrue()
         } ?: throw AssertionError("Profile with name $profileName not found in repository")
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `Two different residents produce two distinct Redis cache keys`() {
+        val profileName = "resident-key-collision"
+        val profile = aggregatedDataProfileRepository.findByName(profileName)
+            ?: throw AssertionError("Profile with name $profileName not found in repository")
+        val keyPrefix = "${profile.id}:"
+
+        cacheService.evictByPrefix(profile.id.toString())
+        assertThat(redisTemplate.keys("$keyPrefix*")).isEmpty()
+
+        // Resident A
+        val resultA = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=resident-A"))
+            .andExpect(request().asyncStarted())
+            .andReturn()
+        mockMvc.perform(asyncDispatch(resultA))
+            .andExpect(status().isOk)
+
+        // Resident B, within the TTL window of A's entry
+        val resultB = mockMvc.perform(get("/aggregated-data-profiles/$profileName?id=resident-B"))
+            .andExpect(request().asyncStarted())
+            .andReturn()
+        mockMvc.perform(asyncDispatch(resultB))
+            .andExpect(status().isOk)
+
+        // Pre-fix the two residents collide on a single key; after the fix the resident
+        // identifier is always part of the key, so two distinct keys must exist.
+        assertThat(redisTemplate.keys("$keyPrefix*"))
+            .withFailMessage {
+                "Expected two distinct cache keys for two residents under prefix '$keyPrefix', " +
+                    "found ${redisTemplate.keys("$keyPrefix*").size}"
+            }
+            .hasSize(2)
     }
 
     @Test

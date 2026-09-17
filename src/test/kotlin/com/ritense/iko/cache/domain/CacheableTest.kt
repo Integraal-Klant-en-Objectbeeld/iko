@@ -16,6 +16,7 @@
 
 package com.ritense.iko.cache.domain
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileCacheSetting
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfileSchema
@@ -25,6 +26,7 @@ import com.ritense.iko.aggregateddataprofile.domain.RelationCacheSettings
 import com.ritense.iko.aggregateddataprofile.domain.RelationEndpointTransform
 import com.ritense.iko.aggregateddataprofile.domain.Roles
 import com.ritense.iko.aggregateddataprofile.domain.Transform
+import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import org.apache.camel.Exchange
 import org.apache.camel.impl.DefaultCamelContext
@@ -35,6 +37,15 @@ import java.util.UUID
 
 class CacheableTest {
     private val context = DefaultCamelContext()
+    private val objectMapper = jacksonObjectMapper()
+
+    private fun transformContext(idParam: String) = objectMapper.valueToTree<com.fasterxml.jackson.databind.JsonNode>(
+        mapOf(
+            "idParam" to idParam,
+            "sortParams" to emptyMap<String, Any>(),
+            "filterParams" to emptyMap<String, Any>(),
+        ),
+    )
 
     @Test
     fun `adp toCacheable builds cache key and handles hit`() {
@@ -110,7 +121,7 @@ class CacheableTest {
         val key = cacheable.cacheKey(exchange)
 
         assertThat(key).contains(relation.id.toString())
-        assertThat(key).contains(relation.endpointTransform.toString())
+        assertThat(key).contains(relation.endpointTransform.expression)
         assertThat(key).contains("relationMapping")
         assertThat(key).contains(relation.resultTransform.expression)
         assertThat(cacheable.cacheSettings.enabled).isTrue()
@@ -131,5 +142,84 @@ class CacheableTest {
         )
 
         assertThat(exchange.getVariable("cacheHit_${relation.id}", Boolean::class.java)).isFalse()
+    }
+
+    @Test
+    fun `adp cacheKey differs when only idParam differs`() {
+        val profile = AggregatedDataProfile(
+            id = UUID.randomUUID(),
+            name = "pets",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+            // deliberately omits .idParam, so the JQ output is identical for both residents
+            endpointTransform = EndpointTransform("{}"),
+            resultTransform = Transform("."),
+            aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(
+                enabled = true,
+                timeToLive = 250,
+            ),
+            roles = Roles("ROLE_ADMIN"),
+            schema = null,
+        )
+        val cacheable = profile.toCacheable()
+
+        val exchangeA = DefaultExchange(context)
+        exchangeA.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, transformContext("A"))
+        exchangeA.setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, "mapping")
+
+        val exchangeB = DefaultExchange(context)
+        exchangeB.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, transformContext("B"))
+        exchangeB.setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, "mapping")
+
+        val keyA = cacheable.cacheKey(exchangeA)
+        val keyB = cacheable.cacheKey(exchangeB)
+
+        assertThat(keyA).isNotEqualTo(keyB)
+        assertThat(keyA).contains("A")
+        assertThat(keyB).contains("B")
+    }
+
+    @Test
+    fun `relation cacheKey differs when only idParam differs and contains the relation JQ expression`() {
+        val profile = AggregatedDataProfile(
+            id = UUID.randomUUID(),
+            name = "pets",
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+            endpointTransform = EndpointTransform("."),
+            resultTransform = Transform("."),
+            roles = Roles("ROLE_TEST"),
+            aggregatedDataProfileCacheSetting = AggregatedDataProfileCacheSetting(),
+            schema = null,
+        )
+        val relation = Relation(
+            aggregatedDataProfile = profile,
+            propertyName = "owner",
+            sourceId = profile.id,
+            endpointTransform = RelationEndpointTransform("{\"id\": .source.ownerId}"),
+            connectorInstanceId = UUID.randomUUID(),
+            connectorEndpointId = UUID.randomUUID(),
+            resultTransform = Transform("."),
+            relationCacheSettings = RelationCacheSettings(
+                enabled = true,
+                timeToLive = 500,
+            ),
+        )
+        val cacheable = relation.toCacheable()
+
+        val exchangeA = DefaultExchange(context)
+        exchangeA.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, transformContext("A"))
+        exchangeA.setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, "relationMapping")
+
+        val exchangeB = DefaultExchange(context)
+        exchangeB.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, transformContext("B"))
+        exchangeB.setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, "relationMapping")
+
+        val keyA = cacheable.cacheKey(exchangeA)
+        val keyB = cacheable.cacheKey(exchangeB)
+
+        assertThat(keyA).isNotEqualTo(keyB)
+        assertThat(keyA).contains(relation.endpointTransform.expression)
+        assertThat(keyB).contains(relation.endpointTransform.expression)
     }
 }
