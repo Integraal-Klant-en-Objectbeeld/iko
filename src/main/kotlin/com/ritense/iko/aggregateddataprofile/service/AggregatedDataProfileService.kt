@@ -16,6 +16,7 @@
 
 package com.ritense.iko.aggregateddataprofile.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.iko.aggregateddataprofile.camel.AggregatedDataProfileRouteBuilder
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.EntityStatus
@@ -42,6 +43,7 @@ open class AggregatedDataProfileService(
     private val connectorService: ConnectorService,
     private val routeDependencyService: RouteDependencyService,
     private val ikoCacheProcessor: CacheProcessor,
+    private val objectMapper: ObjectMapper,
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -83,6 +85,7 @@ open class AggregatedDataProfileService(
                 connectorEndpointRepository = connectorEndpointRepository,
                 connectorInstanceRepository = connectorInstanceRepository,
                 cacheProcessor = ikoCacheProcessor,
+                objectMapper = objectMapper,
             ),
         )
     }

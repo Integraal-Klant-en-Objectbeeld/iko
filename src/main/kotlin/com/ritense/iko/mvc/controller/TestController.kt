@@ -24,10 +24,12 @@ import com.ritense.iko.camel.IkoConstants.Headers.ADP_ENDPOINT_TRANSFORM_CONTEXT
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_PROFILE_NAME_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Headers.ADP_VERSION_PARAM_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
+import com.ritense.iko.camel.OutgoingHttpTraceRegistry
 import com.ritense.iko.mvc.controller.HomeController.Companion.BASE_FRAGMENT_ADP
 import com.ritense.iko.mvc.model.ExceptionResponse
 import com.ritense.iko.mvc.model.TestAggregatedDataProfileForm
 import com.ritense.iko.mvc.model.TraceEvent
+import com.ritense.iko.mvc.model.trace.FlowTraceGraphBuilder
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -51,6 +53,8 @@ internal class TestController(
     private val objectMapper: ObjectMapper,
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
     private val aggregatedDataProfileService: AggregatedDataProfileService,
+    private val traceGraphBuilder: FlowTraceGraphBuilder,
+    private val outgoingHttpTraceRegistry: OutgoingHttpTraceRegistry,
 ) {
     @PostMapping(
         path = ["/aggregated-data-profiles/debug"],
@@ -120,18 +124,21 @@ internal class TestController(
         }
 
         // Fetch traces
-        val traces = tracer.dumpAllTracedMessages()?.mapNotNull {
-            it?.let { TraceEvent.from(it) }
-        } ?: emptyList()
+        val raw = tracer.dumpAllTracedMessages()?.filterNotNull() ?: emptyList()
 
         // Disable tracing
         tracer.isEnabled = false
+
+        val outgoing = outgoingHttpTraceRegistry.drain(ikoTraceId)
+        val traces = raw.map { TraceEvent.from(it) }
+        val traceGraph = traceGraphBuilder.build(raw, aggregatedDataProfile, outgoing)
 
         return ModelAndView("$BASE_FRAGMENT_ADP/preview-panel :: preview-panel").apply {
             addObject("form", form)
             addObject("endpointTransformContext", form.endpointTransformContext)
             addObject("testResult", result)
             addObject("traces", traces)
+            addObject("traceGraphJson", objectMapper.writeValueAsString(traceGraph))
             addObject("exception", exception)
         }
     }

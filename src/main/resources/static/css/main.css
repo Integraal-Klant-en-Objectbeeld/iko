@@ -268,9 +268,42 @@ cds-header cds-header-global-bar {
 
 /* Content and components */
 main {
+    display: flex;
+    flex-direction: column;
     padding: var(--cds-spacing-09) var(--cds-spacing-07);
     min-height: calc(100vh - 3rem);
     background-color: var(--cds-layer-02);
+}
+
+/* Fill the content column to the viewport height so nested tab panels can use the vertical space
+   instead of shrinking to content (a large empty area below the tiles otherwise). Each level is a
+   flex column with min-height:0 so the fill propagates and inner content scrolls rather than
+   overflowing. */
+cds-content,
+#view-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* The active top-level tab panel fills the remaining height. */
+#view-panel > [role="tabpanel"]:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* ADP preview: push the fill down through the tile + inner tabs to the Flow diagram. */
+#panel-preview #preview-panel,
+#preview-panel cds-tile,
+.preview-panel-tabs-body,
+.preview-panel-tabs-body > [role="tabpanel"]:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 main cds-layout .cds--tab-content {
@@ -905,4 +938,229 @@ cds-form-item {
 /* Dropdown full width */
 .dropdown-full-width {
     width: 100%;
+}
+
+/* ADP trace flow diagram (Flow tab): hybrid git-branch — SVG rails + HTML pill rows */
+.trace-diagram {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 200px;
+    overflow: auto;
+}
+
+.trace-diagram-empty {
+    padding: var(--cds-spacing-05, 1rem);
+    color: var(--cds-text-secondary, #525252);
+}
+
+/* Simple/Advanced toggle above the Flow graph: label inline with the toggle, left-aligned. */
+.trace-flow-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--cds-spacing-03, 0.5rem);
+    justify-content: flex-start;
+    padding: var(--cds-spacing-03, 0.5rem) 0;
+}
+
+.trace-flow-controls-label {
+    font-size: 0.75rem;
+    color: var(--cds-text-secondary, #525252);
+}
+
+.trace-graph {
+    position: relative;
+    width: 100%;
+}
+
+/* Trunk header banner: the ADP entry promoted out of the rows (name + status + whole-chain
+   elapsed). Clickable -> the entry's request detail. */
+.trace-graph-header {
+    display: flex;
+    align-items: center;
+    gap: var(--cds-spacing-03, 0.5rem);
+    padding: var(--cds-spacing-03, 0.5rem) var(--cds-spacing-05, 1rem);
+    margin-bottom: var(--cds-spacing-03, 0.5rem);
+    border-bottom: 1px solid var(--cds-border-subtle, #c6c6c6);
+    cursor: pointer;
+}
+
+.trace-graph-header:hover {
+    background-color: var(--cds-layer-hover-01, #e8e8e8);
+}
+
+.trace-graph-header:focus-visible {
+    outline: 2px solid var(--cds-focus, #0f62fe);
+    outline-offset: -2px;
+}
+
+.trace-graph-header-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--cds-text-primary, #161616);
+}
+
+.trace-graph-header-elapsed {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--cds-text-secondary, #525252);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Positioned wrapper for the rails SVG (absolute) + rows, sitting below the header banner. */
+.trace-flow {
+    position: relative;
+    width: 100%;
+}
+
+/* SVG rail gutter, overlaid on the left of the rows and kept above the row
+   background (which would otherwise cover a hovered row's dot). Clicks pass
+   through (pointer-events: none) so rows stay interactive. */
+.trace-rails {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.trace-edge {
+    stroke: var(--cds-border-subtle, #c6c6c6);
+    stroke-width: 1.5;
+    transition: stroke-width 120ms ease;
+}
+
+.trace-edge--failed {
+    stroke: var(--cds-support-error, #da1e28);
+    stroke-width: 2;
+}
+
+.trace-node-dot {
+    stroke: var(--cds-background, #ffffff);
+    stroke-width: 1.5;
+    transition: r 120ms ease, stroke-width 120ms ease;
+}
+
+.trace-node-dot.trace-node--failed {
+    stroke: var(--cds-support-error, #da1e28);
+    stroke-width: 3;
+}
+
+.trace-node-dot.trace-node--in-progress {
+    stroke: var(--cds-text-secondary, #525252);
+    stroke-width: 2;
+    stroke-dasharray: 2 2;
+}
+
+/* Rows */
+.trace-rows {
+    position: relative;
+    z-index: 1;
+}
+
+.trace-row {
+    display: flex;
+    align-items: center;
+    gap: var(--cds-spacing-03, 0.5rem);
+    padding-right: var(--cds-spacing-05, 1rem);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 120ms ease;
+}
+
+.trace-row:hover {
+    background-color: var(--cds-layer-hover-01, #e8e8e8);
+}
+
+.trace-row:focus-visible {
+    outline: 2px solid var(--cds-focus, #0f62fe);
+    outline-offset: -2px;
+}
+
+.trace-row-label {
+    font-size: 0.8125rem;
+    color: var(--cds-text-primary, #161616);
+    white-space: nowrap;
+}
+
+.trace-row--failed .trace-row-label {
+    color: var(--cds-support-error, #da1e28);
+    font-weight: 600;
+}
+
+.trace-row-timing {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--cds-text-secondary, #525252);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Branch highlight on hover/focus emphasises the rails of the active branch. */
+.trace-branch--active.trace-edge {
+    stroke-width: 3;
+}
+
+.trace-branch--active.trace-node-dot {
+    stroke-width: 3;
+}
+
+/* Minimal, non-interactive "start" origin marker row. */
+.trace-row--start {
+    cursor: default;
+}
+
+.trace-row--start .trace-row-label {
+    color: var(--cds-text-secondary, #525252);
+    font-style: italic;
+}
+
+/* Relation branch header row (a relation's RELATION_START promoted to an inline header). */
+.trace-row--branch-header .trace-row-label {
+    font-weight: 600;
+}
+
+/* Graph pills mirrored into the modal heading (supertype/type/entity/×N), left of the status tag. */
+#trace-modal-pills {
+    margin-left: var(--cds-spacing-03, 0.5rem);
+}
+
+/* Read-only Ace viewers in the modal (Exchange body/headers + Details code fields). Same look as the
+   ADP detail-page editors (.ace-editor-style): position:relative anchors Ace's absolutely-positioned
+   scroller; the height autosizes between min/maxLines instead of a fixed 300px. */
+.trace-modal-ace {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Details panel: a label | value grid (own layout — cds-structured-list's shadow table mis-sized the
+   columns). The value column is minmax(0, 1fr) so a full-width Ace viewer fits and can shrink. */
+.trace-modal-details {
+    padding-top: var(--cds-spacing-05, 1rem);
+}
+
+.trace-modal-detail-row {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+    gap: var(--cds-spacing-05, 1.5rem);
+    align-items: start;
+    padding: var(--cds-spacing-03, 0.5rem) 0;
+    border-bottom: 1px solid var(--cds-border-subtle-01, #e0e0e0);
+}
+
+.trace-modal-detail-label {
+    color: var(--cds-text-secondary, #525252);
+    font-weight: 600;
+}
+
+.trace-modal-detail-value {
+    min-width: 0;
+}
+
+/* Section heading above each Exchange grid (input / output). */
+.trace-modal-section-title {
+    margin-bottom: var(--cds-spacing-03, 0.5rem);
+}
+
+#trace-modal-output-section {
+    margin-top: var(--cds-spacing-06, 1.5rem);
 }

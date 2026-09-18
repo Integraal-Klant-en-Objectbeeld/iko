@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package com.ritense.iko.mvc.controller
+package com.ritense.iko.mvc.model.trace
 
-import jakarta.servlet.http.HttpServletRequest
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Component
 
-class SessionControllerTest {
-    private val controller = SessionController()
+/**
+ * Masks every header value with `***` unless [DebugTraceProperties.showHeaders] is enabled, so raw
+ * credentials never reach the browser. Applied to every header map the trace viewer emits.
+ */
+@Component
+internal class HeaderRedactor(private val properties: DebugTraceProperties) {
 
-    @Test
-    fun `ping touches the existing session and returns 204`() {
-        val request = mock<HttpServletRequest>()
+    fun redact(headers: Map<String, String>): Map<String, String> = if (properties.showHeaders) headers else headers.mapValues { MASK }
 
-        val response = controller.ping(request)
-
-        verify(request).getSession(false)
-        assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+    companion object {
+        private const val MASK = "***"
     }
 }

@@ -19,11 +19,16 @@ package com.ritense.iko.camel
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_OPERATION_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_TAG_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.CONNECTOR_VERSION_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.DEBUG_HTTP_RESPONSE_BODY_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.DEBUG_HTTP_RESPONSE_CODE_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.DEBUG_HTTP_RESPONSE_HEADERS_VARIABLE
+import com.ritense.iko.camel.IkoConstants.Variables.DEBUG_HTTP_RESPONSE_TEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_CORRELATION_ID_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.IKO_TRACE_ID_VARIABLE
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.camel.CamelExecutionException
 import org.apache.camel.Exchange
+import org.apache.camel.http.base.HttpOperationFailedException
 import org.apache.camel.model.OnExceptionDefinition
 import org.apache.camel.model.ProcessorDefinition
 import org.springframework.http.HttpStatus
@@ -54,11 +59,33 @@ private fun fallbackForDebugTrace(exchange: Exchange, throwable: Exception?) {
     val ikoTraceId: String? = exchange.getVariable(IKO_TRACE_ID_VARIABLE, String::class.java)
 
     if (ikoTraceId != null) {
+        captureHttpFailureForTrace(exchange, throwable)
         val messageContext =
             "Error occurred while processing request for Connector " +
                 "[${exchange.getVariable(CONNECTOR_TAG_VARIABLE)}:${exchange.getVariable(CONNECTOR_VERSION_VARIABLE)}] " +
                 "and operation [${exchange.getVariable(CONNECTOR_OPERATION_VARIABLE)}]"
         throw CamelExecutionException((messageContext + ":\n" + throwable?.message) ?: "Unexpected error", exchange)
+    }
+}
+
+/**
+ * Debug-only: a failed HTTP call's response is carried on the [HttpOperationFailedException], not on
+ * the exchange body (the producer threw). Only during a trace run (guarded by `iko_trace_id` in the
+ * caller) we stash the response body/headers/status/text as exchange variables so the trace/flow
+ * modal can show the real failed response to the ADP author. Never runs in production.
+ */
+private fun captureHttpFailureForTrace(exchange: Exchange, throwable: Exception?) {
+    val http = generateSequence(throwable as? Throwable) { it.cause }
+        .filterIsInstance<HttpOperationFailedException>()
+        .firstOrNull() ?: return
+    exchange.setVariable(DEBUG_HTTP_RESPONSE_CODE_VARIABLE, http.statusCode.toString())
+    http.statusText?.let { exchange.setVariable(DEBUG_HTTP_RESPONSE_TEXT_VARIABLE, it) }
+    http.responseBody?.let { exchange.setVariable(DEBUG_HTTP_RESPONSE_BODY_VARIABLE, it) }
+    http.responseHeaders?.takeIf { it.isNotEmpty() }?.let { headers ->
+        exchange.setVariable(
+            DEBUG_HTTP_RESPONSE_HEADERS_VARIABLE,
+            headers.entries.joinToString("\n") { (k, v) -> "$k: $v" },
+        )
     }
 }
 

@@ -98,6 +98,7 @@ class AggregatedDataProfileConfiguration {
         connectorService: ConnectorService,
         routeDependencyService: RouteDependencyService,
         ikoCacheProcessor: CacheProcessor,
+        objectMapper: ObjectMapper,
     ): AggregatedDataProfileService = AggregatedDataProfileService(
         camelContext,
         aggregatedDataProfileRepository,
@@ -106,5 +107,6 @@ class AggregatedDataProfileConfiguration {
         connectorService,
         routeDependencyService,
         ikoCacheProcessor,
+        objectMapper,
     )
 }

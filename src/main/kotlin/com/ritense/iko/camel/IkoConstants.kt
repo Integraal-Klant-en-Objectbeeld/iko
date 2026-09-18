@@ -27,6 +27,7 @@ object IkoConstants {
         const val ADP_CONTAINER_PARAM_HEADER = "containerParam"
         const val ADP_ID_PARAM_HEADER = "id"
         const val ADP_ENDPOINT_TRANSFORM_CONTEXT_HEADER = "adp_endpointTransformContext"
+        const val IKO_TRACE_SPAN_HEADER = "iko_trace_span"
     }
     object Variables {
         const val AUTHORITIES = "authorities"
@@ -43,6 +44,14 @@ object IkoConstants {
         const val CONNECTOR_INSTANCE_TAG_VARIABLE = "connectorInstanceTag"
         const val CONNECTOR_ENDPOINT_ID_VARIABLE = "connectorEndpointId"
         const val CONNECTOR_OPERATION_VARIABLE = "operation"
+
+        const val DEBUG_HTTP_RESPONSE_BODY_VARIABLE = "iko_debug_httpResponseBody"
+        const val DEBUG_HTTP_RESPONSE_CODE_VARIABLE = "iko_debug_httpResponseCode"
+        const val DEBUG_HTTP_RESPONSE_TEXT_VARIABLE = "iko_debug_httpResponseText"
+        const val DEBUG_HTTP_RESPONSE_HEADERS_VARIABLE = "iko_debug_httpResponseHeaders"
+
+        const val DEBUG_PRE_AGGREGATION_JSON_VARIABLE = "iko_debug_preAggregationJson"
+        const val DEBUG_PRE_RESULT_TRANSFORM_JSON_VARIABLE = "iko_debug_preResultTransformJson"
     }
     object Validation {
         const val ROLES_PATTERN = """^[A-Za-z0-9_-]+(,[A-Za-z0-9_-]+)*$"""

@@ -27,6 +27,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
+import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest
+import org.springframework.security.oauth2.client.endpoint.RestClientRefreshTokenTokenResponseClient
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -100,7 +103,12 @@ class SecurityConfig {
 
     @Bean
     fun oidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository: ClientRegistrationRepository) = OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository).apply {
+        // Used when Keycloak RP-initiated logout can be performed (id token present).
         setPostLogoutRedirectUri("{baseUrl}/admin")
+        // Fallback when there is no id token to build an end-session request
+        // (e.g. the session/token already expired): without this the handler
+        // redirects to "/" instead of the admin entry point.
+        setDefaultTargetUrl("/admin")
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE - 100)
@@ -165,6 +173,20 @@ class SecurityConfig {
 
         return http.build()
     }
+
+    /**
+     * Token-response client for the OAuth2 refresh-token grant. The session
+     * keep-alive ping calls this directly (rather than going through an
+     * [org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager],
+     * which only refreshes when the *access* token is expired) so that every
+     * ping performs a real refresh round-trip to Keycloak. That both slides the
+     * SSO idle timeout and surfaces a revoked/expired refresh token as an
+     * [org.springframework.security.oauth2.core.OAuth2AuthorizationException],
+     * letting the ping log the admin out instead of silently extending a dead
+     * session.
+     */
+    @Bean
+    fun refreshTokenResponseClient(): OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> = RestClientRefreshTokenTokenResponseClient()
 
     @Bean
     fun authRoute() = AuthRoute()

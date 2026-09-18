@@ -1,0 +1,16 @@
+{
+    "name": "iko-e2e",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Playwright end-to-end test suite for IKO (Admin UI + public REST API)",
+    "scripts": {
+        "test": "playwright test",
+        "report": "playwright show-report",
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.49.0",
+        "@types/node": "^22.10.0",
+        "typescript": "^5.7.0"
+    }
+}

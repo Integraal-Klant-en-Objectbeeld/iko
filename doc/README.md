@@ -6,6 +6,7 @@
 
 ## Core Concepts
 - [Aggregated Data Profiles (ADP)](./profiles/README.md) -- Profile configuration, properties, and execution flow
+- [Debugging a profile (Preview / Flow)](./profiles/debugging.md) -- Visual step-by-step trace of a profile run
 - [Connectors](./connectors/README.md) -- Connector templates, instances, endpoints, and YAML routes
 - [Relaties](./relaties.md) -- How relations combine data into left/right response structure
 
