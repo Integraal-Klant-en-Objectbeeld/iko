@@ -16,10 +16,12 @@
 
 package com.ritense.iko.cache.domain
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.ritense.iko.aggregateddataprofile.domain.AggregatedDataProfile
 import com.ritense.iko.aggregateddataprofile.domain.Relation
 import com.ritense.iko.cache.domain.CacheEntry.CacheEventType.HIT
 import com.ritense.iko.cache.domain.CacheEntry.CacheEventType.MISS
+import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_RESULT_VARIABLE
 import org.apache.camel.Exchange
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -42,9 +44,12 @@ fun AggregatedDataProfile.toCacheable(): Cacheable {
     return object : Cacheable {
         override val id = id.toString()
         override val cacheKey: (Exchange) -> String = { exchange ->
+            val context =
+                exchange.getVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, JsonNode::class.java)?.toString().orEmpty()
             val endpointMappingResult = exchange.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, String::class.java)
             listOf(
                 id.toString(),
+                context,
                 endpointTransform.expression,
                 endpointMappingResult,
                 resultTransform.expression,
@@ -84,11 +89,14 @@ fun Relation.toCacheable(): Cacheable {
                 override val timeToLive = cacheSettings.timeToLive
             }
         override val cacheKey: (Exchange) -> String = { exchange ->
+            val context =
+                exchange.getVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, JsonNode::class.java)?.toString().orEmpty()
             val endpointMappingResult = exchange.getVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, String::class.java)
 
             listOf(
                 id,
-                endpointTransform,
+                context,
+                endpointTransform.expression,
                 endpointMappingResult,
                 resultTransform.expression,
             ).joinToString(separator = "")

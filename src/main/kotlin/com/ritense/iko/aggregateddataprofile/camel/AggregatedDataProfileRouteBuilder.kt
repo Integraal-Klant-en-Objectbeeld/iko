@@ -186,7 +186,7 @@ class AggregatedDataProfileRouteBuilder(
                 val endpointTransformContext =
                     exchange.getVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, ObjectNode::class.java)
                 val body = exchange.message.getBody(JsonNode::class.java)
-                val updatedContext = endpointTransformContext.set<JsonNode>("source", body)
+                val updatedContext = endpointTransformContext.deepCopy().set<JsonNode>("source", body)
                 exchange.setVariable(ENDPOINT_TRANSFORM_CONTEXT_VARIABLE, updatedContext)
             }
             .setVariable(ENDPOINT_TRANSFORM_RESULT_VARIABLE, sourceToEndpointTransformExpression)
