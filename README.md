@@ -2,7 +2,7 @@
 
 ### Integraal Klant & Objectbeeld (IKO)
 
-![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square)  
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square)  
 
 IKO is a Kotlin/Spring Boot Application that uses Apache Camel to integrate with external systems via connectors. It ships with an admin UI and a Docker-based local environment.
 
@@ -48,6 +48,10 @@ Notes:
 ---
 
 ### Local development
+- One-time: enable the repo git hooks so the README version badge stays in sync with `gradle.properties`:
+  ```bash
+  git config core.hooksPath .githooks
+  ```
 - Copy `.env.template` to `.env` and adjust values to your local setup.
 - For HTML live-refresh during local dev only, `.env.template` includes:
   ```

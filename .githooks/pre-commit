@@ -1,0 +1,5 @@
+#!/bin/sh
+./gradlew --quiet verifyReadmeVersion || {
+    echo "Version check failed — sync the README.md badge with gradle.properties." >&2
+    exit 1
+}

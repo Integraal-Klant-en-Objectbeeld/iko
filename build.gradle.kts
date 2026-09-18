@@ -227,6 +227,18 @@ spotless {
     })
 }
 
+tasks.register("verifyReadmeVersion") {
+    group = "verification"
+    description = "Fails if the README version badge disagrees with gradle.properties."
+    doLast {
+        val readme = rootProject.file("README.md").readText()
+        val badge = Regex("""Version-([0-9]+\.[0-9]+\.[0-9]+)-""").find(readme)?.groupValues?.get(1)
+        require(badge == project.version.toString()) {
+            "README badge version ($badge) != gradle.properties version (${project.version}). Update README.md:5."
+        }
+    }
+}
+
 sonar {
     properties {
         property("sonar.projectKey", "iko")
