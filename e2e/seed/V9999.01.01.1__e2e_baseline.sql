@@ -300,3 +300,35 @@ VALUES
     ('e2e00009-0000-0000-0000-000000000001', 'e2e-brp-personen', '1.0.0', TRUE, 'FINAL',
      'e2e00006-0000-0000-0000-000000000001', 'e2e00007-0000-0000-0000-000000000001',
      '{}', '.', 'ROLE_ADMIN', FALSE, 0);
+
+-- ============================================================================
+-- Relation-delete fixture (issue #324)
+-- ============================================================================
+-- A single DRAFT profile with one root-level relation, used by
+-- tests/admin/adp-relations.spec.ts to assert the relation-delete confirmation
+-- modal opens. The profile must be DRAFT (not FINAL) because the relation Delete
+-- button is disabled on immutable FINAL profiles
+-- (relations-panel.html / relation/edit.html: th:disabled="${...final}"). The
+-- name is intentionally outside the `e2e-adp-` prefix so it never disturbs the
+-- search/pagination assertions in adp.spec.ts. It reuses the seeded
+-- e2e-instance-01 / e2e-endpoint-01 for its connector instance + endpoint.
+INSERT INTO aggregated_data_profile (
+    id, name, version, is_active, status,
+    connector_instance_id, connector_endpoint_id,
+    endpoint_transform, transform, roles, cache_enabled, cache_ttl
+)
+VALUES
+    ('e2e0000a-0000-0000-0000-000000000001', 'e2e-rel-fixture', '1.0.0', TRUE, 'DRAFT',
+     'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '{}', '.', 'ROLE_ADMIN', FALSE, 0);
+
+INSERT INTO relation (
+    id, aggregated_data_profile_id, property_name, source_id,
+    source_to_endpoint_mapping, connector_instance_id, connector_endpoint_id,
+    transform, cache_enabled, cache_ttl
+)
+VALUES
+    ('e2e0000b-0000-0000-0000-000000000001', 'e2e0000a-0000-0000-0000-000000000001',
+     'e2e-relation', 'e2e0000a-0000-0000-0000-000000000001',
+     '{}', 'e2e00002-0000-0000-0000-000000000001', 'e2e00003-0000-0000-0000-000000000001',
+     '.', FALSE, 0);
