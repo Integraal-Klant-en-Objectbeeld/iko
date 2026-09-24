@@ -21,7 +21,7 @@
             th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${relation.aggregatedDataProfileId} + '/relations/edit/' + ${relation.id}}"
             hx-target="#modal-container"
             hx-swap="innerHTML"
-            data-after-request-open-modal="cds-modal"
+            data-after-request-open-modal="#active-modal"
             hx-push-url="false"
         >
             <cds-table-cell th:text="${relation.id}"></cds-table-cell>
@@ -39,7 +39,7 @@
                     th:attr="hx-get=@{'/admin/aggregated-data-profiles/' + ${relation.aggregatedDataProfileId} + '/relations/edit/' + ${relation.id} + '/delete'} "
                     hx-target="#modal-container"
                     hx-swap="innerHTML"
-                    data-after-request-open-modal="cds-modal"
+                    data-after-request-open-modal="#active-modal"
                     hx-push-url="false"
                     data-stop-propagation="true"
                 >
