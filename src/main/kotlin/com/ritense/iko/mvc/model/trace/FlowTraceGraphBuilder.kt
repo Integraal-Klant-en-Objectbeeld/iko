@@ -510,7 +510,9 @@ internal class FlowTraceGraphBuilder(
      * The per-type detail fields shown in the modal. [mappedResult] is the `endpointTransformResult`
      * variable value (the parameters a JQ mapping produced) for the endpoint-transform / source-mapping
      * steps; the exchange itself does not carry it as body/headers at the mapping node, so it is surfaced
-     * here as a `Result` code field.
+     * here as a `Result` code field. For HTTP steps, a body-carrying request whose body was not captured
+     * (streamed bodies are never read, see [com.ritense.iko.camel.OutgoingHttpTraceInterceptor]) falls back to
+     * the exchange body the tracer recorded at the HTTP node, labelled as pre-send.
      */
     private fun fieldsFor(
         type: FlowTraceStepType,
@@ -581,6 +583,9 @@ internal class FlowTraceGraphBuilder(
                         ?.entries?.joinToString("\n") { (k, v) -> "$k: $v" },
                 )
                 addCode("Outgoing body", outgoing?.body)
+                if (outgoing != null && outgoing.body == null && outgoing.method in BODY_METHODS) {
+                    addCode("Outgoing body (exchange, pre-send)", rep.body)
+                }
                 addCode(
                     "Response headers",
                     httpResponse?.headers?.takeIf { it.isNotEmpty() }
@@ -640,6 +645,8 @@ internal class FlowTraceGraphBuilder(
         private const val HTTP_RESPONSE_CODE_HEADER = "CamelHttpResponseCode"
         private const val HTTP_RESPONSE_TEXT_HEADER = "CamelHttpResponseText"
         private const val HTTP_METHOD_HEADER = "CamelHttpMethod"
+
+        private val BODY_METHODS = setOf("POST", "PUT", "PATCH", "DELETE")
 
         private const val REST_OPENAPI_MARKER = "rest-openapi"
         private val STATUS_CODE_REGEX = Regex("statusCode:\\s*(\\d+)")

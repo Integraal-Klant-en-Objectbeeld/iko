@@ -656,6 +656,46 @@ class FlowTraceGraphBuilderTest {
             assertThat(it.value).contains("Accept: application/json")
             assertThat(it.code).isTrue()
         }
+        assertThat(http.fields.map { it.label })
+            .doesNotContain("Outgoing body", "Outgoing body (exchange, pre-send)")
+    }
+
+    @Test
+    fun `http step falls back to the exchange body when a streamed outgoing body was not captured`() {
+        val connVars = mapOf("connectorTag" to "brp", "operation" to "Personen")
+        val messages = listOf(
+            event(1, "E1", rootRoute, "from", body = "{}", variables = mapOf("profileName" to "personen")),
+            event(2, "E1", connectorRoute, "from", body = "{}", variables = connVars),
+            event(
+                3,
+                "E1",
+                connectorRoute,
+                "toD",
+                "toD[rest-openapi]",
+                body = """{"type":"X"}""",
+                headers = mapOf("CamelHttpResponseCode" to "200", "CamelHttpMethod" to "POST"),
+                variables = connVars,
+            ),
+        )
+        val outgoing = listOf(
+            OutgoingHttpCapture(
+                spanId = "E1",
+                method = "POST",
+                uri = "http://host/personen",
+                headers = mapOf("Content-Type" to "application/json"),
+                body = null,
+            ),
+        )
+
+        val graph = builder.build(messages, adp, outgoing)
+
+        val http = graph.steps.values.single { it.type == FlowTraceStepType.HTTP }
+        assertThat(http.fields).anySatisfy {
+            assertThat(it.label).isEqualTo("Outgoing body (exchange, pre-send)")
+            assertThat(it.value).isEqualTo("""{"type":"X"}""")
+            assertThat(it.code).isTrue()
+        }
+        assertThat(http.fields.map { it.label }).doesNotContain("Outgoing body")
     }
 
     @Test
