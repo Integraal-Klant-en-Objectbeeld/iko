@@ -16,10 +16,13 @@
 
 package com.ritense.iko.camel
 
+import org.apache.hc.core5.http.ContentType
+import org.apache.hc.core5.http.io.entity.InputStreamEntity
 import org.apache.hc.core5.http.io.entity.StringEntity
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.io.ByteArrayInputStream
 
 class OutgoingHttpTraceInterceptorTest {
 
@@ -45,6 +48,24 @@ class OutgoingHttpTraceInterceptorTest {
         assertThat(capture.headers).containsEntry("Accept", "application/json")
         // The internal correlation header is stripped from the displayed request headers.
         assertThat(capture.headers).doesNotContainKey("iko_trace_span")
+        assertThat(request.getFirstHeader("iko_trace_span")).isNull()
+    }
+
+    @Test
+    fun `does not read a streaming entity so the body is still sent`() {
+        val request = BasicClassicHttpRequest("POST", "http://host/personen")
+        request.addHeader("iko_trace_span", "T1|E1")
+        request.entity = InputStreamEntity(
+            ByteArrayInputStream("""{"a":1}""".toByteArray()),
+            -1,
+            ContentType.APPLICATION_JSON,
+        )
+
+        interceptor.process(request, request.entity, null)
+
+        val capture = registry.drain("T1").single()
+        assertThat(capture.body).isNull()
+        assertThat(String(request.entity.content.readAllBytes())).isEqualTo("""{"a":1}""")
     }
 
     @Test

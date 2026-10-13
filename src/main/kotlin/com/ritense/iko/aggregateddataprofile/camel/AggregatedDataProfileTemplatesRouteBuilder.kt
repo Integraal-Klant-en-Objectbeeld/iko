@@ -30,6 +30,11 @@ import com.ritense.iko.camel.IkoRouteHelper.Companion.GLOBAL_ERROR_HANDLER_CONFI
 import com.ritense.iko.logging.MdcContextProcessor
 import org.apache.camel.builder.RouteBuilder
 
+/**
+ * Entrypoint template shared by the public ADP REST route and the admin debug (test-run) route. Once the debug
+ * run's `iko_trace_id` header has been copied into its variable, all `iko_*` headers are removed, so neither
+ * client-supplied nor internal trace headers reach connector calls or upstream APIs.
+ */
 class AggregatedDataProfileTemplatesRouteBuilder(
     private val aggregatedDataProfileRepository: AggregatedDataProfileRepository,
 ) : RouteBuilder() {
@@ -72,6 +77,7 @@ class AggregatedDataProfileTemplatesRouteBuilder(
 
                 exchange.setVariable("aggregatedDataProfileId", aggregatedDataProfile.id)
             }
+            .removeHeaders("iko_*")
             .process(MdcContextProcessor())
             .toD("direct:adp:\${variable.aggregatedDataProfileId}")
     }
