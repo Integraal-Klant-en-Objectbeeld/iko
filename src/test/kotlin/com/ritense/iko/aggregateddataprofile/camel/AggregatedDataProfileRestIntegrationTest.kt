@@ -21,7 +21,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.iko.BaseIntegrationTest
 import com.ritense.iko.aggregateddataprofile.repository.AggregatedDataProfileRepository
 import com.ritense.iko.cache.service.CacheService
+import com.ritense.iko.camel.IkoConstants.Headers.IKO_TRACE_SPAN_HEADER
 import com.ritense.iko.camel.IkoConstants.Variables.ENDPOINT_TRANSFORM_CONTEXT_VARIABLE
+import com.ritense.iko.camel.OutgoingHttpTraceRegistry
 import org.apache.camel.CamelContext
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.containsString
@@ -62,6 +64,9 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
     @Autowired
     private lateinit var camelContext: CamelContext
 
+    @Autowired
+    private lateinit var outgoingHttpTraceRegistry: OutgoingHttpTraceRegistry
+
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `When a valid ADP is requested via REST then it should route to the dynamic route`() {
@@ -89,6 +94,21 @@ internal class AggregatedDataProfileRestIntegrationTest : BaseIntegrationTest() 
                     ]""",
                 ),
             )
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun `A client-supplied trace span header does not trigger the outgoing HTTP capture`() {
+        val mvcResult = mockMvc.perform(
+            get("/aggregated-data-profiles/pets?id=externalId").header(IKO_TRACE_SPAN_HEADER, "client-trace|client-span"),
+        )
+            .andExpect(request().asyncStarted())
+            .andReturn()
+
+        mockMvc.perform(asyncDispatch(mvcResult))
+            .andExpect(status().isOk)
+
+        assertThat(outgoingHttpTraceRegistry.drain("client-trace")).isEmpty()
     }
 
     @Test

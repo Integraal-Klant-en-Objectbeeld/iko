@@ -28,10 +28,15 @@ import org.apache.hc.core5.http.protocol.HttpContext
  * Apache HttpClient request interceptor that captures the fully-resolved outgoing request (method, URL,
  * curated headers, body) rest-openapi builds — the request that actually leaves the pipe, which the Camel
  * exchange never carries. Records only when the request has the `iko_trace_span` header (set solely during a
- * debug run, *after* a connector's `removeHeaders`, so it survives header stripping unlike the exchange's
- * own `iko_trace_id` header). That header carries `<traceId>|<exchangeId>`: the trace id keys the registry,
- * the exchange id correlates the capture to its trace step. Stateless and thread-safe: the cached, shared
- * HttpClient invokes it concurrently.
+ * debug run, before the connector route runs; a connector that removes all headers drops it and is then not
+ * captured). That header carries `<traceId>|<exchangeId>`: the trace id keys the registry, the exchange id
+ * correlates the capture to its trace step. The header is internal and removed before the request is sent.
+ *
+ * The capture is observe-only: the body is recorded only when it can be read without consuming it. A streaming
+ * entity (e.g. a JsonNode body sent as an `InputStreamEntity`) is wrapped by HttpClient in a `RequestEntityProxy`
+ * that reports `isRepeatable = true` until it is written, so reading it here would drain the stream and send an
+ * empty body upstream. Such bodies are left unread. Stateless and thread-safe: the cached, shared HttpClient
+ * invokes it concurrently.
  */
 internal class OutgoingHttpTraceInterceptor(
     private val registry: OutgoingHttpTraceRegistry,
@@ -39,13 +44,12 @@ internal class OutgoingHttpTraceInterceptor(
 
     override fun process(request: HttpRequest, entity: EntityDetails?, context: HttpContext?) {
         val header = request.getFirstHeader(IKO_TRACE_SPAN_HEADER)?.value ?: return
+        request.removeHeaders(IKO_TRACE_SPAN_HEADER)
         val (traceId, spanId) = TraceSpan.decode(header) ?: return
         val uri = runCatching { request.uri.toString() }.getOrNull() ?: request.requestUri
-        val headers = request.headers
-            .filterNot { it.name.equals(IKO_TRACE_SPAN_HEADER, ignoreCase = true) }
-            .associate { it.name to (it.value ?: "") }
+        val headers = request.headers.associate { it.name to (it.value ?: "") }
         val body = (request as? ClassicHttpRequest)?.entity
-            ?.takeIf { it.isRepeatable }
+            ?.takeIf { it.isRepeatable && !it.isStreaming }
             ?.let { runCatching { EntityUtils.toString(it) }.getOrNull() }
         registry.record(
             traceId,

@@ -30,7 +30,7 @@ The **Detail level** toggle switches between **Simple** (the entry, every transf
 
 Clicking any step (or header) opens a modal with the step's pills and status plus two tabs:
 
-- **Details** — per-type fields: the connector/instance/operation, the JQ expression and its context/result for transform steps, and for an HTTP call the method, status, outgoing URL, and outgoing/response headers and bodies.
+- **Details** — per-type fields: the connector/instance/operation, the JQ expression and its context/result for transform steps, and for an HTTP call the method, status, outgoing URL, and outgoing/response headers and bodies. The outgoing body is the exact request body when it can be read without consuming it (String/byte bodies). For streamed bodies, such as a `JsonNode` built with a jq `setBody`, the modal shows **Outgoing body (exchange, pre-send)** instead: the exchange body as it entered the HTTP call, before Camel serialised it.
 - **Exchange** — the raw message **input** and **output** (body + headers) around the step.
 
 JSON bodies are pretty-printed. Some in-memory bodies (the combined aggregation object) are captured as JSON during a debug run so they display as JSON rather than a Java `Map.toString()`.
@@ -48,6 +48,30 @@ iko:
 ```
 
 It is read once at startup. Because it exposes credentials in the trace, only enable it in non-production environments.
+
+## How a debug run is traced
+
+A debug run is correlated by a per-run **trace id**, carried by two internal values. Both are internal: they exist only during a debug run, are never sent to external systems, and cannot be set by API clients.
+
+| Name | Kind | Set by | Used for |
+| --- | --- | --- | --- |
+| `iko_trace_id` | exchange **variable** | `TestController` passes it as a header into the test-run route, which copies it to the variable | BacklogTracer filter (only this run's exchanges are traced), MDC logging, and the debug-only captures (aggregation JSON, failed HTTP responses) |
+| `iko_trace_span` | message **header**, `<traceId>\|<exchangeId>` | `TraceSpanProcessor` in the connector dispatcher, before the connector route runs | Correlating the real outgoing HTTP request (captured inside Apache HttpClient) with its step in the Flow graph |
+
+### Outgoing HTTP capture
+
+`rest-openapi` builds the final request (URL, path/query parameters, client headers) inside Apache HttpClient, so it never appears on the Camel exchange. To show it, IKO installs a request interceptor on the `http`/`https` components (`HttpTraceConfiguration`). The interceptor is inert unless the request carries `iko_trace_span`. When it does, it:
+
+- records the method, resolved URL and headers under the trace id;
+- records the body **only if it can be read without consuming it**. Streamed bodies are never read, because reading them would send an empty body upstream;
+- **removes `iko_trace_span`** from the request before it is sent.
+
+### Boundaries
+
+- **Never upstream.** Trace headers must not reach external APIs. `iko_trace_span` is removed by the interceptor; `iko_trace_id` is removed at the ADP entrypoint once it has been copied to the variable.
+- **Never from clients.** Both API entrypoints strip `iko_*` headers: `/endpoints/**`, and the ADP entrypoint after reading the debug run's trace id. A client therefore cannot switch on tracing or capture.
+- **Same request as production.** A debug run must send exactly the request the API path sends; capture is observe-only. If a connector behaves differently under Preview than via the API, treat it as a bug in the debug tooling.
+- **Connectors that strip all headers.** `iko_trace_span` is stamped before the connector route. A connector that runs `removeHeaders: "*"` before its `toD` drops it, and its HTTP step shows no outgoing URL, headers or body. The rest of the trace is unaffected.
 
 ## Failure display
 

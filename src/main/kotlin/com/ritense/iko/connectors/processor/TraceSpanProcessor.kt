@@ -23,9 +23,9 @@ import org.apache.camel.Exchange
 import org.apache.camel.Processor
 
 /**
- * Stamps the `iko_trace_span` header before an outgoing connector call, only during a debug run. The header
- * survives a connector's `removeHeaders` (unlike the `iko_trace_id` exchange header) and is read back by the
- * [com.ritense.iko.camel.OutgoingHttpTraceInterceptor].
+ * Stamps the `iko_trace_span` header before the connector route runs, only during a debug run. It is read back
+ * (and removed before sending) by the [com.ritense.iko.camel.OutgoingHttpTraceInterceptor]. A connector that
+ * removes all headers before its call drops it, and that call is then not captured.
  */
 internal class TraceSpanProcessor : Processor {
     override fun process(exchange: Exchange) {
