@@ -17,6 +17,7 @@ This list contains common connector configuration examples:
 - [OpenDocumenten](opendocumenten.md) -- Open Documenten (document management)
 - [OpenKlant](openklant.md) -- Open Klant (customer contacts)
 - [OpenZaak](openzaak.md) -- Open Zaak (case management)
+- [Wistor](wistor.md) -- Wistor IMBOR object registration (IMBOR object search and lookup)
 - [Demo](demo.md) -- Demo connector with mock data
 
 ### Connector Instance

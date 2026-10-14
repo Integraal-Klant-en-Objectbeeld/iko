@@ -1,0 +1,831 @@
+openapi: 3.0.3
+info:
+  title: IMBOR Utrecht Test API
+  description: 'API for querying IMBOR object data in the IMBORUtrecht_Test repository.
+
+
+    **Authentication**: All endpoints require an `Authorization` header containing
+
+    the AppID token.
+
+
+    **Base URL**: `https://test.objectenregistratie.wistor.nl/servlets/cgi/io/IMBORUtrecht_Test`
+
+
+    **Try it out**: The "Try it out" feature in Swagger requires a CORS browser extension to work (e.g.
+    "CORS Unblock" or "Allow CORS" for Chrome/Firefox). Enable the extension before sending requests.
+
+    '
+  version: 1.0.0
+servers:
+- url: https://test.objectenregistratie.wistor.nl/servlets/cgi/io/IMBORUtrecht_Test
+  description: Test environment
+security:
+- AppID: []
+components:
+  securitySchemes:
+    AppID:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: AppID token string provided by your administrator.
+  schemas:
+    Error:
+      type: object
+      required:
+      - status
+      - errorCode
+      - message
+      properties:
+        status:
+          type: integer
+          example: 400
+        errorCode:
+          type: string
+          example: INVALID_JSON
+        message:
+          type: string
+          example: Request body is not valid JSON.
+        detail:
+          type: string
+          description: Optional extended description of the error.
+    ObjectInfoRequest:
+      type: object
+      required:
+      - iri
+      properties:
+        iri:
+          type: string
+          format: uri
+          description: The IRI of the object to retrieve property information for.
+          example: https://data.crow.nl/imbor/def/0132dfce-2b92-4891-8a54-5ccd7d18b6c3
+    ObjectInfoResponse:
+      type: object
+      properties:
+        results:
+          type: object
+          properties:
+            bindings:
+              type: array
+              items:
+                type: object
+                properties:
+                  property:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        example: literal
+                      value:
+                        type: string
+                        example: Naam
+                  value:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        example: literal
+                      value:
+                        type: string
+                        example: Mereveldseweg
+      description: 'Standard SPARQL JSON results format. Each binding contains a `property`
+
+        (the `skos:prefLabel` of the predicate) and a `value` (the object value).
+
+        '
+    FilterBase:
+      type: object
+      required:
+      - field
+      - operator
+      properties:
+        field:
+          type: string
+          description: 'Name of a filterable field as returned by `GET /search` metadata.
+
+            Use the metadata endpoint to discover available field names per type.
+
+            '
+          example: openbare ruimtenaam
+        operator:
+          type: string
+          enum:
+          - '='
+          - '!='
+          - '>'
+          - '>='
+          - <
+          - <=
+          - contains
+          - regex
+          - in
+          - between
+          - exists
+          - intersects
+    FilterEquality:
+      allOf:
+      - $ref: '#/components/schemas/FilterBase'
+      - type: object
+        required:
+        - value
+        properties:
+          operator:
+            enum:
+            - '='
+            - '!='
+            - '>'
+            - '>='
+            - <
+            - <=
+          value:
+            type: string
+            description: The comparison value. Numeric values are passed as strings (e.g. `"12.0"`).
+            example: Mereveldseweg
+    FilterContains:
+      allOf:
+      - $ref: '#/components/schemas/FilterBase'
+      - type: object
+        required:
+        - value
+        properties:
+          operator:
+            enum:
+            - contains
+          value:
+            type: string
+            example: weg
+          caseInsensitive:
+            type: boolean
+            default: false
+            description: When true, the substring match is case-insensitive.
+    FilterRegex:
+      allOf:
+      - $ref: '#/components/schemas/FilterBase'
+      - type: object
+        required:
+        - value
+        properties:
+          operator:
+            enum:
+            - regex
+          value:
+            type: string
+            description: SPARQL-compatible regular expression.
+            example: .*weg$
+          flags:
+            type: string
+            description: SPARQL regex flags (e.g. `i` for case-insensitive).
+            example: i
+    FilterIn:
+      allOf:
+      - $ref: '#/components/schemas/FilterBase'
+      - type: object
+        required:
+        - values
+        properties:
+          operator:
+            enum:
+            - in
+          values:
+            type: array
+            items:
+              type: string
+            description: List of allowed values. Numeric values are passed as strings.
+            example:
+            - Mereveldseweg
+            - Hoofdstraat
+            - Dorpsstraat
+    FilterBetween:
+      allOf:
+      - $ref: '#/components/schemas/FilterBase'
+      - type: object
+        required:
+        - min
+        - max
+        properties:
+          operator:
+            enum:
+            - between
+          min:
+            type: string
+            description: Lower bound (inclusive). Numeric value as string.
+            example: '5.0'
+          max:
+            type: string
+            description: Upper bound (inclusive). Numeric value as string.
+            example: '15.0'
+    FilterExists:
+      allOf:
+      - $ref: '#/components/schemas/FilterBase'
+      - type: object
+        properties:
+          operator:
+            enum:
+            - exists
+        description: Matches objects that have any value set for the given field.
+    FilterIntersects:
+      allOf:
+      - $ref: '#/components/schemas/FilterBase'
+      - type: object
+        required:
+        - value
+        properties:
+          operator:
+            enum:
+            - intersects
+          value:
+            type: object
+            required:
+            - wkt
+            properties:
+              wkt:
+                type: string
+                description: 'WKT geometry string. Coordinates use EPSG:28992 (Dutch RD New) by default.
+
+                  '
+                example: POLYGON((130000 448000, 145000 448000, 145000 460000, 130000 460000, 130000 448000))
+    Filter:
+      description: 'A single filter condition. The shape of the object depends on the `operator`.
+
+        All filters in the array are combined with AND.
+
+
+        | Operator | Required fields | Optional fields |
+
+        |---|---|---|
+
+        | `=` `!=` `>` `>=` `<` `<=` | `value` | — |
+
+        | `contains` | `value` | `caseInsensitive` |
+
+        | `regex` | `value` | `flags` |
+
+        | `in` | `values` | — |
+
+        | `between` | `min`, `max` | — |
+
+        | `exists` | — | — |
+
+        | `intersects` | `value.wkt` | — |
+
+
+        Use `GET /search` to discover which operators are valid for each field.
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/FilterEquality'
+      - $ref: '#/components/schemas/FilterContains'
+      - $ref: '#/components/schemas/FilterRegex'
+      - $ref: '#/components/schemas/FilterIn'
+      - $ref: '#/components/schemas/FilterBetween'
+      - $ref: '#/components/schemas/FilterExists'
+      - $ref: '#/components/schemas/FilterIntersects'
+      discriminator:
+        propertyName: operator
+    SearchRequest:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          description: 'The IMBOR object type name to search. Use `GET /search` to retrieve
+
+            the list of available type names.
+
+            '
+          example: Boom
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+          description: 'Optional list of filter conditions. All conditions are combined with AND.
+
+            Omit or leave empty to return all objects of the given type (subject to
+
+            the 10 000-result limit).
+
+            '
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Page number to return. Use with `scrollId` for subsequent pages.
+        pageSize:
+          type: integer
+          minimum: 1
+          default: 100
+          description: Number of results per page.
+        scrollId:
+          type: string
+          description: 'Scroll session token returned by a previous search response. When provided,
+
+            the server serves the requested page from the cached result set without
+
+            re-executing the SPARQL query. Only `scrollId`, `page`, and `pageSize`
+
+            are used when scrolling; all other fields are ignored.
+
+            '
+    RateLimitInfo:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Maximum requests allowed per window (per AppID).
+          example: 1000
+        remaining:
+          type: integer
+          description: Requests remaining in the current window.
+          example: 998
+    Pagination:
+      type: object
+      properties:
+        scrollId:
+          type: string
+          description: Token to retrieve subsequent pages without re-running the query.
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 100
+        totalResults:
+          type: integer
+          example: 42
+        totalPages:
+          type: integer
+          example: 1
+        hasNextPage:
+          type: boolean
+        hasPreviousPage:
+          type: boolean
+    SearchResult:
+      type: object
+      properties:
+        uri:
+          type: string
+          format: uri
+          description: The IRI of the matched object.
+          example: https://data.crow.nl/imbor/object/4A0EDEC3-8C8A-4034-AE7F-6CCE826BD429
+        name:
+          type: string
+          description: Value of the `name` return property, if present on the object.
+          example: Zomereik
+        geometry:
+          type: string
+          description: WKT geometry of the object in EPSG:28992, if present.
+          example: POINT (138628.208 452802.985)
+    SearchResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type name that was searched.
+          example: Boom
+        classUri:
+          type: string
+          format: uri
+          description: The RDF class IRI corresponding to the type.
+          example: https://data.crow.nl/imbor/def/0132dfce-2b92-4891-8a54-5ccd7d18b6c3
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        sparqlQuery:
+          type: string
+          description: The SPARQL query that was executed. Included for debugging purposes.
+        rateLimit:
+          $ref: '#/components/schemas/RateLimitInfo'
+    FieldDescriptor:
+      type: object
+      properties:
+        name:
+          type: string
+          example: boomhoogte actueel
+        datatype:
+          type: string
+          example: xsd:decimal
+        spatial:
+          type: boolean
+          description: True if this field accepts spatial operators (`intersects`).
+          example: false
+        allowedOperators:
+          type: array
+          items:
+            type: string
+          example:
+          - '='
+          - '!='
+          - '>'
+          - '>='
+          - <
+          - <=
+          - between
+          - in
+          - exists
+    TypeDescriptor:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Boom
+        classUri:
+          type: string
+          format: uri
+          example: https://data.crow.nl/imbor/def/0132dfce-2b92-4891-8a54-5ccd7d18b6c3
+        filterableFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldDescriptor'
+    ReturnPropertyDescriptor:
+      type: object
+      properties:
+        name:
+          type: string
+          example: name
+        propertyPath:
+          type: string
+          description: The RDF property path used to retrieve this value.
+          example: rdfs:label
+    MetadataResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          example: Generic Object Search API - Available types and filterable fields
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/TypeDescriptor'
+        returnProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnPropertyDescriptor'
+          description: 'Properties returned on every result object in addition to `uri`.
+
+            For this configuration: `name` and `geometry`.
+
+            '
+paths:
+  /objectinfo:
+    post:
+      operationId: getObjectInfo
+      summary: Get property information for an object
+      description: 'Executes a SPARQL SELECT query that retrieves all predicates and their values
+
+        for the given object IRI, returning only predicates that have a `skos:prefLabel`.
+
+
+        The response is in standard SPARQL 1.1 JSON results format.
+
+        '
+      tags:
+      - Object Info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectInfoRequest'
+            example:
+              iri: https://data.crow.nl/imbor/def/0132dfce-2b92-4891-8a54-5ccd7d18b6c3
+      responses:
+        '200':
+          description: SPARQL results containing property/value pairs for the object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectInfoResponse'
+        '400':
+          description: Invalid or missing request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                errorCode: INVALID_JSON
+                message: Request body is not valid JSON.
+        '401':
+          description: Missing, invalid, or unauthorized Authorization token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                errorCode: UNAUTHORIZED
+                message: A Bearer Token must be a JWT.
+        '404':
+          description: No handler configured for this path/AppID combination.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 404
+                errorCode: NOT_FOUND
+                message: no api implementation found for this path and appid combination
+        '500':
+          description: Internal error during SPARQL execution.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 500
+                errorCode: INTERNAL_ERROR
+                message: An unexpected error occurred.
+  /search:
+    get:
+      operationId: getSearchMetadata
+      summary: Get available types and filterable fields
+      description: 'Returns the registry of IMBOR object types available for search, along with
+
+        their filterable fields, allowed operators, and return properties.
+
+
+        Call this endpoint first to discover valid `type` names and `field` names
+
+        before issuing POST search requests.
+
+        '
+      tags:
+      - Search
+      responses:
+        '200':
+          description: Metadata describing available types, fields, and return properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadataResponse'
+              example:
+                description: Generic Object Search API - Available types and filterable fields
+                types:
+                - name: Boom
+                  classUri: https://data.crow.nl/imbor/def/0132dfce-2b92-4891-8a54-5ccd7d18b6c3
+                  filterableFields:
+                  - name: openbare ruimtenaam
+                    datatype: xsd:string
+                    spatial: false
+                    allowedOperators:
+                    - '='
+                    - '!='
+                    - contains
+                    - regex
+                    - in
+                    - exists
+                  - name: boomhoogte actueel
+                    datatype: xsd:decimal
+                    spatial: false
+                    allowedOperators:
+                    - '='
+                    - '!='
+                    - '>'
+                    - '>='
+                    - <
+                    - <=
+                    - between
+                    - in
+                    - exists
+                  - name: geometrie
+                    datatype: geo:wktLiteral
+                    spatial: true
+                    allowedOperators:
+                    - intersects
+                    - exists
+                returnProperties:
+                - name: name
+                  propertyPath: rdfs:label
+                - name: geometry
+                  propertyPath: geo:hasGeometry/geo:asWKT
+        '401':
+          description: Missing or invalid Authorization token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                errorCode: UNAUTHORIZED
+                message: A Bearer Token must be a JWT.
+        '500':
+          description: Failed to load or serialize metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 500
+                errorCode: INTERNAL_ERROR
+                message: Failed to generate metadata.
+    post:
+      operationId: searchObjects
+      summary: Search for IMBOR objects
+      description: "Searches for IMBOR objects of a given type with optional filter conditions.\nAll filters\
+        \ are combined with AND.\n\n**Flow:**\n1. If `scrollId` is provided, serves the requested page\
+        \ from the scroll cache\n   (no SPARQL executed).\n2. Otherwise, executes a COUNT query first.\
+        \ If results exceed 10 000, returns\n   400 `TOO_MANY_RESULTS` — add more filters to narrow the\
+        \ search.\n3. Fetches all matching objects, caches them under a `scrollId`, and returns\n   page\
+        \ 1.\n\nUse the returned `scrollId` with subsequent requests to page through results\nwithout\
+        \ re-executing the query.\n\n**Rate limiting:** 1 000 requests per minute per AppID (default).\
+        \ The current\nlimit and remaining count are included in every response under `rateLimit`.\n\n\
+        **Concurrent query limit:** If too many queries are running simultaneously,\nreturns 503 `SERVICE_BUSY`.\n"
+      tags:
+      - Search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+            examples:
+              minimal:
+                summary: Return all objects of a type
+                value:
+                  type: Boom
+              with_pagination:
+                summary: Return first 5 results
+                value:
+                  type: Boom
+                  page: 1
+                  pageSize: 5
+              equality_filter:
+                summary: Filter by string field
+                value:
+                  type: Boom
+                  filters:
+                  - field: openbare ruimtenaam
+                    operator: '='
+                    value: Mereveldseweg
+              numeric_range:
+                summary: Filter by numeric range
+                value:
+                  type: Boom
+                  filters:
+                  - field: boomhoogte actueel
+                    operator: between
+                    min: '5.0'
+                    max: '15.0'
+              spatial_filter:
+                summary: Filter by bounding box (EPSG:28992)
+                value:
+                  type: Boom
+                  filters:
+                  - field: geometrie
+                    operator: intersects
+                    value:
+                      wkt: POLYGON((130000 448000, 145000 448000, 145000 460000, 130000 460000, 130000
+                        448000))
+              combined_filters:
+                summary: Spatial + attribute filters combined (AND)
+                value:
+                  type: Boom
+                  filters:
+                  - field: geometrie
+                    operator: intersects
+                    value:
+                      wkt: POLYGON((130000 448000, 145000 448000, 145000 460000, 130000 460000, 130000
+                        448000))
+                  - field: boomhoogte actueel
+                    operator: '>'
+                    value: '10.0'
+                  pageSize: 50
+              scroll_next_page:
+                summary: Retrieve page 2 from a previous search
+                value:
+                  type: Boom
+                  scrollId: a1b2c3d4-e5f6-...
+                  page: 2
+                  pageSize: 100
+      responses:
+        '200':
+          description: Search results with pagination metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+              example:
+                type: Boom
+                classUri: https://data.crow.nl/imbor/def/0132dfce-2b92-4891-8a54-5ccd7d18b6c3
+                pagination:
+                  scrollId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+                  page: 1
+                  pageSize: 100
+                  totalResults: 2
+                  totalPages: 1
+                  hasNextPage: false
+                  hasPreviousPage: false
+                results:
+                - uri: https://data.crow.nl/imbor/object/4A0EDEC3-8C8A-4034-AE7F-6CCE826BD429
+                  name: Zomereik
+                  geometry: POINT (138628.208 452802.985)
+                - uri: https://data.crow.nl/imbor/object/7B1FADC2-1234-5678-ABCD-EF0987654321
+                  name: Beuk
+                  geometry: POINT (138700.000 452900.000)
+                rateLimit:
+                  limit: 1000
+                  remaining: 997
+        '400':
+          description: 'Invalid request. Possible `errorCode` values:
+
+            - `EMPTY_REQUEST` — no request body provided
+
+            - `INVALID_JSON` — request body is not valid JSON
+
+            - `TOO_MANY_RESULTS` — query matches more than 10 000 objects; add more filters
+
+            - Validation errors from unknown type or field names
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 400
+                errorCode: TOO_MANY_RESULTS
+                message: Query matches 15234 objects, which exceeds the maximum of 10000. Please add more
+                  filters to narrow your search.
+                detail: 'Matched: 15234, limit: 10000'
+        '401':
+          description: Missing or invalid Authorization token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 401
+                errorCode: UNAUTHORIZED
+                message: A Bearer Token must be a JWT.
+        '403':
+          description: '`SCROLL_FORBIDDEN` — the provided `scrollId` belongs to a different client.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 403
+                errorCode: SCROLL_FORBIDDEN
+                message: Scroll session 'a1b2c3d4-e5f6-...' does not belong to this client.
+        '404':
+          description: 'Possible `errorCode` values:
+
+            - `SCROLL_EXPIRED` — scroll session has expired or does not exist
+
+            - No handler configured for this path/AppID combination
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 404
+                errorCode: SCROLL_EXPIRED
+                message: Scroll session 'a1b2c3d4-e5f6-...' has expired or does not exist. Please re-execute
+                  the search to get a new scrollId.
+        '429':
+          description: '`RATE_LIMIT_EXCEEDED` — too many requests from this AppID within the current window.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 429
+                errorCode: RATE_LIMIT_EXCEEDED
+                message: 'Too many requests. Limit: 1000 requests per minute.'
+        '500':
+          description: Internal error during query execution or response building.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 500
+                errorCode: QUERY_ERROR
+                message: Failed to retrieve matching objects.
+        '503':
+          description: '`SERVICE_BUSY` — too many concurrent queries are running. Retry shortly.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                status: 503
+                errorCode: SERVICE_BUSY
+                message: Too many concurrent queries. Please retry shortly.
+tags:
+- name: Object Info
+  description: Look up property/value pairs for a specific IMBOR object IRI.
+- name: Search
+  description: Search IMBOR objects by type and filter conditions, with scroll-based pagination.
