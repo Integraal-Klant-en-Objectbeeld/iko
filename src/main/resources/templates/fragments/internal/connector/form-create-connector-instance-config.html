@@ -22,7 +22,10 @@
 >
     <cds-modal-header>
         <cds-modal-close-button></cds-modal-close-button>
-        <cds-modal-label>Add new connector instance config</cds-modal-label>
+        <cds-modal-label
+            th:text="${config?.key != null} ? 'Edit connector instance config' : 'Add new connector instance config'"
+            >Add new connector instance config</cds-modal-label
+        >
         <cds-modal-heading>Connector Instance Config</cds-modal-heading>
     </cds-modal-header>
     <cds-modal-body>
@@ -34,7 +37,8 @@
                         size="lg"
                         th:value="${config?.key}"
                         th:attr="invalid=${errors?.getFieldError('key') != null} ? 'true' : null,
-                                        invalid-text=${errors?.getFieldError('key')?.defaultMessage}"
+                                        invalid-text=${errors?.getFieldError('key')?.defaultMessage},
+                                        readonly=${config?.key != null} ? 'true' : null"
                         label="Key"
                     >
                     </cds-text-input>
